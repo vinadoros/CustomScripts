@@ -186,6 +186,7 @@ gvfs
 gvfs-smb
 davfs2
 binutils
+git
 debootstrap
 EOL
 fi
@@ -193,7 +194,7 @@ fi
 if ! grep -Fq "$SCRIPTBASENAME" $ARCHLIVEPATH/airootfs/root/customize_airootfs.sh; then
 	sudo sh -c "cat >>$ARCHLIVEPATH/airootfs/root/customize_airootfs.sh" <<EOLXYZ
 
-SCRIPTBASENAME="$SCRIPTBASENAME"
+SCRIPTBASENAME="/$SCRIPTBASENAME"
 
 EOLXYZ
 fi
@@ -262,7 +263,7 @@ fi
 if ! grep "$SCRIPTBASENAME" /root/.zshrc; then
 	cat >>/root/.zshrc <<EOLZSH
 
-if [ -d /$SCRIPTBASENAME ]; then
+if [ -d $SCRIPTBASENAME ]; then
 	export PATH=\$PATH:$SCRIPTBASENAME
 fi
 EOLZSH
