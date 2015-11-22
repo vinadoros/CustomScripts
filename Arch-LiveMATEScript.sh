@@ -179,7 +179,6 @@ btrfs-progs
 xfsprogs
 gnome-disk-utility
 midori
-fsarchiver
 grsync
 smbclient
 gvfs

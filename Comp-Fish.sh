@@ -76,6 +76,7 @@ function pc
 	if not test -z $argv
 		git add *
 		git commit -m "$argv"
+		git pull
 		git push
 	else
 		echo "No commit message entered. Exiting."
