@@ -57,6 +57,7 @@ function pc () {
 	else
 		echo "No commit message entered. Exiting."
 	fi
+	git pull
 	cd "$EXISTPATH"
 	unset EXISTPATH
 }

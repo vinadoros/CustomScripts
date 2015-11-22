@@ -80,6 +80,7 @@ function pc
 	else
 		echo "No commit message entered. Exiting."
 	end
+	git pull
 	cd "$EXISTPATH"
 	set -e EXISTPATH
 end
