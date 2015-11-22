@@ -70,6 +70,7 @@ end
 function pc
 	set -x EXISTPATH (pwd)
 	cd "$CUSTOMSCRIPTPATH"
+	git pull
 	git diff
 	git status
 	if not test -z $argv
