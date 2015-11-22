@@ -1,6 +1,13 @@
 #!/bin/bash
 set -eu
 
+# Get folder of this script
+SCRIPTSOURCE="${BASH_SOURCE[0]}"
+FLWSOURCE="$(readlink -f "$SCRIPTSOURCE")"
+SCRIPTDIR="$(dirname "$FLWSOURCE")"
+SCRNAME="$(basename $SCRIPTSOURCE)"
+echo "Executing ${SCRNAME}."
+
 # Date if ISO build.
 DATE=$(date +"%F")
 # Name of ISO.
@@ -99,6 +106,10 @@ if ! grep -Fq "copytoram" $ARCHLIVEPATH/syslinux/archiso_sys64.cfg; then
 fi
 COMMENT5
 
+# Copy script folder to iso root
+cp -r "$SCRIPTDIR" "$ARCHLIVEPATH/airootfs/"
+SCRIPTBASENAME="$(basename $SCRIPTDIR)"
+
 # Set syslinux timeout
 if ! grep -iq "^TIMEOUT" "$ARCHLIVEPATH/syslinux/archiso_sys_both_inc.cfg"; then
 	echo "TIMEOUT 50" >> "$ARCHLIVEPATH/syslinux/archiso_sys_both_inc.cfg"
@@ -179,6 +190,13 @@ debootstrap
 EOL
 fi
 
+if ! grep -Fq "$SCRIPTBASENAME" $ARCHLIVEPATH/airootfs/root/customize_airootfs.sh; then
+	sudo sh -c "cat >>$ARCHLIVEPATH/airootfs/root/customize_airootfs.sh" <<EOLXYZ
+
+SCRIPTBASENAME="$SCRIPTBASENAME"
+
+EOLXYZ
+fi
 
 if ! grep -Fq "Arch-Plain.sh" $ARCHLIVEPATH/airootfs/root/customize_airootfs.sh; then
 	sudo sh -c "cat >>$ARCHLIVEPATH/airootfs/root/customize_airootfs.sh" <<'EOLXYZ'
@@ -232,18 +250,20 @@ if ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf; then
 fi
 
 # Create box.com mount
-mkdir -p /media/Box
-echo "https://dav.box.com/dav rmkrish55+box@gmail.com h7*q9HAHPzEJ" >> /etc/davfs2/secrets
-echo "use_locks 0" >> /etc/davfs2/davfs2.conf
-echo "" >> /etc/fstab
-echo "https://dav.box.com/dav /media/Box davfs rw,noauto,x-systemd.automount 0 0" >> /etc/fstab
+#~ mkdir -p /media/Box
+#~ echo "https://dav.box.com/dav XXX XXX" >> /etc/davfs2/secrets
+#~ echo "use_locks 0" >> /etc/davfs2/davfs2.conf
+#~ echo "" >> /etc/fstab
+#~ echo "https://dav.box.com/dav /media/Box davfs rw,noauto,x-systemd.automount 0 0" >> /etc/fstab
+
+# Fix later to use git repository.
 
 # Add box to path
-if ! grep "Box" /root/.zshrc; then
-	cat >>/root/.zshrc <<'EOLZSH'
+if ! grep "$SCRIPTBASENAME" /root/.zshrc; then
+	cat >>/root/.zshrc <<EOLZSH
 
-if [ -d /media/Box/LinuxScripts ]; then
-	export PATH=$PATH:/media/Box/LinuxScripts
+if [ -d /$SCRIPTBASENAME ]; then
+	export PATH=\$PATH:$SCRIPTBASENAME
 fi
 EOLZSH
 fi
