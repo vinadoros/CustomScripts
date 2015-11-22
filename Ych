@@ -1,0 +1,322 @@
+#!/bin/bash
+
+usage () {
+	echo "Usage (no gui): sudo Ych -f /mnt/Storage/VMs/Arch.img -o 1"
+	echo "Usage (gui): sudo Ych -f /mnt/Storage/VMs/Arch.img -o 4 -c mate-session"
+	echo "h - help"
+	echo "c - Xorg command"
+	echo "f - File or folder of chroot"
+	echo "o - option (1=sd, 2=ar, 3=sdxorg, or 4=arxorg)"
+	exit 0;
+}
+
+if [ "$(id -u)" != "0" ]; then
+	echo "Not running as root. Please run the script with sudo or root privledges."
+	usage
+fi
+
+# Get folder of this script
+SCRIPTSOURCE="${BASH_SOURCE[0]}"
+FLWSOURCE="$(readlink -f "$SCRIPTSOURCE")"
+SCRIPTDIR="$(dirname "$FLWSOURCE")"
+SCRNAME="$(basename $SCRIPTSOURCE)"
+echo "Executing ${SCRNAME}."
+
+# Add general functions if they don't exist.
+type -t grepadd >> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
+
+# Enable binfmts if binary exists
+type -p update-binfmts >> /dev/null && update-binfmts --enable
+
+# Set user folders if they don't exist.
+if [ -z $USERNAMEVAR ]; then
+	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
+		export USERNAMEVAR=$SUDO_USER
+	elif [ "$USER" != "root" ]; then
+		export USERNAMEVAR=$USER
+	else
+		export USERNAMEVAR=$(id 1000 -un)
+	fi
+	USERGROUP=$(id 1000 -gn)
+	USERHOME=/home/$USERNAMEVAR
+fi
+
+if [[ -z "$@" ]]; then
+	usage
+fi
+
+while getopts ":hf:c:o:" OPT
+do
+	case $OPT in
+		h)
+			usage
+			;;
+		c)
+			XORGCMD="$OPTARG"
+			echo "Xorg command set to $XORGCMD."
+			;;
+		f)
+			INPUTVAR="$OPTARG"
+			echo "File or img is $INPUTVAR."
+			;;
+		o)
+			OPTION="$OPTARG"
+			if [[ $OPTION -gt 0 || $OPTION -le 4 ]]; then
+				echo "Setting is $OPTION."
+			else
+				echo "Option value $OPTION is not valid. Please set a valid option number."
+				exit 0;
+			fi
+			;;
+		\?)
+			echo "Invalid option: -$OPTARG" 1>&2
+			exit 1
+			;;
+		:)
+			echo "Option -$OPTARG requires an argument" 1>&2
+			exit 1
+			;;
+	esac
+done
+
+if [[ -z $XORGCMD && $OPTION -ge 3 && $OPTION -le 4 ]]; then
+	echo "Xorg command value $XORGCMD is not valid. Please set a valid command."
+	exit 0;
+fi
+
+if [ -z $OPTION ]; then
+	OPTION="1"
+fi
+
+safermfld () {
+	if [ -z "$1" ]; then
+		echo "No parameter passed."
+		return 1;
+	else
+		RMFLD="$1"
+	fi
+	
+	if [[ -z $(ls "$RMFLD") ]]; then 
+		echo "Removing $RMFLD"
+		rm -rf "$RMFLD"
+	else 
+		echo "$RMFLD is not empty. Not removing."
+		ls -la "$RMFLD"
+	fi
+}
+
+bindmount () {
+	if [ -z "$1" ]; then
+		echo "No parameter passed."
+		return 1;
+	else
+		BINDMNTFOLDER="$1"
+	fi
+		
+	if [ ! -d "${CHPATH}/bindmnt" ]; then
+		mkdir -p "${CHPATH}/bindmnt"
+		chmod a+rwx "${CHPATH}/bindmnt"
+	fi
+	
+	for FLD in "${BINDMNTFOLDER}"/*/; do
+		FLDBASE="$(basename $FLD)"
+		# Base folder name (i.e. mnt, media).
+		DIRFLDNAME="$(dirname $FLD)"
+		DIRFLDNAME="${DIRFLDNAME//[\/-._]/}"
+		
+		CHFLD="${CHPATH}/bindmnt/${DIRFLDNAME}-${FLDBASE}"
+		mkdir -p "${CHFLD}"
+		chmod a+rwx "${CHFLD}"
+		# -B for bind, -R for recursive bind
+		# recursive bind does bad things to filesystem for now. Use bind for now.
+		echo "Mounting $FLD to $CHFLD"
+		mount -B "${FLD}" "${CHFLD}"
+	done
+
+}
+
+bindumount () {
+	
+	for FLD in "${CHPATH}"/bindmnt/*/; do
+		echo "Unmounting $FLD"
+		BSNFLD="$(basename $FLD)"
+		if mount | grep -iq "$BSNFLD"; then
+			umount -l "$FLD"
+		fi
+		if mount | grep -iq "$BSNFLD"; then
+			umount -f "$FLD"
+		fi 
+		if mount | grep -iq "$BSNFLD"; then
+			echo "Cannot unmount, exiting."; 
+			exit 1;
+		fi
+		unset BSNFLD
+		safermfld "$FLD"
+	done
+
+}
+
+launchxorg () {
+	xhost +localhost
+	CURRDISP="$(echo $DISPLAY | awk -F':' '{print $2}' | awk -F'.' '{print $1}')"
+	
+	# If the current display is 0 or less, force it to be one
+	[ $CURRDISP -le 0 ] && CURRDISP=1
+	
+	NEXTDISP="$(( $CURRDISP + 1))"
+	VTDISP="$(( $NEXTDISP + 1))"
+	
+	cp -av "$USERHOME/.config/pulse/cookie" "$CHUSERHOME/.config/pulse/"
+	
+	# Launch xorg on next display.
+	#~ xterm -e "X :${NEXTDISP} vt${VTDISP}"
+	X :${NEXTDISP} vt${VTDISP} &
+	
+	# Get background process of xorg.
+	# Source: https://serverfault.com/questions/222424/the-pid-of-a-bash-child-proccess-imapsync-how-do-you-get-it
+	XORGPID="$!"
+	sleep 1
+}
+
+killxorg () {
+	# After chroot ends, kill Xorg
+	sleep 1
+	[ ! -z "$XORGPID" ] && kill "$XORGPID"
+}
+
+addscripts () {
+	
+	# Find the normal user 1000 in the chroot
+	CHUSERVAR=$(chroot "${CHPATH}" id -un 1000)
+	CHUSERHOME="$CHPATH/home/$CHUSERVAR"
+	
+	multilinereplace "$CHPATH/usr/local/bin/sx" <<'EOL'
+#!/bin/bash
+USERNAMEVAR=$(id 1000 -un)
+DISPLAY=$DISPLAY su "$USERNAMEVAR" -c xterm &
+EOL
+
+	# Enable visiblepw option for sudo askpass.
+	grepadd "Defaults visiblepw" "$CHPATH/etc/sudoers"
+	visudo -c -f "$CHPATH/etc/sudoers"
+
+	if [ -d "$CHPATH/bindmnt/media-Box/LinuxScripts" ]; then
+		grepadd 'export PATH=$PATH:/bindmnt/media-Box/LinuxScripts' "$CHPATH/root/.bashrc"
+		grepadd 'export PATH=$PATH:/bindmnt/Box/LinuxScripts' "$CHUSERHOME/.bashrc"
+	fi
+
+}
+
+prechroot () {
+	
+	if [ -f "$INPUTVAR" ]; then
+		# Generate a random 8 character string
+		RANDOMSTRING=$( date | sha1sum | fold -w6 | head -n1 )
+		
+		TEMPFOLDER="mnt-${RANDOMSTRING}"
+		INSTALLFILE="$(readlink -f $INPUTVAR)"
+		FILEPATH="$(dirname $INSTALLFILE)"
+		FILENAME="$(basename $INSTALLFILE)"
+		CHPATH="${FILEPATH}/${TEMPFOLDER}"
+		
+		mkdir -p "${CHPATH}"
+		chmod a+rwx -R "${CHPATH}"
+		mount "${INPUTVAR}" "${CHPATH}"
+	fi
+
+	if [ -d "$INPUTVAR" ]; then
+		CHPATH="$INPUTVAR"
+	fi
+	
+	if [ -z "$CHPATH" ]; then
+		echo "Error, no file or image selected. Exiting."
+		usage
+	fi
+	
+	bindmount "/media"
+	bindmount "/mnt"
+	addscripts
+}
+
+sdchroot () {
+	systemd-nspawn -D "${CHPATH}" --setenv=DISPLAY=$DISPLAY --setenv=QT_X11_NO_MITSHM=1 /bin/bash
+}
+
+archroot () {
+	Ymychroot "$CHPATH" /bin/bash
+}
+
+sdxorgchroot () {
+	launchxorg
+	#~ systemd-nspawn -D "${CHPATH}" --setenv=DISPLAY=:${NEXTDISP} --setenv=PULSE_SERVER=unix:/run/user/1000/pulse/native --bind=/run/dbus/system_bus_socket:/run/dbus/system_bus_socket --setenv=QT_X11_NO_MITSHM=1 --bind=/dev/snd:/dev/snd --bind /tmp/.X11-unix:/tmp/.X11-unix --bind=/dev/shm:/dev/shm --bind=/dev/dri:/dev/dri --bind=/run/user/1000:/run/user/1000 --bind=/etc/machine-id:/etc/machine-id su "$CHUSERVAR" -c "${XORGCMD}"
+	#~ systemd-nspawn -D "${CHPATH}" --setenv=DISPLAY=:${NEXTDISP} --setenv=QT_X11_NO_MITSHM=1 --bind=/run/dbus/system_bus_socket:/run/dbus/system_bus_socket --bind=/dev/snd:/dev/snd --bind /tmp/.X11-unix:/tmp/.X11-unix --bind=/dev/shm:/dev/shm --bind=/dev/dri:/dev/dri --bind=/run/user/1000/pulse:/run/user/1000/pulse --bind=/etc/machine-id:/etc/machine-id su $CHUSERVAR -c ${XORGCMD}
+	#~ systemd-nspawn -D "${CHPATH}" --share-system --bind /tmp/.X11-unix:/tmp/.X11-unix --setenv=DISPLAY=:${NEXTDISP} --setenv=QT_X11_NO_MITSHM=1 su $CHUSERVAR -c ${XORGCMD}
+	#~ systemd-nspawn -D "${CHPATH}" --share-system --bind /sys/module --setenv=DISPLAY=:${NEXTDISP} --setenv=QT_X11_NO_MITSHM=1 su $CHUSERVAR -c ${XORGCMD}
+	systemd-nspawn -D "${CHPATH}" --setenv=DISPLAY=:${NEXTDISP} --bind /sys/module --setenv=PULSE_SERVER=unix:/run/user/1000/pulse/native --bind=/run/dbus/system_bus_socket:/run/dbus/system_bus_socket --setenv=QT_X11_NO_MITSHM=1 --bind=/dev/snd:/dev/snd --bind /tmp/.X11-unix:/tmp/.X11-unix --bind=/dev/shm:/dev/shm --bind=/dev/dri:/dev/dri --bind=/run/user/1000:/run/user/1000 --bind=/etc/machine-id:/etc/machine-id su "$CHUSERVAR" -c "${XORGCMD}"
+	
+	killxorg
+}
+
+arxorgchroot () {
+	launchxorg
+	DISPLAY=:${NEXTDISP} QT_X11_NO_MITSHM=1 Ymychroot "$CHPATH" /bin/su "$CHUSERVAR" -c "${XORGCMD}"
+	#systemd-nspawn -D "${CHPATH}" --setenv=DISPLAY=:${NEXTDISP} --setenv=QT_X11_NO_MITSHM=1 --bind=/run/dbus/system_bus_socket:/run/dbus/system_bus_socket --bind=/dev/snd:/dev/snd --bind /tmp/.X11-unix:/tmp/.X11-unix --bind=/dev/shm:/dev/shm --bind=/dev/dri:/dev/dri --bind=/run/user/1000/pulse:/run/user/1000/pulse --bind=/etc/machine-id:/etc/machine-id su $USERVAR -c ${XORGCMD}
+	#~ systemd-nspawn -D "${CHPATH}" --share-system --bind /tmp/.X11-unix:/tmp/.X11-unix --setenv=DISPLAY=:${NEXTDISP} --setenv=QT_X11_NO_MITSHM=1 su $USERVAR -c ${XORGCMD}
+	
+	killxorg
+}
+
+
+postchroot () {
+	
+	bindumount
+	
+	# Cleanup for file mode
+	if [ -f "$INPUTVAR" ] && mount | grep -iq "$(basename ${CHPATH})"; then
+		if mount | grep -iq "$(basename ${CHPATH})"; then
+			echo "Unmounting ${CHPATH}"
+			umount -l "${CHPATH}"
+		fi
+		if mount | grep -iq "$(basename ${CHPATH})"; then
+			echo "Unmounting ${CHPATH} forcibly."
+			umount -f "${CHPATH}"
+		fi
+		sleep 1
+		if mount | grep -iq "$(basename ${CHPATH})"; then
+			echo "Error unmounting ${CHPATH}. Exiting."
+			exit 1;
+		fi
+		safermfld "${CHPATH}"
+	fi
+}
+
+trap postchroot SIGHUP SIGINT SIGTERM
+#~ trap '(read -p "[$BASH_SOURCE:$LINENO] $BASH_COMMAND?")' DEBUG
+
+prechroot
+
+case $OPTION in
+	1)
+		sdchroot
+		;;
+	2)
+		archroot
+		;;
+	3)
+		sdxorgchroot
+		;;
+	4)
+		arxorgchroot
+		;;
+	:)
+		echo "invalid option $OPTION. Exiting."
+		exit 1
+		;;
+esac
+
+sleep 2
+echo ""
+read -p "Press any key to unmount temp filesystem."
+postchroot
+
+echo "Script completed successfully."
