@@ -35,12 +35,14 @@ if [ -f "/etc/skel/.bashrc" ]; then
 	chown ${USERNAMEVAR}:${USERGROUP} "$USERHOME/.bashrc"
 fi
 
+grepadd "CUSTOMSCRIPTPATH=\"$SCRIPTDIR\"" "$USERHOME/.bashrc"
+
 multilineadd "$USERHOME/.bashrc" "function stop" <<'EOL'
 export EDITOR=nano
 export XZ_OPT="-9T0"
 alias la='ls -lah --color=auto'
-if timeout 3 test -d /media/Box/LinuxScripts && ! echo $PATH | grep -iq "/media/Box/LinuxScripts"; then
-	export PATH=$PATH:/media/Box/LinuxScripts
+if timeout 3 test -d "$CUSTOMSCRIPTPATH" && ! echo $PATH | grep -iq "$CUSTOMSCRIPTPATH"; then
+	export PATH=$PATH:$CUSTOMSCRIPTPATH
 fi
 function start () {
 	echo "Starting systemd service $@."
@@ -86,12 +88,15 @@ if [[ "$(id -u)" == "0" && -f "/etc/skel/.bashrc" ]]; then
 fi
 
 if [ "$(id -u)" == "0" ]; then
+
+	grepadd "CUSTOMSCRIPTPATH=\"$SCRIPTDIR\"" "/root/.bashrc"
+
 	multilineadd "/root/.bashrc" "function stop" <<'EOL'
 export EDITOR=nano
 export XZ_OPT="-9T0"
 alias la='ls -lah --color=auto'
-if timeout 3 test -d /media/Box/LinuxScripts && ! echo $PATH | grep -iq "/media/Box/LinuxScripts"; then
-	export PATH=$PATH:/media/Box/LinuxScripts
+if timeout 3 test -d "$CUSTOMSCRIPTPATH" && ! echo $PATH | grep -iq "$CUSTOMSCRIPTPATH"; then
+	export PATH=$PATH:$CUSTOMSCRIPTPATH
 fi
 function start () {
 	echo "Starting systemd service $@."

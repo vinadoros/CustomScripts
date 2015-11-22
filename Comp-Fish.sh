@@ -10,6 +10,9 @@ echo "Executing ${SCRNAME}."
 # Disable error handlingss
 set +eu
 
+# Add general functions if they don't exist.
+type -t grepadd >> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
+
 # Set user folders if they don't exist.
 if [ -z $USERNAMEVAR ]; then
 	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
@@ -27,14 +30,15 @@ fi
 set -eu
 
 # Configure fish
+FISHPATH="$(which fish)"
 if [[ $SHELL != *"fish"* ]]; then
 	echo "Configuring fish shell."
-	until chsh -s /usr/bin/fish $USERNAMEVAR
+	until chsh -s $FISHPATH $USERNAMEVAR
 		do echo "Try again in 2 seconds."
 		sleep 2
 		echo "Enter password for changing the shell."
 	done
-	chsh -s /usr/bin/fish
+	chsh -s $FISHPATH
 fi
 
 if [ ! -d $USERHOME/.config/fish/ ]; then
@@ -42,13 +46,26 @@ if [ ! -d $USERHOME/.config/fish/ ]; then
 	chown -R ${USERNAMEVAR}:${USERGROUP} $USERHOME/.config
 fi
 
+# Set User fish config
+USERFISH="$USERHOME/.config/fish/config.fish"
+# Set root fish config
+ROOTFISH="/root/.config/fish/config.fish"
 
-echo "Creating $USERHOME/.config/fish/config.fish."
-cat >$USERHOME/.config/fish/config.fish <<'EOL'
+# Replace config.fish
+if [ -f "$USERFISH" ]; then
+	rm "$USERFISH"
+fi
+if [ -f "$ROOTFISH" ]; then
+	rm "$ROOTFISH"
+fi
+
+grepadd "set CUSTOMSCRIPTPATH \"$SCRIPTDIR\"" "$USERFISH"
+
+multilineadd "$USERFISH" "function stop" <<'EOL'
 set -gx EDITOR nano
 set -gx XZ_OPT "-9T0"
-if timeout 3 test -d /media/Box/LinuxScripts
-	set -gx PATH $PATH /media/Box/LinuxScripts
+if timeout 3 test -d "$CUSTOMSCRIPTPATH"
+	set -gx PATH $PATH "$CUSTOMSCRIPTPATH"
 end
 function sst
 	ssh -t $argv "tmux attach; or tmux new"
@@ -88,7 +105,6 @@ function dr
 end
 EOL
 
-
 chown -R $USERNAMEVAR:$USERGROUP $USERHOME/.config/fish
 
 
@@ -97,12 +113,14 @@ if [[ "$(id -u)" == "0" && ! -d /root/.config/fish/ ]]; then
 fi
 
 if [ "$(id -u)" == "0" ]; then
-	echo "Creating /root/.config/fish/config.fish."
-	cat >/root/.config/fish/config.fish <<'EOL'
+
+	grepadd "set CUSTOMSCRIPTPATH \"$SCRIPTDIR\"" "$ROOTFISH"
+
+	multilineadd "$ROOTFISH" "function stop" <<'EOL'
 set -gx EDITOR nano
 set -gx XZ_OPT "-9T0"
-if timeout 3 test -d /media/Box/LinuxScripts
-	set -gx PATH $PATH /media/Box/LinuxScripts
+if timeout 3 test -d "$CUSTOMSCRIPTPATH"
+	set -gx PATH $PATH "$CUSTOMSCRIPTPATH"
 end
 function start
 	echo "Starting systemd service $argv."
@@ -142,8 +160,8 @@ fi
 
 if [[ $(type -P pacman) ]]; then
 
-	echo "Appending pacman to $USERHOME/.config/fish/config.fish."
-	cat >>$USERHOME/.config/fish/config.fish <<'EOL'
+	echo "Appending pacman to $USERFISH."
+	cat >>"$USERFISH" <<'EOL'
 function sl
 	xhost + >> /dev/null
 	env DISPLAY=$DISPLAY sudo fish
@@ -187,8 +205,8 @@ end
 EOL
 
 	if [ "$(id -u)" == "0" ]; then
-		echo "Appending pacman to /root/.config/fish/config.fish."
-		cat >>/root/.config/fish/config.fish <<'EOL'
+		echo "Appending pacman to $ROOTFISH."
+		cat >>"$ROOTFISH" <<'EOL'
 function pmi
 	echo "Installing $argv or updating using pacman."
 	pacman -Syu --needed $argv
@@ -230,8 +248,8 @@ EOL
 
 elif [[ $(type -P apt-get) ]]; then
 	
-	echo "Appending apt to $USERHOME/.config/fish/config.fish."
-	cat >>$USERHOME/.config/fish/config.fish <<'EOL'
+	echo "Appending apt to $USERFISH."
+	cat >>"$USERFISH" <<'EOL'
 set -gx PATH $PATH /usr/local/sbin /usr/sbin /sbin
 function agi
 	echo "Installing $argv."
@@ -285,8 +303,8 @@ end
 EOL
 
 	if [ "$(id -u)" == "0" ]; then
-		echo "Appending apt to /root/.config/fish/config.fish."
-		cat >>/root/.config/fish/config.fish <<'EOL'
+		echo "Appending apt to $ROOTFISH."
+		cat >>"$ROOTFISH" <<'EOL'
 set -gx PATH $PATH /usr/local/sbin /usr/sbin /sbin
 function agi
 	echo "Installing $argv."
@@ -342,8 +360,8 @@ EOL
 	
 elif [[ $(type -P dnf) ]]; then
 	
-	echo "Appending dnf to $USERHOME/.config/fish/config.fish."
-	cat >>$USERHOME/.config/fish/config.fish <<'EOL'
+	echo "Appending dnf to $USERFISH."
+	cat >>"$USERFISH" <<'EOL'
 function di
 	echo "Installing $argv."
 	sudo dnf install $argv
@@ -371,8 +389,8 @@ end
 EOL
 
 	if [ "$(id -u)" == "0" ]; then
-		echo "Appending dnf to /root/.config/fish/config.fish."
-		cat >>/root/.config/fish/config.fish <<'EOL'
+		echo "Appending dnf to $ROOTFISH."
+		cat >>"$ROOTFISH" <<'EOL'
 function di
 	echo "Installing $argv."
 	dnf install $argv
