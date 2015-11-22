@@ -157,7 +157,6 @@ bindumount () {
 }
 
 launchxorg () {
-	xhost +localhost
 	CURRDISP="$(echo $DISPLAY | awk -F':' '{print $2}' | awk -F'.' '{print $1}')"
 	
 	# If the current display is 0 or less, force it to be one
@@ -189,6 +188,12 @@ addscripts () {
 	# Find the normal user 1000 in the chroot
 	CHUSERVAR=$(chroot "${CHPATH}" id -un 1000)
 	CHUSERHOME="$CHPATH/home/$CHUSERVAR"
+	
+	xhost +localhost
+	if [ ! -z "$XAUTHORITY" ]; then
+		NEWXAUTH="/Xauthority"
+		cp -a "$XAUTHORITY" "${CHPATH}${NEWXAUTH}"
+	fi
 	
 	multilinereplace "$CHPATH/usr/local/bin/sx" <<'EOL'
 #!/bin/bash
@@ -239,7 +244,8 @@ prechroot () {
 }
 
 sdchroot () {
-	systemd-nspawn -D "${CHPATH}" --setenv=DISPLAY=$DISPLAY --setenv=QT_X11_NO_MITSHM=1 /bin/bash
+	#~ systemd-nspawn -D "${CHPATH}" --setenv=DISPLAY=$DISPLAY --setenv=QT_X11_NO_MITSHM=1 /bin/bash
+	systemd-nspawn -D "${CHPATH}" --setenv=DISPLAY=$DISPLAY --setenv=QT_X11_NO_MITSHM=1 --setenv=XAUTHORITY="${NEWXAUTH}" /bin/bash
 }
 
 archroot () {
