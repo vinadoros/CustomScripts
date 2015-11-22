@@ -67,6 +67,21 @@ set -gx XZ_OPT "-9T0"
 if timeout 3 test -d "$CUSTOMSCRIPTPATH"
 	set -gx PATH $PATH "$CUSTOMSCRIPTPATH"
 end
+function pc
+	set -x EXISTPATH (pwd)
+	cd "$CUSTOMSCRIPTPATH"
+	git diff
+	git status
+	if not test -z $argv
+		git add *
+		git commit -m "$argv"
+		git push
+	else
+		echo "No commit message entered. Exiting."
+	end
+	cd "$EXISTPATH"
+	set -e EXISTPATH
+end
 function sst
 	ssh -t $argv "tmux attach; or tmux new"
 end
