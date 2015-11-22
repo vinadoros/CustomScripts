@@ -44,6 +44,22 @@ alias la='ls -lah --color=auto'
 if timeout 3 test -d "$CUSTOMSCRIPTPATH" && ! echo $PATH | grep -iq "$CUSTOMSCRIPTPATH"; then
 	export PATH=$PATH:$CUSTOMSCRIPTPATH
 fi
+function pc () {
+	EXISTPATH="$(pwd)"
+	cd "$CUSTOMSCRIPTPATH"
+	git diff
+	git status
+	if [ ! -z "$1" ]; then
+		git add *
+		git commit -m "$1"
+		git pull
+		git push
+	else
+		echo "No commit message entered. Exiting."
+	fi
+	cd "$EXISTPATH"
+	unset EXISTPATH
+}
 function start () {
 	echo "Starting systemd service $@."
 	sudo systemctl start "$@"
