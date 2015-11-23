@@ -74,6 +74,7 @@ if [ -z "$USERNAMEVAR" ]; then
 	USERNAMEVAR=${USERNAMEVAR//[^a-zA-Z0-9_]/}
 	if [[ -z "$USERNAMEVAR" && -f "$PRIVATEVARS" ]]; then
 		source "$PRIVATEVARS"
+		USERNAMEVAR="$DEFAULTUSERNAMEVAR"
 		echo "No input found. Defaulting to $USERNAMEVAR."
 	fi
 fi
@@ -84,6 +85,7 @@ if [ -z "$FULLNAME" ]; then
 	read -p "Input a full name (with spaces): " FULLNAME
 	if [[ -z "$FULLNAME" && -f "$PRIVATEVARS" ]]; then
 		source "$PRIVATEVARS"
+		FULLNAME="$DEFAULTFULLNAME"
 		echo "No input found. Defaulting to $FULLNAME."
 	fi
 fi
