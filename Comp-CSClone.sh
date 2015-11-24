@@ -43,9 +43,6 @@ else
 fi
 echo "CSRootFolder is $CSROOTFOLDER."
 
-# Enable error halting.
-set -eu
-
 cd "$CSROOTFOLDER"
 
 if [ ! -d "CustomScripts" ]; then
