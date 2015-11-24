@@ -44,12 +44,12 @@ aur_build(){
 	sudo chmod a+rwx -R ${AURPKG}
 	cd ${AURPKG}
 	makepkg --noconfirm -c -f
-	sudo chmod a+rwx ${AURPKG}-*.pkg.tar.xz
-	sudo chown 1000:100 ${AURPKG}-*.pkg.tar.xz
-	sudo mv ${AURPKG}-*.pkg.tar.xz ../
+	#~ sudo chmod a+rwx ${AURPKG}-*.pkg.tar.xz
+	#~ sudo chown 1000:100 ${AURPKG}-*.pkg.tar.xz
+	mv ${AURPKG}-*.pkg.tar.xz ../
 	cd ..
-	sudo rm -rf ${AURPKG}/
-	sudo rm ${AURPKG}.tar.gz
+	rm -rf ${AURPKG}/
+	rm ${AURPKG}.tar.gz
 }
 
 # Function for building the repo
@@ -65,10 +65,10 @@ build_repo(){
 		sudo mv ${BUILDFOLDER}/*-any.pkg.tar.xz ${REPOFOLDER}/x86_64
 		sudo cp ${REPOFOLDER}/x86_64/*-any.pkg.tar.xz ${REPOFOLDER}/i686/
 	fi
-	sudo repo-add ${REPOFOLDER}/x86_64/${REPONAME}.db.tar.gz ${REPOFOLDER}/x86_64/*.pkg.tar.xz
-	sudo repo-add ${REPOFOLDER}/i686/${REPONAME}.db.tar.gz ${REPOFOLDER}/i686/*.pkg.tar.xz
-	sudo chmod a+rwx -R ${REPOFOLDER}
-	sudo chown 1000:100 -R ${REPOFOLDER}
+	repo-add ${REPOFOLDER}/x86_64/${REPONAME}.db.tar.gz ${REPOFOLDER}/x86_64/*.pkg.tar.xz
+	repo-add ${REPOFOLDER}/i686/${REPONAME}.db.tar.gz ${REPOFOLDER}/i686/*.pkg.tar.xz
+	#~ sudo chmod a+rwx -R ${REPOFOLDER}
+	#~ sudo chown 1000:100 -R ${REPOFOLDER}
 }
 
 
@@ -122,7 +122,7 @@ if [ ! -d ${REPOFOLDER} ]; then
 	mkdir -p ${REPOFOLDER}/i686
 	echo "Creating ${REPOFOLDER}/x86_64."
 	mkdir -p ${REPOFOLDER}/x86_64
-	chmod 777 -R ${REPOFOLDER}
+	chmod a+rwx -R ${REPOFOLDER}
 fi
 
 # Build debootstrap from AUR
