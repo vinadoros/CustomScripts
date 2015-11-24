@@ -256,6 +256,11 @@ apt-get install -y ssh
 # Install essential programs for startup
 DEBIAN_FRONTEND=noninteractive apt-get install -y btrfs-tools f2fs-tools nbd-client
 
+# Fetch scripts
+apt-get install -y git
+git clone "https://github.com/vinadoros/CustomScripts.git" "/opt/CustomScripts"
+chmod a+rwx "/opt/CustomScripts"
+
 # Install network manager last, it disables internet access.
 apt-get install -y network-manager
 

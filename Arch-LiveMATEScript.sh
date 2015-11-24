@@ -103,8 +103,10 @@ fi
 COMMENT5
 
 # Copy script folder to iso root
-cp -r "$SCRIPTDIR" "$ARCHLIVEPATH/airootfs/"
-SCRIPTBASENAME="$(basename $SCRIPTDIR)"
+#~ cp -r "$SCRIPTDIR" "$ARCHLIVEPATH/airootfs/"
+git clone "https://github.com/vinadoros/CustomScripts.git" "$ARCHLIVEPATH/airootfs/CustomScripts"
+#~ SCRIPTBASENAME="$(basename $SCRIPTDIR)"
+SCRIPTBASENAME="CustomScripts"
 
 # Set syslinux timeout
 if ! grep -iq "^TIMEOUT" "$ARCHLIVEPATH/syslinux/archiso_sys_both_inc.cfg"; then

@@ -141,6 +141,10 @@ EOL
 	rm -rf ./apacman
 fi
 
+pacman -S --needed --noconfirm git
+git clone "https://github.com/vinadoros/CustomScripts.git" "/opt/CustomScripts"
+chmod a+rwx "/opt/CustomScripts"
+
 EOLXYZ
 
 set +e
