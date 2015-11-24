@@ -43,6 +43,8 @@ else
 fi
 echo "CSRootFolder is $CSROOTFOLDER."
 
+set -e
+
 cd "$CSROOTFOLDER"
 
 if [ ! -d "CustomScripts" ]; then
