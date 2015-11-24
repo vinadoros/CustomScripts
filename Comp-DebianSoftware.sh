@@ -47,6 +47,30 @@ fi
 # Enable error halting.
 set -eu
 
+function debequivs () {
+	if [ -z "$1" ]; then
+		echo "No parameter passed."
+		return 1;
+	else
+		EQUIVPACKAGE="$1"
+	fi
+		
+	apt-get install -y equivs
+	if ! dpkg -l | grep -i "$EQUIVPACKAGE"; then
+		echo "Creating and installing dummy package $EQUIVPACKAGE."
+		bash -c "cat >/var/tmp/$EQUIVPACKAGE" <<EOL
+Package: $EQUIVPACKAGE
+Version: 999.0
+Section: web
+Priority: optional
+EOL
+		cd /var/tmp
+		equivs-build "$EQUIVPACKAGE"
+		dpkg -i ./"$EQUIVPACKAGE"*.deb
+		rm ./"$EQUIVPACKAGE"*
+	fi
+}
+
 if [ "$(id -u)" != "0" ]; then
 	echo "Not running with root. Please run the script with su privledges."
 	exit 1;
@@ -178,24 +202,8 @@ case $SETDE in
 		echo ""
 		#apt-get install -y mate-terminal
 	elif [ "$OS" = "Debian" ]; then
-		apt-get install -y equivs
-		if ! dpkg -l | grep -i "iceweasel"; then
-			echo "Creating and installing dummy package iceweasel."
-			bash -c "cat >/var/tmp/iceweasel" <<'EOL'
-Package: iceweasel
-Version: 99.0
-Provides: gnome-www-browser, www-browser
-Section: web
-Priority: optional
-Description: Web browser based on Firefox
- Iceweasel is Firefox, rebranded. It is a powerful, extensible web browser
- with support for modern web application technologies.
-EOL
-			cd /var/tmp
-			equivs-build iceweasel
-			dpkg -i ./iceweasel*.deb
-			rm ./iceweasel*
-		fi
+		debequivs "iceweasel"
+		debequivs "gnome-user-share"
 		
 		# Locale fix for gnome-terminal.
 		localectl set-locale LANG="en_US.UTF-8"
