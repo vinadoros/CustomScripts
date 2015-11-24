@@ -170,8 +170,8 @@ apt-get install -y geany meld
 # Utils
 apt-get install -y iotop
 
-# Anacron
-apt-get install -y anacron
+# Cron
+apt-get install -y systemd-cron
 
 # Apt updating sources
 APTUPDTSCR="/etc/apt/apt.conf.d/99custom"
