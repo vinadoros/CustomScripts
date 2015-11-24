@@ -76,6 +76,9 @@ if [ -z "$USERNAMEVAR" ]; then
 		source "$PRIVATEVARS"
 		USERNAMEVAR="$DEFAULTUSERNAMEVAR"
 		echo "No input found. Defaulting to $USERNAMEVAR."
+	elif [[ -z "$USERNAMEVAR" && ! -f "$PRIVATEVARS" ]]; then
+		USERNAMEVAR="user"
+		echo "No input found. Defaulting to $USERNAMEVAR."
 	fi
 fi
 echo "You entered" $USERNAMEVAR
@@ -86,6 +89,9 @@ if [ -z "$FULLNAME" ]; then
 	if [[ -z "$FULLNAME" && -f "$PRIVATEVARS" ]]; then
 		source "$PRIVATEVARS"
 		FULLNAME="$DEFAULTFULLNAME"
+		echo "No input found. Defaulting to $FULLNAME."
+	elif [[ -z "$FULLNAME" && ! -f "$PRIVATEVARS" ]]; then
+		FULLNAME="user"
 		echo "No input found. Defaulting to $FULLNAME."
 	fi
 fi

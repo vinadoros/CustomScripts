@@ -21,9 +21,8 @@ if [ -f $PRIVATEVARS ]; then
 fi
 
 if [[ -z $BOXUSERNAME || -z $BOXPASSWORD ]]; then
-	echo "Error, no box username and password specified. Exiting."
-	exit 1;
-fi
+	echo "Error, no box username and password specified. Skipping Box Setup."
+else
 
 # Set user folders if they don't exist.
 if [ -z "$USERNAMEVAR" ]; then
@@ -114,3 +113,5 @@ echo "Mounting Box Share."
 mount "$BOXPATH"
 
 echo "All done, Box share should be mounted."
+
+fi
