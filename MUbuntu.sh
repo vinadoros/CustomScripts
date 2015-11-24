@@ -71,4 +71,8 @@ source "$SCRIPTDIR/Comp-zram.sh"
 
 source "$SCRIPTDIR/Comp-SysConfig.sh"
 
-echo -e "\n****************************************\n*****Script Completed Successfully!*****\n****************************************\n"
+sleep 1
+echo ""
+echo "Script Completed Successfully."
+echo ""
+
