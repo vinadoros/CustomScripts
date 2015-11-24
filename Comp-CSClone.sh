@@ -50,11 +50,10 @@ cd "$CSROOTFOLDER"
 
 if [ ! -d "CustomScripts" ]; then
 	git clone https://github.com/vinadoros/CustomScripts.git
-else
-	git pull
 fi
 
 cd "$CSROOTFOLDER/CustomScripts"
+git pull
 
 if [[ ! -z "$GITHUBUSER" && ! -z "$GITHUBPASS" ]]; then
 	echo "Adding commit information for CustomScripts github account."
