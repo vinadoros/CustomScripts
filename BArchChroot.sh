@@ -232,13 +232,6 @@ set -e
 # Delete script when done.
 rm ${GRUBSCRIPT}
 
-# Run the F-ChrootOnly script if no bootloader/kernel installed.
-#~ [ $SETGRUB -eq 1 ] && source "$SCRIPTDIR/F-ChrootOnly.sh"
-
-# Create new setup script for post-install tasks.
-echo "Creating post-install setup script."
-"$SCRIPTDIR/NArch.sh" "${INSTALLPATH}"
-
 echo -e "\nScript finished successfully.\n"
 
 
