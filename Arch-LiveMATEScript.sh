@@ -28,26 +28,22 @@ fi
 # Repo variables
 
 # Folder to build pacakges in.
-BUILDFOLDER=/tmp
+BUILDFOLDER=/var/tmp
 
 # Folder to store repo in.
 REPONAME=localrepo
-REPOFOLDER=/tmp/${REPONAME}
+REPOFOLDER=/var/tmp/${REPONAME}
 
 # Repo Functions
 
 # Function for AUR build.
 aur_build(){
 	cd $BUILDFOLDER
-	#AUR2LTR=$(echo "${AURPKG}" | cut -c-2)
 	wget https://aur4.archlinux.org/cgit/aur.git/snapshot/${AURPKG}.tar.gz
-	#curl -O https://aur.archlinux.org/packages/${AUR2LTR}/${AURPKG}/${AURPKG}.tar.gz
 	tar zxvf ${AURPKG}.tar.gz
 	sudo chmod a+rwx -R ${AURPKG}
 	cd ${AURPKG}
-	sudo su nobody -s /bin/bash <<'EOL'
-		makepkg --noconfirm -c -f
-EOL
+	makepkg --noconfirm -c -f
 	sudo chmod a+rwx ${AURPKG}-*.pkg.tar.xz
 	sudo chown 1000:100 ${AURPKG}-*.pkg.tar.xz
 	sudo mv ${AURPKG}-*.pkg.tar.xz ../
@@ -131,8 +127,7 @@ fi
 AURPKG=debootstrap
 aur_build
 
-# Build the local repo (twice, since the first build yields a corrupted archive).
-build_repo
+# Build the local repo.
 build_repo
 
 # Add local created repo if it exists to pacman.conf for live disk.
@@ -206,12 +201,6 @@ savespace(){
 	yes | pacman -Scc
 }
 
-<<COMMENT2
-if ! grep -iq "user-data-dir" /usr/bin/chromium; then
-	sed -i 's/exec \/usr\/lib\/chromium\/chromium \$CHROMIUM_FLAGS \"\$\@\"/exec \/usr\/lib\/chromium\/chromium \$CHROMIUM_FLAGS \"\$\@\" --user-data-dir/g' /usr/bin/chromium
-fi
-COMMENT2
-
 if [ $(uname -m) = "x86_64" ]; then
 	if ! grep -Fq "multilib" /etc/pacman.conf; then
 		cat >>/etc/pacman.conf <<'EOL'
@@ -249,15 +238,6 @@ if ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf; then
 	echo 'HandleLidSwitch=lock' >> /etc/systemd/logind.conf
 fi
 
-# Create box.com mount
-#~ mkdir -p /media/Box
-#~ echo "https://dav.box.com/dav XXX XXX" >> /etc/davfs2/secrets
-#~ echo "use_locks 0" >> /etc/davfs2/davfs2.conf
-#~ echo "" >> /etc/fstab
-#~ echo "https://dav.box.com/dav /media/Box davfs rw,noauto,x-systemd.automount 0 0" >> /etc/fstab
-
-# Fix later to use git repository.
-
 # Add box to path
 if ! grep "$SCRIPTBASENAME" /root/.zshrc; then
 	cat >>/root/.zshrc <<EOLZSH
@@ -283,6 +263,6 @@ if [ -d ${REPOFOLDER} ]; then
 	rm -rf ${REPOFOLDER}
 fi
 chown $USER:users $OUTFOLDER/$ISOFILENAME*
-chmod 777 $OUTFOLDER/$ISOFILENAME*
+chmod a+rwx $OUTFOLDER/$ISOFILENAME*
 EOF
 
