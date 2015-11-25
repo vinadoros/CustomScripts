@@ -56,7 +56,7 @@ git pull
 
 if [[ ! -z "$GITHUBCOMMITNAME" && ! -z "$GITHUBCOMMITEMAIL" && -f "$GITHUBRSAPUB" ]]; then
 	echo "Adding commit information for CustomScripts github account."
-	git config remote.origin.url "https://github.com/vinadoros/CustomScripts.git"
+	git config remote.origin.url "git@gitserv:CustomScripts.git"
 	git config push.default simple
 	git config user.name "${GITHUBCOMMITNAME}"
 	git config user.email "${GITHUBCOMMITEMAIL}"
