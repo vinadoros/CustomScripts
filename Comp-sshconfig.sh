@@ -26,4 +26,7 @@ if [ -f /etc/ssh/ssh_config ]; then
 	if ! grep -i "UserKnownHostsFile /dev/null" /etc/ssh/ssh_config; then
 		echo '    UserKnownHostsFile /dev/null' | tee -a /etc/ssh/ssh_config
 	fi
+	if ! grep -i "LogLevel quiet" /etc/ssh/ssh_config; then
+		echo '    LogLevel quiet' | tee -a /etc/ssh/ssh_config
+	fi
 fi
