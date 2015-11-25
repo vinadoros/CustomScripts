@@ -215,8 +215,7 @@ EOL
 fi
 
 # Virtualbox stuff
-if [ ! -f /etc/modules-load.d/virtualbox.conf ]; then
-	cat >>/etc/modules-load.d/virtualbox.conf <<EOL
+cat >/etc/modules-load.d/virtualbox.conf <<EOL
 vboxguest
 vboxsf
 vboxvideo
@@ -240,7 +239,38 @@ if ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf; then
 	echo 'HandleLidSwitch=lock' >> /etc/systemd/logind.conf
 fi
 
-# Add box to path
+# --- BEGIN Update CustomScripts on startup ---
+
+cat >/usr/local/bin/updatecs.sh <<EOL
+#!/bin/bash
+sleep 5
+if [ -d $SCRIPTBASENAME ]; then
+	cd $SCRIPTBASENAME
+	git pull
+fi
+EOL
+chmod a+rwx /usr/local/bin/updatecs.sh
+cat >/etc/systemd/system/updatecs.service <<EOL
+[Unit]
+Description=updatecs service
+Requires=network-online.target
+After=network.target nss-lookup.target network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/updatecs.sh
+Restart=on-failure
+RestartSec=3s
+TimeoutStopSec=7s
+
+[Install]
+WantedBy=network-online.target
+EOL
+systemctl enable updatecs.service
+
+# --- END Update CustomScripts on startup ---
+
+# Add CustomScripts to path
 if ! grep "$SCRIPTBASENAME" /root/.zshrc; then
 	cat >>/root/.zshrc <<EOLZSH
 
@@ -259,12 +289,12 @@ cd $ARCHLIVEPATH
 
 
 sudo bash <<EOF
-$ARCHLIVEPATH/build.sh -v -o $OUTFOLDER -N $ISOFILENAME
-rm -rf $ARCHLIVEPATH
-if [ -d ${REPOFOLDER} ]; then
-	rm -rf ${REPOFOLDER}
+"$ARCHLIVEPATH"/build.sh -v -o "$OUTFOLDER" -N "$ISOFILENAME"
+rm -rf "$ARCHLIVEPATH"
+if [ -d "${REPOFOLDER}" ]; then
+	rm -rf "${REPOFOLDER}"
 fi
-chown $USER:users $OUTFOLDER/$ISOFILENAME*
-chmod a+rwx $OUTFOLDER/$ISOFILENAME*
+chown $USER:users "$OUTFOLDER/$ISOFILENAME"*
+chmod a+rwx "$OUTFOLDER/$ISOFILENAME"*
 EOF
 
