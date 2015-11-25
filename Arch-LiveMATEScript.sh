@@ -290,10 +290,10 @@ cd $ARCHLIVEPATH
 
 sudo bash <<EOF
 "$ARCHLIVEPATH"/build.sh -v -o "$OUTFOLDER" -N "$ISOFILENAME"
-rm -rf "$ARCHLIVEPATH"
-if [ -d "${REPOFOLDER}" ]; then
-	rm -rf "${REPOFOLDER}"
-fi
+#~ rm -rf "$ARCHLIVEPATH"
+#~ if [ -d "${REPOFOLDER}" ]; then
+	#~ rm -rf "${REPOFOLDER}"
+#~ fi
 chown $USER:users "$OUTFOLDER/$ISOFILENAME"*
 chmod a+rwx "$OUTFOLDER/$ISOFILENAME"*
 EOF
