@@ -52,7 +52,7 @@ grepcheckadd () {
 		
 		if ! grep -iq "${SEARCHSTRING}" "${FINDINFILE}"; then
 			echo "Adding $INSERTSTRING to $FINDINFILE"
-			echo "${INSERTSTRING}" >> "${FINDINFILE}"
+			echo -e "${INSERTSTRING}" >> "${FINDINFILE}"
 		fi
 }
 
