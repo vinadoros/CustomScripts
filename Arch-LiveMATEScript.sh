@@ -180,7 +180,6 @@ grsync
 smbclient
 gvfs
 gvfs-smb
-davfs2
 binutils
 git
 debootstrap
@@ -220,7 +219,6 @@ vboxguest
 vboxsf
 vboxvideo
 EOL
-fi
 
 systemctl enable vboxservice
 systemctl enable vmtoolsd
