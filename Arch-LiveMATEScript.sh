@@ -254,7 +254,6 @@ TimeoutStopSec=7s
 
 [Install]
 WantedBy=graphical.target
-#~ WantedBy=multi-user.target
 EOL
 systemctl enable updatecs.service
 
