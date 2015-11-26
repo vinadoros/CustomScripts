@@ -120,10 +120,7 @@ pacman -S --needed --noconfirm rsync base-devel
 # Set up lightdm
 function lightdmscript(){
 	pacman -S --needed --noconfirm lightdm
-	if [ -f /etc/systemd/system/display-manager.service ]; then
-		rm '/etc/systemd/system/display-manager.service'
-	fi
-	systemctl enable lightdm
+	systemctl enable -f lightdm
 	if ! grep -i "^autologin" /etc/group; then
 		groupadd autologin
 	fi
@@ -233,10 +230,7 @@ EOL
 [3]* ) 
 	echo "Setting up GDM."
 	pacman -S --needed --noconfirm gdm
-	if [ -f /etc/systemd/system/display-manager.service ]; then
-		rm '/etc/systemd/system/display-manager.service'
-	fi
-	systemctl enable gdm
+	systemctl enable -f gdm
 	;;
 	
 [4]* ) 

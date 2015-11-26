@@ -8,7 +8,7 @@ fi
 set -eu
 
 GRUBSCRIPT="/etc/grub.d/43_iso"
-ISOFOLDER="/mnt/Storage/Files/BigSync/Applications/Operating Systems"
+ISOFOLDER="/mnt/Storage/Files/BigSync/Applications/OperatingSystems"
 SEARCHFILTER="arch*.iso"
 
 echo "Creating $GRUBSCRIPT."
@@ -80,8 +80,8 @@ for ISOFILES in "${ISOFOLDER}"/$SEARCHFILTER; do
 menuentry "$ISOFILENAME" {
 	insmod part_gpt
 	set isofile=\"$ISOFILESMOD\"
-	loopback loop (${ISOHDNUM})\$isofile
-	linux (loop)/arch/boot/x86_64/vmlinuz archisolabel=$ISOLABEL img_dev=/dev/disk/by-uuid/$ISOHDUUID img_loop=\$isofile earlymodules=loop copytoram=y
+	loopback loop (${ISOHDNUM})\"\$isofile\"
+	linux (loop)/arch/boot/x86_64/vmlinuz archisolabel=$ISOLABEL img_dev=/dev/disk/by-uuid/$ISOHDUUID img_loop=\"\$isofile\" earlymodules=loop copytoram=y
 	initrd (loop)/arch/boot/x86_64/archiso.img
 }
 "
