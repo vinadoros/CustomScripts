@@ -26,8 +26,8 @@ fi
 USERHOME=/home/$USERNAMEVAR
 
 if [[ -z "$1" && -z "$CLIENTNAMES" ]]; then
-	echo "Error, no clients selected. Exiting."
-	usage
+	echo "No clients selected."
+	#~ usage
 elif [ -z "$CLIENTNAMES" ]; then
 	CLIENTNAMES="$1"
 fi
@@ -42,11 +42,7 @@ fi
 
 
 # Install synergy if not present.
-#~ [[ ! $(type -P synergys) && $(type -P pacman) ]] && pacman -Syu --needed --noconfirm synergy
-
-# Remove all spaces, and truncate everything after a dash or dot.
-#~ BASESERVER="${SERVER//[[:blank:]]/}"
-#~ BASESERVER="${BASESERVER%%[.-]*}"
+[[ ! $(type -P synergys) ]] && echo "Please Install synergy. Exiting." && exit 1;
 
 SYNERGYLOCATION="$(which synergys)"
 XHOSTLOCATION="$(which xhost)"
@@ -64,8 +60,8 @@ set -eu
 echo "Normal user: $USERNAMEVAR"
 echo "Systemd Service: $SDPATH/$SDSERVICE"
 echo "Display: $DISPLAYNUM"
-echo "Client Names: $CLIENTNAMES"
-echo -e "NC cmd: $NCCMD"
+#~ echo "Client Names: $CLIENTNAMES"
+#~ echo -e "NC cmd: $NCCMD"
 
 echo ""
 read -p "Press any key to create service and script."
@@ -82,27 +78,29 @@ read -p "Press any key to create service and script."
 #~ EOL
 #~ chmod a+rwx "$SYNWAKESCRIPT"
 
-#~ echo "Creating $SDPATH/$SDSERVICE."
-#~ bash -c "cat >$SDPATH/$SDSERVICE" <<EOL
-#~ [Unit]
-#~ Description=Synergy Server
-#~ Requires=graphical.target
-#~ After=network.target nss-lookup.target network-online.target graphical.target
+echo "Creating $SDPATH/$SDSERVICE."
+bash -c "cat >$SDPATH/$SDSERVICE" <<EOL
+[Unit]
+Description=Synergy Server
+Requires=graphical.target
+After=network.target nss-lookup.target network-online.target graphical.target
 
-#~ [Service]
-#~ Type=simple
-#~ Environment="DISPLAY=:${DISPLAYNUM}"
-#~ ExecStartPre=${XHOSTLOCATION} +localhost
+[Service]
+Type=simple
+Environment="DISPLAY=:${DISPLAYNUM}"
+ExecStartPre=${XHOSTLOCATION} +localhost
 #~ ExecStartPost=$SYNWAKESCRIPT
-#~ ExecStart=${SYNERGYLOCATION} -d WARNING -1 -f -c $USERHOME/.config/Synergy/Synergy.conf
-#~ Restart=always
-#~ RestartSec=3s
-#~ TimeoutStopSec=7s
-#~ User=${USERNAMEVAR}
+ExecStart=${SYNERGYLOCATION} -d WARNING -1 -f -c $USERHOME/.config/Synergy/synergyserver.conf
+Restart=always
+RestartSec=3s
+TimeoutStopSec=7s
+User=${USERNAMEVAR}
 
-#~ [Install]
-#~ WantedBy=graphical.target
-#~ EOL
-#~ systemctl daemon-reload
-#~ systemctl enable "$SDSERVICE"
+[Install]
+WantedBy=graphical.target
+EOL
+systemctl daemon-reload
+systemctl enable "$SDSERVICE"
 
+echo "Be sure to save the server configuration as \"$USERHOME/.config/Synergy/synergyserver.conf\" before starting server."
+echo "Start server using \"sudo systemctl start $SDSERVICE\"."
