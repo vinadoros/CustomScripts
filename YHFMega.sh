@@ -48,6 +48,9 @@ initvariables () {
 	if [ $MEGA = 1 ]; then
 		LOCALBACKUPFOLDER="$(readlink -f ./${HOSTNAME})"
 	fi
+	if [ $MEGA = 0 ]; then
+		LOCALBACKUPFOLDER="$(readlink -f ${NEWBACKUPFOLDER}/${HOSTNAME})"
+	fi
 }
 
 setxzopts () {
@@ -121,8 +124,8 @@ copytomega () {
 
 initbackupvars () {
 	echo "Backup to $TAR chosen."
-	if [[ $MEGA = 0 && ! -d "${BACKUPFOLDER}" ]]; then
-		echo "No backup folder $BACKUPFOLDER found. Exiting."
+	if [[ $MEGA = 0 && ! -d "$(dirname ${BACKUPFOLDER})" ]]; then
+		echo "No root folder $(dirname ${BACKUPFOLDER}) found. Exiting."
 		exit 1;
 	else
 		echo "Backing up folders to $BACKUPFOLDER"
@@ -234,8 +237,6 @@ else
 	echo "Hostname not detected."
 fi
 
-testmega
-
 # Get options
 while getopts ":hbrp:l:s:t" OPT
 do
@@ -321,9 +322,9 @@ fi
 initvariables
 
 if [ $MEGA != 0 ]; then
-	initvariables
-	BACKUPFOLDER="$LOCALBACKUPFOLDER"
+	testmega
 fi
+BACKUPFOLDER="$LOCALBACKUPFOLDER"
 TAR="$BACKUPFOLDER/$HOSTNAME.tar.xz"
 
 [ -z $BACKUPCHOICE ] && BACKUPCHOICE="0"
@@ -358,25 +359,34 @@ if [[ "$BACKUPCHOICE" -eq "1" ]]; then
 	echo "Performing Backup."
 	
 	fulltarcmd
-	
-	if [[ $MEGA = 0 && -f "${TAR}-aa" ]]; then
-		echo "Removing existing backup ${TAR}."
-		rm "${TAR}-"*
-	fi
 
-	testmega
-	cleanmega
+	if [[ $MEGA = 1 ]]; then
+		testmega
+		cleanmega
+	fi
 	cleanlocal
 	createlocalfld
 
 	${TARBAKCMD} | ${SSLBAKCMD} | ${SPLITBAKCMD}
-	copytomega
-	cleanlocal
+	
+	if [[ $MEGA = 1 ]]; then
+		copytomega
+		cleanlocal
+	fi
+	sync
 
 elif [[ "$BACKUPCHOICE" -eq "2" ]]; then
 	echo "Performing Restore."
 	cleanlocal
-	copyfrommega
-	${SPLITRESCMD} | ${SSLRESCMD} | ${TARRESTORECMD} 
-	cleanlocal
+	
+	if [[ $MEGA = 1 ]]; then
+		copyfrommega
+	fi
+	
+	${SPLITRESCMD} | ${SSLRESCMD} | ${TARRESTORECMD}
+	
+	if [[ $MEGA = 1 ]]; then
+		cleanlocal
+	fi
+	sync
 fi
