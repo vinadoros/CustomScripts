@@ -239,15 +239,6 @@ fi
 
 # --- BEGIN Update CustomScripts on startup ---
 
-cat >/usr/local/bin/updatecs.sh <<EOL
-#!/bin/bash
-sleep 5
-if [ -d $SCRIPTBASENAME ]; then
-	cd $SCRIPTBASENAME
-	git pull
-fi
-EOL
-chmod a+rwx /usr/local/bin/updatecs.sh
 cat >/etc/systemd/system/updatecs.service <<EOL
 [Unit]
 Description=updatecs service
@@ -255,14 +246,15 @@ Requires=network-online.target
 After=network.target nss-lookup.target network-online.target
 
 [Service]
-Type=oneshot
-ExecStart=/usr/local/bin/updatecs.sh
+Type=simple
+ExecStart=/usr/bin/bash -c "cd /CustomScripts; git pull"
 Restart=on-failure
 RestartSec=3s
 TimeoutStopSec=7s
 
 [Install]
-WantedBy=network-online.target
+WantedBy=graphical.target
+#~ WantedBy=multi-user.target
 EOL
 systemctl enable updatecs.service
 

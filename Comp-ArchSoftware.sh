@@ -440,7 +440,7 @@ Restart=on-failure
 RestartSec=20s
 
 [Install]
-RequiredBy=network.target
+WantedBy=multi-user.target
 EOL
 	systemctl enable reflector
 
