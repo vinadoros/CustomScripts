@@ -140,7 +140,9 @@ initbackupvars () {
 
 initrestorevars () {
 	echo "Restore from $TAR chosen."
-	checkmegabackup
+	if [[ $MEGA = 1 ]]; then
+		checkmegabackup
+	fi
 	if [[ $MEGA = 1 && -z "$MEGABACKUPFOLDER" ]]; then
 		echo "No restore file found. Please re-run script and choose a valid hostname or backup location."
 		exit 1;
@@ -156,14 +158,14 @@ initrestorevars () {
 	if [ -z "$NEWRESTOREFOLDER" ]; then
 		echo "No input found. Defaulting to $RESTOREFOLDER."
 	else
-		NEWRESTOREFOLDER=$(readlink -f "${NEWRESTOREFOLDER%/}")
+		NEWRESTOREFOLDER="$(readlink -f ${NEWRESTOREFOLDER%/})"
 	fi
 	if [ -d "$NEWRESTOREFOLDER" ]; then
 		echo "Setting restore folder to ${NEWRESTOREFOLDER}"
 		RESTOREFOLDER="${NEWRESTOREFOLDER}"
 	fi
 	
-	if [ ! -d ${RESTOREFOLDER} ]; then
+	if [ ! -d "${RESTOREFOLDER}" ]; then
 		echo "Restore folder ${RESTOREFOLDER} not found. Exiting."
 		exit 1;
 	else
@@ -379,9 +381,9 @@ if [[ "$BACKUPCHOICE" -eq "1" ]]; then
 
 elif [[ "$BACKUPCHOICE" -eq "2" ]]; then
 	echo "Performing Restore."
-	cleanlocal
-	
+		
 	if [[ $MEGA = 1 ]]; then
+		cleanlocal
 		copyfrommega
 	fi
 	
