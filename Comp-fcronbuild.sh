@@ -34,8 +34,35 @@ set -eu
 # Set tar file from url here.
 FCRONTAR="fcron-3.2.0.src.tar.gz"
 
+# Debequivs function from DebianSoftware.
+function debequivs () {
+	if [ -z "$1" ]; then
+		echo "No parameter passed."
+		return 1;
+	else
+		EQUIVPACKAGE="$1"
+	fi
+		
+	apt-get install -y equivs
+	if ! dpkg -l | grep -i "$EQUIVPACKAGE"; then
+		echo "Creating and installing dummy package $EQUIVPACKAGE."
+		bash -c "cat >/var/tmp/$EQUIVPACKAGE" <<EOL
+Package: $EQUIVPACKAGE
+Version: 999.0
+Priority: optional
+EOL
+		cd /var/tmp
+		equivs-build "$EQUIVPACKAGE"
+		dpkg -i ./"$EQUIVPACKAGE"*.deb
+		rm ./"$EQUIVPACKAGE"*
+	fi
+}
+
 # Install dependancies for debian.
-[ $(type -p apt-get) ] && apt-get install -y gcc libreadline-dev libpam0g-dev docbook-dsssl
+if [ $(type -p apt-get) ]; then
+	apt-get install -y gcc libreadline-dev libpam0g-dev docbook-dsssl
+	debequivs "anacron"
+fi
 
 wget ftp://ftp.seul.org/pub/fcron/$FCRONTAR
 tar -xzf fcron-*.tar.gz

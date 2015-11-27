@@ -61,7 +61,6 @@ function debequivs () {
 		bash -c "cat >/var/tmp/$EQUIVPACKAGE" <<EOL
 Package: $EQUIVPACKAGE
 Version: 999.0
-Section: web
 Priority: optional
 EOL
 		cd /var/tmp
@@ -171,7 +170,8 @@ apt-get install -y geany meld
 apt-get install -y iotop
 
 # Cron
-apt-get install -y systemd-cron
+#~ apt-get install -y systemd-cron
+# Run frcon script before this.
 
 # Apt updating sources
 APTUPDTSCR="/etc/apt/apt.conf.d/99custom"

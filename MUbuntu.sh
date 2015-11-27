@@ -45,6 +45,8 @@ source "$SCRIPTDIR/Comp-BoxDAV.sh"
 
 source "$SCRIPTDIR/Comp-UbuntuRepos.sh"
 
+source "$SCRIPTDIR/Comp-fcronbuild.sh"
+
 source "$SCRIPTDIR/Comp-DebianSoftware.sh"
 
 source "$SCRIPTDIR/Comp-sshconfig.sh"
