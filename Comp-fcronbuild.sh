@@ -40,14 +40,15 @@ tar -xzf fcron-*.tar.gz
 cd fcron-*
 ./configure --prefix=/usr --sysconfdir=/etc --with-systemdsystemunitdir=/lib/systemd/system --with-boot-install=no --with-answer-all=no --datarootdir=/usr/share --datadir=/usr/share --with-docdir=/usr/share/doc --localstatedir=/var --with-piddir=/run --with-editor=/bin/nano --without-sendmail
 make
+
+getent group fcron >/dev/null || groupadd -g 23 fcron
+getent passwd fcron >/dev/null || useradd -r -d /var/spool/fcron -u 23 -g 23 fcron
+
 make install
 cd ..
 rm -rf fcron-*
 rm $FCRONTAR
 systemctl enable fcron
-
-getent group fcron >/dev/null || groupadd -g 23 fcron
-getent passwd fcron >/dev/null || useradd -r -d /var/spool/fcron -u 23 -g 23 fcron
 
 install -d -m755 "/etc/cron.daily"
 install -d -m755 "/etc/cron.hourly"
