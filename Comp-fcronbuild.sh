@@ -47,7 +47,6 @@ getent passwd fcron >/dev/null || useradd -r -d /var/spool/fcron -u 23 -g 23 fcr
 make install
 cd ..
 rm -rf fcron-*
-rm $FCRONTAR
 systemctl enable fcron
 
 install -d -m755 "/etc/cron.daily"
