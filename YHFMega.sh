@@ -65,6 +65,8 @@ setxzopts () {
 }
 
 testmega () {
+	[[ ! $(type -p megadf) && $(type -p yaourt) ]] && yaourt -S --noconfirm megatools
+	[[ ! $(type -p megadf) && $(type -p apt-get) ]] && apt-get install -y megatools
 	if ! megadf >> /dev/null; then
 		echo "Mega is not accessible. Please check using megadf. Exiting."
 		echo "As a reference, the template for ~/.megarc is as follows:"
