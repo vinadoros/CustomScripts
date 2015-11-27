@@ -33,12 +33,12 @@ set -eu
 
 FCRONTAR="fcron-3.2.0.src.tar.gz"
 
-[ $(type -p apt-get) ] && apt-get install gcc libreadline-dev libpam0g-dev docbook-dsssl
+[ $(type -p apt-get) ] && apt-get install -y gcc libreadline-dev libpam0g-dev docbook-dsssl
 
 wget ftp://ftp.seul.org/pub/fcron/$FCRONTAR
 tar -xzf fcron-*.tar.gz
 cd fcron-*
-./configure --prefix=/usr --sysconfdir=/etc --with-systemdsystemunitdir=/lib/systemd/system --with-boot-install=no --with-answer-all=no --datarootdir=/usr/share --datadir=/usr/share --with-docdir=/usr/share/doc --localstatedir=/var --with-piddir=/run --with-editor=/bin/nano
+./configure --prefix=/usr --sysconfdir=/etc --with-systemdsystemunitdir=/lib/systemd/system --with-boot-install=no --with-answer-all=no --datarootdir=/usr/share --datadir=/usr/share --with-docdir=/usr/share/doc --localstatedir=/var --with-piddir=/run --with-editor=/bin/nano --without-sendmail
 make
 make install
 cd ..
