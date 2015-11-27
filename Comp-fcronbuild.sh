@@ -64,6 +64,8 @@ if [ $(type -p apt-get) ]; then
 	debequivs "anacron"
 fi
 
+if [ $(type -p fcrontab) ]; then
+echo "Compiling fcron from source."
 wget ftp://ftp.seul.org/pub/fcron/$FCRONTAR
 tar -xzf fcron-*.tar.gz
 cd fcron-*
@@ -100,5 +102,11 @@ chmod 640 /var/spool/fcron/systab.orig
 
 # Install systab
 fcrontab -z -u systab &>/dev/null
+
+else
+
+echo "Fcron already found. Skipping compile."
+
+fi
 
 echo "Fcron installed successfully."
