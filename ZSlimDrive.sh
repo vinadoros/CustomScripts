@@ -5,12 +5,37 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1;
 fi
 
-BTRFSOPT=$1
+BTRFSOPT=0
+SWAP=0
+
+# Get options
+while getopts ":sbd:" OPT
+do
+	case $OPT in
+		b)
+			BTRFSOPT=1
+			;;
+		s)
+			SWAP=1
+			;;
+		d)
+			DRIVE="$OPTARG"
+			;;
+		\?)
+			echo "Invalid option: -$OPTARG" 1>&2
+			exit 1
+			;;
+		:)
+			echo "Option -$OPTARG requires an argument" 1>&2
+			exit 1
+			;;
+	esac
+done
+
 if [[ -z $BTRFSOPT || $BTRFSOPT -ne 1 ]]; then
 	BTRFSOPT=0
 fi
 
-DRIVE=$2
 if [ -z $DRIVE ]; then
 	[ -b /dev/sda ] && DRIVE=/dev/sda
 	[ -b /dev/vda ] && DRIVE=/dev/vda
@@ -32,10 +57,16 @@ done
 
 DRIVESIZE=$(blockdev --getsize64 "$DRIVE")
 DRIVEMBSIZE=$(( $DRIVESIZE / 1000000 ))
+SWAPSIZE=1024
+MAINDRIVE=$(( $DRIVEMBSIZE - $SWAPSIZE ))
 
 echo "Drive: ${DRIVE}"
 echo "Drive Size (bytes): ${DRIVESIZE}"
 echo "Drive Size (MB): ${DRIVEMBSIZE}"
+if [[ $SWAP = 1 ]]; then
+	echo "Swap Size: ${SWAPSIZE}"
+	echo "Main Partition Size: ${MAINDRIVE}"
+fi
 read -p "Press any key to continue."
 
 # Remove each partition
@@ -46,13 +77,26 @@ done
 
 dd if=/dev/zero of="$DRIVE" bs=1M count=4 conv=notrunc
 parted -s -a optimal "$DRIVE" -- mktable msdos
-parted -s -a optimal "$DRIVE" -- mkpart primary ext2 1 100%
+if [[ $SWAP = 0 ]]; then
+	parted -s -a optimal "$DRIVE" -- mkpart primary ext2 1 100%
+else
+	parted -s -a optimal "$DRIVE" -- mkpart primary ext2 1 $MAINDRIVE
+	parted -s -a optimal "$DRIVE" -- mkpart primary linux-swap $(( $MAINDRIVE )) 100%
+fi
 
 if [[ $BTRFSOPT -eq 1 ]]; then 
 	mkfs.btrfs "${DRIVE}1"
 else
 	mkfs.ext4 "${DRIVE}1"
 fi
-mount "${DRIVE}1" /mnt
+
+if [[ $SWAP = 1 ]]; then
+	mkswap "${DRIVE}2"
+	swapon "${DRIVE}2"
+fi
 
 sync
+
+mount "${DRIVE}1" /mnt
+
+
