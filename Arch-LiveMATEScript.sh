@@ -38,14 +38,15 @@ REPOFOLDER=/var/tmp/${REPONAME}
 
 # Function for AUR build.
 aur_build(){
+	if [ -f "/var/cache/pacman/pkg/debootstrap"* ]; then 
+		sudo rm "/var/cache/pacman/pkg/debootstrap"*
+	fi
 	cd $BUILDFOLDER
 	wget https://aur4.archlinux.org/cgit/aur.git/snapshot/${AURPKG}.tar.gz
 	tar zxvf ${AURPKG}.tar.gz
 	sudo chmod a+rwx -R ${AURPKG}
 	cd ${AURPKG}
 	makepkg --noconfirm -c -f
-	#~ sudo chmod a+rwx ${AURPKG}-*.pkg.tar.xz
-	#~ sudo chown 1000:100 ${AURPKG}-*.pkg.tar.xz
 	mv ${AURPKG}-*.pkg.tar.xz ../
 	cd ..
 	rm -rf ${AURPKG}/
