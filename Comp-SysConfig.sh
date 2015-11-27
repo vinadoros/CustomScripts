@@ -153,9 +153,3 @@ elif [ "${MACHINEARCH}" = "armv7l" ]; then
 	echo "Install arm specific tweaks."
 	
 fi
-
-
-if [ "${MACHINEARCH}" != "armv7l" ]; then
-	echo "Non-arm config."
-
-fi
