@@ -38,8 +38,8 @@ gsettings set org.gnome.nautilus.list-view use-tree-view true
 gsettings set org.gnome.nautilus.icon-view captions "['size', 'none', 'none']"
 gsettings set org.gnome.desktop.peripherals.touchpad scroll-method edge-scrolling
 gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click true
-gsettings set org.gnome.settings-daemon.plugins.power critical-battery-action nothing
-gsettings set org.gnome.settings-daemon.plugins.power button-power shutdown
+#~ gsettings set org.gnome.settings-daemon.plugins.power critical-battery-action nothing
+#~ gsettings set org.gnome.settings-daemon.plugins.power button-power shutdown
 gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 3600
 gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type nothing
 gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 1800
@@ -68,6 +68,8 @@ gsettings set org.gnome.desktop.interface clock-show-date true
 gsettings set org.gnome.desktop.interface gtk-theme Adwaita
 gsettings set org.gnome.desktop.wm.preferences theme Adwaita
 gsettings set org.gnome.desktop.interface icon-theme Numix-Circle
+gsettings set org.gnome.desktop.thumbnail-cache maximum-size 100
+gsettings set org.gnome.desktop.thumbnail-cache maximum-age 90
 gsettings set org.gnome.shell.overrides workspaces-only-on-primary false
 gsettings set org.gnome.FileRoller.UI view-sidebar true
 gsettings set org.gnome.FileRoller.FileSelector show-hidden true
