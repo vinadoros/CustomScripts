@@ -332,7 +332,9 @@ pacman -S --needed --noconfirm bluez bluez-firmware bluez-hid2hci bluez-libs blu
 
 pacman -S --needed --noconfirm geany geany-plugins
 pacman -S --needed --noconfirm firefox firefox-i18n-en-us 
-pacman -S --needed --noconfirm leafpad gnome-disk-utility gparted p7zip unrar iotop powertop gvfs-smb gvfs-gphoto2 gvfs-goa gvfs-mtp gvfs-google gvfs-nfs libmtp systemd-ui meld
+pacman -S --needed --noconfirm leafpad gnome-disk-utility gparted p7zip unrar gvfs-smb gvfs-gphoto2 gvfs-goa gvfs-mtp gvfs-google gvfs-nfs libmtp systemd-ui meld
+# System monitoring programs
+pacman -S --needed --noconfirm iotop powertop jnettop nethogs
 # Catfish search software
 pacman -S --needed --noconfirm catfish findutils mlocate pinot antiword catdoc poppler djvulibre unrtf
 
