@@ -77,7 +77,7 @@ gsettings set org.gnome.FileRoller.General compression-level maximum
 gsettings set org.gnome.gnome-system-monitor show-whose-processes all
 gsettings set org.freedesktop.Tracker.Miner.Files crawling-interval -2
 gsettings set org.freedesktop.Tracker.Miner.Files enable-monitors false
-dconf write /org/gnome/shell/extensions/dash-to-dock/intellihide-perapp "false"
+dconf write /org/gnome/shell/extensions/dash-to-dock/intellihide "true"
 dconf write /org/gnome/shell/extensions/dash-to-dock/intellihide-mode 'ALL_WINDOWS'
 dconf write /org/gnome/shell/extensions/window-list/show-on-all-monitors "true"
 
