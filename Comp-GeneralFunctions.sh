@@ -125,3 +125,57 @@ nscriptadd () {
 	sed -i '/echo "Executing ${SCRNAME}."/d' "${DESTFILE}"
 	
 }
+
+# Install pkg commands for distributions.
+dist_install () {
+	INSTALLPKGS="$@"
+	
+	if [ $(type -p pacman &> /dev/null) ]; then
+		echo "Installing $INSTALLPKGS using pacman."
+		pacman -Syu --needed --noconfirm "$INSTALLPKGS"
+	elif [ $(type -p apt-get &> /dev/null) ]; then
+		echo "Installing $INSTALLPKGS using apt-get."
+		apt-get update
+		apt-get install -y "$INSTALLPKGS"
+	elif [ $(type -p dnf &> /dev/null) ]; then
+		echo "Installing $INSTALLPKGS using dnf."
+		dnf install -y "$INSTALLPKGS"
+	fi
+	
+}
+
+# Stock install pkg commands that will always work.
+dist_install_bare () {
+	INSTALLPKGS="$@"
+	
+	if [ $(type -p pacman &> /dev/null) ]; then
+		echo "Installing $INSTALLPKGS using pacman."
+		pacman -S --noconfirm "$INSTALLPKGS"
+	elif [ $(type -p apt-get &> /dev/null) ]; then
+		echo "Installing $INSTALLPKGS using apt-get."
+		apt-get install -y "$INSTALLPKGS"
+	elif [ $(type -p dnf &> /dev/null) ]; then
+		echo "Installing $INSTALLPKGS using dnf."
+		dnf install -y "$INSTALLPKGS"
+	fi
+	
+}
+
+# Commands to upgrade all packages in distro.
+dist_update () {
+	
+	if [ $(type -p pacman &> /dev/null) ]; then
+		echo "Updating system using pacman."
+		pacman -Syu --noconfirm
+	elif [ $(type -p apt-get &> /dev/null) ]; then
+		echo "Updating system using apt-get."
+		apt-get update
+		apt-get upgrade -y
+		apt-get dist-upgrade -y
+	elif [ $(type -p dnf &> /dev/null) ]; then
+		echo "Updating system using dnf."
+		dnf update -y
+	fi
+	
+}
+
