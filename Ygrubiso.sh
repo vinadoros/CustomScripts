@@ -5,10 +5,17 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1;
 fi
 
+ISOFOLDER="$(readlink -f $1)"
+if [ ! -d "$ISOFOLDER" ]; then
+	echo "Error, path $ISOFOLDER does not exist. Please specify a valid path."
+	exit 1
+else
+	echo "Using $ISOFOLDER as iso path."
+fi
+
 set -eu
 
 GRUBSCRIPT="/etc/grub.d/43_iso"
-ISOFOLDER="/mnt/Storage/Files/BigSync/Applications/OperatingSystems"
 SEARCHFILTER="arch*.iso"
 
 echo "Creating $GRUBSCRIPT."
