@@ -129,17 +129,18 @@ nscriptadd () {
 # Install pkg commands for distributions.
 dist_install () {
 	INSTALLPKGS="$@"
+	[ "$(id -u)" != "0" ] && SUDOCMD="sudo" || SUDOCMD=""
 	
-	if [ $(type -p pacman &> /dev/null) ]; then
+	if type -p pacman &> /dev/null; then
 		echo "Installing $INSTALLPKGS using pacman."
-		pacman -Syu --needed --noconfirm "$INSTALLPKGS"
-	elif [ $(type -p apt-get &> /dev/null) ]; then
+		$SUDOCMD pacman -Syu --needed --noconfirm "$INSTALLPKGS"
+	elif type -p apt-get &> /dev/null; then
 		echo "Installing $INSTALLPKGS using apt-get."
-		apt-get update
-		apt-get install -y "$INSTALLPKGS"
-	elif [ $(type -p dnf &> /dev/null) ]; then
+		$SUDOCMD apt-get update
+		$SUDOCMD apt-get install -y "$INSTALLPKGS"
+	elif type -p dnf &> /dev/null; then
 		echo "Installing $INSTALLPKGS using dnf."
-		dnf install -y "$INSTALLPKGS"
+		$SUDOCMD dnf install -y "$INSTALLPKGS"
 	fi
 	
 }
@@ -147,34 +148,76 @@ dist_install () {
 # Stock install pkg commands that will always work.
 dist_install_bare () {
 	INSTALLPKGS="$@"
+	[ "$(id -u)" != "0" ] && SUDOCMD="sudo" || SUDOCMD=""
 	
-	if [ $(type -p pacman &> /dev/null) ]; then
+	if type -p pacman &> /dev/null; then
 		echo "Installing $INSTALLPKGS using pacman."
-		pacman -S --noconfirm "$INSTALLPKGS"
-	elif [ $(type -p apt-get &> /dev/null) ]; then
+		$SUDOCMD pacman -S --noconfirm "$INSTALLPKGS"
+	elif type -p apt-get &> /dev/null; then
 		echo "Installing $INSTALLPKGS using apt-get."
-		apt-get install -y "$INSTALLPKGS"
-	elif [ $(type -p dnf &> /dev/null) ]; then
+		$SUDOCMD apt-get install -y "$INSTALLPKGS"
+	elif type -p dnf &> /dev/null; then
 		echo "Installing $INSTALLPKGS using dnf."
-		dnf install -y "$INSTALLPKGS"
+		$SUDOCMD dnf install -y "$INSTALLPKGS"
 	fi
+	
+}
+
+# Remove pkg with dependancies.
+dist_remove_deps () {
+	REMOVEPKGS="$@"
+	[ "$(id -u)" != "0" ] && SUDOCMD="sudo" || SUDOCMD=""
+	
+	for pkg in $REMOVEPKGS; do
+		if type -p pacman &> /dev/null && pacman -Q | grep -iq "$pkg"; then
+			echo "Removing $pkg using pacman."
+			$SUDOCMD pacman -Rsn --noconfirm "$pkg"
+		elif type -p apt-get &> /dev/null && dpkg -l | grep -iq "$pkg"; then
+			echo "Removing $pkg using apt-get."
+			$SUDOCMD apt-get --purge remove "$pkg"
+		elif type -p dnf &> /dev/null && dnf list installed | grep -i "$pkg"; then
+			echo "Removing $pkg using dnf."
+			$SUDOCMD dnf remove -y "$pkg"
+		fi
+	done
+	
+}
+
+# Force remove pkg.
+dist_remove_force () {
+	REMOVEPKGS="$@"
+	[ "$(id -u)" != "0" ] && SUDOCMD="sudo" || SUDOCMD=""
+	
+	for pkg in $REMOVEPKGS; do
+		if type -p pacman &> /dev/null && pacman -Q | grep -iq "$pkg"; then
+			echo "Removing $pkg using pacman."
+			$SUDOCMD pacman -Rdd --noconfirm "$pkg"
+		elif type -p apt-get &> /dev/null && dpkg -l | grep -iq "$pkg"; then
+			echo "Removing $pkg using apt-get."
+			$SUDOCMD apt-get --purge remove "$pkg"
+		elif type -p dnf &> /dev/null && dnf list installed | grep -i "$pkg"; then
+			echo "Removing $pkg using dnf."
+			$SUDOCMD dnf remove -y "$pkg"
+		fi
+	done
 	
 }
 
 # Commands to upgrade all packages in distro.
 dist_update () {
+	[ "$(id -u)" != "0" ] && SUDOCMD="sudo" || SUDOCMD=""
 	
-	if [ $(type -p pacman &> /dev/null) ]; then
+	if type -p pacman &> /dev/null; then
 		echo "Updating system using pacman."
-		pacman -Syu --noconfirm
-	elif [ $(type -p apt-get &> /dev/null) ]; then
+		$SUDOCMD pacman -Syu --noconfirm
+	elif type -p apt-get &> /dev/null; then
 		echo "Updating system using apt-get."
-		apt-get update
-		apt-get upgrade -y
-		apt-get dist-upgrade -y
-	elif [ $(type -p dnf &> /dev/null) ]; then
+		$SUDOCMD apt-get update
+		$SUDOCMD apt-get upgrade -y
+		$SUDOCMD apt-get dist-upgrade -y
+	elif type -p dnf &> /dev/null; then
 		echo "Updating system using dnf."
-		dnf update -y
+		$SUDOCMD dnf update -y
 	fi
 	
 }
