@@ -279,8 +279,8 @@ case $SETDE in
 	echo "Installing GNOME."
 	pacman -S --needed --noconfirm gnome file-roller cdrkit lrzip unace unrar gedit gnome-clocks seahorse gufw gnome-tweak-tool xdg-utils gnome-logs dconf-editor gpaste
 	# Install gnome shell extensions and misc apps
-	apacman -S --ignorearch --noconfirm --needed gnome-shell-extension-dash-to-dock gnome-shell-extension-topicons gnome-shell-extension-mediaplayer-git
-	apacman -S --ignorearch --noconfirm --needed gnome-shell-extension-volume-mixer
+	apacman -S --ignorearch --noconfirm --needed gnome-shell-extension-dash-to-dock-git gnome-shell-extension-topicons gnome-shell-extension-mediaplayer-git
+	apacman -S --ignorearch --noconfirm --needed gnome-shell-extension-volume-mixer-git
 	
 	if [ $SETDM != 3 ] && [ $SETDM != 0 ]; then
 		lightdmdpms
