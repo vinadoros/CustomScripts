@@ -29,9 +29,8 @@ SYSTEMDPATH="$(readlink -f "/lib/systemd")"
 ZRAMSCRIPT="/usr/local/bin/zramscript"
 ZRAMSERVICE="${SYSTEMDPATH}/system/zram.service"
 if [[ ! -f /etc/systemd-swap.conf && "${MACHINEARCH}" != "armv7l" ]]; then
-	if [ ! -f "${ZRAMSCRIPT}" ]; then
-		echo "Creating ${ZRAMSCRIPT}."
-		bash -c "cat >>${ZRAMSCRIPT}" <<"EOLXYZ"
+	echo "Creating ${ZRAMSCRIPT}."
+	bash -c "cat >${ZRAMSCRIPT}" <<"EOLXYZ"
 #!/bin/sh
 ### BEGIN INIT INFO
 # Provides:          zram
@@ -78,12 +77,10 @@ case "$1" in
     ;;
 esac
 EOLXYZ
-		chmod a+rwx "${ZRAMSCRIPT}"
-	fi
+	chmod a+rwx "${ZRAMSCRIPT}"
 
-	if [ ! -f "${ZRAMSERVICE}" ]; then
-		echo "Creating ${ZRAMSERVICE}."
-		bash -c "cat >>${ZRAMSERVICE}" <<EOLXYZ
+	echo "Creating ${ZRAMSERVICE}."
+	bash -c "cat >${ZRAMSERVICE}" <<EOLXYZ
 [Unit]
 Description=Zram-based swap (compressed RAM block devices)
 
@@ -96,26 +93,24 @@ RemainAfterExit=yes
 [Install]
 WantedBy=multi-user.target
 EOLXYZ
-	fi
+	systemctl daemon-reload
 	systemctl enable "$(basename ${ZRAMSERVICE})"
 	
 	# Swap file setup
 	SWAPFILE="/var/swap"
-	if [ ! -f "$SWAPFILE" ] && ! $(swapon | grep -i [s/v]d[a-z][0-9]); then
-		if [ ! -z "$(tail -1 /etc/fstab)" ]; then echo "" >> /etc/fstab ; fi
-		if ! $(grep -q "$SWAPFILE" /etc/fstab) && ! $(grep -i "/ " /etc/fstab | grep -iq "btrfs"); then
+	if [ ! -f "$SWAPFILE" ] && ! swapon | grep -i [s/v]d[a-z][0-9]; then
+		if ! grep -q "$SWAPFILE" /etc/fstab && ! grep -i "/ " /etc/fstab | grep -iq "btrfs"; then
 			echo "Creating $SWAPFILE."
 			fallocate -l 1GiB "$SWAPFILE"
 			chmod 600 "$SWAPFILE"
 			mkswap "$SWAPFILE"
+			if [ ! -z "$(tail -1 /etc/fstab)" ]; then echo "" >> /etc/fstab ; fi
 			echo -e "$SWAPFILE\tnone\tswap\tdefaults\t0\t0" >> /etc/fstab
-		fi
-		if ! $(grep -q "$SWAPFILE" /etc/fstab) && $(grep -i "/ " /etc/fstab | grep -iq "btrfs"); then
+		elif ! grep -q "$SWAPFILE" /etc/fstab && grep -i "/ " /etc/fstab | grep -iq "btrfs"; then
 			echo "Not creating swap file, rootfs is btrfs."
-			#echo -e "$SWAPFILE\tnone\tswap\tdefaults,loop\t0\t0" >> /etc/fstab
 		fi
 	else
-		echo "Swap detected, not creating."
+		echo "Swap detected on $(swapon | grep -i [s/v]d[a-z][0-9]), not creating."
 	fi
 	
 fi

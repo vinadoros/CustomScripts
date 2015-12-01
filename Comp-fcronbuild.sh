@@ -34,6 +34,9 @@ set -eu
 # Set tar file from url here.
 FCRONTAR="fcron-3.2.0.src.tar.gz"
 
+# Set systemd path
+SYSTEMDPATH="$(readlink -f "/lib/systemd")"
+
 # Debequivs function from DebianSoftware.
 function debequivs () {
 	if [ -z "$1" ]; then
@@ -69,7 +72,7 @@ echo "Compiling fcron from source."
 wget ftp://ftp.seul.org/pub/fcron/$FCRONTAR
 tar -xzf fcron-*.tar.gz
 cd fcron-*
-./configure --prefix=/usr --sysconfdir=/etc --with-systemdsystemunitdir=/lib/systemd/system --with-boot-install=no --with-answer-all=no --datarootdir=/usr/share --datadir=/usr/share --with-docdir=/usr/share/doc --localstatedir=/var --with-piddir=/run --with-editor=/bin/nano --without-sendmail
+./configure --prefix=/usr --sysconfdir=/etc --with-systemdsystemunitdir=$SYSTEMDPATH/system --with-boot-install=no --with-answer-all=no --datarootdir=/usr/share --datadir=/usr/share --with-docdir=/usr/share/doc --localstatedir=/var --with-piddir=/run --with-editor=/bin/nano --without-sendmail
 make
 
 # Create fcron user and group.
