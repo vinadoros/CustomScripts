@@ -86,7 +86,7 @@ if [[ $(type -P gdm) || $(type -P gdm3) && -f /etc/pulse/default.pa ]]; then
 	cp /etc/pulse/default.pa "$GDMPATH/.config/pulse/default.pa"
 	sed -i '/^load-module .*/s/^/#/g' "$GDMPATH/.config/pulse/default.pa"
 
-	chown -R $GDMUID:$GDMGID "$GDMPATH/.config/pulse/"
+	chown -R $GDMUID:$GDMGID "$GDMPATH/"
 fi
 
 # Enable pulseaudio flat volumes
