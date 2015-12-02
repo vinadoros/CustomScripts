@@ -54,7 +54,7 @@ else
 	gsettings set org.mate.power-manager sleep-display-ac 300
 fi
 gsettings set org.mate.power-manager sleep-display-battery 300
-gsettings set org.mate.power-manager spindown-enable-battery true
+#~ gsettings set org.mate.power-manager spindown-enable-battery true
 gsettings set org.mate.power-manager action-critical-battery nothing
 gsettings set org.mate.screensaver idle-activation-enabled false
 gsettings set org.mate.screensaver lock-enabled false
@@ -69,7 +69,7 @@ dconf write /org/mate/panel/objects/clock/locked "true"
 dconf write /org/mate/panel/objects/notification-area/position "10"
 dconf write /org/mate/panel/objects/notification-area/panel-right-stick "true"
 dconf write /org/mate/panel/objects/notification-area/locked "true"
-#gsettings set org.mate.Marco.general compositing-manager true
+#~ gsettings set org.mate.Marco.general compositing-manager true
 gsettings set org.mate.Marco.general side-by-side-tiling true
 if [ ! -f /usr/local/bin/turnoffscreen.sh ]; then
 	echo -e '#!/bin/bash'"\n"'sleep 1s'"\n"'xset dpms force off' | sudo tee -a /usr/local/bin/turnoffscreen.sh
@@ -80,4 +80,7 @@ BINDING="custom2"
 dconf write /org/mate/desktop/keybindings/$BINDING/action "'/usr/local/bin/turnoffscreen.sh'"
 dconf write /org/mate/desktop/keybindings/$BINDING/binding "'<Mod4>q'"
 dconf write /org/mate/desktop/keybindings/$BINDING/name "'turnoffscreen'"
+
+# Icon theme
+gsettings set org.mate.interface icon-theme "Numix-Circle-Light"
 
