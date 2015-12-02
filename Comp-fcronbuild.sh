@@ -15,6 +15,9 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1;
 fi
 
+# Add general functions if they don't exist.
+type -t grepadd &> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
+
 # Set user folders if they don't exist.
 if [ -z $USERNAMEVAR ]; then
 	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
