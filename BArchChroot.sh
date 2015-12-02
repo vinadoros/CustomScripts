@@ -52,7 +52,7 @@ export LANG=en_US.UTF-8
 if [ ! -f /etc/localtime ]; then
 	ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
 fi
-#hwclock --systohc --utc
+hostnamectl set-hostname "${NEWHOSTNAME}"
 
 if [ -z "$SETPASS" ]; then
 	echo "Enter a root password."
