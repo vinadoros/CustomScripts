@@ -133,14 +133,14 @@ dist_install () {
 	
 	if type -p pacman &> /dev/null; then
 		echo "Installing $INSTALLPKGS using pacman."
-		$SUDOCMD pacman -Syu --needed --noconfirm "$INSTALLPKGS"
+		$SUDOCMD pacman -Syu --needed --noconfirm $INSTALLPKGS
 	elif type -p apt-get &> /dev/null; then
 		echo "Installing $INSTALLPKGS using apt-get."
 		$SUDOCMD apt-get update
-		$SUDOCMD apt-get install -y "$INSTALLPKGS"
+		$SUDOCMD apt-get install -y $INSTALLPKGS
 	elif type -p dnf &> /dev/null; then
 		echo "Installing $INSTALLPKGS using dnf."
-		$SUDOCMD dnf install -y "$INSTALLPKGS"
+		$SUDOCMD dnf install -y $INSTALLPKGS
 	fi
 	
 }
@@ -152,13 +152,13 @@ dist_install_bare () {
 	
 	if type -p pacman &> /dev/null; then
 		echo "Installing $INSTALLPKGS using pacman."
-		$SUDOCMD pacman -S --noconfirm "$INSTALLPKGS"
+		$SUDOCMD pacman -S --noconfirm $INSTALLPKGS
 	elif type -p apt-get &> /dev/null; then
 		echo "Installing $INSTALLPKGS using apt-get."
-		$SUDOCMD apt-get install -y "$INSTALLPKGS"
+		$SUDOCMD apt-get install -y $INSTALLPKGS
 	elif type -p dnf &> /dev/null; then
 		echo "Installing $INSTALLPKGS using dnf."
-		$SUDOCMD dnf install -y "$INSTALLPKGS"
+		$SUDOCMD dnf install -y $INSTALLPKGS
 	fi
 	
 }
@@ -169,12 +169,12 @@ dist_remove_deps () {
 	[ "$(id -u)" != "0" ] && SUDOCMD="sudo" || SUDOCMD=""
 	
 	for pkg in $REMOVEPKGS; do
-		if type -p pacman &> /dev/null && pacman -Q | grep -iq "$pkg"; then
+		if type -p pacman &> /dev/null && pacman -Qq | grep -iq "^$pkg$"; then
 			echo "Removing $pkg using pacman."
 			$SUDOCMD pacman -Rsn --noconfirm "$pkg"
-		elif type -p apt-get &> /dev/null && dpkg -l | grep -iq "$pkg"; then
+		elif type -p apt-get &> /dev/null && dpkg-query -W -f='${Package}' "$pkg" &> /dev/null; then
 			echo "Removing $pkg using apt-get."
-			$SUDOCMD apt-get --purge remove "$pkg"
+			$SUDOCMD apt-get --purge remove -y "$pkg"
 		elif type -p dnf &> /dev/null && dnf list installed | grep -i "$pkg"; then
 			echo "Removing $pkg using dnf."
 			$SUDOCMD dnf remove -y "$pkg"
@@ -189,12 +189,12 @@ dist_remove_force () {
 	[ "$(id -u)" != "0" ] && SUDOCMD="sudo" || SUDOCMD=""
 	
 	for pkg in $REMOVEPKGS; do
-		if type -p pacman &> /dev/null && pacman -Q | grep -iq "$pkg"; then
+		if type -p pacman &> /dev/null && pacman -Qq | grep -iq "^$pkg$"; then
 			echo "Removing $pkg using pacman."
 			$SUDOCMD pacman -Rdd --noconfirm "$pkg"
-		elif type -p apt-get &> /dev/null && dpkg -l | grep -iq "$pkg"; then
+		elif type -p apt-get &> /dev/null && dpkg-query -W -f='${Package}' "$pkg" &> /dev/null; then
 			echo "Removing $pkg using apt-get."
-			$SUDOCMD apt-get --purge remove "$pkg"
+			$SUDOCMD apt-get --purge remove -y "$pkg"
 		elif type -p dnf &> /dev/null && dnf list installed | grep -i "$pkg"; then
 			echo "Removing $pkg using dnf."
 			$SUDOCMD dnf remove -y "$pkg"
