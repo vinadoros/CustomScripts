@@ -416,8 +416,8 @@ if [ "${MACHINEARCH}" != "armv7l" ]; then
 	systemctl enable tlp-sleep
 	
 	# Install systemd-swap
-	pacman -S --needed --noconfirm systemd-swap
-	systemctl enable systemd-swap
+	#~ pacman -S --needed --noconfirm systemd-swap
+	#~ systemctl enable systemd-swap
 	
 	# Install reflector and sort mirrors for speed. Install service which loads on bootup.
 	pacman -S --needed --noconfirm reflector
