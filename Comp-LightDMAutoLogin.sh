@@ -59,9 +59,9 @@ if [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 || $LIGHTDMAUTO = 1 ]] &
 	echo "Enabling lightdm autologin for $USERNAMEVAR."
 	sed -i 's/#autologin-user=/autologin-user='$USERNAMEVAR'/g' /etc/lightdm/lightdm.conf
 	# Enable gnome kerying unlock
-	grepadd "auth       optional     pam_gnome_keyring.so" "/etc/pam.d/login"
-	grepadd "session    optional     pam_gnome_keyring.so        auto_start" "/etc/pam.d/login"
-	grepadd "password	optional	pam_gnome_keyring.so" "/etc/pam.d/passwd"
+	#~ grepadd "auth       optional     pam_gnome_keyring.so" "/etc/pam.d/login"
+	#~ grepadd "session    optional     pam_gnome_keyring.so        auto_start" "/etc/pam.d/login"
+	#~ grepadd "password	optional	pam_gnome_keyring.so" "/etc/pam.d/passwd"
 fi
 
 # Enable listing of users
