@@ -380,18 +380,11 @@ apacman -S --ignorearch --needed --noconfirm pamac-aur
 pacman -S --needed --noconfirm fcron
 systemctl enable fcron
 # Fcron script to clean pacman cache weekly
-grepcheckadd "&b 0 0 * * 6 \"pacman -Sc --noconfirm\"" "pacman -Sc --noconfirm" "/var/spool/fcron/root.orig"
-grepcheckadd "&b 0 0 * * 0 \"pacman -Sc --cachedir=/var/cache/apacman/pkg --noconfirm\"" "pacman -Sc --cachedir=/var/cache/apacman/pkg --noconfirm" "/var/spool/fcron/root.orig"
-fcrontab -z
-#~ if [ -d /etc/cron.weekly/ ]; then
-	#~ bash -c "cat >/etc/cron.weekly/clnpaccache.sh" <<'EOL'
-#~ #!/bin/bash
-#~ pacman -Sc --noconfirm
-#~ pacman -Sc --cachedir=/var/cache/apacman/pkg --noconfirm
-#~ EOL
-	#~ chmod a+rwx /etc/cron.weekly/clnpaccache.sh
-#~ fi
-
+if type -p fcrontab &> /dev/null; then
+	grepcheckadd "&b 0 0 * * 6 \"pacman -Sc --noconfirm\"" "pacman -Sc --noconfirm" "/var/spool/fcron/root.orig"
+	grepcheckadd "&b 0 0 * * 0 \"pacman -Sc --cachedir=/var/cache/apacman/pkg --noconfirm\"" "pacman -Sc --cachedir=/var/cache/apacman/pkg --noconfirm" "/var/spool/fcron/root.orig"
+	fcrontab -z
+fi
 
 # For x86_64 and i686 only
 if [ "${MACHINEARCH}" != "armv7l" ]; then
@@ -423,8 +416,8 @@ if [ "${MACHINEARCH}" != "armv7l" ]; then
 	systemctl enable tlp-sleep
 	
 	# Install systemd-swap
-	pacman -S --needed --noconfirm systemd-swap
-	systemctl enable systemd-swap
+	#~ pacman -S --needed --noconfirm systemd-swap
+	#~ systemctl enable systemd-swap
 	
 	# Install reflector and sort mirrors for speed. Install service which loads on bootup.
 	pacman -S --needed --noconfirm reflector

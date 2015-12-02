@@ -52,10 +52,6 @@ if [[ ! -d $USERHOME/.config/autostart/ ]]; then
 	chown -R $USERNAMEVAR:$USERGROUP $USERHOME/.config
 fi
 
-source "$SCRIPTDIR/Comp-CSClone.sh"
-
-source "$SCRIPTDIR/Comp-BoxDAV.sh"
-
 source "$SCRIPTDIR/Comp-ArchSoftware.sh"
 
 source "$SCRIPTDIR/Comp-ArchInfinality.sh"
@@ -69,6 +65,10 @@ source "$SCRIPTDIR/Comp-sshconfig.sh"
 source "$SCRIPTDIR/Comp-Fish.sh"
 
 source "$SCRIPTDIR/Comp-Bash.sh"
+
+source "$SCRIPTDIR/Comp-CSClone.sh"
+
+source "$SCRIPTDIR/Comp-BoxDAV.sh"
 
 source "$SCRIPTDIR/Comp-LightDMAutoLogin.sh"
 
