@@ -52,6 +52,7 @@ if [ ! -d "CustomScripts" ]; then
 fi
 
 cd "$CSROOTFOLDER/CustomScripts"
+git config remote.origin.url "https://github.com/vinadoros/CustomScripts.git"
 git pull
 
 if [[ ! -z "$GITHUBCOMMITNAME" && ! -z "$GITHUBCOMMITEMAIL" && -f "$GITHUBRSAPUB" ]]; then
@@ -60,6 +61,13 @@ if [[ ! -z "$GITHUBCOMMITNAME" && ! -z "$GITHUBCOMMITEMAIL" && -f "$GITHUBRSAPUB
 	git config push.default simple
 	git config user.name "${GITHUBCOMMITNAME}"
 	git config user.email "${GITHUBCOMMITEMAIL}"
+fi
+
+# Update scripts folder every hour using fcron.
+if type -p fcrontab &> /dev/null; then
+	grepcheckadd "&b 0 * * * * \"cd $CSROOTFOLDER/CustomScripts; git pull\"" "cd $CSROOTFOLDER/CustomScripts; git pull" "/var/spool/fcron/$USERNAMEVAR.orig"
+	chown fcron:fcron "/var/spool/fcron/$USERNAMEVAR.orig"
+	su - "$USERNAMEVAR" -c "fcrontab -z"
 fi
 
 chown "$USERNAMEVAR":"$USERGROUP" -R "$CSROOTFOLDER/CustomScripts"

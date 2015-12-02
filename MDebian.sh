@@ -39,10 +39,6 @@ echo "You entered $SETDE"
 
 read -p "Press any key to continue."
 
-source "$SCRIPTDIR/Comp-CSClone.sh"
-
-source "$SCRIPTDIR/Comp-BoxDAV.sh"
-
 source "$SCRIPTDIR/Comp-DebianRepos.sh"
 
 source "$SCRIPTDIR/Comp-fcronbuild.sh"
@@ -54,6 +50,10 @@ source "$SCRIPTDIR/Comp-sshconfig.sh"
 source "$SCRIPTDIR/Comp-Fish.sh"
 
 source "$SCRIPTDIR/Comp-Bash.sh"
+
+source "$SCRIPTDIR/Comp-CSClone.sh"
+
+source "$SCRIPTDIR/Comp-BoxDAV.sh"
 
 source "$SCRIPTDIR/Comp-LightDMAutoLogin.sh"
 
