@@ -299,12 +299,12 @@ case $SETDE in
 [5]* ) 
 	# Install MATE
 	echo "Installing MATE."
-	pacman -S --needed --noconfirm mate xdg-user-dirs-gtk gnome-themes-standard gnome-keyring seahorse
+	pacman -S --needed --noconfirm mate xdg-user-dirs-gtk gnome-themes-standard gnome-keyring seahorse dconf-editor
 	# MATE Extras
 	pacman -S --needed --noconfirm atril caja-gksu caja-open-terminal caja-share engrampa eom gnome-calculator mate-applets mate-media mate-netspeed mate-power-manager mate-sensors-applet mate-system-monitor mate-terminal mate-utils mozo pluma unrar mate-screensaver
 	
 	#MATE gtk3
-	#pacman -S --needed --noconfirm mate-gtk3 xdg-user-dirs-gtk gnome-themes-standard gnome-keyring seahorse
+	#pacman -S --needed --noconfirm mate-gtk3 xdg-user-dirs-gtk gnome-themes-standard gnome-keyring seahorse dconf-editor
 	# MATE gtk3 Extras
 	#pacman -S --needed --noconfirm atril-gtk3 caja-gksu-gtk3 caja-open-terminal-gtk3 caja-share-gtk3 engrampa-gtk3 eom-gtk3 gnome-calculator mate-applets-gtk3 mate-media-gtk3 mate-netspeed-gtk3 mate-power-manager-gtk3 mate-sensors-applet-gtk3 mate-system-monitor-gtk3 mate-terminal-gtk3 mate-utils-gtk3 mozo-gtk3 pluma-gtk3 unrar mate-screensaver-gtk3
 	
