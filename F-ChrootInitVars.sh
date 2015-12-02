@@ -60,7 +60,7 @@ fi
 if [ ! -f "${INSTALLPATH}/etc/hostname" ]; then
 	if [ -z "$NEWHOSTNAME" ]; then
 		read -p "Input a computer name: " NEWHOSTNAME
-		NEWHOSTNAME=${NEWHOSTNAME//[^a-zA-Z0-9_]/}
+		NEWHOSTNAME=${NEWHOSTNAME//[^a-zA-Z0-9_-]/}
 		if [ -z "$NEWHOSTNAME" ]; then
 			NEWHOSTNAME=Test
 			echo "No input found. Defaulting to $NEWHOSTNAME."
