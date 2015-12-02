@@ -12,6 +12,9 @@ echo "Executing ${SCRNAME}."
 # Disable error handlingss
 set +eu
 
+# Add general functions if they don't exist.
+type -t grepadd &> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
+
 # Set user folders if they don't exist.
 if [ -z $USERNAMEVAR ]; then
 	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
@@ -26,9 +29,12 @@ if [ -z $USERNAMEVAR ]; then
 fi
 
 # Set default VM guest variables
-[ -z $VBOXGUEST ] && VBOXGUEST=0
-[ -z $VMWGUEST  ] && VMWGUEST=0
-[ -z $QEMUGUEST ] && QEMUGUEST=0
+[ -z $VBOXGUEST ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1 
+[ -z $VBOXGUEST ] && ! grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=0
+[ -z $QEMUGUEST ] && grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=1
+[ -z $QEMUGUEST ] && ! grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=0
+[ -z $VMWGUEST ] && grep -iq "VMware" "/sys/devices/virtual/dmi/id/product_name" && VMWGUEST=1
+[ -z $VMWGUEST ] && ! grep -iq "VMware" "/sys/devices/virtual/dmi/id/product_name" && VMWGUEST=0
 [ -z $LIGHTDMAUTO ] && LIGHTDMAUTO=0
 
 # Enable error halting.
@@ -50,7 +56,12 @@ fi
 
 # Enable lightdm autologin for virtual machines.
 if [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 || $LIGHTDMAUTO = 1 ]] && [ -f /etc/lightdm/lightdm.conf ]; then
+	echo "Enabling lightdm autologin for $USERNAMEVAR."
 	sed -i 's/#autologin-user=/autologin-user='$USERNAMEVAR'/g' /etc/lightdm/lightdm.conf
+	# Enable gnome kerying unlock
+	grepadd "auth       optional     pam_gnome_keyring.so" "/etc/pam.d/login"
+	grepadd "session    optional     pam_gnome_keyring.so        auto_start" "/etc/pam.d/login"
+	grepadd "password	optional	pam_gnome_keyring.so" "/etc/pam.d/passwd"
 fi
 
 # Enable listing of users
