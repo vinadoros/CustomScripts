@@ -149,6 +149,7 @@ apt-get install -y samba winbind
 # NTP
 systemctl enable systemd-timesyncd
 timedatectl set-local-rtc false
+timedatectl set-ntp 1
 
 # Avahi
 apt-get install -y avahi-daemon avahi-discover libnss-mdns

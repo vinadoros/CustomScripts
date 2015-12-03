@@ -363,11 +363,9 @@ pacman -S --needed --noconfirm openssh xorg-xauth tmux
 systemctl enable sshd
 
 # NTP configuration
-#pacman -S --noconfirm --needed ntp
-#timedatectl set-ntp 1
-#systemctl enable ntpdate.service
 systemctl enable systemd-timesyncd
 timedatectl set-local-rtc false
+timedatectl set-ntp 1
 
 # Install syncthing
 pacman -S --noconfirm --needed syncthing syncthing-gtk
