@@ -32,7 +32,7 @@ while true; do
     sudo pacman -R --noconfirm acpid
     
     # Install free drivers
-    sudo pacman -S --needed --noconfirm xf86-video-ati xf86-video-intel xf86-video-nouveau lib32-mesa-dri mesa-dri mesa-vdpau mesa-libgl
+    sudo pacman -S --needed --noconfirm xf86-video-ati xf86-video-intel xf86-video-nouveau lib32-mesa-dri lib32-mesa-libgl mesa-dri mesa-vdpau mesa-libgl ocl-icd lib32-ocl-icd
     
     sudo sed -i 's/GRUB_CMDLINE_LINUX=\"nomodeset\"/GRUB_CMDLINE_LINUX=\"\"/g' /etc/default/grub
     sudo grub-mkconfig -o /boot/grub/grub.cfg
@@ -48,7 +48,7 @@ while true; do
 	echo "You asked to enable catalyst."
 	
 	
-	if ! grep -Fq "catalyst" /etc/pacman.conf; then
+	if ! grep -Fq "[catalyst]" /etc/pacman.conf; then
         echo "Adding catalyst to pacman.conf"
         while read line
         do
@@ -80,7 +80,7 @@ EOL
         
     fi
     
-	if ! grep -Fq "catalyst" /etc/pacman.conf; then
+	if ! grep -Fq "[catalyst]" /etc/pacman.conf; then
         echo "Catalyst repo not found in pacman.conf. Exiting."
         exit 1;
     fi
@@ -93,9 +93,12 @@ EOL
     sudo pacman -Rdd --noconfirm xf86-video-intel
     sudo pacman -Rdd --noconfirm xf86-video-nouveau
     sudo pacman -Rdd --noconfirm lib32-mesa-dri 
+    sudo pacman -Rdd --noconfirm lib32-mesa-libgl
     sudo pacman -Rdd --noconfirm mesa-dri
     sudo pacman -Rdd --noconfirm mesa-vdpau
     sudo pacman -Rdd --noconfirm mesa-libgl
+    sudo pacman -Rdd --noconfirm ocl-icd
+    sudo pacman -Rdd --noconfirm lib32-ocl-icd
     
     # Re-install catalyst.
     sudo pacman -S --needed qt4 catalyst-hook catalyst-utils lib32-catalyst-utils lib32-catalyst-libgl catalyst-libgl opencl-catalyst acpid
