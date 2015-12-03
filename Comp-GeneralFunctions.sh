@@ -131,9 +131,10 @@ dist_install () {
 	INSTALLPKGS="$@"
 	[ "$(id -u)" != "0" ] && SUDOCMD="sudo" || SUDOCMD=""
 	
-	if type -p pacman &> /dev/null; then
-		echo "Installing $INSTALLPKGS using pacman."
-		$SUDOCMD pacman -Syu --needed --noconfirm $INSTALLPKGS
+	if type -p apacman &> /dev/null; then
+		echo "Installing $INSTALLPKGS using apacman."
+		$SUDOCMD pacman -Sy
+		$SUDOCMD apacman -S --needed --noconfirm --ignorearch $INSTALLPKGS
 	elif type -p apt-get &> /dev/null; then
 		echo "Installing $INSTALLPKGS using apt-get."
 		$SUDOCMD apt-get update
