@@ -89,13 +89,13 @@ EOL
 	
 	
 	# Remove free drivers
-    sudo pacman -R --recursive --cascade --noconfirm xf86-video-ati
-    sudo pacman -R --recursive --cascade --noconfirm xf86-video-intel
-    sudo pacman -R --recursive --cascade --noconfirm xf86-video-nouveau
-    sudo pacman -R --recursive --cascade --noconfirm lib32-mesa-dri 
-    sudo pacman -R --recursive --cascade --noconfirm mesa-dri
-    sudo pacman -R --recursive --cascade --noconfirm mesa-vdpau
-    sudo pacman -R --recursive --cascade --noconfirm mesa-libgl
+    sudo pacman -Rdd --noconfirm xf86-video-ati
+    sudo pacman -Rdd --noconfirm xf86-video-intel
+    sudo pacman -Rdd --noconfirm xf86-video-nouveau
+    sudo pacman -Rdd --noconfirm lib32-mesa-dri 
+    sudo pacman -Rdd --noconfirm mesa-dri
+    sudo pacman -Rdd --noconfirm mesa-vdpau
+    sudo pacman -Rdd --noconfirm mesa-libgl
     
     # Re-install catalyst.
     sudo pacman -S --needed qt4 catalyst-hook catalyst-utils lib32-catalyst-utils lib32-catalyst-libgl catalyst-libgl opencl-catalyst acpid
