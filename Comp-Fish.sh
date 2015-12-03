@@ -73,7 +73,7 @@ function pc
 	git diff
 	git status
 	if not test -z $argv
-		git add *
+		git add -A
 		git commit -m "$argv"
 		git pull
 		git push

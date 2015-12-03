@@ -50,7 +50,7 @@ function pc () {
 	git diff
 	git status
 	if [ ! -z "$1" ]; then
-		git add *
+		git add -A
 		git commit -m "$1"
 		git pull
 		git push
