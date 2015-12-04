@@ -136,6 +136,17 @@ EOL
 chmod a+rwx "$SSHKEYSCRIPT"
 
 
+# Anacron configuration
+if [ -f /etc/anacrontab ]; then
+	sed -i 's/RANDOM_DELAY=.*$/RANDOM_DELAY=0/g' /etc/anacrontab
+	sed -i 's/START_HOURS_RANGE=.*$/START_HOURS_RANGE=0-24/g' /etc/anacrontab
+	sed -i -e 's/1.*\tcron.daily/1\t0\tcron.daily/g' /etc/anacrontab
+	sed -i -e 's/7.*\tcron.weekly/7\t0\tcron.weekly/g' /etc/anacrontab
+	sed -i -e 's/@monthly.*\tcron.monthly/@monthly 0\tcron.monthly/g' /etc/anacrontab
+	sed -i '/^MAILTO=.*/s/^/#/g' /etc/anacrontab
+fi
+
+
 if [ "${MACHINEARCH}" != "armv7l" ]; then
 	echo "Install x86 specific tweaks."
 	

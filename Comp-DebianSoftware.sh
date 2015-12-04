@@ -171,8 +171,7 @@ apt-get install -y geany meld
 apt-get install -y iotop
 
 # Cron
-#~ apt-get install -y systemd-cron
-# Run frcon script before this.
+apt-get install -y cron anacron
 
 # Apt updating sources
 APTUPDTSCR="/etc/apt/apt.conf.d/99custom"
