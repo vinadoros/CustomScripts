@@ -48,8 +48,8 @@ sed -i -e 's/1.*\tcron.daily/1\t0\tcron.daily/g' /etc/anacrontab
 sed -i -e 's/7.*\tcron.weekly/7\t0\tcron.weekly/g' /etc/anacrontab
 sed -i -e 's/@monthly.*\tcron.monthly/@monthly 0\tcron.monthly/g' /etc/anacrontab
 
-grepcheckadd "0 * * * * bash -c \"cd /opt/CustomScripts; git pull\"" "CustomScripts" "/var/spool/cron/$USERNAMEVAR"
-grepcheckadd "@reboot bash -c \"cd /opt/CustomScripts; git pull\"" "CustomScripts" "/var/spool/cron/$USERNAMEVAR"
+grepcheckadd "0 * * * * bash -c \"cd /opt/CustomScripts; git pull\"" "0 \* \* \* \* bash -c \"cd /opt/CustomScripts; git pull\"" "/var/spool/cron/$USERNAMEVAR"
+grepcheckadd "@reboot bash -c \"cd /opt/CustomScripts; git pull\"" "@reboot" "/var/spool/cron/$USERNAMEVAR"
 su - $USERNAMEVAR -c "crontab /var/spool/cron/$USERNAMEVAR"
 
 if type -p pacman &> /dev/null; then
