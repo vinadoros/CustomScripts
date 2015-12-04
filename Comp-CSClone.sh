@@ -70,5 +70,11 @@ if type -p fcrontab &> /dev/null; then
 	su - "$USERNAMEVAR" -c "fcrontab -z"
 fi
 
+if type -p crontab &> /dev/null; then
+	grepcheckadd "0 * * * * cd $CSROOTFOLDER/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "0 \* \* \* \* cd $CSROOTFOLDER/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "/var/spool/cron/$USERNAMEVAR"
+	grepcheckadd "@reboot cd $CSROOTFOLDER/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "@reboot cd $CSROOTFOLDER/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "/var/spool/cron/$USERNAMEVAR"
+	su - $USERNAMEVAR -c "crontab /var/spool/cron/$USERNAMEVAR"
+fi
+
 chown "$USERNAMEVAR":"$USERGROUP" -R "$CSROOTFOLDER/CustomScripts"
 chmod a+rwx "$CSROOTFOLDER/CustomScripts"

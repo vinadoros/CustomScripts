@@ -57,10 +57,11 @@ sed -i 's/START_HOURS_RANGE=.*$/START_HOURS_RANGE=0-24/g' /etc/anacrontab
 sed -i -e 's/1.*\tcron.daily/1\t0\tcron.daily/g' /etc/anacrontab
 sed -i -e 's/7.*\tcron.weekly/7\t0\tcron.weekly/g' /etc/anacrontab
 sed -i -e 's/@monthly.*\tcron.monthly/@monthly 0\tcron.monthly/g' /etc/anacrontab
+sed -i '/^MAILTO=.*/s/^/#/g' /etc/anacrontab
 
-grepcheckadd "0 * * * * cd /opt/CustomScripts; git pull https://github.com/vinadoros/CustomScripts" "0 \* \* \* \* cd /opt/CustomScripts; git pull https://github.com/vinadoros/CustomScripts" "/var/spool/cron/$USERNAMEVAR"
-grepcheckadd "@reboot cd /opt/CustomScripts; git pull https://github.com/vinadoros/CustomScripts" "@reboot cd /opt/CustomScripts; git pull https://github.com/vinadoros/CustomScripts" "/var/spool/cron/$USERNAMEVAR"
-su - $USERNAMEVAR -c "crontab /var/spool/cron/$USERNAMEVAR"
+#~ grepcheckadd "0 * * * * cd /opt/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "0 \* \* \* \* cd /opt/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "/var/spool/cron/$USERNAMEVAR"
+#~ grepcheckadd "@reboot cd /opt/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "@reboot cd /opt/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "/var/spool/cron/$USERNAMEVAR"
+#~ su - $USERNAMEVAR -c "crontab /var/spool/cron/$USERNAMEVAR"
 
 if type -p pacman &> /dev/null; then
 	echo "Adding pacman statements to cron."
