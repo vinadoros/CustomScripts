@@ -241,7 +241,7 @@ if ! grep -i ${USERNAMEVAR} /etc/passwd; then
 		echo "Changing password for $USERNAMEVAR automatically."
 		echo "$USERNAMEVAR:$SETPASS" | chpasswd
 	fi
-	usermod -aG daemon,bin,sys,adm,tty,disk,lp,mail,news,uucp,man,proxy,kmem,dialout,fax,voice,cdrom,floppy,tape,sudo,audio,dip,www-data,backup,operator,list,irc,src,gnats,shadow,utmp,video,sasl,plugdev,staff,games,users,netdev,crontab ${USERNAMEVAR}
+	usermod -aG daemon,bin,sys,adm,tty,disk,lp,mail,news,uucp,man,proxy,kmem,dialout,fax,voice,cdrom,floppy,tape,sudo,audio,dip,www-data,backup,operator,list,irc,src,gnats,shadow,utmp,video,sasl,plugdev,staff,games,users,netdev,crontab,systemd-journal ${USERNAMEVAR}
 	chfn -f "${FULLNAME}" ${USERNAMEVAR}
 	if ! grep 'export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin' $USERHOME/.profile; then
 		echo 'export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin' | tee -a $USERHOME/.profile
