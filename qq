@@ -1,0 +1,79 @@
+● RKRISHNA-PCVM
+    State: running
+     Jobs: 0 queued
+   Failed: 0 units
+    Since: Fri 2015-12-04 07:36:18 EST; 3h 31min ago
+   CGroup: /
+           ├─init.scope
+           │ └─1 /sbin/init
+           ├─system.slice
+           │ ├─avahi-daemon.service
+           │ │ ├─414 avahi-daemon: running [RKRISHNA-PCVM.local
+           │ │ └─655 avahi-daemon: chroot helpe
+           │ ├─dbus.service
+           │ │ └─360 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+           │ ├─org.cups.cupsd.service
+           │ │ └─356 /usr/bin/cupsd -l
+           │ ├─wpa_supplicant.service
+           │ │ └─705 /usr/bin/wpa_supplicant -u
+           │ ├─lightdm.service
+           │ │ ├─420 /usr/bin/lightdm
+           │ │ └─707 /usr/lib/xorg-server/Xorg :0 -seat seat0 -auth /run/lightdm/root/:0 -nolisten tcp vt7 -novtswitch
+           │ ├─colord.service
+           │ │ └─696 /usr/lib/colord/colord
+           │ ├─winbindd.service
+           │ │ ├─1012 /usr/bin/winbindd -D
+           │ │ ├─1058 /usr/bin/winbindd -D
+           │ │ ├─1102 /usr/bin/winbindd -D
+           │ │ └─1103 /usr/bin/winbindd -D
+           │ ├─systemd-journald.service
+           │ │ └─174 /usr/lib/systemd/systemd-journald
+           │ ├─x2goserver.service
+           │ │ └─703 /usr/bin/perl /usr/sbin/x2gocleansessions
+           │ ├─udisks2.service
+           │ │ └─1158 /usr/lib/udisks2/udisksd --no-debug
+           │ ├─upower.service
+           │ │ └─1244 /usr/lib/upower/upowerd
+           │ ├─media-Box.mount
+           │ │ └─1250 /sbin/mount.davfs https://dav.box.com/dav /media/Box -o rw uid=1000 gid=100
+           │ ├─systemd-timesyncd.service
+           │ │ └─345 /usr/lib/systemd/systemd-timesyncd
+           │ ├─systemd-logind.service
+           │ │ └─348 /usr/lib/systemd/systemd-logind
+           │ ├─system-getty.slice
+           │ │ └─getty@tty1.service
+           │ │   └─418 /sbin/agetty --noclear tty1 linux
+           │ ├─sshd.service
+           │ │ └─932 /usr/bin/sshd -D
+           │ ├─systemd-udevd.service
+           │ │ └─200 /usr/lib/systemd/systemd-udevd
+           │ ├─haveged.service
+           │ │ └─355 /usr/bin/haveged -F -w 1024 -v 1
+           │ ├─vboxadd-service.service
+           │ │ └─440 /usr/sbin/VBoxService --pidfile /var/run/vboxadd-service
+           │ ├─system-syncthing.slice
+           │ │ └─syncthing@ramesh.service
+           │ │   └─933 /usr/bin/syncthing -no-browser -logflags=0
+           │ ├─polkit.service
+           │ │ └─706 /usr/lib/polkit-1/polkitd --no-debug
+           │ ├─NetworkManager.service
+           │ │ ├─359 /usr/bin/NetworkManager --no-daemon
+           │ │ └─704 /usr/bin/dhclient -d -q -sf /usr/lib/networkmanager/nm-dhcp-helper -pf /var/run/dhclient-enp0s3.pid -lf /var/lib/NetworkManager/dhclient-ce8049a5-93ec-4214-8b58-044c4f8f882d-enp0s3.lease -cf /var/lib/NetworkManager/dhclient-enp0s3.conf enp0s3
+           │ ├─nmbd.service
+           │ │ └─956 /usr/bin/nmbd -D
+           │ ├─smbd.service
+           │ │ ├─1015 /usr/bin/smbd -D
+           │ │ ├─1035 /usr/bin/smbd -D
+           │ │ ├─1104 /usr/bin/smbd -D
+           │ │ └─2530 /usr/bin/smbd -D
+           │ ├─cronie.service
+           │ │ └─19121 /usr/bin/crond -n
+           │ └─rtkit-daemon.service
+           │   └─1151 /usr/lib/rtkit/rtkit-daemon
+           └─user.slice
+             └─user-1000.slice
+               ├─user@1000.service
+               │ ├─gvfs-daemon.service
+               │ │ ├─1107 /usr/lib/gvfs/gvfsd
+               │ │ ├─1121 /usr/lib/gvfs/gvfsd-fuse /run/user/1000/gvfs -f -o big_writes
+               │ │ └─1380 /usr/l
