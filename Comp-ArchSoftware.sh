@@ -466,7 +466,6 @@ EOL
 	pacman -S --needed --noconfirm libreoffice-fresh hunspell hunspell-en hyphen hyphen-en libmythes mythes-en
 
 	# Email
-	#pacman -S --needed --noconfirm evolution
 	pacman -S --needed --noconfirm thunderbird thunderbird-i18n-en-us
 
 	# Flash
@@ -530,15 +529,6 @@ EOL
 	###############################################################################
 	# Perform thinkpad R61 specific fixes.
 	if grep -iq "ThinkPad R61" "/sys/devices/virtual/dmi/id/product_version"; then
-		# Install hdaps for Thinkpad
-		#~ pacman -S --needed --noconfirm tp_smapi hdapsd
-		#~ if [ ! -f /etc/modules-load.d/tp_smapi.conf ] || ! grep -iq "tp_smapi" /etc/modules-load.d/tp_smapi.conf; then
-			#~ echo 'tp_smapi' | tee /etc/modules-load.d/tp_smapi.conf
-			#~ modprobe tp_smapi
-		#~ fi
-		#systemctl enable hdapsd
-		#systemctl start hdapsd
-		
 		#Fix thinkpad graphics corruption in GRUB
 		sed -i 's/GRUB_GFXMODE=auto/GRUB_GFXMODE=1024x768/g' /etc/default/grub
 		if [ -f /etc/grub.d/30_os-prober ]; then
@@ -560,16 +550,6 @@ EOL
 		fi
 	fi
 
-<<COMMENT1
-	# Install owncloud client
-	pacman -S --noconfirm --needed owncloud-client
-
-	# Install octopi
-	if ! pacman -Q "octopi" >/dev/null; then
-		apacman -S --ignorearch --needed --noconfirm octopi octopi-repoeditor octopi-cachecleaner octopi-notifier
-	fi
-COMMENT1
-
 	# Install areca backup
 	if pacman -Q jre8-openjdk-headless-infinality &> /dev/null; then
 		pacman -Rdd --noconfirm jre8-openjdk-headless-infinality jre8-openjdk-infinality
@@ -590,15 +570,6 @@ elif [ "${MACHINEARCH}" = "armv7l" ]; then
 	
 	# Install browsers
 	pacman -S --needed --noconfirm midori
-
-	#~ pacman -S --needed --noconfirm chromium
-	#~ # GPU fix for chromium
-	#~ CHROMIUMSCRIPT="$USERHOME/.config/chromium-flags.conf"
-	#~ bash -c "cat >>$CHROMIUMSCRIPT" <<'EOL'
-#~ --disable-gpu
-#~ EOL
-	#~ chown $USERNAMEVAR:$USERGROUP "$CHROMIUMSCRIPT"
-
 
 	# Omxplayer
 	pacman -S --needed --noconfirm omxplayer ttf-freefont xclip youtube-dl
