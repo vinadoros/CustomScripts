@@ -41,8 +41,6 @@ read -p "Press any key to continue."
 
 source "$SCRIPTDIR/Comp-UbuntuRepos.sh"
 
-source "$SCRIPTDIR/Comp-fcronbuild.sh"
-
 source "$SCRIPTDIR/Comp-DebianSoftware.sh"
 
 source "$SCRIPTDIR/Comp-sshconfig.sh"

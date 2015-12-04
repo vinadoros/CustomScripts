@@ -41,6 +41,16 @@ if type -p apt-get &> /dev/null; then
 	dist_install cron anacron
 fi
 
+# Crontab configuration
+
+#~ if [ ! -f /etc/crontab ]; then
+	#~ touch /etc/crontab
+	#~ multilineadd "/etc/crontab" "SHELL=/bin/sh" <<'EOL'
+#~ SHELL=/bin/sh
+#~ PATH=/usr/local/sbin:/usr/local/bin:/usr/bin
+#~ EOL
+#~ fi
+
 # Anacron configuration
 sed -i 's/RANDOM_DELAY=.*$/RANDOM_DELAY=0/g' /etc/anacrontab
 sed -i 's/START_HOURS_RANGE=.*$/START_HOURS_RANGE=0-24/g' /etc/anacrontab
