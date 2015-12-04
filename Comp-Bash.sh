@@ -47,7 +47,7 @@ fi
 function pc () {
 	EXISTPATH="$(pwd)"
 	cd "$CUSTOMSCRIPTPATH"
-	get fetch --all
+	git fetch --all
 	git diff
 	git status
 	if [ ! -z "$1" ]; then

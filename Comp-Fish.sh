@@ -70,7 +70,7 @@ end
 function pc
 	set -x EXISTPATH (pwd)
 	cd "$CUSTOMSCRIPTPATH"
-	get fetch --all
+	git fetch --all
 	git diff
 	git status
 	if not test -z $argv
