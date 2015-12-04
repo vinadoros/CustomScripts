@@ -61,13 +61,17 @@ multilinereplace () {
 		echo "No parameter passed."
 		return 1;
 	else
-		SAVETOFILE="$1"
+		SAVETOFILE="$(readlink -f $1)"
 	fi
 	
 	MULTILINE="$(cat /dev/stdin)"
-	echo "Creating $SAVETOFILE."
-	echo "$MULTILINE" > "$SAVETOFILE"
-	chmod a+rwx "$SAVETOFILE"
+	if [ -d "$(dirname $SAVETOFILE)" ]; then 
+		echo "Creating $SAVETOFILE."
+		echo "$MULTILINE" > "$SAVETOFILE"
+		chmod a+rwx "$SAVETOFILE"
+	else 
+		echo "Not creating $SAVETOFILE. Base folder $(dirname $SAVETOFILE) does not exist."
+	fi
 }
 
 multilineadd () {
