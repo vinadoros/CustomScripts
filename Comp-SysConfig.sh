@@ -10,17 +10,20 @@ echo "Executing ${SCRNAME}."
 # Disable error handlingss
 set +eu
 
+# Add general functions if they don't exist.
+type -t grepadd >> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
+
 # Set user folders if they don't exist.
 if [ -z $USERNAMEVAR ]; then
 	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
-		export USERNAMEVAR=$SUDO_USER
+		export USERNAMEVAR="$SUDO_USER"
 	elif [ "$USER" != "root" ]; then
-		export USERNAMEVAR=$USER
+		export USERNAMEVAR="$USER"
 	else
-		export USERNAMEVAR=$(id 1000 -un)
+		export USERNAMEVAR="$(id 1000 -un)"
 	fi
-	USERGROUP=$(id 1000 -gn)
-	USERHOME=/home/$USERNAMEVAR
+	USERGROUP="$(id 1000 -gn)"
+	USERHOME="/home/$USERNAMEVAR"
 fi
 
 [ -z "$MACHINEARCH" ] && MACHINEARCH="$(uname -m)"
@@ -144,6 +147,32 @@ if [ -f /etc/anacrontab ]; then
 	sed -i -e 's/7.*\tcron.weekly/7\t0\tcron.weekly/g' /etc/anacrontab
 	sed -i -e 's/@monthly.*\tcron.monthly/@monthly 0\tcron.monthly/g' /etc/anacrontab
 	sed -i '/^MAILTO=.*/s/^/#/g' /etc/anacrontab
+fi
+
+# Some personal cron scripts
+# Cleanup thumbnails cron script.
+if [ -d "/etc/cron.weekly" ]; then
+	multilinereplace "/etc/cron.weekly/cleanthumbs" << EOFXYZ
+#!/bin/bash
+set -eu
+echo "Executing \$0"
+su $USERNAMEVAR -s /bin/bash <<'EOL'
+
+if [ -d $USERHOME/.cache/thumbnails ]; then
+	SIZEVAR=$(du -s $USERHOME/.cache/thumbnails | awk '{ print $1 }')
+	echo "Size is \$SIZEVAR"
+	if [[ \$SIZEVAR -ge 100000 ]]; then 
+		echo "Removing thumbnails."
+		rm -rf $USERHOME/.cache/thumbnails
+	else 
+		echo "Not Removing thumbnails."
+	fi
+else
+	echo "No thumbnail folder detected. Exiting."
+fi
+
+EOL
+EOFXYZ
 fi
 
 
