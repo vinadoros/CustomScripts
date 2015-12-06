@@ -73,11 +73,11 @@ elif type -p fcrontab &> /dev/null; then
 	chown fcron:fcron "/var/spool/fcron/$USERNAMEVAR.orig"
 	su - "$USERNAMEVAR" -c "fcrontab -z"
 elif [ -d "/etc/cron.hourly" ]; then
-multilinereplace "/etc/cron.hourly/updatecs" << 'EOFXYZ'
+multilinereplace "/etc/cron.hourly/updatecs" << EOFXYZ
 #!/bin/bash
-echo "Executing $0"
-su - ramesh -s /bin/bash <<'EOL'
-cd /opt/CustomScripts
+echo "Executing \$0"
+su $USERNAMEVAR -s /bin/bash <<'EOL'
+cd $CSROOTFOLDER/CustomScripts
 git pull
 EOL
 EOFXYZ
