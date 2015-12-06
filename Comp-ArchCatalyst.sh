@@ -1,5 +1,14 @@
 #!/bin/bash
 
+set +eu
+
+# Get folder of this script
+SCRIPTSOURCE="${BASH_SOURCE[0]}"
+FLWSOURCE="$(readlink -f "$SCRIPTSOURCE")"
+SCRIPTDIR="$(dirname "$FLWSOURCE")"
+SCRNAME="$(basename $SCRIPTSOURCE)"
+echo "Executing ${SCRNAME}."
+
 echo "You are currently using the following module:"
 lsmod | grep fglrx
 lsmod | grep radeon
