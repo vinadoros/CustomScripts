@@ -386,10 +386,11 @@ if type -p fcrontab &> /dev/null; then
 	grepcheckadd "&b 0 0 * * 0 \"pacman -Sc --cachedir=/var/cache/apacman/pkg --noconfirm\"" "pacman -Sc --cachedir=/var/cache/apacman/pkg --noconfirm" "/var/spool/fcron/root.orig"
 	fcrontab -z
 fi
-if type -p crontab &> /dev/null; then
+if [ -d "/etc/cron.weekly" ]; then
 	echo "Adding pacman statements to cron."
 	multilinereplace "/etc/cron.weekly/pacclean" <<'EOL'
 #!/bin/bash
+echo "Executing $0"
 pacman -Sc --noconfirm
 pacman -Sc --cachedir=/var/cache/apacman/pkg --noconfirm
 EOL
