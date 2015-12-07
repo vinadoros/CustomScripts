@@ -39,6 +39,8 @@ echo "You entered $SETDE"
 
 read -p "Press any key to continue."
 
+source "$SCRIPTDIR/Comp-sdtimers.sh"
+
 source "$SCRIPTDIR/Comp-DebianRepos.sh"
 
 source "$SCRIPTDIR/Comp-DebianSoftware.sh"

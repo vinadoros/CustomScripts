@@ -19,14 +19,14 @@ type -t grepadd >> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
 # Set user folders if they don't exist.
 if [ -z $USERNAMEVAR ]; then
 	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
-		export USERNAMEVAR=$SUDO_USER
+		export USERNAMEVAR="$SUDO_USER"
 	elif [ "$USER" != "root" ]; then
-		export USERNAMEVAR=$USER
+		export USERNAMEVAR="$USER"
 	else
-		export USERNAMEVAR=$(id 1000 -un)
+		export USERNAMEVAR="$(id 1000 -un)"
 	fi
-	USERGROUP=$(id 1000 -gn)
-	USERHOME=/home/$USERNAMEVAR
+	USERGROUP="$(id 1000 -gn)"
+	USERHOME="/home/$USERNAMEVAR"
 fi
 
 if [ -z $DEBRELEASE ]; then
@@ -172,6 +172,8 @@ apt-get install -y iotop
 
 # Cron
 apt-get install -y cron anacron
+systemctl disable cron
+systemctl disable anacron
 
 # Apt updating sources
 APTUPDTSCR="/etc/apt/apt.conf.d/99custom"
