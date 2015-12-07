@@ -64,16 +64,16 @@ if [[ ! -z "$GITHUBCOMMITNAME" && ! -z "$GITHUBCOMMITEMAIL" && -f "$GITHUBRSAPUB
 fi
 
 # Update scripts folder every hour using fcron.
-if type -p crontab &> /dev/null; then
-	grepcheckadd "0 * * * * cd $CSROOTFOLDER/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "0 \* \* \* \* cd $CSROOTFOLDER/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "/var/spool/cron/$USERNAMEVAR"
-	grepcheckadd "@reboot cd $CSROOTFOLDER/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "@reboot cd $CSROOTFOLDER/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "/var/spool/cron/$USERNAMEVAR"
-	su - $USERNAMEVAR -c "crontab /var/spool/cron/$USERNAMEVAR"
-elif type -p fcrontab &> /dev/null; then
-	grepcheckadd "&b 0 * * * * \"cd $CSROOTFOLDER/CustomScripts; git pull\"" "cd $CSROOTFOLDER/CustomScripts; git pull" "/var/spool/fcron/$USERNAMEVAR.orig"
-	chown fcron:fcron "/var/spool/fcron/$USERNAMEVAR.orig"
-	su - "$USERNAMEVAR" -c "fcrontab -z"
-elif [ -d "/etc/cron.hourly" ]; then
-multilinereplace "/etc/cron.hourly/updatecs" << EOFXYZ
+#~ if type -p crontab &> /dev/null; then
+	#~ grepcheckadd "0 * * * * cd $CSROOTFOLDER/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "0 \* \* \* \* cd $CSROOTFOLDER/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "/var/spool/cron/$USERNAMEVAR"
+	#~ grepcheckadd "@reboot cd $CSROOTFOLDER/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "@reboot cd $CSROOTFOLDER/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "/var/spool/cron/$USERNAMEVAR"
+	#~ su - $USERNAMEVAR -c "crontab /var/spool/cron/$USERNAMEVAR"
+#~ elif type -p fcrontab &> /dev/null; then
+	#~ grepcheckadd "&b 0 * * * * \"cd $CSROOTFOLDER/CustomScripts; git pull\"" "cd $CSROOTFOLDER/CustomScripts; git pull" "/var/spool/fcron/$USERNAMEVAR.orig"
+	#~ chown fcron:fcron "/var/spool/fcron/$USERNAMEVAR.orig"
+	#~ su - "$USERNAMEVAR" -c "fcrontab -z"
+if [ -d "/etc/cron.hourly" ]; then
+	multilinereplace "/etc/cron.hourly/updatecs" << EOFXYZ
 #!/bin/bash
 echo "Executing \$0"
 su $USERNAMEVAR -s /bin/bash <<'EOL'
