@@ -46,9 +46,9 @@ do
 	esac
 done
 	
-if [ $REMOVETIMERS = 1 ]; then
+if [ $REMOVETIMERS = 0 ]; then
 	echo "Creating timers."
-elif [ $REMOVETIMERS = 0 ]; then
+elif [ $REMOVETIMERS = 1 ]; then
 	echo "Removing Timers."
 fi
 
