@@ -374,12 +374,6 @@ systemctl enable syncthing@$USERNAMEVAR
 # Install pamac
 apacman -S --ignorearch --needed --noconfirm pamac-aur
 
-# Install cron
-#~ pacman -S --needed --noconfirm fcron
-#~ systemctl enable fcron
-pacman -S --needed --noconfirm cronie
-systemctl enable cronie
-
 # cron script to clean pacman cache weekly
 if type -p fcrontab &> /dev/null; then
 	grepcheckadd "&b 0 0 * * 6 \"pacman -Sc --noconfirm\"" "pacman -Sc --noconfirm" "/var/spool/fcron/root.orig"
