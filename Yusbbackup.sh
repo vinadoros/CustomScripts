@@ -66,7 +66,11 @@ setsourcefoldercmd () {
 		NEWPATH="$1"
 	fi
 	
-	NEWPATHBASE="$(basename $NEWPATH)"
+	# Inputs a path, finds the block device associated with it using df.
+	# Feeds it into lsblk to output the UUID, and cuts off characters after the dash.
+	# This makes the folder names unique, even if they are the same name across devices.
+	UUIDCUT="$(lsblk -n -o UUID $(df --output=source $NEWPATH|tail -1) | cut -d"-" -f1)"
+	NEWPATHBASE="$UUIDCUT-$(basename $NEWPATH)"
 	
 	RDIFFCMD="${RDIFFCMD}\nrdiffbak \"$NEWPATH\" \"\$DESTPATH/$NEWPATHBASE\""
 }
@@ -170,7 +174,7 @@ rdiffbak () {
 	fi
 	
 	if [ -d "\$SOURCEPATH" ]; then
-		rdiff-backup -v5 --force --exclude '**/.stversions**' "\$SOURCEPATH" "\$DESTINATIONPATH" 
+		rdiff-backup -v5 --force --exclude '**/.stversions**' --exclude '**/VMs**' "\$SOURCEPATH" "\$DESTINATIONPATH" 
 		rdiff-backup -v5 --remove-older-than 26W "\$DESTINATIONPATH"
 	else
 		echo "\$SOURCEPATH not found. Not syncing."
