@@ -99,6 +99,7 @@ createsdtimer () {
 [Unit]
 Description=Service for $TIMERNAME interval
 ConditionDirectoryNotEmpty=/etc/cron.$TIMERNAME
+After=network-online.target graphical.target
 
 [Service]
 Type=oneshot
