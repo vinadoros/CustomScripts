@@ -31,13 +31,17 @@ while true; do
 	sudo sed -i 's/#snapshot_image_format = \"raw\"/snapshot_image_format = \"xz"/g' /etc/libvirt/qemu.conf
 	sudo systemctl enable libvirtd
 	sudo systemctl start libvirtd
+	sudo systemctl enable virtlogd
+	sudo systemctl start virtlogd
 	sudo gpasswd -a $USERNAMEVAR kvm
 	break;;
 	
 	[2]* ) 
 	echo "You asked to remove virt-manager."
-	sudo systemctl disable libvirtdarch
+	sudo systemctl disable libvirtd
 	sudo systemctl stop libvirtd
+	sudo systemctl disable virtlogd
+	sudo systemctl stop virtlogd
 	sudo pacman -Rsn virt-manager ebtables dnsmasq qemu bridge-utils
 	sudo pacman -Syu --needed gnu-netcat
 	break;;
