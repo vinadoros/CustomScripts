@@ -115,7 +115,6 @@ EOL
 Description=Timer for $TIMERNAME interval
 
 [Timer]
-OnActiveSec=30sec
 Persistent=true
 OnCalendar=$CALENDARVAR
 
