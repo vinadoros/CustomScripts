@@ -39,8 +39,6 @@ gsettings set org.nemo.desktop volumes-visible true
 gsettings set org.nemo.preferences show-advanced-permissions true
 gsettings set org.nemo.preferences show-hidden-files true
 gsettings set org.nemo.icon-view captions "['size', 'none', 'none']"
-#gsettings set org.nemo.desktop trash-icon-visible true
-#gsettings set org.nemo.desktop volumes-visible true
 gsettings set org.nemo.preferences quick-renames-with-pause-in-between true
 gsettings set org.nemo.preferences show-open-in-terminal-toolbar true
 gsettings set org.nemo.preferences show-reload-icon-toolbar true
