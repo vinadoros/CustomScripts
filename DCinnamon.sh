@@ -14,6 +14,7 @@ xdg-mime default nemo.desktop inode/directory
 #To find out default file manager:
 #xdg-mime query default inode/directory
 gsettings set org.cinnamon cinnamon-settings-advanced true
+gsettings set org.cinnamon overview-corner "['expo:false:false', 'scale:false:false', 'scale:true:false', 'desktop:false:false']"
 #gsettings set org.cinnamon enabled-applets "['panel1:left:0:menu@cinnamon.org:0', 'panel1:left:2:panel-launchers@cinnamon.org:2', 'panel1:right:0:notifications@cinnamon.org:4', 'panel1:right:0:multicore-sys-monitor@ccadeptic23:15', 'panel1:right:1:user@cinnamon.org:5', 'panel1:right:2:removable-drives@cinnamon.org:6', 'panel1:right:5:network@cinnamon.org:9', 'panel1:right:6:sound@cinnamon.org:10', 'panel1:right:7:power@cinnamon.org:11', 'panel1:right:8:systray@cinnamon.org:12', 'panel1:right:9:calendar@cinnamon.org:13', 'panel1:right:10:windows-quick-list@cinnamon.org:14', 'panel2:left:0:window-list@cinnamon.org:20']"
 #gsettings set org.cinnamon favorite-apps "['google-chrome.desktop', 'evolution.desktop', 'nemo.desktop', 'gnome-terminal.desktop', 'banshee.desktop', 'virtualbox.desktop', 'vmware-workstation.desktop', 'cinnamon-settings.desktop']"
 gsettings set org.cinnamon.desktop.interface clock-use-24h false
