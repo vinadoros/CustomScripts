@@ -121,13 +121,6 @@ pacman -S --needed --noconfirm rsync base-devel
 function lightdmscript(){
 	pacman -S --needed --noconfirm lightdm
 	systemctl enable -f lightdm
-	if ! grep -i "^autologin" /etc/group; then
-		groupadd autologin
-	fi
-	gpasswd -a $USERNAMEVAR autologin
-	if [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 ]]; then
-		sed -i 's/#autologin-user=/autologin-user='$USERNAMEVAR'/g' /etc/lightdm/lightdm.conf
-	fi
 }
 
 # Set up dpms settings for lightdm.
