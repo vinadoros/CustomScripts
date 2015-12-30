@@ -378,6 +378,10 @@ if [ -d "/etc/cron.weekly" ]; then
 	multilinereplace "/etc/cron.weekly/pacclean" <<'EOL'
 #!/bin/bash
 echo "Executing $0"
+echo "Waiting for pacman lock."
+while [ -f /var/lib/pacman/db.lck ]; do
+	sleep 10
+done
 pacman -Sc --noconfirm
 pacman -Sc --cachedir=/var/cache/apacman/pkg --noconfirm
 EOL
