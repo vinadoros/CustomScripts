@@ -4,7 +4,8 @@
 function usage()
 {
 cat <<EOF
-Usage: sudo $0 [Path to root of Backup drive] [Path to RDIFF folder on destination drive]
+Usage: sudo $0 [Path to root of Backup drive] [Path to RDIFF folder on destination drive] [Paths to backup]
+Example: sudo Yusbbackup.sh "/mnt/Backup" "/mnt/Backup/Rdiff" "/mnt/Storage/Files" "/mnt/Storage/DLs"
 
 EOF
 exit 1;
@@ -76,9 +77,17 @@ setsourcefoldercmd () {
 }
 
 getvars
-setsourcefoldercmd "/mnt/ServerDrive/Files" 
-setsourcefoldercmd "/mnt/SSDStorage"
-setsourcefoldercmd "/media/Box" 
+
+# Process paths after the first two arguments.
+# https://stackoverflow.com/questions/2701400/remove-first-element-from-in-bash#2701420
+for PATHNAMES in "${@:3}"
+do
+	if [ -d "$PATHNAMES" ]; then
+		setsourcefoldercmd "$PATHNAMES"
+	else
+		echo "$PATHNAMES folder not found. Not adding."
+	fi
+done
 
 set -eu
 
