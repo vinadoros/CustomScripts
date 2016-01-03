@@ -183,7 +183,7 @@ rdiffbak () {
 	fi
 	
 	if [ -d "\$SOURCEPATH" ]; then
-		rdiff-backup -v5 --force --exclude '**/.stversions**' --exclude '**/VMs**' "\$SOURCEPATH" "\$DESTINATIONPATH" 
+		rdiff-backup -v5 --force --no-compression --exclude '**/.stversions**' --exclude '**/VMs**' "\$SOURCEPATH" "\$DESTINATIONPATH" 
 		rdiff-backup -v5 --remove-older-than 26W "\$DESTINATIONPATH"
 	else
 		echo "\$SOURCEPATH not found. Not syncing."
