@@ -1,5 +1,5 @@
 #!/bin/bash
-# Yusbbackup.sh version 2.
+# Yusbbackup.sh version 2, rdiff-backup version.
 
 function usage()
 {
