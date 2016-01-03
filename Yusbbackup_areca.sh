@@ -12,12 +12,14 @@ exit 1;
 }
 
 if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
-	USERNAMEVAR="$SUDO_USER"
+	export USERNAMEVAR="$SUDO_USER"
 elif [ "$USER" != "root" ]; then
-	USERNAMEVAR="$USER"
+	export USERNAMEVAR="$USER"
 else
-	USERNAMEVAR="$(id 1000 -un)"
+	export USERNAMEVAR="$(id 1000 -un)"
 fi
+USERGROUP="$(id 1000 -gn)"
+USERHOME="/home/$USERNAMEVAR"
 
 if [ "$(id -u)" != "0" ]; then
 	echo "Not running with root. Please run the script with su privledges."
@@ -129,8 +131,12 @@ bash -c "cat >$HDSCRIPT" <<EOL
 #!/bin/bash
 set -eu
 
-if [[ ! \$(type -P rdiff-backup) ]]; then
-	echo "No rdiff-backup found. Exiting."
+if [[ ! \$(type -P rsync) ]]; then
+	echo "No rsync found. Exiting."
+	exit 1;
+fi
+if [[ ! \$(type -P areca_cl) ]]; then
+	echo "No areca_cl found. Exiting."
 	exit 1;
 fi
 
@@ -155,14 +161,27 @@ rsyncfunc () {
 		echo "No parameter passed."
 		return 1;
 	else
-		SOURCEPATH="\$1"
+		RSSOURCEPATH="\$1"
 	fi
+	
+	if [ -z "\$2" ]; then
+		echo "No parameter passed."
+		return 1;
+	else
+		RSDESTPATH="\$2"
+	fi
+	
+	
+	rsync -axHAX --progress --numeric-ids --del "\$RSSOURCEPATH" "\$RSDESTPATH"
 	
 }
 
 arecafunc () {
 	
+	#Fix Areca
+	sed -i 's/if \[ "\$JAVA_IMPL" = "java" \] ; then/if \[\[ "$JAVA_IMPL" = "java" || "$JAVA_IMPL" = "openjdk" \]\] ; then/g' /opt/areca/bin/areca_run.sh
 	
+	"/opt/areca/bin/areca_cl.sh" backup -c -config "$USERHOME/.areca/workspace/Backup"
 	
 }
 
@@ -211,6 +230,9 @@ echo "Backup finished successfully."
 EOL
 chmod a+rwx "$HDSCRIPT"
 
+if [ ! -d "$USERHOME/.areca/workspace/Backup" ]; then
+	echo "$USERHOME/.areca/workspace/Backup does not exist. Please create an areca backup."
+fi
 
 echo "Script completed successfully."
 
