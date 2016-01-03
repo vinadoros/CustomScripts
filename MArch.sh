@@ -52,9 +52,11 @@ if [[ ! -d $USERHOME/.config/autostart/ ]]; then
 	chown -R $USERNAMEVAR:$USERGROUP $USERHOME/.config
 fi
 
+source "$SCRIPTDIR/Comp-ArchSoftware.sh"
+
 source "$SCRIPTDIR/Comp-sdtimers.sh"
 
-source "$SCRIPTDIR/Comp-ArchSoftware.sh"
+source "$SCRIPTDIR/Comp-ArchCron.sh"
 
 source "$SCRIPTDIR/Comp-ArchInfinality.sh"
 
