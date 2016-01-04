@@ -28,7 +28,7 @@ fi
 SYSTEMDPATH="$(readlink -f "/lib/systemd")"
 ZRAMSCRIPT="/usr/local/bin/zramscript"
 ZRAMSERVICE="${SYSTEMDPATH}/system/zram.service"
-if [[ ! -f /etc/systemd-swap.conf && "${MACHINEARCH}" != "armv7l" ]]; then
+if [[ ! -f /etc/systemd-swap.conf ]]; then
 	echo "Creating ${ZRAMSCRIPT}."
 	bash -c "cat >${ZRAMSCRIPT}" <<"EOLXYZ"
 #!/bin/sh
