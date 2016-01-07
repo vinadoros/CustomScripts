@@ -6,6 +6,7 @@ usage () {
 	echo "h - help"
 	echo "s - source folder"
 	echo "d - destination folder"
+	echo "a - disable attribute and ACL checks"
 	echo "p - ssh port"
 	exit 0;
 }
@@ -22,10 +23,15 @@ composersync () {
 # Rsync dry run function
 rsyncdryrun () {
 	echo "Test sync."
-	if [ ! -z "$SSHPORT" ]; then
-		sudo rsync -axHAXnvi --numeric-ids --del -e "ssh -p $SSHPORT" "$FOLDERONE" "$FOLDERTWO"
+	if [ ! -z "$DISABLEATTRCHK" ]; then
+		TESTRSYNCOPTS="-axHnvi"
 	else
-		sudo rsync -axHAXnvi --numeric-ids --del "$FOLDERONE" "$FOLDERTWO"
+		TESTRSYNCOPTS="-axHAXnvi"
+	fi
+	if [ ! -z "$SSHPORT" ]; then
+		sudo rsync $TESTRSYNCOPTS --numeric-ids --del -e "ssh -p $SSHPORT" "$FOLDERONE" "$FOLDERTWO"
+	else
+		sudo rsync $TESTRSYNCOPTS --numeric-ids --del "$FOLDERONE" "$FOLDERTWO"
 	fi
 	echo "Test sync complete."
 
@@ -37,6 +43,11 @@ rsyncdryrun () {
 # Compose rsync command function
 rsyncrealcmd () {
 	sudo bash <<EOF
+	if [ ! -z "$DISABLEATTRCHK" ]; then
+		REALRSYNCOPTS="-axH"
+	else
+		REALRSYNCOPTS="-axHAX"
+	fi
 	if [ ! -z "$SSHPORT" ]; then
 		rsync -axHAX --info=progress2 --numeric-ids --del -e "ssh -p $SSHPORT" "$FOLDERONE" "$FOLDERTWO"
 	else
@@ -48,7 +59,7 @@ EOF
 }
 
 # Get options
-while getopts "hs:d:p:" OPT
+while getopts "ahs:d:p:" OPT
 do
 	case $OPT in
 		h)
@@ -57,18 +68,15 @@ do
 			;;
 		s)
 			FOLDERONE="$OPTARG"
-			if [ -d "$FOLDERONE" ]; then
-				FOLDERONE="$(readlink -f "$FOLDERONE")"
-			fi
 			;;
 		d)
 			FOLDERTWO="$OPTARG"
-			if [ -d "$FOLDERTWO" ]; then
-				FOLDERTWO="$(readlink -f "$FOLDERTWO")"
-			fi
 			;;
 		p)
 			SSHPORT="$OPTARG"
+			;;
+		a)
+			DISABLEATTRCHK=1
 			;;
 		\?)
 			echo "Invalid option: -$OPTARG" 1>&2
