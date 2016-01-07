@@ -63,7 +63,9 @@ grepadd "set CUSTOMSCRIPTPATH \"$SCRIPTDIR\"" "$USERFISH"
 
 multilineadd "$USERFISH" "function stop" <<'EOL'
 set -gx EDITOR nano
-set -gx XZ_OPT "-9T0"
+if [ (uname -m) != "armv7l" ]
+	set -gx XZ_OPT "-9T0"
+end
 if timeout 3 test -d "$CUSTOMSCRIPTPATH"
 	set -gx PATH $PATH "$CUSTOMSCRIPTPATH"
 end
@@ -136,7 +138,9 @@ if [ "$(id -u)" == "0" ]; then
 
 	multilineadd "$ROOTFISH" "function stop" <<'EOL'
 set -gx EDITOR nano
-set -gx XZ_OPT "-9T0"
+if [ (uname -m) != "armv7l" ]
+	set -gx XZ_OPT "-9T0"
+end
 if timeout 3 test -d "$CUSTOMSCRIPTPATH"
 	set -gx PATH $PATH "$CUSTOMSCRIPTPATH"
 end
