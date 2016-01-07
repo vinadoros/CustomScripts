@@ -49,9 +49,9 @@ rsyncrealcmd () {
 		REALRSYNCOPTS="-axHAX"
 	fi
 	if [ ! -z "$SSHPORT" ]; then
-		rsync $REALRSYNCOPTS --info=progress2 --numeric-ids --del -e "ssh -p $SSHPORT" "$FOLDERONE" "$FOLDERTWO"
+		rsync \$REALRSYNCOPTS --info=progress2 --numeric-ids --del -e "ssh -p $SSHPORT" "$FOLDERONE" "$FOLDERTWO"
 	else
-		rsync $REALRSYNCOPTS --info=progress2 --numeric-ids --del "$FOLDERONE" "$FOLDERTWO"
+		rsync \$REALRSYNCOPTS --info=progress2 --numeric-ids --del "$FOLDERONE" "$FOLDERTWO"
 	fi
 	echo -e "\nSynching disks."
 	sync
