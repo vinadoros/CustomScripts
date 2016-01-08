@@ -29,21 +29,10 @@ echo "Executing ${SCRNAME}."
 source "$SCRIPTDIR/F-ChrootInitVars.sh"
 
 #Path above installpath
-TOPPATH=${INSTALLPATH}/..
+TOPPATH=${INSTALLPATH}
 
 # Chroot command
 CHROOTCMD="systemd-nspawn -D ${INSTALLPATH}"
-
-# Input initial variables.
-if [ ! -f ${INSTALLPATH}/etc/hostname ]; then
-	read -p "Input a computer name: " NEWHOSTNAME
-	NEWHOSTNAME=${NEWHOSTNAME//[^a-zA-Z0-9_]/}
-	if [ -z "$NEWHOSTNAME" ]; then
-		echo "No input found. Defaulting to FedoraTest."
-		NEWHOSTNAME=FedoraTest
-	fi
-	echo "You entered" $NEWHOSTNAME
-fi
 
 read -p "Press any key to continue." 
 
