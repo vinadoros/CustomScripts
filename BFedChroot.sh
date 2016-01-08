@@ -7,13 +7,10 @@ set -e
 ##################        Initial Setup and Variables      ####################
 ###############################################################################
 
-# Private variable file.
-PRIVATEVARS="/usr/local/bin/privateconfig.sh"
-
 #Temporary Mount
 TMPMNT=fedora_temp_mount
 
-URL="https://download.fedoraproject.org/pub/fedora/linux/releases/22/Cloud/x86_64/Images/Fedora-Cloud-Base-22-20150521.x86_64.raw.xz"
+URL="https://download.fedoraproject.org/pub/fedora/linux/releases/23/Cloud/x86_64/Images/Fedora-Cloud-Base-23-20151030.x86_64.raw.xz"
 XZIMG=$(basename ${URL}) # Just the file name
 IMG=${XZIMG:0:-3}        # Pull .xz off of the end
 
@@ -22,59 +19,14 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1;
 fi
 
-# Enable installing to guest. Set to 0 if physical machine.
-if grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name"; then
-	VBOXGUEST=1
-	echo "Virtualbox Detected"
-else
-	VBOXGUEST=0
-	echo "Virtualbox not Detected"
-fi
-if grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor"; then
-	QEMUGUEST=1
-	echo "QEMU Detected"
-else
-	QEMUGUEST=0
-	echo "QEMU not Detected"
-fi
-if grep -iq "VMware" "/sys/devices/virtual/dmi/id/product_name"; then
-	VMWGUEST=1
-	echo "VMWare Detected"
-else
-	VMWGUEST=0
-	echo "VMWare not Detected"
-fi
+# Get folder of this script
+SCRIPTSOURCE="${BASH_SOURCE[0]}"
+FLWSOURCE="$(readlink -f "$SCRIPTSOURCE")"
+SCRIPTDIR="$(dirname "$FLWSOURCE")"
+SCRNAME="$(basename $SCRIPTSOURCE)"
+echo "Executing ${SCRNAME}."
 
-if [ -z "$USERNAMEVAR" ]; then
-	read -p "Input a user name: " USERNAMEVAR
-	USERNAMEVAR=${USERNAMEVAR//[^a-zA-Z0-9_]/}
-	if [[ -z "$USERNAMEVAR" && -f "$PRIVATEVARS" ]]; then
-		source "$PRIVATEVARS"
-		USERNAMEVAR="$DEFAULTUSERNAMEVAR"
-		echo "No input found. Defaulting to $USERNAMEVAR."
-	fi
-fi
-echo "You entered" $USERNAMEVAR
-USERHOME=/home/$USERNAMEVAR
-
-if [ -z "$FULLNAME" ]; then
-	read -p "Input a full name (with spaces): " FULLNAME
-	if [[ -z "$FULLNAME" && -f "$PRIVATEVARS" ]]; then
-		source "$PRIVATEVARS"
-		FULLNAME="$DEFAULTFULLNAME"
-		echo "No input found. Defaulting to $FULLNAME."
-	fi
-fi
-echo "You entered" $FULLNAME
-
-# Strip trailing slash if it exists.
-INSTALLPATH=${1%/}
-if [ -z "${INSTALLPATH}" ]; then
-	echo "No install path found. Exiting."
-	exit 1;
-else
-	echo "Installpath is ${INSTALLPATH}."
-fi
+source "$SCRIPTDIR/F-ChrootInitVars.sh"
 
 #Path above installpath
 TOPPATH=${INSTALLPATH}/..
@@ -94,13 +46,6 @@ if [ ! -f ${INSTALLPATH}/etc/hostname ]; then
 fi
 
 read -p "Press any key to continue." 
-
-# Create install path
-if [ ! -d ${INSTALLPATH} ]; then
-	echo "Creating ${INSTALLPATH}."
-	mkdir -p ${INSTALLPATH}
-	chmod a+rwx ${INSTALLPATH}
-fi
 
 if [ ! -f ${INSTALLPATH}/etc/hostname ]; then
 	if [ ! -f ${TOPPATH}/${XZIMG} ]; then
@@ -212,9 +157,126 @@ chmod a+rwx ${INSTALLPATH}/setupscript.sh
 # Run script in chroot
 ${CHROOTCMD} /setupscript.sh
 
-echo "Grub and linux kernel not installed in this script."
-
 # Delete script when done.
 rm ${INSTALLPATH}/setupscript.sh
+
+# Copy wifi connections to guest
+echo "Copying network manager connections to install folder."
+cp -aRvn /etc/NetworkManager/system-connections/ "${INSTALLPATH}/etc/NetworkManager/"
+for file in "${INSTALLPATH}"/etc/NetworkManager/system-connections/*; do
+	if ! ( echo "$file" | grep -iq "etc/NetworkManager/system-connections/*" ); then
+		sed -i 's/permissions=.*$/permissions=/g' "$file"
+		sed -i 's/mac-address=.*$/mac-address=/g' "$file"
+	fi
+done
+
+# Create main part of grub script for chroot.
+bash -c "cat >>${GRUBSCRIPT}" <<'EOLXYZ'
+export PATH=$PATH:/bin:/usr/local/sbin:/usr/sbin:/sbin
+
+case $SETGRUB in
+[1]) 
+	echo "Not installing kernel."
+	;;
+[2-4])
+	echo "Installing kernel."
+	
+	# Liquorix repo
+	if [[ "$DEBARCH" = "amd64" || "$DEBARCH" = "i386" ]] && ! grep -iq "liquorix.net" /etc/apt/sources.list; then
+		echo "Installing liquorix kernel."
+		add-apt-repository "deb http://liquorix.net/debian sid main past"
+		apt-get update
+		apt-get install -y --force-yes liquorix-keyring
+		apt-get update
+	fi
+	
+	# Install kernels.
+	[ "${DEBARCH}" = "amd64" ] && apt-get install -y linux-image-liquorix-amd64 linux-headers-liquorix-amd64
+	[ "${DEBARCH}" = "i386" ] && apt-get install -y linux-image-liquorix-686-pae linux-headers-liquorix-686-pae
+	# Remove stock kernels if installed.
+	dpkg-query -l | grep -iq "linux-image-amd64" && apt-get --purge remove -y linux-image-amd64
+	dpkg-query -l | grep -iq "linux-image-686-pae" && apt-get --purge remove -y linux-image-686-pae
+	dpkg-query -l | grep -iq "linux-headers-generic" && apt-get --purge remove -y linux-headers-generic
+	
+	if [[ "$DISTRONUM" -eq "1" || "$DISTRONUM" -eq "2" ]]; then
+<<COMMENT2
+		if [[ "$DEBARCH" = "amd64" ]]; then
+			apt-get install -y linux-image-amd64
+		fi
+		if [[ "$DEBARCH" = "i386" || "$DEBARCH" = "i686" ]]; then
+			apt-get install -y linux-image-686-pae
+		fi
+COMMENT2
+		apt-get install -y firmware-linux gfxboot
+		echo "firmware-ipw2x00 firmware-ipw2x00/license/accepted boolean true" | debconf-set-selections
+		echo "firmware-ivtv firmware-ivtv/license/accepted boolean true" | debconf-set-selections
+		DEBIAN_FRONTEND=noninteractive apt-get install -y ^firmware-* 
+	fi
+	
+	if [[ "$DISTRONUM" -eq "3" ]]; then
+		#apt-get install -y linux-image-generic linux-headers-generic
+		apt-get install -y gfxboot gfxboot-theme-ubuntu linux-firmware
+	fi
+	;;
+	
+esac
+    
+case $SETGRUB in
+
+[1]* ) 
+	echo "You asked to do nothing. Be sure to install a bootloader."
+	;;
+
+[2]* ) 
+	echo "You asked to perform 'grub-isntall $DEVPART'."
+	DEBIAN_FRONTEND=noninteractive apt-get install -y grub-pc
+	grub-install --target=i386-pc --recheck --debug $DEVPART
+	update-grub2
+	;;
+
+[3]* ) 
+	echo "You asked to install efi bootloader."
+	while ! mount | grep -iq "/boot/efi"; do
+		echo "/boot/efi is not mounted. Please mount it."
+		read -p "Press any key to continue."
+	done
+	
+	DEBIAN_FRONTEND=noninteractive apt-get install -y grub-efi-amd64
+	
+	if [[ "$DISTRONUM" -eq "1" || "$DISTRONUM" -eq "2" ]]; then
+		grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=debian --recheck --debug
+	fi
+	
+	if [[ "$DISTRONUM" -eq "3" ]]; then
+		grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ubuntu --recheck --debug
+	fi
+	
+	update-grub2
+	;;
+
+[4]* ) 
+	if [ ! -z $PART ]; then
+		echo "Installing grub to $PART."
+		DEBIAN_FRONTEND=noninteractive apt-get install -y grub-pc
+		grub-install --target=i386-pc --recheck --debug $PART
+		update-grub2
+	else
+		echo "No partition variable specified. Not installing grub."
+	fi
+	;;
+
+esac
+
+echo "End grubscript.sh"
+
+EOLXYZ
+
+set +e
+# Run script in chroot
+${CHROOTCMD} /grubscript.sh
+set -e
+
+# Delete script when done.
+rm ${GRUBSCRIPT}
 
 echo "Script finished successfully."
