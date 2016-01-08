@@ -30,6 +30,9 @@ source "$SCRIPTDIR/F-ChrootInitVars.sh"
 
 #Path above installpath
 TOPPATH=${INSTALLPATH}/..
+PATHOFXZIMG="${INSTALLPATH}/${XZIMG}"
+PATHOFIMG="${INSTALLPATH}/${IMG}"
+PATHOFTOPMNT="${TOPPATH}/${TMPMNT}"
 
 # Chroot command
 CHROOTCMD="systemd-nspawn -D ${INSTALLPATH}"
@@ -37,21 +40,21 @@ CHROOTCMD="systemd-nspawn -D ${INSTALLPATH}"
 read -p "Press any key to continue." 
 
 if [ ! -f ${INSTALLPATH}/etc/hostname ]; then
-	if [ ! -f ${INSTALLPATH}/${XZIMG} ]; then
+	if [ ! -f ${PATHOFXZIMG} ]; then
 		echo "Retrieving Fedora xz image."
 		wget -P ${INSTALLPATH}/ ${URL}
-		chmod a+rwx ${INSTALLPATH}/${XZIMG}
+		chmod a+rwx ${PATHOFXZIMG}
 	fi
-	if [ ! -f ${INSTALLPATH}/${IMG} ]; then
+	if [ ! -f ${PATHOFIMG} ]; then
 		echo "Decompressing xz image."
-		xz -d -k ${INSTALLPATH}/${XZIMG}
-		chmod a+rwx ${INSTALLPATH}/${IMG}
+		xz -dkv ${PATHOFXZIMG}
+		chmod a+rwx ${PATHOFIMG}
 	fi
 	# Find the starting byte and the total bytes in the 1st partition
 	# NOTE: normally would be able to use partx/kpartx directly to loopmount
 	#       the disk image and add the partitions, but inside of docker I found
 	#       that wasn't working quite right so I resorted to this manual approach.
-	PAIRS=$(partx --pairs ${TOPPATH}/${IMG})
+	PAIRS=$(partx --pairs ${PATHOFIMG})
 	eval `echo "$PAIRS" | head -n 1 | sed 's/ /\n/g'`
 	STARTBYTES=$((512*START))   # 512 bytes * the number of the start sector
 	TOTALBYTES=$((512*SECTORS)) # 512 bytes * the number of sectors in the partition
@@ -60,24 +63,24 @@ if [ ! -f ${INSTALLPATH}/etc/hostname ]; then
 	LOOPDEV=$(losetup -f)
 	
 	# Loopmount the first partition of the device
-	losetup -v --offset $STARTBYTES --sizelimit $TOTALBYTES $LOOPDEV ${TOPPATH}/${IMG}
+	losetup -v --offset $STARTBYTES --sizelimit $TOTALBYTES $LOOPDEV ${PATHOFIMG}
 		
 	# Mount it on $TMPMNT
-	if [ ! -d ${TOPPATH}/${TMPMNT} ]; then
-		mkdir -p ${TOPPATH}/${TMPMNT}
-		chmod a+rwx ${TOPPATH}/${TMPMNT}
+	if [ ! -d ${PATHOFTOPMNT} ]; then
+		mkdir -p ${PATHOFTOPMNT}
+		chmod a+rwx ${PATHOFTOPMNT}
 	fi
-	mount $LOOPDEV ${TOPPATH}/${TMPMNT}
+	mount $LOOPDEV ${PATHOFTOPMNT}
 	
 	# Copy all files
 	echo "Copying files into chroot folder."
-	sudo rsync -axHAWX --info=progress2 --numeric-ids --del ${TOPPATH}/${TMPMNT}/ ${INSTALLPATH}/
+	sudo rsync -axHAWX --info=progress2 --numeric-ids --del --filter="-rs_*/$IMG*" ${PATHOFTOPMNT}/ ${INSTALLPATH}/
 	
 	# Unmount and clean up loop mount
 	umount ${TOPPATH}/$TMPMNT
 	losetup -d $LOOPDEV
 	rm -rf ${TOPPATH}/${TMPMNT}/
-	rm ${INSTALLPATH}/${IMG}
+	rm "${PATHOFIMG}"
 	
 	chmod a+rwx ${INSTALLPATH}/
 	
