@@ -29,7 +29,7 @@ echo "Executing ${SCRNAME}."
 source "$SCRIPTDIR/F-ChrootInitVars.sh"
 
 #Path above installpath
-TOPPATH=${INSTALLPATH}
+TOPPATH=${INSTALLPATH}/..
 
 # Chroot command
 CHROOTCMD="systemd-nspawn -D ${INSTALLPATH}"
@@ -37,15 +37,15 @@ CHROOTCMD="systemd-nspawn -D ${INSTALLPATH}"
 read -p "Press any key to continue." 
 
 if [ ! -f ${INSTALLPATH}/etc/hostname ]; then
-	if [ ! -f ${TOPPATH}/${XZIMG} ]; then
+	if [ ! -f ${INSTALLPATH}/${XZIMG} ]; then
 		echo "Retrieving Fedora xz image."
-		wget -P ${TOPPATH}/ ${URL}
-		chmod a+rwx ${TOPPATH}/${XZIMG}
+		wget -P ${INSTALLPATH}/ ${URL}
+		chmod a+rwx ${INSTALLPATH}/${XZIMG}
 	fi
-	if [ ! -f ${TOPPATH}/${IMG} ]; then
+	if [ ! -f ${INSTALLPATH}/${IMG} ]; then
 		echo "Decompressing xz image."
-		xz -d -k ${TOPPATH}/${XZIMG}
-		chmod a+rwx ${TOPPATH}/${IMG}
+		xz -d -k ${INSTALLPATH}/${XZIMG}
+		chmod a+rwx ${INSTALLPATH}/${IMG}
 	fi
 	# Find the starting byte and the total bytes in the 1st partition
 	# NOTE: normally would be able to use partx/kpartx directly to loopmount
@@ -77,7 +77,7 @@ if [ ! -f ${INSTALLPATH}/etc/hostname ]; then
 	umount ${TOPPATH}/$TMPMNT
 	losetup -d $LOOPDEV
 	rm -rf ${TOPPATH}/${TMPMNT}/
-	rm ${TOPPATH}/${IMG}
+	rm ${INSTALLPATH}/${IMG}
 	
 	chmod a+rwx ${INSTALLPATH}/
 	
