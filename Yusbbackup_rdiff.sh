@@ -189,7 +189,7 @@ rdiffbak () {
 		echo "\$SOURCEPATH not found. Not syncing."
 	fi
 	
-	sync
+	sync || true
 }
 
 #Wait 5 seconds.
@@ -201,7 +201,7 @@ echo "Sync begin."
 
 $(echo -e $RDIFFCMD)
 
-echo "Backup finished successfully."
+echo “Backup successfully completed on $(date).”
 EOL
 chmod a+rwx "$HDSCRIPT"
 
