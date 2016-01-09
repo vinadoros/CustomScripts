@@ -24,6 +24,9 @@ TMPMNT=fedora_temp_mount
 
 CENTOSURL="http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.raw.tar.gz"
 FEDURL="https://download.fedoraproject.org/pub/fedora/linux/releases/23/Cloud/x86_64/Images/Fedora-Cloud-Base-23-20151030.x86_64.raw.xz"
+FED32BITURL="https://download.fedoraproject.org/pub/fedora/linux/releases/23/Cloud/i386/Images/Fedora-Cloud-Base-23-20151030.i386.raw.xz"
+
+MACHINEARCH=$(uname -m)
 
 fedoraimgvars () {
 	COMPRESSEDIMG=$(basename ${URL}) # Just the file name
@@ -58,7 +61,11 @@ if [ -z "$FEDREL" ]; then
 	fi
 	if [[ "$FEDREL" = 1 ]]; then
 		echo "Input is 1. Using Fedora."
-		URL="$FEDURL"
+		if [ $MACHINEARCH != x86_64 ]; then
+			URL="$FED32BITURL"
+		else
+			URL="$FEDURL"
+		fi
 		fedoraimgvars
 	elif [[ "$FEDREL" = 2 ]]; then
 		echo "Input is 2. Using CentOS."
