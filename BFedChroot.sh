@@ -70,10 +70,6 @@ if [ ! -f "${INSTALLPATH}/etc/hostname" ]; then
 		mkdir -p "${PATHOFTOPMNT}"
 		chmod a+rwx "${PATHOFTOPMNT}"
 	fi
-	if grep "$LOOPDEV"; then
-		umount -l "$LOOPDEV" || true
-		sleep 2
-	fi
 	mount $LOOPDEV "${PATHOFTOPMNT}"
 	
 	# Copy all files
@@ -82,6 +78,10 @@ if [ ! -f "${INSTALLPATH}/etc/hostname" ]; then
 	
 	# Unmount and clean up loop mount
 	umount "${PATHOFTOPMNT}"
+	while mount | grep "$LOOPDEV"; do
+		umount -l "$LOOPDEV" || true
+		sleep 2
+	done
 	losetup -d $LOOPDEV
 	rm -rf "${PATHOFTOPMNT}/"
 	rm "${PATHOFIMG}"
