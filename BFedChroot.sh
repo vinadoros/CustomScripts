@@ -143,30 +143,22 @@ else
 	echo "${INSTALLPATH} not empty. Skipping fedora download."
 fi
 
-if [ -f ${INSTALLPATH}/setupscript.sh ]; then
-	echo "Removing existing setupscript.sh."
-	rm ${INSTALLPATH}/setupscript.sh
-fi
-
-# Create initial portion of script for chroot.
-bash -c "cat >>${INSTALLPATH}/setupscript.sh" <<EOLXYZ
-#!/bin/bash
-
-# Carry-over variables
-USERNAMEVAR=${USERNAMEVAR}
-NEWHOSTNAME=${NEWHOSTNAME}
-FULLNAME="${FULLNAME}"
-VBOXGUEST=${VBOXGUEST}
-QEMUGUEST=${QEMUGUEST}
-VMWGUEST=${VMWGUEST}
-
+# Add to initial portion of script for chroot.
+bash -c "cat >>${SETUPSCRIPT}" <<EOLXYZ
+FEDREL=$FEDREL
 EOLXYZ
 
 # Create main part of setup script for chroot.
-bash -c "cat >>${INSTALLPATH}/setupscript.sh" <<'EOLXYZ'
+bash -c "cat >>${SETUPSCRIPT}" <<'EOLXYZ'
 
-dnf update -y
-dnf install -y nano sudo
+if [[ $FEDREL = 1 ]]; then
+	INSTCMD=dnf
+elif [[ $FEDREL = 2 ]]; then
+	INSTCMD=yum
+fi
+
+$INSTCMD update -y
+$INSTCMD install -y nano sudo
 
 if [ -z "$SETPASS" ]; then
 	echo "Enter a root password."
@@ -197,25 +189,28 @@ if ! grep -i ${USERNAMEVAR} /etc/passwd; then
 	chfn -f "${FULLNAME}" ${USERNAMEVAR}
 fi
 
-rpm --quiet --query folkswithhats-release || dnf -y --nogpgcheck install http://folkswithhats.org/repo/$(rpm -E %fedora)/RPMS/noarch/folkswithhats-release-1.0.1-1.fc$(rpm -E %fedora).noarch.rpm
-rpm --quiet --query rpmfusion-free-release || dnf -y --nogpgcheck install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
-rpm --quiet --query rpmfusion-nonfree-release || dnf -y --nogpgcheck install http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-dnf -y --nogpgcheck install fedy
+if [[ $FEDREL = 1 ]]; then
+	rpm --quiet --query folkswithhats-release || $INSTCMD -y --nogpgcheck install http://folkswithhats.org/repo/$(rpm -E %fedora)/RPMS/noarch/folkswithhats-release-1.0.1-1.fc$(rpm -E %fedora).noarch.rpm
+	rpm --quiet --query rpmfusion-free-release || $INSTCMD -y --nogpgcheck install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+	rpm --quiet --query rpmfusion-nonfree-release || $INSTCMD -y --nogpgcheck install http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+	$INSTCMD -y --nogpgcheck install fedy
 
-dnf install -y freetype-freeworld
-dnf groupinstall -y "Basic Desktop"
-dnf install -y yumex
+	$INSTCMD install -y freetype-freeworld
+fi
+
+$INSTCMD groupinstall -y "Basic Desktop"
+$INSTCMD install -y yumex
 
 systemctl disable cloud-config.service cloud-final.service cloud-init.service cloud-init-local.service
 
 EOLXYZ
-chmod a+rwx ${INSTALLPATH}/setupscript.sh
+chmod a+rwx "${SETUPSCRIPT}"
 
 # Run script in chroot
 ${CHROOTCMD} /setupscript.sh
 
 # Delete script when done.
-rm ${INSTALLPATH}/setupscript.sh
+rm "${SETUPSCRIPT}"
 
 # Copy wifi connections to guest
 echo "Copying network manager connections to install folder."
@@ -227,8 +222,20 @@ for file in "${INSTALLPATH}"/etc/NetworkManager/system-connections/*; do
 	fi
 done
 
+# Add to initial portion of script for chroot.
+bash -c "cat >>${GRUBSCRIPT}" <<EOLXYZ
+FEDREL=$FEDREL
+EOLXYZ
+
 # Create main part of grub script for chroot.
 bash -c "cat >>${GRUBSCRIPT}" <<'EOLXYZ'
+
+if [[ $FEDREL = 1 ]]; then
+	INSTCMD=dnf
+elif [[ $FEDREL = 2 ]]; then
+	INSTCMD=yum
+fi
+
 export PATH=$PATH:/bin:/usr/local/sbin:/usr/sbin:/sbin
 
 case $SETGRUB in
@@ -237,8 +244,8 @@ case $SETGRUB in
 	;;
 [2-4])
 	echo "Installing kernel."
-	dnf install -y kernel linux-firmware
-	dnf install -y grub2 grubby efibootmgr efivar
+	$INSTCMD install -y kernel linux-firmware
+	$INSTCMD install -y grub2 grubby efibootmgr efivar
 	;;
 	
 esac
