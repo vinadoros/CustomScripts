@@ -134,6 +134,10 @@ if [ ! -f "${INSTALLPATH}/etc/hostname" ]; then
 	
 	chmod a+rwx "${INSTALLPATH}/"
 	
+	# Generate fstab
+	# || : forces error code of genfstab to be 0 if it fails, like if the path isn't a mount point.
+	genfstab -Up ${INSTALLPATH} > ${INSTALLPATH}/etc/fstab || : 
+	
 	echo ${NEWHOSTNAME} > "${INSTALLPATH}/etc/hostname"
 	#sed -i 's/\(127.0.0.1\tlocalhost\)\(.*\)/\1 '${NEWHOSTNAME}'/g' ${INSTALLPATH}/etc/hosts
 else
