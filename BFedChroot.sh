@@ -3,17 +3,6 @@
 # Halt on any error.
 set -e
 
-###############################################################################
-##################        Initial Setup and Variables      ####################
-###############################################################################
-
-#Temporary Mount
-TMPMNT=fedora_temp_mount
-
-URL="https://download.fedoraproject.org/pub/fedora/linux/releases/23/Cloud/x86_64/Images/Fedora-Cloud-Base-23-20151030.x86_64.raw.xz"
-XZIMG=$(basename ${URL}) # Just the file name
-IMG=${XZIMG:0:-3}        # Pull .xz off of the end
-
 if [ "$(id -u)" != "0" ]; then
 	echo "Not running as root. Please run the script with sudo or root privledges."
 	exit 1;
@@ -26,11 +15,67 @@ SCRIPTDIR="$(dirname "$FLWSOURCE")"
 SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
+###############################################################################
+##################        Initial Setup and Variables      ####################
+###############################################################################
+
+#Temporary Mount
+TMPMNT=fedora_temp_mount
+
+CENTOSURL="http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.raw.tar.gz"
+FEDURL="https://download.fedoraproject.org/pub/fedora/linux/releases/23/Cloud/x86_64/Images/Fedora-Cloud-Base-23-20151030.x86_64.raw.xz"
+
+fedoraimgvars () {
+	COMPRESSEDIMG=$(basename ${URL}) # Just the file name
+	IMG=${COMPRESSEDIMG:0:-3}        # Pull .xz off of the end
+}
+
+centosimgvars () {
+	COMPRESSEDIMG=$(basename ${URL}) # Just the file name
+	IMG=${COMPRESSEDIMG:0:-7}        # Pull .tar.gz off of the end
+}
+
+decompressimg () {
+	if [[ "$FEDREL" = 1 ]]; then
+		echo "Decompressing fedora image."
+		xz -dkv "${PATHOFCOMPRESSEDIMG}"
+		chmod a+rwx "${PATHOFIMG}"
+	elif [[ "$FEDREL" = 2 ]]; then
+		echo "Decompressing centos image."
+		tar -xvpf "$PATHOFCOMPRESSEDIMG" -C "${INSTALLPATH}/"
+		# Rename the extracted image to the image generated above.
+		BEGINIMG=${COMPRESSEDIMG:0:8}
+		mv "${INSTALLPATH}/$BEGINIMG"*.raw "$PATHOFIMG"
+	fi
+}
+
+if [ -z "$FEDREL" ]; then
+	read -p "Input a Release (1=Fedora, 2=CentOS): " FEDREL
+	USERNAMEVAR=${USERNAMEVAR//[^0-9_]/}
+	if [ -z "$FEDREL" ]; then
+		echo "Defaulting to 1."
+		FEDREL=1
+	fi
+	if [[ "$FEDREL" = 1 ]]; then
+		echo "Input is 1. Using Fedora."
+		URL="$FEDURL"
+		fedoraimgvars
+	elif [[ "$FEDREL" = 2 ]]; then
+		echo "Input is 2. Using CentOS."
+		URL="$CENTOSURL"
+		centosimgvars
+	else
+		echo "Error, invalid input of $FEDREL. Exiting."
+		exit 1;
+	fi
+fi
+echo "You entered" $FEDREL
+
 source "$SCRIPTDIR/F-ChrootInitVars.sh"
 
 #Path above installpath
 TOPPATH=${INSTALLPATH}/..
-PATHOFXZIMG="${INSTALLPATH}/${XZIMG}"
+PATHOFCOMPRESSEDIMG="${INSTALLPATH}/${COMPRESSEDIMG}"
 PATHOFIMG="${INSTALLPATH}/${IMG}"
 PATHOFTOPMNT="${TOPPATH}/${TMPMNT}"
 
@@ -40,15 +85,13 @@ CHROOTCMD="systemd-nspawn -D ${INSTALLPATH}"
 read -p "Press any key to continue." 
 
 if [ ! -f "${INSTALLPATH}/etc/hostname" ]; then
-	if [ ! -f "${PATHOFXZIMG}" ]; then
-		echo "Retrieving Fedora xz image."
-		wget -P "${INSTALLPATH}/" ${URL}
-		chmod a+rwx "${PATHOFXZIMG}"
+	if [ ! -f "${PATHOFCOMPRESSEDIMG}" ]; then
+		echo "Retrieving compressed image."
+		wget -P "${INSTALLPATH}/" "${URL}"
+		chmod a+rwx "${PATHOFCOMPRESSEDIMG}"
 	fi
 	if [ ! -f "${PATHOFIMG}" ]; then
-		echo "Decompressing xz image."
-		xz -dkv "${PATHOFXZIMG}"
-		chmod a+rwx "${PATHOFIMG}"
+		decompressimg
 	fi
 	# Find the starting byte and the total bytes in the 1st partition
 	# NOTE: normally would be able to use partx/kpartx directly to loopmount
@@ -74,7 +117,7 @@ if [ ! -f "${INSTALLPATH}/etc/hostname" ]; then
 	
 	# Copy all files
 	echo "Copying files into chroot folder."
-	sudo rsync -axHAWX --info=progress2 --numeric-ids --del --filter="protect $IMG" --filter="protect $XZIMG" --filter="protect /*.sh" "${PATHOFTOPMNT}/" "${INSTALLPATH}/"
+	sudo rsync -axHAWX --info=progress2 --numeric-ids --del --filter="protect $IMG" --filter="protect $COMPRESSEDIMG" --filter="protect /*.sh" "${PATHOFTOPMNT}/" "${INSTALLPATH}/"
 	if [ -f "${INSTALLPATH}/etc/hostname" ]; then
 		rm "${INSTALLPATH}/etc/hostname"
 	fi
@@ -90,7 +133,7 @@ if [ ! -f "${INSTALLPATH}/etc/hostname" ]; then
 	fi
 	rm -rf "${PATHOFTOPMNT}/"
 	rm "${PATHOFIMG}"
-	rm "${PATHOFXZIMG}"
+	rm "${PATHOFCOMPRESSEDIMG}"
 	
 	chmod a+rwx "${INSTALLPATH}/"
 	
