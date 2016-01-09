@@ -70,6 +70,10 @@ if [ ! -f "${INSTALLPATH}/etc/hostname" ]; then
 		mkdir -p "${PATHOFTOPMNT}"
 		chmod a+rwx "${PATHOFTOPMNT}"
 	fi
+	if grep "$LOOPDEV"; then
+		umount -l "$LOOPDEV" || true
+		sleep 2
+	fi
 	mount $LOOPDEV "${PATHOFTOPMNT}"
 	
 	# Copy all files
