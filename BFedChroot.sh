@@ -82,7 +82,9 @@ if [ ! -f "${INSTALLPATH}/etc/hostname" ]; then
 		umount -l "$LOOPDEV" || true
 		sleep 2
 	done
-	losetup -d $LOOPDEV
+	if [ -b $LOOPDEV ]; then
+		losetup -d $LOOPDEV
+	fi
 	rm -rf "${PATHOFTOPMNT}/"
 	rm "${PATHOFIMG}"
 	rm "${PATHOFXZIMG}"
