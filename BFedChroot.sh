@@ -39,16 +39,16 @@ CHROOTCMD="systemd-nspawn -D ${INSTALLPATH}"
 
 read -p "Press any key to continue." 
 
-if [ ! -f ${INSTALLPATH}/etc/hostname ]; then
-	if [ ! -f ${PATHOFXZIMG} ]; then
+if [ ! -f "${INSTALLPATH}/etc/hostname" ]; then
+	if [ ! -f "${PATHOFXZIMG}" ]; then
 		echo "Retrieving Fedora xz image."
-		wget -P ${INSTALLPATH}/ ${URL}
-		chmod a+rwx ${PATHOFXZIMG}
+		wget -P "${INSTALLPATH}/" ${URL}
+		chmod a+rwx "${PATHOFXZIMG}"
 	fi
-	if [ ! -f ${PATHOFIMG} ]; then
+	if [ ! -f "${PATHOFIMG}" ]; then
 		echo "Decompressing xz image."
-		xz -dkv ${PATHOFXZIMG}
-		chmod a+rwx ${PATHOFIMG}
+		xz -dkv "${PATHOFXZIMG}"
+		chmod a+rwx "${PATHOFIMG}"
 	fi
 	# Find the starting byte and the total bytes in the 1st partition
 	# NOTE: normally would be able to use partx/kpartx directly to loopmount
@@ -63,26 +63,27 @@ if [ ! -f ${INSTALLPATH}/etc/hostname ]; then
 	LOOPDEV=$(losetup -f)
 	
 	# Loopmount the first partition of the device
-	losetup -v --offset $STARTBYTES --sizelimit $TOTALBYTES $LOOPDEV ${PATHOFIMG}
+	losetup -v --offset $STARTBYTES --sizelimit $TOTALBYTES $LOOPDEV "${PATHOFIMG}"
 		
 	# Mount it on $TMPMNT
-	if [ ! -d ${PATHOFTOPMNT} ]; then
-		mkdir -p ${PATHOFTOPMNT}
-		chmod a+rwx ${PATHOFTOPMNT}
+	if [ ! -d "${PATHOFTOPMNT}" ]; then
+		mkdir -p "${PATHOFTOPMNT}"
+		chmod a+rwx "${PATHOFTOPMNT}"
 	fi
-	mount $LOOPDEV ${PATHOFTOPMNT}
+	mount $LOOPDEV "${PATHOFTOPMNT}"
 	
 	# Copy all files
 	echo "Copying files into chroot folder."
-	sudo rsync -axHAWX --info=progress2 --numeric-ids --del --filter="-rs_*/$IMG*" ${PATHOFTOPMNT}/ ${INSTALLPATH}/
+	sudo rsync -axHAWX --info=progress2 --numeric-ids --del --filter="protect $IMG" --filter="protect $XZIMG" --filter="protect /*.sh" "${PATHOFTOPMNT}/" "${INSTALLPATH}/"
 	
 	# Unmount and clean up loop mount
-	umount ${TOPPATH}/$TMPMNT
+	umount "${PATHOFTOPMNT}"
 	losetup -d $LOOPDEV
-	rm -rf ${TOPPATH}/${TMPMNT}/
+	rm -rf "${PATHOFTOPMNT}/"
 	rm "${PATHOFIMG}"
+	rm "${PATHOFXZIMG}"
 	
-	chmod a+rwx ${INSTALLPATH}/
+	chmod a+rwx "${INSTALLPATH}/"
 	
 	echo ${NEWHOSTNAME} > ${INSTALLPATH}/etc/hostname
 	#sed -i 's/\(127.0.0.1\tlocalhost\)\(.*\)/\1 '${NEWHOSTNAME}'/g' ${INSTALLPATH}/etc/hosts
