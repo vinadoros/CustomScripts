@@ -75,6 +75,9 @@ if [ ! -f "${INSTALLPATH}/etc/hostname" ]; then
 	# Copy all files
 	echo "Copying files into chroot folder."
 	sudo rsync -axHAWX --info=progress2 --numeric-ids --del --filter="protect $IMG" --filter="protect $XZIMG" --filter="protect /*.sh" "${PATHOFTOPMNT}/" "${INSTALLPATH}/"
+	if [ -f "${INSTALLPATH}/etc/hostname" ]; then
+		rm "${INSTALLPATH}/etc/hostname"
+	fi
 	
 	# Unmount and clean up loop mount
 	umount "${PATHOFTOPMNT}"
@@ -91,7 +94,7 @@ if [ ! -f "${INSTALLPATH}/etc/hostname" ]; then
 	
 	chmod a+rwx "${INSTALLPATH}/"
 	
-	echo ${NEWHOSTNAME} > ${INSTALLPATH}/etc/hostname
+	echo ${NEWHOSTNAME} > "${INSTALLPATH}/etc/hostname"
 	#sed -i 's/\(127.0.0.1\tlocalhost\)\(.*\)/\1 '${NEWHOSTNAME}'/g' ${INSTALLPATH}/etc/hosts
 else
 	echo "${INSTALLPATH} not empty. Skipping fedora download."
