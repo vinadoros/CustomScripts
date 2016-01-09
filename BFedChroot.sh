@@ -80,7 +80,7 @@ if [ ! -f "${INSTALLPATH}/etc/hostname" ]; then
 	fi
 	
 	# Unmount and clean up loop mount
-	umount "${PATHOFTOPMNT}"
+	umount -l "${PATHOFTOPMNT}"
 	while mount | grep "$LOOPDEV"; do
 		umount -l "$LOOPDEV" || true
 		sleep 2
@@ -125,27 +125,39 @@ bash -c "cat >>${INSTALLPATH}/setupscript.sh" <<'EOLXYZ'
 dnf update -y
 dnf install -y nano sudo
 
-echo "Enter a root password."
-until passwd
-	do echo "Try again in 2 seconds."
-	sleep 2
+if [ -z "$SETPASS" ]; then
 	echo "Enter a root password."
-done
+	until passwd
+		do echo "Try again in 2 seconds."
+		sleep 2
+		echo "Enter a root password."
+	done
+else
+	echo "Changing password for root automatically."
+	echo "root:$SETPASS" | chpasswd
+fi
 
 if ! grep -i ${USERNAMEVAR} /etc/passwd; then
 	adduser ${USERNAMEVAR}
-	usermod -aG daemon,bin,sys,adm,tty,disk,lp,mail,man,kmem,dialout,cdrom,floppy,tape,wheel,audio,utmp,video,games,users ${USERNAMEVAR}
+	if [ -z "$SETPASS" ]; then
+		echo "Enter a password for $USERNAMEVAR."
+		until passwd $USERNAMEVAR
+			do echo "Try again in 2 seconds."
+			sleep 2
+			echo "Enter a root password."
+		done
+	else
+		echo "Changing password for $USERNAMEVAR automatically."
+		echo "$USERNAMEVAR:$SETPASS" | chpasswd
+	fi
+	usermod -aG daemon,bin,sys,adm,tty,disk,lp,mail,man,kmem,dialout,cdrom,floppy,tape,wheel,audio,utmp,video,games,users,systemd-journal ${USERNAMEVAR}
 	chfn -f "${FULLNAME}" ${USERNAMEVAR}
-	until passwd ${USERNAMEVAR}
-		do echo "Try again in 2 seconds."
-		sleep 2
-		echo "Enter a password for ${USERNAMEVAR}."
-	done
 fi
 
-rpm --quiet --query ozon-repos || dnf -y --nogpgcheck install http://goodies.ozon-os.com/repo/$(rpm -E %fedora)/noarch/ozon-repos-$(rpm -E %fedora)-5$(rpm -E %dist).noarch.rpm
+rpm --quiet --query folkswithhats-release || dnf -y --nogpgcheck install http://folkswithhats.org/repo/$(rpm -E %fedora)/RPMS/noarch/folkswithhats-release-1.0.1-1.fc$(rpm -E %fedora).noarch.rpm
 rpm --quiet --query rpmfusion-free-release || dnf -y --nogpgcheck install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
 rpm --quiet --query rpmfusion-nonfree-release || dnf -y --nogpgcheck install http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+dnf -y --nogpgcheck install fedy
 
 dnf install -y freetype-freeworld
 dnf groupinstall -y "Basic Desktop"
@@ -182,43 +194,8 @@ case $SETGRUB in
 	;;
 [2-4])
 	echo "Installing kernel."
-	
-	# Liquorix repo
-	if [[ "$DEBARCH" = "amd64" || "$DEBARCH" = "i386" ]] && ! grep -iq "liquorix.net" /etc/apt/sources.list; then
-		echo "Installing liquorix kernel."
-		add-apt-repository "deb http://liquorix.net/debian sid main past"
-		apt-get update
-		apt-get install -y --force-yes liquorix-keyring
-		apt-get update
-	fi
-	
-	# Install kernels.
-	[ "${DEBARCH}" = "amd64" ] && apt-get install -y linux-image-liquorix-amd64 linux-headers-liquorix-amd64
-	[ "${DEBARCH}" = "i386" ] && apt-get install -y linux-image-liquorix-686-pae linux-headers-liquorix-686-pae
-	# Remove stock kernels if installed.
-	dpkg-query -l | grep -iq "linux-image-amd64" && apt-get --purge remove -y linux-image-amd64
-	dpkg-query -l | grep -iq "linux-image-686-pae" && apt-get --purge remove -y linux-image-686-pae
-	dpkg-query -l | grep -iq "linux-headers-generic" && apt-get --purge remove -y linux-headers-generic
-	
-	if [[ "$DISTRONUM" -eq "1" || "$DISTRONUM" -eq "2" ]]; then
-<<COMMENT2
-		if [[ "$DEBARCH" = "amd64" ]]; then
-			apt-get install -y linux-image-amd64
-		fi
-		if [[ "$DEBARCH" = "i386" || "$DEBARCH" = "i686" ]]; then
-			apt-get install -y linux-image-686-pae
-		fi
-COMMENT2
-		apt-get install -y firmware-linux gfxboot
-		echo "firmware-ipw2x00 firmware-ipw2x00/license/accepted boolean true" | debconf-set-selections
-		echo "firmware-ivtv firmware-ivtv/license/accepted boolean true" | debconf-set-selections
-		DEBIAN_FRONTEND=noninteractive apt-get install -y ^firmware-* 
-	fi
-	
-	if [[ "$DISTRONUM" -eq "3" ]]; then
-		#apt-get install -y linux-image-generic linux-headers-generic
-		apt-get install -y gfxboot gfxboot-theme-ubuntu linux-firmware
-	fi
+	dnf install -y kernel linux-firmware
+	dnf install -y grub2 grubby efibootmgr efivar
 	;;
 	
 esac
@@ -231,9 +208,7 @@ case $SETGRUB in
 
 [2]* ) 
 	echo "You asked to perform 'grub-isntall $DEVPART'."
-	DEBIAN_FRONTEND=noninteractive apt-get install -y grub-pc
 	grub-install --target=i386-pc --recheck --debug $DEVPART
-	update-grub2
 	;;
 
 [3]* ) 
@@ -243,25 +218,14 @@ case $SETGRUB in
 		read -p "Press any key to continue."
 	done
 	
-	DEBIAN_FRONTEND=noninteractive apt-get install -y grub-efi-amd64
-	
-	if [[ "$DISTRONUM" -eq "1" || "$DISTRONUM" -eq "2" ]]; then
-		grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=debian --recheck --debug
-	fi
-	
-	if [[ "$DISTRONUM" -eq "3" ]]; then
-		grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ubuntu --recheck --debug
-	fi
-	
-	update-grub2
+	grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Fedora --recheck --debug
+
 	;;
 
 [4]* ) 
 	if [ ! -z $PART ]; then
 		echo "Installing grub to $PART."
-		DEBIAN_FRONTEND=noninteractive apt-get install -y grub-pc
 		grub-install --target=i386-pc --recheck --debug $PART
-		update-grub2
 	else
 		echo "No partition variable specified. Not installing grub."
 	fi
