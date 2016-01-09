@@ -254,7 +254,7 @@ case $SETGRUB in
 	echo "Installing kernel."
 	$INSTCMD install -y kernel linux-firmware
 	$INSTCMD install -y grub2 grubby efibootmgr efivar
-	grub2-mkconfig -o /boot/grub/grub.cfg
+	grub2-mkconfig -o /boot/grub2/grub.cfg
 	;;
 	
 esac
