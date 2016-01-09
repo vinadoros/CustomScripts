@@ -79,9 +79,6 @@ PATHOFCOMPRESSEDIMG="${INSTALLPATH}/${COMPRESSEDIMG}"
 PATHOFIMG="${INSTALLPATH}/${IMG}"
 PATHOFTOPMNT="${TOPPATH}/${TMPMNT}"
 
-# Chroot command
-CHROOTCMD="systemd-nspawn -D ${INSTALLPATH}"
-
 read -p "Press any key to continue." 
 
 if [ ! -f "${INSTALLPATH}/etc/hostname" ]; then
@@ -207,7 +204,7 @@ EOLXYZ
 chmod a+rwx "${SETUPSCRIPT}"
 
 # Run script in chroot
-${CHROOTCMD} /setupscript.sh
+${SNCHROOTCMD} /setupscript.sh
 
 # Delete script when done.
 rm "${SETUPSCRIPT}"
@@ -246,6 +243,7 @@ case $SETGRUB in
 	echo "Installing kernel."
 	$INSTCMD install -y kernel linux-firmware
 	$INSTCMD install -y grub2 grubby efibootmgr efivar
+	grub2-mkconfig -o /boot/grub/grub.cfg
 	;;
 	
 esac
@@ -258,7 +256,7 @@ case $SETGRUB in
 
 [2]* ) 
 	echo "You asked to perform 'grub-isntall $DEVPART'."
-	grub-install --target=i386-pc --recheck --debug $DEVPART
+	grub2-install --target=i386-pc --recheck --debug $DEVPART
 	;;
 
 [3]* ) 
@@ -268,14 +266,14 @@ case $SETGRUB in
 		read -p "Press any key to continue."
 	done
 	
-	grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Fedora --recheck --debug
+	grub2-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Fedora --recheck --debug
 
 	;;
 
 [4]* ) 
 	if [ ! -z $PART ]; then
 		echo "Installing grub to $PART."
-		grub-install --target=i386-pc --recheck --debug $PART
+		grub2-install --target=i386-pc --recheck --debug $PART
 	else
 		echo "No partition variable specified. Not installing grub."
 	fi
@@ -289,7 +287,7 @@ EOLXYZ
 
 set +e
 # Run script in chroot
-${CHROOTCMD} /grubscript.sh
+${ACCHROOTCMD} /grubscript.sh
 set -e
 
 # Delete script when done.
