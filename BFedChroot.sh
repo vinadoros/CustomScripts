@@ -133,7 +133,7 @@ if [ ! -f "${INSTALLPATH}/etc/hostname" ]; then
 		sleep 2
 	done
 	if [ -b $LOOPDEV ]; then
-		losetup -d $LOOPDEV
+		losetup -d $LOOPDEV || true
 	fi
 	rm -rf "${PATHOFTOPMNT}/"
 	rm "${PATHOFIMG}"
