@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Disable error handling
 set +eu
 
 # Get folder of this script
@@ -8,9 +9,6 @@ FLWSOURCE="$(readlink -f "$SCRIPTSOURCE")"
 SCRIPTDIR="$(dirname "$FLWSOURCE")"
 SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
-
-# Disable error handlingss
-set +eu
 
 # Add general functions if they don't exist.
 type -t grepadd &> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"

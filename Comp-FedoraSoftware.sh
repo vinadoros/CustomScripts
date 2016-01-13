@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Disable error handlingss
+set +eu
+
 # Get folder of this script
 SCRIPTSOURCE="${BASH_SOURCE[0]}"
 FLWSOURCE="$(readlink -f "$SCRIPTSOURCE")"
@@ -7,77 +10,91 @@ SCRIPTDIR="$(dirname "$FLWSOURCE")"
 SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
-# Disable error handlingss
-set +eu
-
-# Set user folders if they don't exist.
-if [ -z $USERNAMEVAR ]; then
-	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
-		export USERNAMEVAR=$SUDO_USER
-	elif [ "$USER" != "root" ]; then
-		export USERNAMEVAR=$USER
-	else
-		export USERNAMEVAR=$(id 1000 -un)
-	fi
-	USERGROUP=$(id 1000 -gn)
-	USERHOME=/home/$USERNAMEVAR
-fi
-
-# Set default user environment if none exist.
-if [ -z $SETDE ]; then
-	SETDE=3
-fi
-
-# Enable error halting.
-set -eu
-
 if [ "$(id -u)" != "0" ]; then
 	echo "Not running with root. Please run the script with su privledges."
 	exit 1;
 fi
 
-# Install software
+# Add general functions if they don't exist.
+type -t grepadd &> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
 
-dnf update -y
+# Set user folders if they don't exist.
+if [ -z $USERNAMEVAR ]; then
+	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
+		export USERNAMEVAR="$SUDO_USER"
+	elif [ "$USER" != "root" ]; then
+		export USERNAMEVAR="$USER"
+	else
+		export USERNAMEVAR="$(id 1000 -un)"
+	fi
+	USERGROUP="$(id 1000 -gn)"
+	USERHOME="/home/$USERNAMEVAR"
+fi
+
+# Set default user environment if none exist.
+[ -z $SETDE ] && SETDE=0
+[ -z $SETDM ] && SETDM=0
+
+# Set default VM guest variables
+[ -z $VBOXGUEST ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1 
+[ -z $VBOXGUEST ] && ! grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=0
+[ -z $QEMUGUEST ] && grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=1
+[ -z $QEMUGUEST ] && ! grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=0
+[ -z $VMWGUEST ] && grep -iq "VMware" "/sys/devices/virtual/dmi/id/product_name" && VMWGUEST=1
+[ -z $VMWGUEST ] && ! grep -iq "VMware" "/sys/devices/virtual/dmi/id/product_name" && VMWGUEST=0
+
+# Enable error halting.
+set -eu
+
+# Install software
+dist_update
 
 # Make user part of wheel group
 usermod -aG wheel $USERNAMEVAR
 
 # Install openssh
-dnf install -y openssh
+dist_install openssh
 
 # Install fish
-dnf install -y fish
+dist_install fish
 FISHPATH=$(which fish)
 if ! grep -iq "$FISHPATH" /etc/shells; then
 	echo "$FISHPATH" | tee -a /etc/shells
 fi
 
 # For general desktop
-dnf install -y gparted xdg-utils leafpad
-dnf install -y gnome-disk-utility btrfs-progs
-dnf install -y nbd
+dist_install gparted xdg-utils leafpad
+dist_install gnome-disk-utility btrfs-progs
+dist_install nbd
 
 # CLI utilities
-dnf install -y curl rsync
+dist_install curl rsync
 
 # Samba
-dnf install -y samba samba-winbind
+dist_install samba samba-winbind
 
 # Avahi
-dnf install -y avahi
+dist_install avahi
 
 # Cups-pdf
-dnf install -y cups-pdf
+dist_install cups-pdf
+
+# Run-parts for cron
+dist_install run-parts
 
 # Extra repos
-rpm --quiet --query rpmfusion-free-release || dnf -y --nogpgcheck install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
-rpm --quiet --query rpmfusion-nonfree-release || dnf -y --nogpgcheck install http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+rpm --quiet --query folkswithhats-release || $INSTCMD -y --nogpgcheck install http://folkswithhats.org/repo/$(rpm -E %fedora)/RPMS/noarch/folkswithhats-release-1.0.1-1.fc$(rpm -E %fedora).noarch.rpm
+rpm --quiet --query rpmfusion-free-release || $INSTCMD -y --nogpgcheck install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+rpm --quiet --query rpmfusion-nonfree-release || $INSTCMD -y --nogpgcheck install http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+$INSTCMD -y --nogpgcheck install fedy
 
-dnf update -y
+dist_update
 
 # Multimedia
-dnf install -y gstreamer1-plugins-bad-freeworld gstreamer1-plugins-ugly gstreamer1-vaapi vlc
+dist_install gstreamer1-plugins-bad-freeworld gstreamer1-plugins-ugly gstreamer1-vaapi vlc
+
+# GUI
+dist_install freetype-freeworld
 
 ###############################################################################
 ######################        Desktop Environments      #######################
