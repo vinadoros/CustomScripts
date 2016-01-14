@@ -83,9 +83,9 @@ dist_install cups-pdf
 dist_install run-parts
 
 # Extra repos
-rpm --quiet --query folkswithhats-release || $INSTCMD -y --nogpgcheck install http://folkswithhats.org/repo/$(rpm -E %fedora)/RPMS/noarch/folkswithhats-release-1.0.1-1.fc$(rpm -E %fedora).noarch.rpm
-rpm --quiet --query rpmfusion-free-release || $INSTCMD -y --nogpgcheck install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
-rpm --quiet --query rpmfusion-nonfree-release || $INSTCMD -y --nogpgcheck install http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+rpm --quiet --query folkswithhats-release || $INSTCMD --nogpgcheck http://folkswithhats.org/repo/$(rpm -E %fedora)/RPMS/noarch/folkswithhats-release-1.0.1-1.fc$(rpm -E %fedora).noarch.rpm
+rpm --quiet --query rpmfusion-free-release || $INSTCMD --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+rpm --quiet --query rpmfusion-nonfree-release || $INSTCMD --nogpgcheck http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 $INSTCMD -y --nogpgcheck install fedy
 
 dist_update
