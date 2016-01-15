@@ -104,9 +104,6 @@ dist_install avahi
 # Cups-pdf
 dist_install cups-pdf
 
-# Run-parts for cron
-dist_install run-parts
-
 # Multimedia
 dist_install gstreamer1-plugins-bad-freeworld gstreamer1-plugins-ugly gstreamer1-vaapi vlc
 
