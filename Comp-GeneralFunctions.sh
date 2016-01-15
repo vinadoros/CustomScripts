@@ -236,7 +236,7 @@ grub_update () {
 		$SUDOCMD update-grub
 	elif [[ -f /boot/grub2/grub.cfg ]]; then
 		echo "Updating grub config using mkconfig grub2."
-		$SUDOCMD grub-mkconfig -o /boot/grub2/grub.cfg
+		$SUDOCMD grub2-mkconfig -o /boot/grub2/grub.cfg
 	else
 		echo "Updating grub config using mkconfig grub."
 		$SUDOCMD grub-mkconfig -o /boot/grub/grub.cfg
