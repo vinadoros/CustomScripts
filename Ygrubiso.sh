@@ -5,6 +5,9 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1;
 fi
 
+# Add general functions if they don't exist.
+type -t grepadd >> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
+
 ISOFOLDER="$(readlink -f $1)"
 if [ ! -d "$ISOFOLDER" ]; then
 	echo "Error, path $ISOFOLDER does not exist. Please specify a valid path."
@@ -98,9 +101,5 @@ EOL
 
 chmod a+rwx "$GRUBSCRIPT"
 
-if [ $(type -P update-grub) ]; then
-	update-grub
-else
-	grub-mkconfig -o /boot/grub/grub.cfg
-fi
+grub_update
 grub-mkconfig

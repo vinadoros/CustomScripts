@@ -227,3 +227,20 @@ dist_update () {
 	
 }
 
+# Command to update grub configuration in distributions.
+grub_update () {
+	[ "$(id -u)" != "0" ] && SUDOCMD="sudo" || SUDOCMD=""
+	
+	if type -P update-grub &> /dev/null; then
+		echo "Updating grub config using update-grub."
+		$SUDOCMD update-grub
+	elif [[ -f /boot/grub2/grub.cfg ]]; then
+		echo "Updating grub config using mkconfig grub2."
+		$SUDOCMD grub-mkconfig -o /boot/grub2/grub.cfg
+	else
+		echo "Updating grub config using mkconfig grub."
+		$SUDOCMD grub-mkconfig -o /boot/grub/grub.cfg
+	fi
+	
+}
+
