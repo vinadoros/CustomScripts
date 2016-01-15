@@ -76,6 +76,19 @@ dist_install --nogpgcheck http://mirror.yandex.ru/fedora/russianfedora/russianfe
 
 dist_update
 
+# Fedy multimedia codecs
+dist_install dist_installfedy-multimedia-codecs
+
+# Numix
+dnf copr -y enable numix/numix
+dnf -y install numix-icon-theme numix-icon-theme-circle numix-gtk-theme
+
+# Syncthing
+dnf copr -y enable decathorpe/syncthing
+dnf -y install syncthing syncthing-gtk
+
+
+
 # Install openssh
 dist_install openssh
 
@@ -92,7 +105,7 @@ dist_install gnome-disk-utility btrfs-progs
 dist_install nbd
 
 # CLI utilities
-dist_install curl rsync
+dist_install curl rsync cabextract lzip p7zip p7zip-plugins unrar
 
 # Samba
 dist_install samba samba-winbind
