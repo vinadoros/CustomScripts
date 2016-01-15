@@ -43,6 +43,9 @@ fi
 [ -z $VMWGUEST ] && grep -iq "VMware" "/sys/devices/virtual/dmi/id/product_name" && VMWGUEST=1
 [ -z $VMWGUEST ] && ! grep -iq "VMware" "/sys/devices/virtual/dmi/id/product_name" && VMWGUEST=0
 
+# Set machine architecture
+[ -z "$MACHINEARCH" ] && MACHINEARCH=$(uname -m)
+
 # Enable error halting.
 set -eu
 
@@ -51,6 +54,29 @@ dist_update
 
 # Make user part of wheel group
 usermod -aG wheel $USERNAMEVAR
+
+###############################################################################
+#########################        Repository Setup     #########################
+###############################################################################
+
+# RPM Fusion and fedy
+rpm --quiet --query folkswithhats-release || $INSTCMD --nogpgcheck http://folkswithhats.org/repo/$(rpm -E %fedora)/RPMS/noarch/folkswithhats-release-1.0.1-1.fc$(rpm -E %fedora).noarch.rpm
+rpm --quiet --query rpmfusion-free-release || $INSTCMD --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+rpm --quiet --query rpmfusion-nonfree-release || $INSTCMD --nogpgcheck http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+$INSTCMD -y --nogpgcheck install fedy
+
+# Google Chrome (x86_64 only)
+[ $MACHINEARCH = "x86_64" ] && $INSTCMD --nogpgcheck https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+
+# Virtualbox
+wget -O //etc/yum.repos.d/virtualbox.repo http://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo
+
+# Russian Fedora
+su -c 'dnf install --nogpgcheck http://mirror.yandex.ru/fedora/russianfedora/russianfedora/free/fedora/russianfedora-free-release-stable.noarch.rpm http://mirror.yandex.ru/fedora/russianfedora/russianfedora/nonfree/fedora/russianfedora-nonfree-release-stable.noarch.rpm'
+
+dist_update
+
+
 
 # Install openssh
 dist_install openssh
@@ -81,14 +107,6 @@ dist_install cups-pdf
 
 # Run-parts for cron
 dist_install run-parts
-
-# Extra repos
-rpm --quiet --query folkswithhats-release || $INSTCMD --nogpgcheck http://folkswithhats.org/repo/$(rpm -E %fedora)/RPMS/noarch/folkswithhats-release-1.0.1-1.fc$(rpm -E %fedora).noarch.rpm
-rpm --quiet --query rpmfusion-free-release || $INSTCMD --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
-rpm --quiet --query rpmfusion-nonfree-release || $INSTCMD --nogpgcheck http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-$INSTCMD -y --nogpgcheck install fedy
-
-dist_update
 
 # Multimedia
 dist_install gstreamer1-plugins-bad-freeworld gstreamer1-plugins-ugly gstreamer1-vaapi vlc
