@@ -60,13 +60,13 @@ usermod -aG wheel $USERNAMEVAR
 ###############################################################################
 
 # RPM Fusion and fedy
-rpm --quiet --query folkswithhats-release || $INSTCMD --nogpgcheck http://folkswithhats.org/repo/$(rpm -E %fedora)/RPMS/noarch/folkswithhats-release-1.0.1-1.fc$(rpm -E %fedora).noarch.rpm
-rpm --quiet --query rpmfusion-free-release || $INSTCMD --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
-rpm --quiet --query rpmfusion-nonfree-release || $INSTCMD --nogpgcheck http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-$INSTCMD -y --nogpgcheck install fedy
+rpm --quiet --query folkswithhats-release || dist_install --nogpgcheck http://folkswithhats.org/repo/$(rpm -E %fedora)/RPMS/noarch/folkswithhats-release-1.0.1-1.fc$(rpm -E %fedora).noarch.rpm
+rpm --quiet --query rpmfusion-free-release || dist_install --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+rpm --quiet --query rpmfusion-nonfree-release || dist_install --nogpgcheck http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+dist_install --nogpgcheck fedy
 
 # Google Chrome (x86_64 only)
-[ $MACHINEARCH = "x86_64" ] && $INSTCMD --nogpgcheck https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+[ $MACHINEARCH = "x86_64" ] && dist_install --nogpgcheck https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
 
 # Virtualbox
 wget -O //etc/yum.repos.d/virtualbox.repo http://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo
