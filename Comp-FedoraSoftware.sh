@@ -77,7 +77,7 @@ dist_install --nogpgcheck http://mirror.yandex.ru/fedora/russianfedora/russianfe
 dist_update
 
 # Fedy multimedia codecs
-dist_install dist_installfedy-multimedia-codecs
+dist_install fedy-multimedia-codecs
 
 # Numix
 dnf copr -y enable numix/numix
