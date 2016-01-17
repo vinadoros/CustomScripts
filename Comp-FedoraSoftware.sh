@@ -87,7 +87,7 @@ dnf -y install numix-icon-theme numix-icon-theme-circle numix-gtk-theme
 # Syncthing
 dnf copr -y enable decathorpe/syncthing
 dnf -y install syncthing syncthing-gtk
-
+systemctl enable syncthing@$USERNAMEVAR
 
 
 # Install openssh
@@ -128,6 +128,9 @@ dist_install freetype-freeworld
 
 # Yumex
 dist_install yumex yumex-dnf
+
+# Productivity
+dist_install thunderbird thunderbird-lightning-gdata
 
 ###############################################################################
 ######################        Desktop Environments      #######################
