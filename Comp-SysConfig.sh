@@ -40,7 +40,7 @@ fi
 # Set computer to not sleep on lid close
 if ! grep -Fxq "HandleLidSwitch=ignore" /etc/systemd/logind.conf && grep -iq "Latitude D610" "/sys/devices/virtual/dmi/id/product_name"; then
 	echo 'HandleLidSwitch=ignore' | sudo tee -a /etc/systemd/logind.conf
-elif ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf; then
+elif ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf && ! grep -iq "Latitude D610" "/sys/devices/virtual/dmi/id/product_name"; then
     echo 'HandleLidSwitch=lock' | sudo tee -a /etc/systemd/logind.conf
 fi
 
