@@ -107,7 +107,7 @@ dist_install gnome-disk-utility btrfs-progs
 dist_install nbd
 
 # CLI utilities
-dist_install curl rsync cabextract lzip p7zip p7zip-plugins unrar
+dist_install curl rsync cabextract lzip p7zip p7zip-plugins unrar nano
 
 # Samba
 dist_install samba samba-winbind
