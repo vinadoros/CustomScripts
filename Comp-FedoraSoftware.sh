@@ -119,7 +119,7 @@ dist_install avahi
 dist_install cups-pdf
 
 # Multimedia
-dist_install gstreamer1-plugins-bad-freeworld gstreamer1-plugins-ugly gstreamer1-vaapi 
+dist_install gstreamer1-plugins-bad-freeworld gstreamer1-plugins-ugly gstreamer1-vaapi paprefs
 dist_install vlc
 dist_install audacious audacious-plugins audacious-plugins-freeworld
 
@@ -131,6 +131,7 @@ dist_install yumex yumex-dnf
 
 # Productivity
 dist_install thunderbird thunderbird-lightning-gdata
+dist_install libreoffice libreoffice-langpack-en
 
 ###############################################################################
 ######################        Desktop Environments      #######################
