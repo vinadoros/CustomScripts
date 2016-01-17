@@ -2,7 +2,13 @@
 
 set -e
 
-[[ $(type -p apt-get) ]] && sudo apt-get install -y git build-essential zip gnome-common libglib2.0-dev
+if type -p pacman &> /dev/null; then
+	echo "Not installing packages."
+elif type -p apt-get &> /dev/null; then
+	sudo apt-get install -y git build-essential zip gnome-common libglib2.0-dev
+elif type -p dnf &> /dev/null; then
+	sudo dnf install -y gnome-common intltool glib2-devel
+fi
 
 TEMPFOLDER=./tempfolder
 [ -d "$TEMPFOLDER" ] && rm -rf "$TEMPFOLDER"
