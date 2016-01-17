@@ -16,8 +16,16 @@ cd ..
 rm -rf "$TEMPFOLDER"
 
 # Top icons
-git clone http://94.247.144.115/~git/topicons.git "$TEMPFOLDER"
+#~ git clone http://94.247.144.115/~git/topicons.git "$TEMPFOLDER"
+#~ cd "$TEMPFOLDER"
+#~ sudo install -Dm644 "metadata.json" "/usr/share/gnome-shell/extensions/topIcons@adel.gadllah@gmail.com/metadata.json"
+#~ sudo install -m644 "extension.js" "/usr/share/gnome-shell/extensions/topIcons@adel.gadllah@gmail.com/extension.js"
+#~ cd ..
+#~ rm -rf "$TEMPFOLDER"
+mkdir "$TEMPFOLDER"
 cd "$TEMPFOLDER"
+wget -O topicons.zip "https://extensions.gnome.org/download-extension/topIcons@adel.gadllah@gmail.com.shell-extension.zip?version_tag=5335"
+7z e ./topicons.zip
 sudo install -Dm644 "metadata.json" "/usr/share/gnome-shell/extensions/topIcons@adel.gadllah@gmail.com/metadata.json"
 sudo install -m644 "extension.js" "/usr/share/gnome-shell/extensions/topIcons@adel.gadllah@gmail.com/extension.js"
 cd ..
