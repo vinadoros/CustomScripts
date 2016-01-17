@@ -117,10 +117,15 @@ dist_install avahi
 dist_install cups-pdf
 
 # Multimedia
-dist_install gstreamer1-plugins-bad-freeworld gstreamer1-plugins-ugly gstreamer1-vaapi vlc
+dist_install gstreamer1-plugins-bad-freeworld gstreamer1-plugins-ugly gstreamer1-vaapi 
+dist_install vlc
+dist_install audacious audacious-plugins audacious-plugins-freeworld
 
 # GUI
 dist_install freetype-freeworld
+
+# Yumex
+dist_install yumex yumex-dnf
 
 ###############################################################################
 ######################        Desktop Environments      #######################
@@ -136,7 +141,7 @@ case $SETDE in
 [2]* ) 
     # GNOME
     echo "GNOME stuff."
-
+	dist_install gnome-tweak-tool gnome-shell-extension-gpaste
     break;;
     
 [3]* ) 
