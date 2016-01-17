@@ -67,6 +67,7 @@ dist_install --nogpgcheck fedy
 
 # Google Chrome (x86_64 only)
 [ $MACHINEARCH = "x86_64" ] && dist_install --nogpgcheck https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+[ $MACHINEARCH = "i686" ] && dist_install --nogpgcheck https://dl.google.com/linux/direct/google-chrome-stable_current_i386.rpm
 
 # Virtualbox
 wget -O //etc/yum.repos.d/virtualbox.repo http://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo
@@ -91,6 +92,7 @@ dnf -y install syncthing syncthing-gtk
 
 # Install openssh
 dist_install openssh
+systemctl enable sshd
 
 # Install fish
 dist_install fish
