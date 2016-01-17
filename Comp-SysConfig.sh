@@ -44,8 +44,6 @@ elif ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf; then
     echo 'HandleLidSwitch=lock' | sudo tee -a /etc/systemd/logind.conf
 fi
 
-[ -z $VBOXGUEST ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1 
-
 #Xorg fix for Joysticks
 if [ ! -d /etc/X11/xorg.conf.d/ ]; then
 	mkdir -p /etc/X11/xorg.conf.d/
