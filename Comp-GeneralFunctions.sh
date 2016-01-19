@@ -14,14 +14,14 @@ grepadd () {
 		else
 			FINDSTRING="$1"
 		fi
-		
+
 		if [ -z "$2" ]; then
 			echo "No parameter passed."
 			return 1;
 		else
 			FINDINFILE="$2"
 		fi
-		
+
 		if ! grep -iq "${FINDSTRING}" "${FINDINFILE}"; then
 			echo "Adding $FINDSTRING to $FINDINFILE"
 			echo "${FINDSTRING}" >> "${FINDINFILE}"
@@ -35,21 +35,21 @@ grepcheckadd () {
 		else
 			INSERTSTRING="$1"
 		fi
-		
+
 		if [ -z "$2" ]; then
 			echo "No parameter passed."
 			return 1;
 		else
 			SEARCHSTRING="$2"
 		fi
-		
+
 		if [ -z "$3" ]; then
 			echo "No parameter passed."
 			return 1;
 		else
 			FINDINFILE="$3"
 		fi
-		
+
 		if ! grep -iq "${SEARCHSTRING}" "${FINDINFILE}"; then
 			echo "Adding $INSERTSTRING to $FINDINFILE"
 			echo -e "${INSERTSTRING}" >> "${FINDINFILE}"
@@ -63,13 +63,13 @@ multilinereplace () {
 	else
 		SAVETOFILE="$(readlink -f $1)"
 	fi
-	
+
 	MULTILINE="$(cat /dev/stdin)"
-	if [ -d "$(dirname $SAVETOFILE)" ]; then 
+	if [ -d "$(dirname $SAVETOFILE)" ]; then
 		echo "Creating $SAVETOFILE."
 		echo "$MULTILINE" > "$SAVETOFILE"
 		chmod a+rwx "$SAVETOFILE"
-	else 
+	else
 		echo "Not creating $SAVETOFILE. Base folder $(dirname $SAVETOFILE) does not exist."
 	fi
 }
@@ -81,13 +81,13 @@ multilineadd () {
 	else
 		SAVETOFILE="$1"
 	fi
-	
+
 	MULTILINE="$(cat /dev/stdin)"
 	if [ -z "$MULTILINE" ]; then
 		echo "No text found."
 		return 1;
 	fi
-	
+
 	if [ -z "$2" ]; then
 		echo "Adding text block to $SAVETOFILE"
 		echo "${MULTILINE}" >> "${SAVETOFILE}"
@@ -108,37 +108,40 @@ nscriptadd () {
 	else
 		SOURCEFILE="$1"
 	fi
-	
+
 	if [ -z "$2" ]; then
 		echo "No destination file passed."
 		return 1;
 	else
 		DESTFILE="$2"
 	fi
-	
+
 	echo "Adding $SOURCEFILE."
-	
+
 	echo "echo \"Executing $SOURCEFILE.\"" >> "${DESTFILE}"
 	cat "$SOURCEFILE" >> "${DESTFILE}"
-	
+
 	sed -i '/# Get folder of this script/d' "${DESTFILE}"
 	sed -i '/SCRIPTSOURCE="${BASH_SOURCE\[0\]}"/d' "${DESTFILE}"
 	sed -i '/FLWSOURCE="$(readlink -f "$SCRIPTSOURCE")"/d' "${DESTFILE}"
 	sed -i '/SCRIPTDIR="$(dirname "$FLWSOURCE")"/d' "${DESTFILE}"
 	sed -i '/SCRNAME="$(basename $SCRIPTSOURCE)"/d' "${DESTFILE}"
 	sed -i '/echo "Executing ${SCRNAME}."/d' "${DESTFILE}"
-	
+
 }
 
 # Install pkg commands for distributions.
 dist_install () {
 	INSTALLPKGS="$@"
 	[ "$(id -u)" != "0" ] && SUDOCMD="sudo" || SUDOCMD=""
-	
+
 	if type -p apacman &> /dev/null; then
 		echo "Installing $INSTALLPKGS using apacman."
 		$SUDOCMD pacman -Sy
 		$SUDOCMD apacman -S --needed --noconfirm --ignorearch $INSTALLPKGS
+	elif type -p pacman &> /dev/null; then
+		echo "Installing $INSTALLPKGS using pacman."
+		$SUDOCMD pacman -Sy --needed --noconfirm $INSTALLPKGS
 	elif type -p apt-get &> /dev/null; then
 		echo "Installing $INSTALLPKGS using apt-get."
 		$SUDOCMD apt-get update
@@ -147,14 +150,14 @@ dist_install () {
 		echo "Installing $INSTALLPKGS using dnf."
 		$SUDOCMD dnf install -y $INSTALLPKGS
 	fi
-	
+
 }
 
 # Stock install pkg commands that will always work.
 dist_install_bare () {
 	INSTALLPKGS="$@"
 	[ "$(id -u)" != "0" ] && SUDOCMD="sudo" || SUDOCMD=""
-	
+
 	if type -p pacman &> /dev/null; then
 		echo "Installing $INSTALLPKGS using pacman."
 		$SUDOCMD pacman -S --noconfirm $INSTALLPKGS
@@ -165,14 +168,14 @@ dist_install_bare () {
 		echo "Installing $INSTALLPKGS using dnf."
 		$SUDOCMD dnf install -y $INSTALLPKGS
 	fi
-	
+
 }
 
 # Remove pkg with dependancies.
 dist_remove_deps () {
 	REMOVEPKGS="$@"
 	[ "$(id -u)" != "0" ] && SUDOCMD="sudo" || SUDOCMD=""
-	
+
 	for pkg in $REMOVEPKGS; do
 		if type -p pacman &> /dev/null && pacman -Qq | grep -iq "^$pkg$"; then
 			echo "Removing $pkg using pacman."
@@ -185,14 +188,14 @@ dist_remove_deps () {
 			$SUDOCMD dnf remove -y "$pkg"
 		fi
 	done
-	
+
 }
 
 # Force remove pkg.
 dist_remove_force () {
 	REMOVEPKGS="$@"
 	[ "$(id -u)" != "0" ] && SUDOCMD="sudo" || SUDOCMD=""
-	
+
 	for pkg in $REMOVEPKGS; do
 		if type -p pacman &> /dev/null && pacman -Qq | grep -iq "^$pkg$"; then
 			echo "Removing $pkg using pacman."
@@ -205,14 +208,17 @@ dist_remove_force () {
 			$SUDOCMD dnf remove -y "$pkg"
 		fi
 	done
-	
+
 }
 
 # Commands to upgrade all packages in distro.
 dist_update () {
 	[ "$(id -u)" != "0" ] && SUDOCMD="sudo" || SUDOCMD=""
-	
-	if type -p pacman &> /dev/null; then
+
+	if type -p apacman &> /dev/null; then
+		echo "Updating system using apacman."
+		$SUDOCMD apacman -Syu --noconfirm --ignorearch
+	elif type -p pacman &> /dev/null; then
 		echo "Updating system using pacman."
 		$SUDOCMD pacman -Syu --noconfirm
 	elif type -p apt-get &> /dev/null; then
@@ -224,13 +230,13 @@ dist_update () {
 		echo "Updating system using dnf."
 		$SUDOCMD dnf update -y
 	fi
-	
+
 }
 
 # Command to update grub configuration in distributions.
 grub_update () {
 	[ "$(id -u)" != "0" ] && SUDOCMD="sudo" || SUDOCMD=""
-	
+
 	if type -P update-grub &> /dev/null; then
 		echo "Updating grub config using update-grub."
 		$SUDOCMD update-grub
@@ -241,6 +247,5 @@ grub_update () {
 		echo "Updating grub config using mkconfig grub."
 		$SUDOCMD grub-mkconfig -o /boot/grub/grub.cfg
 	fi
-	
-}
 
+}

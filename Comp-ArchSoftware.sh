@@ -31,7 +31,7 @@ fi
 [ -z $SETDM ] && SETDM=0
 
 # Set default VM guest variables
-[ -z $VBOXGUEST ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1 
+[ -z $VBOXGUEST ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1
 [ -z $VBOXGUEST ] && ! grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=0
 [ -z $QEMUGUEST ] && grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=1
 [ -z $QEMUGUEST ] && ! grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=0
@@ -67,13 +67,13 @@ EOL
 	rm -f apacman.tar.gz
 	rm -rf ./apacman
 fi
-apacman -S --ignorearch --noconfirm --needed apacman-deps
+dist_install apacman-deps
 
 # Install yaourt.
-apacman -S --ignorearch --noconfirm --needed package-query yaourt
+dist_install package-query yaourt
 
 # Install randomness generator
-pacman -S --needed --noconfirm haveged
+dist_install haveged
 systemctl enable haveged
 
 # Make sure .gnupg folder exists for root
@@ -108,7 +108,7 @@ if (pacman -Q xnoise &>/dev/null); then
 fi
 
 # Setup devel stuff
-pacman -S --needed --noconfirm rsync base-devel
+dist_install rsync base-devel
 
 
 ###############################################################################
@@ -117,7 +117,7 @@ pacman -S --needed --noconfirm rsync base-devel
 
 # Set up lightdm
 function lightdmscript(){
-	pacman -S --needed --noconfirm lightdm
+	dist_install lightdm
 	systemctl enable -f lightdm
 }
 
@@ -126,7 +126,7 @@ function lightdmdpms(){
 	pacman -Syu --needed --noconfirm xscreensaver
 	if ! grep -iq "xscrnsvr.sh" /etc/lightdm/lightdm.conf; then
 		echo "Setting xscreensaver values for lightdm"
-		sudo sed -i '/^\[SeatDefaults\]$/ s:$:\ndisplay-setup-script=/usr/local/bin/xscrnsvr.sh:' /etc/lightdm/lightdm.conf	
+		sudo sed -i '/^\[SeatDefaults\]$/ s:$:\ndisplay-setup-script=/usr/local/bin/xscrnsvr.sh:' /etc/lightdm/lightdm.conf
 	fi
 	if [ ! -f /usr/local/bin/xscrnsvr.sh ]; then
 		echo "Creating xscrnsvr.sh."
@@ -150,7 +150,7 @@ StartupNotify=false
 X-GNOME-Autostart-enabled=true
 EOL
 		sudo chmod 644 /etc/xdg/autostart/xscreensaver.desktop
-	fi	
+	fi
 	if [ ! -f $USERHOME/.xscreensaver ]; then
 		echo "Creating ~/.xscreensaver for $USERNAMEVAR."
 		bash -c "cat >$USERHOME/.xscreensaver" <<'EOL'
@@ -191,9 +191,9 @@ EOL
 
 # Case for SETDM variable.
 case $SETDM in
-[1]* ) 
+[1]* )
 	echo "Setting up SDDM."
-	pacman -S --needed --noconfirm sddm
+	dist_install sddm
 	systemctl enable -f sddm
 	if [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 ]]; then
 		if [ ! -f /etc/sddm.conf ]; then
@@ -202,7 +202,7 @@ case $SETDM in
 		if ! grep -iq "Autologin" /etc/sddm.conf; then
 			echo "Setting up Autologin."
 			bash -c "cat >/etc/sddm.conf" <<EOL
-		
+
 [Autologin]
 User=$USERNAMEVAR
 Session=plasma.desktop
@@ -211,23 +211,23 @@ EOL
 	fi
 	;;
 
-[2]* ) 
+[2]* )
 	echo "Setting up lightdm with GTK greeter."
 	lightdmscript
-	pacman -S --needed --noconfirm lightdm lightdm-gtk-greeter
+	dist_install lightdm lightdm-gtk-greeter
 	sed -i 's/greeter-session=.*$/greeter-session=lightdm-gtk-greeter/g' /etc/lightdm/lightdm.conf
 	;;
-	
-[3]* ) 
+
+[3]* )
 	echo "Setting up GDM."
-	pacman -S --needed --noconfirm gdm
+	dist_install gdm
 	systemctl enable -f gdm
 	;;
-	
-[4]* ) 
+
+[4]* )
 	echo "Setting up lightdm with KDE greeter."
 	lightdmscript
-	pacman -S --needed --noconfirm lightdm lightdm-kde-greeter
+	dist_install lightdm lightdm-kde-greeter
 	sed -i 's/greeter-session=.*$/greeter-session=lightdm-kde-greeter/g' /etc/lightdm/lightdm.conf
 	;;
 
@@ -245,60 +245,60 @@ case $SETDE in
 [1]* )
 	# Install KDE
 	echo "Installing KDE."
-	pacman -S --needed --noconfirm drkonqi kde-gtk-config kdeplasma-addons khelpcenter kinfocenter kio-extras kscreen ksysguard kwrited oxygen oxygen-cursors plasma-desktop plasma-nm plasma-workspace-wallpapers sni-qt breeze-kde4
+	dist_install drkonqi kde-gtk-config kdeplasma-addons khelpcenter kinfocenter kio-extras kscreen ksysguard kwrited oxygen oxygen-cursors plasma-desktop plasma-nm plasma-workspace-wallpapers sni-qt breeze-kde4
 	if [ "${MACHINEARCH}" == "x86_64" ]; then
-		pacman -S --needed --noconfirm lib32-sni-qt
+		dist_install lib32-sni-qt
 	fi
-	#apacman -S --needed --noconfirm libappindicator-gtk2 libappindicator-gtk3 
+	#dist_install libappindicator-gtk2 libappindicator-gtk3
 	# KDE Software
 	if pacman -Q | grep -iq "khelpcenter"; then
 		pacman -Rdd --noconfirm khelpcenter
 	fi
-	pacman -S --needed --noconfirm kate kdebase-dolphin konsole konsolepart4 ruby
-	apacman -S --ignorearch --noconfirm --needed kde-servicemenus-rootactions
-	pacman -S --needed --noconfirm kdebase-kwrite kdegraphics-okular ebook-tools kdeutils-ark unzip zip p7zip unrar
+	dist_install kate kdebase-dolphin konsole konsolepart4 ruby
+	dist_install kde-servicemenus-rootactions
+	dist_install kdebase-kwrite kdegraphics-okular ebook-tools kdeutils-ark unzip zip p7zip unrar
 	;;
 
-[2]* ) 
+[2]* )
 	# Install cinnamon
 	echo "Installing Cinnamon."
-	pacman -S --needed --noconfirm cinnamon nemo-fileroller nemo-preview nemo-share evince eog baobab gnome-calculator gnome-font-viewer gnome-disk-utility gnome-icon-theme gnome-system-log gnome-system-monitor gnome-terminal totem vino file-roller cdrkit lrzip unace unrar gnome-color-manager gedit gnome-clocks seahorse gufw xdg-utils gnome-logs
+	dist_install cinnamon nemo-fileroller nemo-preview nemo-share evince eog baobab gnome-calculator gnome-font-viewer gnome-disk-utility gnome-icon-theme gnome-system-log gnome-system-monitor gnome-terminal totem vino file-roller cdrkit lrzip unace unrar gnome-color-manager gedit gnome-clocks seahorse gufw xdg-utils gnome-logs
 	;;
-	
-[3]* ) 
+
+[3]* )
 	# Install GNOME
 	echo "Installing GNOME."
-	pacman -S --needed --noconfirm gnome file-roller cdrkit lrzip unace unrar gedit gnome-clocks seahorse gufw gnome-tweak-tool xdg-utils gnome-logs dconf-editor gpaste
+	dist_install gnome file-roller cdrkit lrzip unace unrar gedit gnome-clocks seahorse gufw gnome-tweak-tool xdg-utils gnome-logs dconf-editor gpaste
 	# Install gnome shell extensions and misc apps
-	apacman -S --ignorearch --noconfirm --needed gnome-shell-extension-dash-to-dock-git gnome-shell-extension-topicons gnome-shell-extension-mediaplayer-git
-	apacman -S --ignorearch --noconfirm --needed gnome-shell-extension-volume-mixer-git
-	
+	dist_install gnome-shell-extension-dash-to-dock-git gnome-shell-extension-topicons gnome-shell-extension-mediaplayer-git
+	dist_install gnome-shell-extension-volume-mixer-git
+
 	if [ $SETDM != 3 ] && [ $SETDM != 0 ]; then
 		lightdmdpms
 	fi
-	
+
 	;;
-	
-[4]* ) 
+
+[4]* )
 	# Install XFCE
 	echo "Installing XFCE."
-	pacman -S --needed --noconfirm xfce4 xfce4-goodies
+	dist_install xfce4 xfce4-goodies
 	# Install xfce notification for volume and whisker menu
-	apacman -S --ignorearch --noconfirm --needed xfce4-whiskermenu-plugin xfce4-volumed
+	dist_install xfce4-whiskermenu-plugin xfce4-volumed
 	;;
-	
-[5]* ) 
+
+[5]* )
 	# Install MATE
 	echo "Installing MATE."
-	pacman -S --needed --noconfirm mate xdg-user-dirs-gtk gnome-themes-standard gnome-keyring seahorse dconf-editor
+	dist_install mate xdg-user-dirs-gtk gnome-themes-standard gnome-keyring seahorse dconf-editor
 	# MATE Extras
-	pacman -S --needed --noconfirm atril caja-gksu caja-open-terminal caja-share engrampa eom gnome-calculator mate-applets mate-media mate-netspeed mate-power-manager mate-sensors-applet mate-system-monitor mate-terminal mate-utils mozo pluma unrar mate-screensaver
-	
+	dist_install atril caja-gksu caja-open-terminal caja-share engrampa eom gnome-calculator mate-applets mate-media mate-netspeed mate-power-manager mate-sensors-applet mate-system-monitor mate-terminal mate-utils mozo pluma unrar mate-screensaver
+
 	#MATE gtk3
-	#pacman -S --needed --noconfirm mate-gtk3 xdg-user-dirs-gtk gnome-themes-standard gnome-keyring seahorse dconf-editor
+	#dist_install mate-gtk3 xdg-user-dirs-gtk gnome-themes-standard gnome-keyring seahorse dconf-editor
 	# MATE gtk3 Extras
-	#pacman -S --needed --noconfirm atril-gtk3 caja-gksu-gtk3 caja-open-terminal-gtk3 caja-share-gtk3 engrampa-gtk3 eom-gtk3 gnome-calculator mate-applets-gtk3 mate-media-gtk3 mate-netspeed-gtk3 mate-power-manager-gtk3 mate-sensors-applet-gtk3 mate-system-monitor-gtk3 mate-terminal-gtk3 mate-utils-gtk3 mozo-gtk3 pluma-gtk3 unrar mate-screensaver-gtk3
-	
+	#dist_install atril-gtk3 caja-gksu-gtk3 caja-open-terminal-gtk3 caja-share-gtk3 engrampa-gtk3 eom-gtk3 gnome-calculator mate-applets-gtk3 mate-media-gtk3 mate-netspeed-gtk3 mate-power-manager-gtk3 mate-sensors-applet-gtk3 mate-system-monitor-gtk3 mate-terminal-gtk3 mate-utils-gtk3 mozo-gtk3 pluma-gtk3 unrar mate-screensaver-gtk3
+
 	;;
 
 * ) echo "Not changing desktop environment."
@@ -311,46 +311,46 @@ if ! pacman -Q | grep -iq "numix-circle"; then
 	if (pacman -Q numix-icon-theme &>/dev/null); then
 		pacman -Rsc --noconfirm numix-icon-theme
 	fi
-	apacman -S --ignorearch --noconfirm numix-circle-icon-theme-git
+	dist_install numix-circle-icon-theme-git
 fi
 
 # AV Software
-pacman -S --needed --noconfirm gst-libav gst-plugins-base gst-plugins-bad gst-plugins-good gst-plugins-ugly
+dist_install gst-libav gst-plugins-base gst-plugins-bad gst-plugins-good gst-plugins-ugly
 # Pulseaudio
-pacman -S --needed --noconfirm pavucontrol paprefs pulseaudio pulseaudio-alsa pulseaudio-gconf pulseaudio-zeroconf
+dist_install pavucontrol paprefs pulseaudio pulseaudio-alsa pulseaudio-gconf pulseaudio-zeroconf
 # Bluetooth
-pacman -S --needed --noconfirm bluez bluez-firmware bluez-hid2hci bluez-libs bluez-utils pulseaudio-bluetooth
+dist_install bluez bluez-firmware bluez-hid2hci bluez-libs bluez-utils pulseaudio-bluetooth
 
-pacman -S --needed --noconfirm geany geany-plugins
-pacman -S --needed --noconfirm firefox firefox-i18n-en-us 
-pacman -S --needed --noconfirm leafpad gnome-disk-utility gparted p7zip unrar gvfs-smb gvfs-gphoto2 gvfs-goa gvfs-mtp gvfs-google gvfs-nfs libmtp systemd-ui meld
+dist_install geany geany-plugins
+dist_install firefox firefox-i18n-en-us
+dist_install leafpad gnome-disk-utility gparted p7zip unrar gvfs-smb gvfs-gphoto2 gvfs-goa gvfs-mtp gvfs-google gvfs-nfs libmtp systemd-ui meld
 # System monitoring programs
-pacman -S --needed --noconfirm iotop powertop jnettop nethogs
+dist_install iotop powertop jnettop nethogs
 # Catfish search software
-pacman -S --needed --noconfirm catfish findutils mlocate pinot antiword catdoc poppler djvulibre unrtf
+dist_install catfish findutils mlocate pinot antiword catdoc poppler djvulibre unrtf
 
 # Install software for live computer.
 if [[ $VBOXGUEST = 0 && $QEMUGUEST = 0 && $VMWGUEST = 0 ]]; then
 	# Audio/video playback
-	pacman -S --needed --noconfirm audacious vlc
+	dist_install audacious vlc
 fi
 
-# Install avahi 
-pacman -S --needed --noconfirm avahi nss-mdns pygtk python2-dbus
+# Install avahi
+dist_install avahi nss-mdns pygtk python2-dbus
 systemctl enable avahi-daemon.service
 usermod -aG avahi $USERNAMEVAR
 
 # Install samba and winbind
-pacman -S --noconfirm --needed samba
+dist_install samba
 systemctl enable smbd
 systemctl enable nmbd
 systemctl enable winbindd
 
 # Install fish shell
-pacman -S --needed --noconfirm fish
+dist_install fish
 
 # Setup ssh
-pacman -S --needed --noconfirm openssh xorg-xauth tmux
+dist_install openssh xorg-xauth tmux
 systemctl enable sshd
 
 # NTP configuration
@@ -359,11 +359,11 @@ timedatectl set-local-rtc false
 timedatectl set-ntp 1
 
 # Install syncthing
-pacman -S --noconfirm --needed syncthing syncthing-gtk
+dist_install syncthing syncthing-inotify syncthing-gtk
 systemctl enable syncthing@$USERNAMEVAR
 
 # Install pamac
-apacman -S --ignorearch --needed --noconfirm pamac-aur
+dist_install pamac-aur
 
 # Install utils for cron
 dist_install run-parts
@@ -371,9 +371,9 @@ dist_install run-parts
 # For x86_64 and i686 only
 if [ "${MACHINEARCH}" != "armv7l" ]; then
 	echo "i686 and x86_64 Software for Arch."
-	
+
 	#Setup x2go
-	pacman -S --needed --noconfirm x2goserver x2goclient
+	dist_install x2goserver x2goclient
 	x2godbadmin --createdb
 	systemctl enable x2goserver
 
@@ -391,18 +391,18 @@ if [ "${MACHINEARCH}" != "armv7l" ]; then
 	done
 	lpadmin -p cups-pdf -o Resolution=600dpi
 	lpadmin -p cups-pdf -o PageSize=Letter
-	
+
 	# Install laptop mode tools
-	pacman -S --needed --noconfirm tlp smartmontools ethtool
+	dist_install tlp smartmontools ethtool
 	systemctl enable tlp
 	systemctl enable tlp-sleep
-	
+
 	# Install systemd-swap
-	#~ pacman -S --needed --noconfirm systemd-swap
+	#~ dist_install systemd-swap
 	#~ systemctl enable systemd-swap
-	
+
 	# Install reflector and sort mirrors for speed. Install service which loads on bootup.
-	pacman -S --needed --noconfirm reflector
+	dist_install reflector
 	reflector --verbose --country 'United States' -l 20 -f 20 -p http --sort rate --save /etc/pacman.d/mirrorlist
 	cat >/etc/systemd/system/reflector.service <<'EOL'
 [Unit]
@@ -433,16 +433,16 @@ EOL
 	fi
 
 	# Update system
-	pacman -Syu --needed --noconfirm
+	dist_update
 
 	# Libreoffice
-	pacman -S --needed --noconfirm libreoffice-fresh hunspell hunspell-en hyphen hyphen-en libmythes mythes-en
+	dist_install libreoffice-fresh hunspell hunspell-en hyphen hyphen-en libmythes mythes-en
 
 	# Email
-	pacman -S --needed --noconfirm thunderbird thunderbird-i18n-en-us
+	dist_install thunderbird thunderbird-i18n-en-us
 
 	# Flash
-	pacman -S --needed --noconfirm flashplugin
+	dist_install flashplugin
 
 	###############################################################################
 	######################       Live Computer Section      #######################
@@ -450,19 +450,19 @@ EOL
 	# Install software for live computer.
 	if [[ $VBOXGUEST = 0 && $QEMUGUEST = 0 && $VMWGUEST = 0 ]]; then
 		# Banshee
-		pacman -S --needed --noconfirm vlc banshee
+		dist_install vlc banshee
 		# Wine
-		pacman -S --needed --noconfirm wine alsa-lib alsa-plugins cups dosbox giflib lcms2 libcl libjpeg-turbo libldap libpng libpulse libxcomposite libxinerama libxml2 libxslt mpg123 ncurses openal samba v4l-utils wine_gecko wine-mono playonlinux
+		dist_install wine alsa-lib alsa-plugins cups dosbox giflib lcms2 libcl libjpeg-turbo libldap libpng libpulse libxcomposite libxinerama libxml2 libxslt mpg123 ncurses openal samba v4l-utils wine_gecko wine-mono playonlinux
 		if [ $(uname -m) == "x86_64" ]; then
-			pacman -S --needed --noconfirm lib32-alsa-lib lib32-alsa-plugins lib32-giflib lib32-gnutls lib32-lcms2 lib32-libcl lib32-libjpeg-turbo lib32-libldap lib32-libpng lib32-libpulse lib32-libxcomposite lib32-libxinerama lib32-libxml2 lib32-libxslt lib32-mpg123 lib32-ncurses lib32-openal lib32-v4l-utils lib32-sdl
+			dist_install lib32-alsa-lib lib32-alsa-plugins lib32-giflib lib32-gnutls lib32-lcms2 lib32-libcl lib32-libjpeg-turbo lib32-libldap lib32-libpng lib32-libpulse lib32-libxcomposite lib32-libxinerama lib32-libxml2 lib32-libxslt lib32-mpg123 lib32-ncurses lib32-openal lib32-v4l-utils lib32-sdl
 		fi
 	fi
 
 	# MS and other Fonts
-	apacman -S --ignorearch --needed --noconfirm ttf-ms-fonts ttf-vista-fonts
+	dist_install ttf-ms-fonts ttf-vista-fonts
 
 	# Install google-chrome and remove chromium
-	apacman -S --ignorearch --needed --noconfirm google-chrome
+	dist_install google-chrome
 	if (pacman -Q chromium &>/dev/null); then
 		pacman -Rs --noconfirm chromium
 	fi
@@ -472,19 +472,19 @@ EOL
 	###############################################################################
 	# Install virtualbox host
 	if [[ $VBOXGUEST = 0 && $QEMUGUEST = 0 && $VMWGUEST = 0 ]]; then
-		pacman -S --needed --noconfirm virtualbox-host-modules virtualbox virtualbox-guest-iso
-		apacman -S --ignorearch --needed --noconfirm virtualbox-ext-oracle
+		dist_install virtualbox-host-modules virtualbox virtualbox-guest-iso
+		dist_install virtualbox-ext-oracle
 		depmod -a
-		
+
 		# Add the user to theg vboxusers group, so that USB will work.
 		gpasswd -a $USERNAMEVAR vboxusers
-		
+
 		# Create the /media folder if it doesn't exist.
 		if [ ! -d /media ]; then
 			mkdir /media
 			chmod 777 /media
 		fi
-		
+
 		# Have the kernel modules load on startup, which is required by vbox.
 		if [ ! -f /etc/modules-load.d/virtualbox.conf ]; then
 			bash -c "cat >>/etc/modules-load.d/virtualbox.conf" <<EOL
@@ -494,7 +494,7 @@ vboxnetadp
 vboxnetflt
 EOL
 		fi
-		
+
 	fi
 
 	###############################################################################
@@ -511,7 +511,7 @@ EOL
 		if [ -f /etc/grub.d/30_os-prober ]; then
 			sudo chmod a+x /etc/grub.d/30_os-prober
 		fi
-		
+
 		if [ ! -f /etc/X11/xorg.conf.d/20-intel.conf ]; then
 			bash -c "cat >>/etc/X11/xorg.conf.d/20-intel.conf" <<'EOL'
 Section "Device"
@@ -527,33 +527,32 @@ EOL
 	if pacman -Q jre8-openjdk-headless-infinality &> /dev/null; then
 		pacman -Rdd --noconfirm jre8-openjdk-headless-infinality jre8-openjdk-infinality
 	fi
-	pacman -S --noconfirm --needed jre8-openjdk
+	dist_install jre8-openjdk
 	archlinux-java fix
-	apacman -S --noconfirm --needed areca-bin
+	dist_install areca-bin
 
 
 elif [ "${MACHINEARCH}" = "armv7l" ]; then
 	echo "ARM Software for Arch."
-	
-	#Install xorg
-	pacman -S --needed --noconfirm xorg-server xorg-server-utils mesa-libgl xorg-xinit xterm mesa xf86-video-fbdev
 
-	pacman -S --needed --noconfirm wget python networkmanager ntfs-3g gptfdisk dosfstools ntp alsa-utils btrfs-progs xfsprogs f2fs-tools
+	#Install xorg
+	dist_install xorg-server xorg-server-utils mesa-libgl xorg-xinit xterm mesa xf86-video-fbdev
+
+	dist_install wget python networkmanager ntfs-3g gptfdisk dosfstools ntp alsa-utils btrfs-progs xfsprogs f2fs-tools
 	systemctl enable NetworkManager
-	
+
 	# Install browsers
-	pacman -S --needed --noconfirm midori
+	dist_install midori
 
 	# Omxplayer
-	pacman -S --needed --noconfirm omxplayer ttf-freefont xclip youtube-dl
+	dist_install omxplayer ttf-freefont xclip youtube-dl
 
 	# Reinstall iputils to fix ping
 	pacman -S --noconfirm iputils
 
 	# Watchdog
-	pacman -S --needed --noconfirm watchdog
+	dist_install watchdog
 	systemctl enable watchdog
 	echo "bcm2708_wdog" > /etc/modules-load.d/bcm2708_wdog.conf
-	
-fi
 
+fi
