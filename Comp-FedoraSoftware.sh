@@ -54,6 +54,8 @@ dist_update
 
 # Make user part of wheel group
 usermod -aG wheel $USERNAMEVAR
+# Make user part of users group
+usermod -aG users $USERNAMEVAR
 
 ###############################################################################
 #########################        Repository Setup     #########################
