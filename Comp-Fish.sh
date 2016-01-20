@@ -212,11 +212,11 @@ function cln
 	echo "Removing (supposedly) uneeded packages."
 	pacman -Qdtq | sudo pacman -Rs -
 end
-function rmv 
+function rmv
 	echo "Removing $argv and dependancies using pacman."
 	sudo pacman -Rsn $argv
 end
-function psc 
+function psc
 	echo "Searching for $argv using apacman."
 	apacman -Ss $argv
 end
@@ -253,11 +253,11 @@ function cln
 	echo "Removing (supposedly) uneeded packages."
 	pacman -Qdtq | pacman -Rs -
 end
-function rmv 
+function rmv
 	echo "Removing $argv and dependancies using pacman."
 	pacman -Rsn $argv
 end
-function psc 
+function psc
 	echo "Searching for $argv using apacman."
 	apacman -Ss $argv
 end
@@ -269,7 +269,7 @@ EOL
 	fi
 
 elif [[ $(type -P apt-get) ]]; then
-	
+
 	echo "Appending apt to $USERFISH."
 	cat >>"$USERFISH" <<'EOL'
 set -gx PATH $PATH /usr/local/sbin /usr/sbin /sbin
@@ -379,9 +379,9 @@ function ark
 end
 EOL
 	fi
-	
+
 elif [[ $(type -P dnf) ]]; then
-	
+
 	echo "Appending dnf to $USERFISH."
 	cat >>"$USERFISH" <<'EOL'
 function di
@@ -399,6 +399,8 @@ end
 function ds
 	echo "Searching for $argv."
 	sudo dnf search $argv
+	echo "Searching installed packages for $argv."
+	dnf list installed | grep -i $argv
 end
 function dar
 	echo "Auto-removing packages."
@@ -428,6 +430,8 @@ end
 function ds
 	echo "Searching for $argv."
 	dnf search $argv
+	echo "Searching installed packages for $argv."
+	dnf list installed | grep -i $argv
 end
 function dar
 	echo "Auto-removing packages."

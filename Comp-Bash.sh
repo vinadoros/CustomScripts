@@ -242,7 +242,7 @@ EOL
 	fi
 
 elif [[ $(type -P apt-get) ]]; then
-	
+
 	multilineadd "$USERHOME/.bashrc" "function afix" <<'EOL'
 export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
 function agi () {
@@ -350,9 +350,9 @@ function ark () {
 }
 EOL
 	fi
-	
+
 elif [[ $(type -P dnf) ]]; then
-	
+
 	multilineadd "$USERHOME/.bashrc" "function diy" <<'EOL'
 function di () {
 	echo "Installing $@."
@@ -369,6 +369,8 @@ function dr () {
 function ds () {
 	echo "Searching for $@."
 	sudo dnf search "$@"
+	echo "Searching installed packages for $@."
+	dnf list installed | grep -i "$@"
 }
 function dar () {
 	echo "Auto-removing packages."
@@ -397,6 +399,8 @@ function dr () {
 function ds () {
 	echo "Searching for $@."
 	dnf search "$@"
+	echo "Searching installed packages for $@."
+	dnf list installed | grep -i "$@"
 }
 function dar () {
 	echo "Auto-removing packages."
