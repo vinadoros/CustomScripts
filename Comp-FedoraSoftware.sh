@@ -128,6 +128,10 @@ dist_install freetype-freeworld
 
 # Yumex
 dist_install yumex-dnf
+# Load icon on startup
+cp /usr/share/applications/yumex-dnf.desktop /etc/xdg/autostart/yumex-dnf.desktop
+chmod a+rwx /etc/xdg/autostart/yumex-dnf.desktop
+sed 's@^Exec=/usr/bin/yumex-dnf$@Exec=/usr/bin/yumex-dnf --icononly@g' /etc/xdg/autostart/yumex-dnf.desktop
 
 # Productivity
 dist_install thunderbird thunderbird-lightning-gdata

@@ -69,6 +69,10 @@ end
 if timeout 3 test -d "$CUSTOMSCRIPTPATH"
 	set -gx PATH $PATH "$CUSTOMSCRIPTPATH"
 end
+function sl
+	xhost +localhost >> /dev/null
+	env DISPLAY=$DISPLAY sudo fish
+end
 function pc
 	set -x EXISTPATH (pwd)
 	cd "$CUSTOMSCRIPTPATH"
@@ -184,10 +188,6 @@ if [[ $(type -P pacman) ]]; then
 
 	echo "Appending pacman to $USERFISH."
 	cat >>"$USERFISH" <<'EOL'
-function sl
-	xhost + >> /dev/null
-	env DISPLAY=$DISPLAY sudo fish
-end
 function pmi
 	echo "Installing $argv or updating using pacman."
 	sudo pacman -Syu --needed $argv

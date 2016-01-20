@@ -46,6 +46,9 @@ alias la='ls -lah --color=auto'
 if timeout 3 test -d "$CUSTOMSCRIPTPATH" && ! echo $PATH | grep -iq "$CUSTOMSCRIPTPATH"; then
 	export PATH=$PATH:$CUSTOMSCRIPTPATH
 fi
+function sl () {
+	sudo bash
+}
 function pc () {
 	EXISTPATH="$(pwd)"
 	cd "$CUSTOMSCRIPTPATH"
@@ -159,9 +162,6 @@ fi
 if [[ $(type -P pacman) ]]; then
 
 	multilineadd "$USERHOME/.bashrc" "function pmi" <<'EOL'
-function sl () {
-	sudo bash
-}
 function pmi () {
 	echo "Installing $@ or updating using pacman."
 	sudo pacman -Syu --needed "$@"
