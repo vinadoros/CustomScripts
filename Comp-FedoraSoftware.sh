@@ -36,7 +36,7 @@ fi
 [ -z $SETDM ] && SETDM=0
 
 # Set default VM guest variables
-[ -z $VBOXGUEST ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1 
+[ -z $VBOXGUEST ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1
 [ -z $VBOXGUEST ] && ! grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=0
 [ -z $QEMUGUEST ] && grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=1
 [ -z $QEMUGUEST ] && ! grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=0
@@ -132,25 +132,26 @@ dist_install yumex yumex-dnf
 # Productivity
 dist_install thunderbird thunderbird-lightning-gdata
 dist_install libreoffice libreoffice-langpack-en
+dist_install meld
 
 ###############################################################################
 ######################        Desktop Environments      #######################
 ###############################################################################
 # Case for SETDE variable. 0=do nothing, 1=KDE, 2=cinnamon
 case $SETDE in
-[1]* ) 
+[1]* )
     # KDE
     echo "KDE stuff."
-    
+
     break;;
 
-[2]* ) 
+[2]* )
     # GNOME
     echo "GNOME stuff."
 	dist_install gnome-tweak-tool gnome-shell-extension-gpaste
     break;;
-    
-[3]* ) 
+
+[3]* )
     # MATE
     echo "MATE stuff."
 
@@ -159,4 +160,3 @@ case $SETDE in
 * ) echo "Not changing desktop environment."
     break;;
 esac
-
