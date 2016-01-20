@@ -154,7 +154,7 @@ case $SETDE in
 [2]* )
     # GNOME
     echo "GNOME stuff."
-	dist_install gnome-tweak-tool gnome-shell-extension-gpaste
+	dist_install gnome-tweak-tool gnome-shell-extension-gpaste nautilus-open-terminal
     break;;
 
 [3]* )
