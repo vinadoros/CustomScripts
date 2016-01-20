@@ -127,7 +127,7 @@ dist_install audacious audacious-plugins audacious-plugins-freeworld
 dist_install freetype-freeworld
 
 # Yumex
-dist_install yumex yumex-dnf
+dist_install yumex-dnf
 
 # Productivity
 dist_install thunderbird thunderbird-lightning-gdata
