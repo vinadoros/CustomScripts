@@ -124,6 +124,7 @@ dist_install cups-pdf
 dist_install gstreamer1-plugins-bad-freeworld gstreamer1-plugins-ugly gstreamer1-vaapi paprefs
 dist_install vlc
 dist_install audacious audacious-plugins audacious-plugins-freeworld
+dist_install pulseaudio-module-zeroconf
 
 # GUI
 dist_install freetype-freeworld
