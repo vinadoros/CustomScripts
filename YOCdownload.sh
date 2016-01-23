@@ -1,13 +1,41 @@
 #!/bin/bash
-set -eu
 
 #Source: http://tech.karbassi.com/2009/09/29/download-all-mp3-on-a-webpage/
 #Encoding: https://askubuntu.com/questions/53770/how-can-i-encode-and-decode-percent-encoded-strings-on-the-command-line
+echo "Executing $0"
+
+usage() {
+cat <<EOF
+Usage: $0 [Starting OC Remix number] [Ending OC Remix number]
+Example: $0 3051 3102
+
+EOF
+exit 0;
+}
+
+if [ ! -z "$1" ]; then
+	ocstartcount="$1"
+	ocstartcount=${ocstartcount//[^0-9]/}
+fi
+if [ ! -z "$2" ]; then
+	ocendcount="$2"
+	ocendcount=${ocendcount//[^0-9]/}
+fi
+if [[ -z "$ocstartcount" || -z "$ocendcount" ]]; then
+	echo "Error, incorrect parameters."
+	usage
+fi
+
+echo "ocstartcount: $ocstartcount , ocendcount: $ocendcount"
+
+echo ""
+read -p "Press any key to download files to the current folder."
+
+# Enable error checking
+set -eu
 
 #Variables
 USERAGENT="Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_3 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8J2 Safari/6533.18.5"
-ocstartcount=3064
-ocendcount=3185
 
 occount=$ocstartcount
 
@@ -23,20 +51,9 @@ do
 	
 	echo "Modulus: $ocmodulus"
 	
-<<'COMMENT2'
-	if [[ $ocmodulus -eq 4 ]]; then
-		echo "Foreground download $occount"
-		curl -s "${OCURL}" | grep -oie "\(http\|https\|ftp\|www\).*\.\(mp3\|wav\|m4a\|ogg\|mp4\)" | sort | uniq | sed -n "${ocmodulus}"p | head | awk '{print "curl -OL "$1" "}' | /bin/bash
-	else
-		echo "Background download $occount"
-		curl -s "${OCURL}" | grep -oie "\(http\|https\|ftp\|www\).*\.\(mp3\|wav\|m4a\|ogg\|mp4\)" | sort | uniq | sed -n "${ocmodulus}"p | head | awk '{print "curl -sOL "$1" &"}' | /bin/bash
-	fi
-COMMENT2
-	
 	CURLURL=$(curl -s "${OCURL}" | grep -oie "\(http\|https\|ftp\|www\).*\.\(mp3\|wav\|m4a\|ogg\|mp4\)" | sort | uniq | sed -n "${ocmodulus}"p | head)
 	echo "Download $occount from $CURLURL"
 	
-	#curl -s "${OCURL}" | grep -oie "\(http\|https\|ftp\|www\).*\.\(mp3\|wav\|m4a\|ogg\|mp4\)" | sort | uniq | sed -n "${ocmodulus}"p | head | awk '{print "curl -OL "$1" "}' | /bin/bash
 	curl -A "$USERAGENT" -sOL "$CURLURL" &
 	
 	# Wait for process to finish
