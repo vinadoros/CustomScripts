@@ -36,7 +36,7 @@ fi
 # Pacstrap
 if [ ! -f ${INSTALLPATH}/etc/hostname ]; then
 	pacstrap -d "${INSTALLPATH}" base base-devel
-	genfstab -Up "${INSTALLPATH}" > "${INSTALLPATH}/etc/fstab"
+	genfstab -Up "${INSTALLPATH}" > "${INSTALLPATH}/etc/fstab" || true
 	echo "LANG=en_US.UTF-8" > "${INSTALLPATH}/etc/locale.conf"
 	sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' "${INSTALLPATH}/etc/locale.gen"
 	sed -i 's/\(127.0.0.1\tlocalhost.localdomain\tlocalhost\)\(.*\)/\1 '$NEWHOSTNAME'/g' "${INSTALLPATH}/etc/hosts"
