@@ -362,7 +362,7 @@ function diy () {
 	echo "Installing $@."
 	sudo dnf install -y "$@"
 }
-function dr () {
+function rmv () {
 	echo "Removing $@."
 	sudo dnf remove $@
 }
@@ -392,7 +392,7 @@ function diy () {
 	echo "Installing $@."
 	dnf install -y "$@"
 }
-function dr () {
+function rmv () {
 	echo "Removing $@."
 	dnf remove "$@"
 }

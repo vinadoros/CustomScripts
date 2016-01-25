@@ -392,7 +392,7 @@ function diy
 	echo "Installing $argv."
 	sudo dnf install -y $argv
 end
-function dr
+function rmv
 	echo "Removing $argv."
 	sudo dnf remove $argv
 end
@@ -423,7 +423,7 @@ function diy
 	echo "Installing $argv."
 	dnf install -y $argv
 end
-function dr
+function rmv
 	echo "Removing $argv."
 	dnf remove $argv
 end
