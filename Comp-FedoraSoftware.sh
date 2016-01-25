@@ -67,10 +67,6 @@ rpm --quiet --query rpmfusion-free-release || dist_install --nogpgcheck http://d
 rpm --quiet --query rpmfusion-nonfree-release || dist_install --nogpgcheck http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 dist_install --nogpgcheck fedy
 
-# Google Chrome (x86_64 only)
-[ $MACHINEARCH = "x86_64" ] && dist_install --nogpgcheck https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
-[ $MACHINEARCH = "i686" ] && dist_install --nogpgcheck https://dl.google.com/linux/direct/google-chrome-stable_current_i386.rpm
-
 # Virtualbox
 wget -O //etc/yum.repos.d/virtualbox.repo http://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo
 
@@ -78,6 +74,13 @@ wget -O //etc/yum.repos.d/virtualbox.repo http://download.virtualbox.org/virtual
 dist_install --nogpgcheck http://mirror.yandex.ru/fedora/russianfedora/russianfedora/free/fedora/russianfedora-free-release-stable.noarch.rpm http://mirror.yandex.ru/fedora/russianfedora/russianfedora/nonfree/fedora/russianfedora-nonfree-release-stable.noarch.rpm
 
 dist_update
+
+# Google Chrome (x86_64 only)
+[ $MACHINEARCH = "x86_64" ] && dist_install --nogpgcheck https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+# [ $MACHINEARCH = "i686" ] && dist_install --nogpgcheck https://dl.google.com/linux/direct/google-chrome-stable_current_i386.rpm
+
+# Chromium (i686 only)
+[ $MACHINEARCH = "i686" ] && dist_install chromium chromium-libffmpeg chromium-pepper-flash
 
 # Fedy multimedia codecs
 dist_install fedy-multimedia-codecs
