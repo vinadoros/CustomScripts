@@ -51,6 +51,20 @@ fi
 
 # Install software
 
+# Allow sudo pacman use without password (for Yaourt)
+# Syntax: username ALL=(ALL) NOPASSWD: /usr/bin/pacman
+SUDOPACMANCMD="$USERNAMEVAR ALL=(ALL) NOPASSWD: $(type -P pacman)"
+if ! grep -iq "^${SUDOPACMANCMD}$" /etc/sudoers; then
+	cp /etc/sudoers /etc/sudoers.w
+	echo "" >> /etc/sudoers
+	echo "# Allow user to run pacman without password (for Yaourt/makepkg)." >> /etc/sudoers
+	echo "$SUDOPACMANCMD" >> /etc/sudoers
+fi
+visudo -c
+if [ -f /etc/sudoers.w ]; then
+	rm /etc/sudoers.w
+fi
+
 # Install apacman (allows installation of packages using root).
 if ! pacman -Q "apacman" &>/dev/null; then
 	pacman -S --needed --noconfirm binutils ca-certificates curl fakeroot file grep jshon sed tar wget
