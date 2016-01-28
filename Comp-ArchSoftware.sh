@@ -518,23 +518,7 @@ EOL
 	if grep -iq "ThinkPad R61" "/sys/devices/virtual/dmi/id/product_version"; then
 		#Fix thinkpad graphics corruption in GRUB
 		sed -i 's/GRUB_GFXMODE=auto/GRUB_GFXMODE=1024x768/g' /etc/default/grub
-		if [ -f /etc/grub.d/30_os-prober ]; then
-			sudo chmod a-x /etc/grub.d/30_os-prober
-		fi
-		grub-mkconfig -o /boot/grub/grub.cfg
-		if [ -f /etc/grub.d/30_os-prober ]; then
-			sudo chmod a+x /etc/grub.d/30_os-prober
-		fi
-
-		if [ ! -f /etc/X11/xorg.conf.d/20-intel.conf ]; then
-			bash -c "cat >>/etc/X11/xorg.conf.d/20-intel.conf" <<'EOL'
-Section "Device"
-Identifier  "Intel Graphics"
-Driver      "intel"
-Option      "AccelMethod"  "glamor"
-EndSection
-EOL
-		fi
+		grub_update
 	fi
 
 	# Install areca backup
