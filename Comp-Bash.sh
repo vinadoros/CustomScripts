@@ -113,6 +113,7 @@ fi
 if [ "$(id -u)" == "0" ]; then
 
 	grepadd "CUSTOMSCRIPTPATH=\"$SCRIPTDIR\"" "/root/.bashrc"
+	grepadd "USERNAMEVAR=\"$USERNAMEVAR\"" "/root/.bashrc"
 
 	multilineadd "/root/.bashrc" "function stop" <<'EOL'
 export EDITOR=nano
@@ -167,16 +168,19 @@ function pmi () {
 	sudo pacman -Syu --needed "$@"
 }
 function in () {
-	echo "Installing $@ using apacman."
+	echo "Installing $@ using AUR helper."
 	sudo apacman -S --needed --ignorearch "$@"
+	# yaourt -ASa --needed "$@"
 }
 function iny () {
 	echo "Installing $@ using apacman."
 	sudo apacman -S --needed --noconfirm --ignorearch "$@"
+	# yaourt -ASa --needed --noconfirm "$@"
 }
 function up () {
 	echo "Starting full system update using apacman."
 	sudo apacman -Syu --noconfirm --ignorearch
+	# yaourt -ASyua --needed --noconfirm
 }
 function rmd () {
 	echo "Removing /var/lib/pacman/db.lck."
@@ -193,10 +197,12 @@ function rmv () {
 function se () {
 	echo "Searching for $@ using apacman."
 	apacman -Ss "$@"
+	# yaourt -Ss "$@"
 }
 function gitup () {
 	echo "Upgrading git packages from AUR."
 	sudo apacman -S --skipcache --noconfirm --ignorearch $(pacman -Qq | grep -i "\-git")
+	# yaourt -ASa --noconfirm $(pacman -Qq | grep -i "\-git")
 }
 EOL
 
@@ -209,14 +215,17 @@ function pmi () {
 function in () {
 	echo "Installing $@ using apacman."
 	apacman -S --needed --ignorearch "$@"
+	# su $USERNAMEVAR -s /bin/bash -c "yaourt -ASa --needed $@"
 }
 function iny () {
 	echo "Installing $@ using apacman."
 	apacman -S --needed --noconfirm --ignorearch "$@"
+	# su $USERNAMEVAR -s /bin/bash -c "yaourt -ASa --needed --noconfirm $@"
 }
 function up () {
 	echo "Starting full system update using apacman."
 	apacman -Syu --noconfirm --ignorearch
+	# su $USERNAMEVAR -s /bin/bash -c "yaourt -ASyua --needed --noconfirm"
 }
 function rmd () {
 	echo "Removing /var/lib/pacman/db.lck."
@@ -233,10 +242,12 @@ function rmv () {
 function se () {
 	echo "Searching for $@ using apacman."
 	apacman -Ss "$@"
+	# yaourt -Ss "$@"
 }
 function gitup () {
 	echo "Upgrading git packages from AUR."
 	apacman -S --skipcache --noconfirm --ignorearch $(pacman -Qq | grep -i "\-git")
+	# su $USERNAMEVAR -s /bin/bash -c 'yaourt -ASa --noconfirm $(pacman -Qq | grep -i "\-git")'
 }
 EOL
 	fi
