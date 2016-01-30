@@ -192,11 +192,11 @@ function pmi
 	echo "Installing $argv or updating using pacman."
 	sudo pacman -Syu --needed $argv
 end
-function ami
+function in
 	echo "Installing $argv using apacman."
 	sudo apacman -S --needed --ignorearch $argv
 end
-function amin
+function iny
 	echo "Installing $argv using apacman."
 	sudo apacman -S --needed --noconfirm --ignorearch $argv
 end
@@ -216,7 +216,7 @@ function rmv
 	echo "Removing $argv and dependancies using pacman."
 	sudo pacman -Rsn $argv
 end
-function psc
+function se
 	echo "Searching for $argv using apacman."
 	apacman -Ss $argv
 end
@@ -233,11 +233,11 @@ function pmi
 	echo "Installing $argv or updating using pacman."
 	pacman -Syu --needed $argv
 end
-function ami
+function in
 	echo "Installing $argv using apacman."
 	apacman -S --needed --ignorearch $argv
 end
-function amin
+function iny
 	echo "Installing $argv using apacman."
 	apacman -S --needed --noconfirm --ignorearch $argv
 end
@@ -257,7 +257,7 @@ function rmv
 	echo "Removing $argv and dependancies using pacman."
 	pacman -Rsn $argv
 end
-function psc
+function se
 	echo "Searching for $argv using apacman."
 	apacman -Ss $argv
 end
@@ -273,11 +273,11 @@ elif [[ $(type -P apt-get) ]]; then
 	echo "Appending apt to $USERFISH."
 	cat >>"$USERFISH" <<'EOL'
 set -gx PATH $PATH /usr/local/sbin /usr/sbin /sbin
-function agi
+function in
 	echo "Installing $argv."
 	sudo apt-get install $argv
 end
-function agiy
+function iny
 	echo "Installing $argv."
 	sudo apt-get install -y $argv
 end
@@ -285,7 +285,7 @@ function afix
 	echo "Running apt-get -f install."
 	sudo apt-get -f install
 end
-function agr
+function rmv
 	echo "Removing $argv."
 	sudo apt-get --purge remove $argv
 end
@@ -293,23 +293,13 @@ function agu
 	echo "Updating Repos."
 	sudo apt-get update
 end
-function acs
+function se
 	echo "Searching for $argv."
 	apt-cache search $argv
-end
-function acp
 	echo "Policy for $argv."
 	apt-cache policy $argv
 end
-function agup
-	echo "Upgrading system."
-	sudo apt-get upgrade
-end
-function agdup
-	echo "Dist-upgrading system."
-	sudo apt-get dist-upgrade
-end
-function aar
+function cln
 	echo "Auto-removing packages."
 	sudo apt-get autoremove --purge
 end
@@ -318,7 +308,7 @@ function up
 	sudo apt-get update
 	sudo apt-get dist-upgrade
 end
-function ark
+function rmk
 	echo "Removing old kernels."
 	sudo apt-get purge (ls -tr /boot/vmlinuz-* | head -n -2 | grep -v (uname -r) | cut -d- -f2- | awk '{print "linux-image-" $0 "\nlinux-headers-" $0}')
 end
@@ -328,11 +318,11 @@ EOL
 		echo "Appending apt to $ROOTFISH."
 		cat >>"$ROOTFISH" <<'EOL'
 set -gx PATH $PATH /usr/local/sbin /usr/sbin /sbin
-function agi
+function in
 	echo "Installing $argv."
 	apt-get install $argv
 end
-function agiy
+function iny
 	echo "Installing $argv."
 	apt-get install -y $argv
 end
@@ -340,7 +330,7 @@ function afix
 	echo "Running apt-get -f install."
 	apt-get -f install
 end
-function agr
+function rmv
 	echo "Removing $argv."
 	apt-get --purge remove $argv
 end
@@ -348,23 +338,13 @@ function agu
 	echo "Updating Repos."
 	apt-get update
 end
-function acs
+function se
 	echo "Searching for $argv."
 	apt-cache search $argv
-end
-function acp
 	echo "Policy for $argv."
 	apt-cache policy $argv
 end
-function agup
-	echo "Upgrading system."
-	apt-get upgrade
-end
-function agdup
-	echo "Dist-upgrading system."
-	apt-get dist-upgrade
-end
-function aar
+function cln
 	echo "Auto-removing packages."
 	apt-get autoremove --purge
 end
@@ -373,7 +353,7 @@ function up
 	apt-get update
 	apt-get dist-upgrade
 end
-function ark
+function rmk
 	echo "Removing old kernels."
 	apt-get purge (ls -tr /boot/vmlinuz-* | head -n -2 | grep -v (uname -r) | cut -d- -f2- | awk '{print "linux-image-" $0 "\nlinux-headers-" $0}')
 end
@@ -384,11 +364,11 @@ elif [[ $(type -P dnf) ]]; then
 
 	echo "Appending dnf to $USERFISH."
 	cat >>"$USERFISH" <<'EOL'
-function di
+function in
 	echo "Installing $argv."
 	sudo dnf install $argv
 end
-function diy
+function iny
 	echo "Installing $argv."
 	sudo dnf install -y $argv
 end
@@ -396,13 +376,13 @@ function rmv
 	echo "Removing $argv."
 	sudo dnf remove $argv
 end
-function ds
+function se
 	echo "Searching for $argv."
 	sudo dnf search $argv
 	echo "Searching installed packages for $argv."
 	dnf list installed | grep -i $argv
 end
-function dar
+function cln
 	echo "Auto-removing packages."
 	sudo dnf autoremove
 end
@@ -415,11 +395,11 @@ EOL
 	if [ "$(id -u)" == "0" ]; then
 		echo "Appending dnf to $ROOTFISH."
 		cat >>"$ROOTFISH" <<'EOL'
-function di
+function in
 	echo "Installing $argv."
 	dnf install $argv
 end
-function diy
+function iny
 	echo "Installing $argv."
 	dnf install -y $argv
 end
@@ -427,13 +407,13 @@ function rmv
 	echo "Removing $argv."
 	dnf remove $argv
 end
-function ds
+function se
 	echo "Searching for $argv."
 	dnf search $argv
 	echo "Searching installed packages for $argv."
 	dnf list installed | grep -i $argv
 end
-function dar
+function cln
 	echo "Auto-removing packages."
 	dnf autoremove
 end

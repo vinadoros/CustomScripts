@@ -166,11 +166,11 @@ function pmi () {
 	echo "Installing $@ or updating using pacman."
 	sudo pacman -Syu --needed "$@"
 }
-function ami () {
+function in () {
 	echo "Installing $@ using apacman."
 	sudo apacman -S --needed --ignorearch "$@"
 }
-function amin () {
+function iny () {
 	echo "Installing $@ using apacman."
 	sudo apacman -S --needed --noconfirm --ignorearch "$@"
 }
@@ -190,7 +190,7 @@ function rmv () {
 	echo "Removing $@ and dependancies using pacman."
 	sudo pacman -Rsn "$@"
 }
-function psc () {
+function se () {
 	echo "Searching for $@ using apacman."
 	apacman -Ss "$@"
 }
@@ -206,11 +206,11 @@ function pmi () {
 	echo "Installing $@ or updating using pacman."
 	pacman -Syu --needed "$@"
 }
-function ami () {
+function in () {
 	echo "Installing $@ using apacman."
 	apacman -S --needed --ignorearch "$@"
 }
-function amin () {
+function iny () {
 	echo "Installing $@ using apacman."
 	apacman -S --needed --noconfirm --ignorearch "$@"
 }
@@ -230,7 +230,7 @@ function rmv () {
 	echo "Removing $@ and dependancies using pacman."
 	pacman -Rsn "$@"
 }
-function psc () {
+function se () {
 	echo "Searching for $@ using apacman."
 	apacman -Ss "$@"
 }
@@ -245,11 +245,11 @@ elif [[ $(type -P apt-get) ]]; then
 
 	multilineadd "$USERHOME/.bashrc" "function afix" <<'EOL'
 export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
-function agi () {
+function in () {
 	echo "Installing $@."
 	sudo apt-get install "$@"
 }
-function agiy () {
+function iny () {
 	echo "Installing $@."
 	sudo apt-get install -y "$@"
 }
@@ -257,7 +257,7 @@ function afix () {
 	echo "Running apt-get -f install."
 	sudo apt-get -f install
 }
-function agr () {
+function rmv () {
 	echo "Removing $@."
 	sudo apt-get --purge remove "$@"
 }
@@ -265,23 +265,13 @@ function agu () {
 	echo "Updating Repos."
 	sudo apt-get update
 }
-function acs () {
+function se () {
 	echo "Searching for $@."
 	apt-cache search "$@"
-}
-function acp () {
 	echo "Policy for $@."
 	apt-cache policy "$@"
 }
-function agup () {
-	echo "Upgrading system."
-	sudo apt-get upgrade
-}
-function agdup () {
-	echo "Dist-upgrading system."
-	sudo apt-get dist-upgrade
-}
-function aar () {
+function cln () {
 	echo "Auto-removing packages."
 	sudo apt-get autoremove --purge
 }
@@ -290,7 +280,7 @@ function up () {
 	sudo apt-get update
 	sudo apt-get dist-upgrade
 }
-function ark () {
+function rmk () {
 	echo "Removing old kernels."
 	sudo apt-get purge $(ls -tr /boot/vmlinuz-* | head -n -2 | grep -v $(uname -r) | cut -d- -f2- | awk '{print "linux-image-" $0 "\nlinux-headers-" $0}')
 }
@@ -299,11 +289,11 @@ EOL
 	if [ "$(id -u)" == "0" ]; then
 		multilineadd "/root/.bashrc" "function afix" <<'EOL'
 export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
-function agi () {
+function in () {
 	echo "Installing $@."
 	apt-get install "$@"
 }
-function agiy () {
+function iny () {
 	echo "Installing $@."
 	apt-get install -y "$@"
 }
@@ -311,7 +301,7 @@ function afix () {
 	echo "Running apt-get -f install."
 	apt-get -f install
 }
-function agr () {
+function rmv () {
 	echo "Removing $@."
 	apt-get --purge remove "$@"
 }
@@ -319,23 +309,13 @@ function agu () {
 	echo "Updating Repos."
 	apt-get update
 }
-function acs () {
+function se () {
 	echo "Searching for $@."
 	apt-cache search "$@"
-}
-function acp () {
 	echo "Policy for $@."
 	apt-cache policy "$@"
 }
-function agup () {
-	echo "Upgrading system."
-	apt-get upgrade
-}
-function agdup () {
-	echo "Dist-upgrading system."
-	apt-get dist-upgrade
-}
-function aar () {
+function cln () {
 	echo "Auto-removing packages."
 	apt-get autoremove --purge
 }
@@ -344,7 +324,7 @@ function up () {
 	apt-get update
 	apt-get dist-upgrade
 }
-function ark () {
+function rmk () {
 	echo "Removing old kernels."
 	apt-get purge $(ls -tr /boot/vmlinuz-* | head -n -2 | grep -v $(uname -r) | cut -d- -f2- | awk '{print "linux-image-" $0 "\nlinux-headers-" $0}')
 }
@@ -354,11 +334,11 @@ EOL
 elif [[ $(type -P dnf) ]]; then
 
 	multilineadd "$USERHOME/.bashrc" "function diy" <<'EOL'
-function di () {
+function in () {
 	echo "Installing $@."
 	sudo dnf install "$@"
 }
-function diy () {
+function iny () {
 	echo "Installing $@."
 	sudo dnf install -y "$@"
 }
@@ -366,13 +346,13 @@ function rmv () {
 	echo "Removing $@."
 	sudo dnf remove $@
 }
-function ds () {
+function se () {
 	echo "Searching for $@."
 	sudo dnf search "$@"
 	echo "Searching installed packages for $@."
 	dnf list installed | grep -i "$@"
 }
-function dar () {
+function cln () {
 	echo "Auto-removing packages."
 	sudo dnf autoremove
 }
@@ -384,11 +364,11 @@ EOL
 
 	if [ "$(id -u)" == "0" ]; then
 		multilineadd "/root/.bashrc" "function diy" <<'EOL'
-function di () {
+function in () {
 	echo "Installing $@."
 	dnf install "$@"
 }
-function diy () {
+function iny () {
 	echo "Installing $@."
 	dnf install -y "$@"
 }
@@ -396,13 +376,13 @@ function rmv () {
 	echo "Removing $@."
 	dnf remove "$@"
 }
-function ds () {
+function se () {
 	echo "Searching for $@."
 	dnf search "$@"
 	echo "Searching installed packages for $@."
 	dnf list installed | grep -i "$@"
 }
-function dar () {
+function cln () {
 	echo "Auto-removing packages."
 	dnf autoremove
 }
