@@ -11,7 +11,9 @@ fi
 
 #This sets all of the settings in MATE
 xdg-mime default caja-browser.desktop inode/directory
-if [[ $(type -p geany) ]]; then
+if [[ $(type -p atom) ]]; then
+	xdg-mime default atom.desktop text/x-shellscript
+elif [[ $(type -p geany) ]]; then
 	xdg-mime default geany.desktop text/x-shellscript
 else
 	xdg-mime default pluma.desktop text/x-shellscript

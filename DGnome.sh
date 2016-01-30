@@ -10,7 +10,9 @@ else
 fi
 
 #This sets all of the settings in Gnome Shell
-if [[ $(type -p geany) ]]; then
+if [[ $(type -p atom) ]]; then
+	xdg-mime default atom.desktop text/x-shellscript
+elif [[ $(type -p geany) ]]; then
 	xdg-mime default geany.desktop text/x-shellscript
 else
 	xdg-mime default org.gnome.gedit.desktop text/x-shellscript

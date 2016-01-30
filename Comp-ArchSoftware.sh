@@ -335,7 +335,8 @@ dist_install pavucontrol paprefs pulseaudio pulseaudio-alsa pulseaudio-gconf pul
 # Bluetooth
 dist_install bluez bluez-firmware bluez-hid2hci bluez-libs bluez-utils pulseaudio-bluetooth
 
-dist_install geany geany-plugins
+# dist_install geany geany-plugins
+dist_install atom-editor-bin
 dist_install firefox firefox-i18n-en-us
 dist_install leafpad gnome-disk-utility gparted p7zip unrar gvfs-smb gvfs-gphoto2 gvfs-goa gvfs-mtp gvfs-google gvfs-nfs libmtp systemd-ui meld
 # System monitoring programs
@@ -463,8 +464,12 @@ EOL
 	###############################################################################
 	# Install software for live computer.
 	if [[ $VBOXGUEST = 0 && $QEMUGUEST = 0 && $VMWGUEST = 0 ]]; then
+		# VLC
+		dist_install vlc 
 		# Banshee
-		dist_install vlc banshee
+		# dist_install banshee
+		# Clementine (remove 0.10 plugins when clementine moves to gst 1.0)
+		dist_install clementine gstreamer0.10-good-plugins gstreamer0.10-bad-plugins gstreamer0.10-ugly-plugins gstreamer0.10-ffmpeg
 		# Wine
 		dist_install wine alsa-lib alsa-plugins cups dosbox giflib lcms2 libcl libjpeg-turbo libldap libpng libpulse libxcomposite libxinerama libxml2 libxslt mpg123 ncurses openal samba v4l-utils wine_gecko wine-mono playonlinux
 		if [ $(uname -m) == "x86_64" ]; then
