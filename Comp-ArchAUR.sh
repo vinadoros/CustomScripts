@@ -72,7 +72,6 @@ EOL
 }
 
 # Ensure base and base-devel are present.
-dist_update
 pacman -Syu --needed --noconfirm base base-devel
 
 # Allow sudo pacman use without password (for Yaourt)
