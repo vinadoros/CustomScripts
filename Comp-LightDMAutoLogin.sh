@@ -68,3 +68,49 @@ fi
 if [ -f /etc/lightdm/lightdm.conf ]; then
 	sed -i 's/#greeter-hide-users=false/greeter-hide-users=false/g' /etc/lightdm/lightdm.conf
 fi
+
+# Create filename containing synergyc host.
+HOSTFILE="/usr/local/bin/synhost.txt"
+if [ ! -f "$HOSTFILE" ]; then
+	echo "HostnameHere" >> "$HOSTFILE"
+	chmod a+rwx "$HOSTFILE"
+	echo "Be sure to change the hostname in $HOSTFILE."
+fi
+
+LDSTART="/usr/local/bin/ldstart.sh"
+if [ ! -f "$LDSTART" ]; then
+	multilinereplace "$LDSTART" <<EOLXYZ
+#!/bin/bash
+echo "Executing \$0"
+
+# https://wiki.freedesktop.org/www/Software/LightDM/CommonConfiguration/
+# https://bazaar.launchpad.net/~lightdm-team/lightdm/trunk/view/head:/data/lightdm.conf
+
+SERVER="\$(<$HOSTFILE)"
+
+#synergyc "\$SERVER"
+#x0vncserver -passwordfile $USERHOME/.vnc/passwd &
+
+EOLXYZ
+	echo "Be sure to uncomment the lines in $LDSTART."
+fi
+
+LDSTOP="/usr/local/bin/ldstop.sh"
+multilinereplace "$LDSTOP" <<'EOLXYZ'
+#!/bin/bash
+echo "Executing $0"
+killall synergyc
+killall x0vncserver
+EOLXYZ
+
+# Run startup scripts
+if [ -f /etc/lightdm/lightdm.conf ]; then
+	# Uncomment lines
+	sed -i '/^#display-setup-script=.*/s/^#//g' /etc/lightdm/lightdm.conf
+	sed -i '/^#session-setup-script=.*/s/^#//g' /etc/lightdm/lightdm.conf
+	# Add startup scripts to session
+	sed -i "s@display-setup-script=.*@display-setup-script=$LDSTART@g" /etc/lightdm/lightdm.conf
+	sed -i "s@session-setup-script=.*@session-setup-script=$LDSTOP@g" /etc/lightdm/lightdm.conf
+fi
+
+
