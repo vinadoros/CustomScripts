@@ -137,14 +137,12 @@ dist_install () {
 
 	if type -p apacman &> /dev/null; then
 		echo "Installing $INSTALLPKGS using apacman."
-		$SUDOCMD pacman -Sy
 		$SUDOCMD apacman -S --needed --noconfirm --ignorearch $INSTALLPKGS
 	elif type -p pacman &> /dev/null; then
 		echo "Installing $INSTALLPKGS using pacman."
-		$SUDOCMD pacman -Sy --needed --noconfirm $INSTALLPKGS
+		$SUDOCMD pacman -Syu --needed --noconfirm $INSTALLPKGS
 	elif type -p apt-get &> /dev/null; then
 		echo "Installing $INSTALLPKGS using apt-get."
-		$SUDOCMD apt-get update
 		$SUDOCMD apt-get install -y $INSTALLPKGS
 	elif type -p dnf &> /dev/null; then
 		echo "Installing $INSTALLPKGS using dnf."
