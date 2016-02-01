@@ -52,6 +52,8 @@ if [[ ! -d $USERHOME/.config/autostart/ ]]; then
 	chown -R $USERNAMEVAR:$USERGROUP $USERHOME/.config
 fi
 
+source "$SCRIPTDIR/Comp-ArchAUR.sh"
+
 source "$SCRIPTDIR/Comp-ArchSoftware.sh"
 
 source "$SCRIPTDIR/Comp-sdtimers.sh"
@@ -88,4 +90,3 @@ sleep 1
 echo ""
 echo "Script Completed Successfully."
 echo ""
-

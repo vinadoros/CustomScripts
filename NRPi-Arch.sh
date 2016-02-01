@@ -75,15 +75,25 @@ export LIGHTDMAUTO=1
 
 EOLXYZ
 
-nscriptadd "$SCRIPTDIR/Comp-BoxDAV.sh" "${SETUPSCRIPT}"
+nscriptadd "$SCRIPTDIR/Comp-ArchAUR.sh" "${SETUPSCRIPT}"
 
 nscriptadd "$SCRIPTDIR/Comp-ArchSoftware.sh" "${SETUPSCRIPT}"
+
+nscriptadd "$SCRIPTDIR/Comp-sdtimers.sh" "${SETUPSCRIPT}"
+
+nscriptadd "$SCRIPTDIR/Comp-ArchCron.sh" "${SETUPSCRIPT}"
+
+nscriptadd "$SCRIPTDIR/Comp-ArchInfinality.sh" "${SETUPSCRIPT}"
 
 nscriptadd "$SCRIPTDIR/Comp-sshconfig.sh" "${SETUPSCRIPT}"
 
 nscriptadd "$SCRIPTDIR/Comp-Fish.sh" "${SETUPSCRIPT}"
 
 nscriptadd "$SCRIPTDIR/Comp-Bash.sh" "${SETUPSCRIPT}"
+
+nscriptadd "$SCRIPTDIR/Comp-CSClone.sh" "${SETUPSCRIPT}"
+
+nscriptadd "$SCRIPTDIR/Comp-BoxDAV.sh" "${SETUPSCRIPT}"
 
 nscriptadd "$SCRIPTDIR/Comp-LightDMAutoLogin.sh" "${SETUPSCRIPT}"
 
