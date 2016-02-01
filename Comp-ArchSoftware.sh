@@ -51,41 +51,6 @@ fi
 
 # Install software
 
-# Allow sudo pacman use without password (for Yaourt)
-# Syntax: username ALL=(ALL) NOPASSWD: /usr/bin/pacman
-SUDOPACMANCMD="$USERNAMEVAR ALL=(ALL) NOPASSWD: $(type -P pacman)"
-if ! grep -iq "^${SUDOPACMANCMD}$" /etc/sudoers; then
-	cp /etc/sudoers /etc/sudoers.w
-	echo "" >> /etc/sudoers
-	echo "# Allow user to run pacman without password (for Yaourt/makepkg)." >> /etc/sudoers
-	echo "$SUDOPACMANCMD" >> /etc/sudoers
-fi
-visudo -c
-if [ -f /etc/sudoers.w ]; then
-	rm /etc/sudoers.w
-fi
-
-# Install apacman (allows installation of packages using root).
-if ! pacman -Q "apacman" &>/dev/null; then
-	pacman -S --needed --noconfirm binutils ca-certificates curl fakeroot file grep jshon sed tar wget
-	cd /tmp
-	curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/apacman.tar.gz
-	tar zxvf apacman.tar.gz
-	chmod a+rwx -R apacman
-	cd apacman
-	su nobody -s /bin/bash <<'EOL'
-		makepkg --noconfirm -s
-EOL
-	pacman -U --noconfirm ./apacman-*.pkg.tar.xz
-	cd ..
-	rm -f apacman.tar.gz
-	rm -rf ./apacman
-fi
-dist_install apacman-deps
-
-# Install yaourt.
-dist_install package-query yaourt
-
 # Install randomness generator
 dist_install haveged
 systemctl enable haveged
@@ -465,7 +430,7 @@ EOL
 	# Install software for live computer.
 	if [[ $VBOXGUEST = 0 && $QEMUGUEST = 0 && $VMWGUEST = 0 ]]; then
 		# VLC
-		dist_install vlc 
+		dist_install vlc
 		# Banshee
 		# dist_install banshee
 		# Clementine (remove 0.10 plugins when clementine moves to gst 1.0)
