@@ -38,7 +38,7 @@ REPOFOLDER=/var/tmp/${REPONAME}
 
 # Function for AUR build.
 aur_build(){
-	if [ -f "/var/cache/pacman/pkg/debootstrap"* ]; then 
+	if [ -f "/var/cache/pacman/pkg/debootstrap"* ]; then
 		sudo rm "/var/cache/pacman/pkg/debootstrap"*
 	fi
 	cd $BUILDFOLDER
@@ -146,6 +146,7 @@ fi
 
 if ! grep -Fq "lxdm" $ARCHLIVEPATH/packages.both; then
 	sudo sh -c "cat >>$ARCHLIVEPATH/packages.both" <<'EOL'
+# My custom packages
 ipw2200-fw
 zd1211-firmware
 xorg-server
@@ -183,6 +184,9 @@ gvfs
 gvfs-smb
 binutils
 git
+chntpw
+
+# AUR packages
 debootstrap
 EOL
 fi
@@ -287,4 +291,3 @@ fi
 chown $USER:users "$OUTFOLDER/$ISOFILENAME"*
 chmod a+rwx "$OUTFOLDER/$ISOFILENAME"*
 EOF
-
