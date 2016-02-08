@@ -7,6 +7,19 @@ SCRIPTDIR="$(dirname "$FLWSOURCE")"
 SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
+# Set user folders if they don't exist.
+if [ -z $USERNAMEVAR ]; then
+	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
+		export USERNAMEVAR=$SUDO_USER
+	elif [ "$USER" != "root" ]; then
+		export USERNAMEVAR=$USER
+	else
+		export USERNAMEVAR=$(id 1000 -un)
+	fi
+	USERGROUP=$(id 1000 -gn)
+	USERHOME=/home/$USERNAMEVAR
+fi
+
 grepadd () {
 		if [ -z "$1" ]; then
 			echo "No parameter passed."
@@ -135,9 +148,10 @@ dist_install () {
 	INSTALLPKGS="$@"
 	[ "$(id -u)" != "0" ] && SUDOCMD="sudo" || SUDOCMD=""
 
-	if type -p apacman &> /dev/null; then
+	if type -p yaourt &> /dev/null; then
 		echo "Installing $INSTALLPKGS using AUR helper."
-		$SUDOCMD apacman -S --needed --noconfirm --ignorearch $INSTALLPKGS
+		# $SUDOCMD apacman -ASa --needed --noconfirm --ignorearch $INSTALLPKGS
+		su $USERNAMEVAR -s /bin/bash -c "yaourt -ASa --needed $INSTALLPKGS"
 	elif type -p pacman &> /dev/null; then
 		echo "Installing $INSTALLPKGS using pacman."
 		$SUDOCMD pacman -Syu --needed --noconfirm $INSTALLPKGS
@@ -213,9 +227,10 @@ dist_remove_force () {
 dist_update () {
 	[ "$(id -u)" != "0" ] && SUDOCMD="sudo" || SUDOCMD=""
 
-	if type -p apacman &> /dev/null; then
-		echo "Updating system using apacman."
-		$SUDOCMD apacman -Syu --noconfirm --ignorearch
+	if type -p yaourt &> /dev/null; then
+		echo "Updating system using AUR helper."
+		# $SUDOCMD apacman -Syu --noconfirm --ignorearch
+		su $USERNAMEVAR -s /bin/bash -c "yaourt -ASyua --needed --noconfirm"
 	elif type -p pacman &> /dev/null; then
 		echo "Updating system using pacman."
 		$SUDOCMD pacman -Syu --noconfirm
