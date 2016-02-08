@@ -43,7 +43,7 @@ fi
 #Path above installpath
 TOPPATH=${INSTALLPATH}/..
 
-read -p "Press any key to continue." 
+read -p "Press any key to continue."
 
 # Check install path
 if [ ! -d ${INSTALLPATH} ]; then
@@ -63,7 +63,7 @@ if [ ! -f ${INSTALLPATH}/etc/hostname ]; then
 	#~ tar --same-owner --numeric-owner -pxvf ${TOPPATH}/${TARIMG} -C ${INSTALLPATH}
 	bsdtar -vxpf "${TOPPATH}/${TARIMG}" -C "${INSTALLPATH}"
 	sync
-	
+
 	echo "${NEWHOSTNAME}" > "${INSTALLPATH}/etc/hostname"
 	sed -i 's/\(127.0.0.1\tlocalhost.localdomain\tlocalhost\)\(.*\)/\1 '$NEWHOSTNAME'/g' "${INSTALLPATH}/etc/hosts"
 	echo "LANG=en_US.UTF-8" > "${INSTALLPATH}/etc/locale.conf"
@@ -144,7 +144,7 @@ fi
 # Rpi headers
 pacman -S --needed --noconfirm linux-raspberrypi-headers
 
-# Install avahi 
+# Install avahi
 pacman -S --needed --noconfirm avahi nss-mdns
 systemctl enable avahi-daemon.service
 
@@ -155,22 +155,6 @@ pacman -S --needed --noconfirm xorg-server xorg-server-utils mesa-libgl xorg-xin
 pacman -S --needed --noconfirm wget networkmanager dhclient ntfs-3g gptfdisk dosfstools btrfs-progs xfsprogs f2fs-tools openssh
 systemctl enable NetworkManager
 systemctl enable sshd
-
-# Install apacman (allows installation of packages using root).
-if ! pacman -Q "apacman" >/dev/null; then
-	pacman -S --needed --noconfirm binutils ca-certificates curl fakeroot file grep jshon sed tar wget
-	curl -O https://aur4.archlinux.org/cgit/aur.git/snapshot/apacman.tar.gz
-	tar zxvf apacman.tar.gz
-	chmod 777 -R apacman
-	cd apacman
-	su nobody -s /bin/bash <<'EOL'
-		makepkg --noconfirm -s
-EOL
-	pacman -U --noconfirm ./apacman-*.pkg.tar.xz
-	cd ..
-	rm -f apacman.tar.gz
-	rm -rf ./apacman
-fi
 
 EOLXYZ
 

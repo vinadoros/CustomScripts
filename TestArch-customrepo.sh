@@ -134,8 +134,6 @@ fi
 
 # Build packages
 aur_build debootstrap
-aur_build apacman
-aur_build rpm-org
 
 build_repo
 

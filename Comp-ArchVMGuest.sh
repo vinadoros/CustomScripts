@@ -23,7 +23,7 @@ if [ -z $USERNAMEVAR ]; then
 	USERHOME=/home/$USERNAMEVAR
 fi
 
-[ -z $VBOXGUEST ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1 
+[ -z $VBOXGUEST ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1
 [ -z $VBOXGUEST ] && ! grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=0
 [ -z $QEMUGUEST ] && grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=1
 [ -z $QEMUGUEST ] && ! grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=0
@@ -43,12 +43,12 @@ fi
 ###############################################################################
 # Install virtualbox guest utils
 if [ $VBOXGUEST = 1 ]; then
-	pacman -S --needed --noconfirm virtualbox-guest-modules virtualbox-guest-utils
+	dist_install virtualbox-guest-modules virtualbox-guest-utils
 	modprobe -a vboxguest vboxsf vboxvideo
-	
+
 	# Add the user to the vboxsf group, so that the shared folders can be accessed.
 	gpasswd -a $SUDO_USER vboxsf
-	
+
 	# Have the kernel modules load on startup, so that the shared folders will appear.
 	if [ ! -f /etc/modules-load.d/virtualbox.conf ]; then
 		bash -c "cat >>/etc/modules-load.d/virtualbox.conf" <<EOL
@@ -57,23 +57,23 @@ vboxsf
 vboxvideo
 EOL
 	fi
-	
+
 	systemctl enable vboxservice
 	systemctl start vboxservice
 fi
 
 # Install qemu/kvm guest utils.
 if [ $QEMUGUEST = 1 ]; then
-	apacman -S --needed --noconfirm spice-vdagent
-	apacman -S --needed --noconfirm xf86-video-qxl
+	dist_install spice-vdagent
+	dist_install xf86-video-qxl
 	systemctl enable spice-vdagentd
 fi
 
 # Install VMWare guest utils
 if [ $VMWGUEST = 1 ]; then
-	pacman -S --needed --noconfirm open-vm-tools linux-headers
-	apacman -S --needed --noconfirm open-vm-tools-dkms
-	pacman -S --needed --noconfirm xf86-input-vmmouse xf86-video-vmware mesa
+	dist_install open-vm-tools linux-headers
+	dist_install open-vm-tools-dkms
+	dist_install xf86-input-vmmouse xf86-video-vmware mesa
 	systemctl enable vmtoolsd.service
 	systemctl enable vmware-vmblock-fuse.service
 	systemctl enable dkms.service

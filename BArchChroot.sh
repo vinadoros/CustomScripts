@@ -24,7 +24,7 @@ source "$SCRIPTDIR/F-ChrootInitVars.sh"
 MACHINEARCH=$(uname -m)
 
 echo "Pacstrap will install to ${INSTALLPATH}."
-read -p "Press any key to continue." 
+read -p "Press any key to continue."
 
 # Create install path
 if [ ! -d ${INSTALLPATH} ]; then
@@ -111,7 +111,7 @@ systemctl enable NetworkManager
 systemctl enable sshd
 
 #Install xorg, display manger...
-pacman -S --needed --noconfirm xorg-server xorg-server-utils xorg-drivers xf86-input-libinput mesa-libgl xorg-xinit xterm mesa mesa-vdpau libva-mesa-driver libva-intel-driver libva-vdpau-driver libva 
+pacman -S --needed --noconfirm xorg-server xorg-server-utils xorg-drivers xf86-input-libinput mesa-libgl xorg-xinit xterm mesa mesa-vdpau libva-mesa-driver libva-intel-driver libva-vdpau-driver libva
 # Causes crashing in chroots.
 #pacman -S --needed --noconfirm libvdpau-va-gl
 if [ $MACHINEARCH == "x86_64" ]; then
@@ -124,22 +124,6 @@ pacman -S --needed --noconfirm network-manager-applet gnome-keyring gnome-icon-t
 pacman -S --needed --noconfirm openbox
 
 usermod -aG lp,network,video,audio,storage,scanner,power,disk,sys,games,optical,avahi,systemd-journal $USERNAMEVAR
-
-# Install apacman (allows installation of packages using root).
-if ! pacman -Q "apacman" >/dev/null; then
-	pacman -S --needed --noconfirm binutils ca-certificates curl fakeroot file grep jshon sed tar wget
-	curl -O https://aur4.archlinux.org/cgit/aur.git/snapshot/apacman.tar.gz
-	tar zxvf apacman.tar.gz
-	chmod 777 -R apacman
-	cd apacman
-	su nobody -s /bin/bash <<'EOL'
-		makepkg --noconfirm -s
-EOL
-	pacman -U --noconfirm ./apacman-*.pkg.tar.xz
-	cd ..
-	rm -f apacman.tar.gz
-	rm -rf ./apacman
-fi
 
 pacman -S --needed --noconfirm git
 git clone "https://github.com/vinadoros/CustomScripts.git" "/opt/CustomScripts"
@@ -171,17 +155,17 @@ if [ -z $SETGRUB ]; then
 	read -p "Enter 2 to perform 'grub-install $DEVPART', 3 to install efi bootloader (make sure /boot/efi is mounted), or 4 to 'grub-install' to a custom partition. Enter 1 to do nothing. (1/2/3/4)" SETGRUB
 fi
 case $SETGRUB in
-    [1]* ) 
+    [1]* )
 	echo "You asked to do nothing. Be sure to install a bootloader."
 	;;
-    
-    [2]* ) 
+
+    [2]* )
 	echo "You asked to perform 'grub-isntall $DEVPART'."
 	pacman -S --needed --noconfirm grub os-prober
 	grub-install --target=i386-pc --recheck --debug $DEVPART
 	;;
-	
-	[3]* ) 
+
+	[3]* )
 	echo "You asked to install efi bootloader."
 	while ! mount | grep -iq "/boot/efi"; do
 		echo "/boot/efi is not mounted. Please mount it."
@@ -190,8 +174,8 @@ case $SETGRUB in
 	pacman -S --needed --noconfirm efibootmgr os-prober grub
 	grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=arch --recheck --debug
 	;;
-	
-	[4]* ) 
+
+	[4]* )
 	echo "You asked to perform grub-install with a custom partition."
 	if [ ! -z $PART ]; then
 		echo "Installing grub to $PART."
@@ -233,5 +217,3 @@ set -e
 rm ${GRUBSCRIPT}
 
 echo -e "\nScript finished successfully.\n"
-
-

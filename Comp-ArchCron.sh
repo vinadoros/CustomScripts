@@ -38,7 +38,6 @@ fi
 # cron script to clean pacman cache weekly
 if type -p fcrontab &> /dev/null; then
 	grepcheckadd "&b 0 0 * * 6 \"pacman -Sc --noconfirm\"" "pacman -Sc --noconfirm" "/var/spool/fcron/root.orig"
-	grepcheckadd "&b 0 0 * * 0 \"pacman -Sc --cachedir=/var/cache/apacman/pkg --noconfirm\"" "pacman -Sc --cachedir=/var/cache/apacman/pkg --noconfirm" "/var/spool/fcron/root.orig"
 	fcrontab -z
 fi
 if [ -d "/etc/cron.weekly" ]; then
@@ -51,6 +50,5 @@ while [ -f /var/lib/pacman/db.lck ]; do
 	sleep 10
 done
 pacman -Sc --noconfirm
-pacman -Sc --cachedir=/var/cache/apacman/pkg --noconfirm
 EOL
 fi
