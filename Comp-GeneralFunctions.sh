@@ -151,7 +151,7 @@ dist_install () {
 	if type -p yaourt &> /dev/null; then
 		echo "Installing $INSTALLPKGS using AUR helper."
 		# $SUDOCMD apacman -ASa --needed --noconfirm --ignorearch $INSTALLPKGS
-		su $USERNAMEVAR -s /bin/bash -c "yaourt -ASa --needed $INSTALLPKGS"
+		su $USERNAMEVAR -s /bin/bash -c "yaourt -ASa --noconfirm --needed $INSTALLPKGS"
 	elif type -p pacman &> /dev/null; then
 		echo "Installing $INSTALLPKGS using pacman."
 		$SUDOCMD pacman -Syu --needed --noconfirm $INSTALLPKGS

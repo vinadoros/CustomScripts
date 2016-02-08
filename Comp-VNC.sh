@@ -10,6 +10,9 @@ echo "Executing ${SCRNAME}."
 # Disable error handlingss
 set +eu
 
+# Add general functions if they don't exist.
+type -t grepadd &> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
+
 # Set user folders if they don't exist.
 if [ -z $USERNAMEVAR ]; then
 	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
@@ -23,14 +26,8 @@ if [ -z $USERNAMEVAR ]; then
 	USERHOME=/home/$USERNAMEVAR
 fi
 
-# VNC Variables
-VNCLOCATION="$(which x0vncserver)"
-VNCPASSPATH="${USERHOME}/.vnc"
-VNCPASS="${VNCPASSPATH}/passwd"
-XHOSTLOCATION="$(which xhost)"
-SDPATH="/etc/systemd/system"
-X0SDSERVICE="vncxorg@.service"
-VNCUSERSERVICE="vncuser.service"
+# Install tigervnc
+dist_install tigervnc
 
 # Enable error halting.
 set -eu
@@ -44,7 +41,15 @@ fi
 ###############################################################################
 ###############################        VNC      ###############################
 ###############################################################################
-dist_install tigervnc
+
+# VNC Variables
+VNCLOCATION="$(which x0vncserver)"
+VNCPASSPATH="${USERHOME}/.vnc"
+VNCPASS="${VNCPASSPATH}/passwd"
+XHOSTLOCATION="$(which xhost)"
+SDPATH="/etc/systemd/system"
+X0SDSERVICE="vncxorg@.service"
+VNCUSERSERVICE="vncuser.service"
 
 if [ ! -d $USERHOME/.vnc/ ]; then
 	mkdir $USERHOME/.vnc/
