@@ -164,14 +164,14 @@ initrestorevars () {
 		echo "Setting restore folder to ${NEWRESTOREFOLDER}"
 		RESTOREFOLDER="${NEWRESTOREFOLDER}"
 	fi
-	
+
 	if [ ! -d "${RESTOREFOLDER}" ]; then
 		echo "Restore folder ${RESTOREFOLDER} not found. Exiting."
 		exit 1;
 	else
 		echo "Restore to ${RESTOREFOLDER}"
 	fi
-	
+
 	TARRESTORECMD="tar xvpJ -C ${RESTOREFOLDER}"
 	SPLITRESCMD="cat $TAR-*"
 	SSLRESCMD="openssl enc -aes256 -d -pass pass:${PASSWORD}"
@@ -185,7 +185,7 @@ composetarcmd () {
 	else
 		DIRTOBACKUP="$1"
 	fi
-	
+
 	if [ -d "$USERHOME/$DIRTOBACKUP" ]; then
 		echo "Adding $USERHOME/$DIRTOBACKUP to backup command."
 		TARBAKCMD="${TARBAKCMD} -C $USERHOME $DIRTOBACKUP"
@@ -202,9 +202,10 @@ fulltarcmd () {
 	composetarcmd ".cache/mozilla"
 	composetarcmd ".cache/qBittorrent"
 	composetarcmd ".cache/thunderbird"
-	
+
 	# Config Folder
 	composetarcmd ".config/banshee-1"
+	composetarcmd ".config/Clementine"
 	composetarcmd ".config/google-chrome"
 	composetarcmd ".config/chromium"
 	composetarcmd ".config/pulse"
@@ -213,17 +214,20 @@ fulltarcmd () {
 	composetarcmd ".config/syncthing-gtk"
 	composetarcmd ".config/VirtualBox"
 	composetarcmd ".config/geany"
-	
+
 	# Misc
 	composetarcmd ".local/share/data/ownCloud"
 	composetarcmd ".areca"
 	composetarcmd ".mozilla"
 	composetarcmd ".thunderbird"
 	composetarcmd ".ssh"
+	composetarcmd ".vnc"
 	composetarcmd ".lastpass"
+	composetarcmd ".snes9x"
 	composetarcmd ".vmware"
+	composetarcmd ".VeraCrypt"
 	composetarcmd "Desktop"
-	
+
 	echo ""
 	echo "Tar arguments: ${TARBAKCMD}"
 }
@@ -296,7 +300,7 @@ fi
 
 
 if [ -z "$PASSWORD" ]; then
-	echo "Input a password: " 
+	echo "Input a password: "
 	read -s PASSWORD
 	echo "Please confirm password: "
 	read -s PASSWORD2
@@ -335,15 +339,15 @@ TAR="$BACKUPFOLDER/$HOSTNAME.tar.xz"
 while [[ "${BACKUPCHOICE}" -le "0" || "${BACKUPCHOICE}" -gt "2" ]]; do
     read -p "Choose an option (1=Backup, 2=Restore)" BACKUPCHOICE
     case $BACKUPCHOICE in
-    [1] ) 
+    [1] )
 		#~ initbackupvars
 		echo "Choice is Backup."
 	;;
-	[2] ) 
+	[2] )
 		#~ initrestorevars
 		echo "Choice is Restore."
 	;;
-	* ) 
+	* )
 	echo "Please input a valid number."
 	;;
     esac
@@ -356,12 +360,12 @@ echo "Hostname is $HOSTNAME"
 echo "Mega is $MEGA."
 echo "Backup file is $TAR"
 
-read -p "Press any key to continue." 
+read -p "Press any key to continue."
 echo ""
 
 if [[ "$BACKUPCHOICE" -eq "1" ]]; then
 	echo "Performing Backup."
-	
+
 	fulltarcmd
 
 	if [[ $MEGA = 1 ]]; then
@@ -372,7 +376,7 @@ if [[ "$BACKUPCHOICE" -eq "1" ]]; then
 	createlocalfld
 
 	${TARBAKCMD} | ${SSLBAKCMD} | ${SPLITBAKCMD}
-	
+
 	if [[ $MEGA = 1 ]]; then
 		copytomega
 		cleanlocal
@@ -381,14 +385,14 @@ if [[ "$BACKUPCHOICE" -eq "1" ]]; then
 
 elif [[ "$BACKUPCHOICE" -eq "2" ]]; then
 	echo "Performing Restore."
-		
+
 	if [[ $MEGA = 1 ]]; then
 		cleanlocal
 		copyfrommega
 	fi
-	
+
 	${SPLITRESCMD} | ${SSLRESCMD} | ${TARRESTORECMD}
-	
+
 	if [[ $MEGA = 1 ]]; then
 		cleanlocal
 	fi
