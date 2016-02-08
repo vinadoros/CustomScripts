@@ -301,7 +301,6 @@ dist_install pavucontrol paprefs pulseaudio pulseaudio-alsa pulseaudio-gconf pul
 dist_install bluez bluez-firmware bluez-hid2hci bluez-libs bluez-utils pulseaudio-bluetooth
 
 # dist_install geany geany-plugins
-dist_install atom-editor-bin
 dist_install firefox firefox-i18n-en-us
 dist_install leafpad gnome-disk-utility gparted p7zip unrar gvfs-smb gvfs-gphoto2 gvfs-goa gvfs-mtp gvfs-google gvfs-nfs libmtp systemd-ui meld
 # System monitoring programs
@@ -351,6 +350,9 @@ dist_install run-parts
 # For x86_64 and i686 only
 if [ "${MACHINEARCH}" != "armv7l" ]; then
 	echo "i686 and x86_64 Software for Arch."
+
+	#Install atom editor.
+	# dist_install atom-editor-bin
 
 	#Setup x2go
 	dist_install x2goserver x2goclient
