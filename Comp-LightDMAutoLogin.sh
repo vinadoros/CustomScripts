@@ -29,7 +29,7 @@ if [ -z $USERNAMEVAR ]; then
 fi
 
 # Set default VM guest variables
-[ -z $VBOXGUEST ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1 
+[ -z $VBOXGUEST ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1
 [ -z $VBOXGUEST ] && ! grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=0
 [ -z $QEMUGUEST ] && grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=1
 [ -z $QEMUGUEST ] && ! grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=0
@@ -88,9 +88,19 @@ echo "Executing \$0"
 
 SERVER="\$(<$HOSTFILE)"
 
-#synergyc "\$SERVER"
-#x0vncserver -passwordfile $USERHOME/.vnc/passwd &
+# Note: uncomment the below lines when a server has been placed in the above file location.
 
+if type -p synergyc &> /dev/null; then
+	echo "Starting Synergy client."
+	# synergyc "\$SERVER"
+fi
+
+if type -p synergyc &> /dev/null; then
+	echo "Starting vnc."
+	# x0vncserver -passwordfile $USERHOME/.vnc/passwd &
+fi
+
+exit 0
 EOLXYZ
 	echo "Be sure to uncomment the lines in $LDSTART."
 fi
@@ -99,8 +109,14 @@ LDSTOP="/usr/local/bin/ldstop.sh"
 multilinereplace "$LDSTOP" <<'EOLXYZ'
 #!/bin/bash
 echo "Executing $0"
-killall synergyc
-killall x0vncserver
+if pgrep synergyc; then
+	killall synergyc
+fi
+if pgrep x0vncserver; then
+	killall x0vncserver
+fi
+
+exit 0
 EOLXYZ
 
 # Run startup scripts
@@ -112,5 +128,3 @@ if [ -f /etc/lightdm/lightdm.conf ]; then
 	sed -i "s@display-setup-script=.*@display-setup-script=$LDSTART@g" /etc/lightdm/lightdm.conf
 	sed -i "s@session-setup-script=.*@session-setup-script=$LDSTOP@g" /etc/lightdm/lightdm.conf
 fi
-
-
