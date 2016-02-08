@@ -77,11 +77,13 @@ pacman -Syu --needed --noconfirm base base-devel
 # Allow sudo pacman use without password (for Yaourt)
 # Syntax: username ALL=(ALL) NOPASSWD: /usr/bin/pacman
 SUDOPACMANCMD="$USERNAMEVAR ALL=(ALL) NOPASSWD: $(type -P pacman)"
+CPCMD="$USERNAMEVAR ALL=(ALL) NOPASSWD: $(type -P cp)"
 if ! grep -iq "^${SUDOPACMANCMD}$" /etc/sudoers; then
 	cp /etc/sudoers /etc/sudoers.w
 	echo "" >> /etc/sudoers
 	echo "# Allow user to run pacman without password (for Yaourt/makepkg)." >> /etc/sudoers
 	echo "$SUDOPACMANCMD" >> /etc/sudoers
+	echo "$CPCMD" >> /etc/sudoers
 fi
 visudo -c
 if [ -f /etc/sudoers.w ]; then
@@ -92,10 +94,22 @@ fi
 aur_install "package-query"
 aur_install "yaourt"
 
-# TODO add makepkg global flag to save cache to /var/cache/pacman/pkg
-# TODO add makepkg global flag to ignore architecture
+# Yaourt config
+# URL: https://www.archlinux.fr/man/yaourtrc.5.html
+# Place all built packages in pacman cache folder.
+grepadd "EXPORT=2" "/etc/yaourtrc"
 
 # Install pacaur.
 pacman -S --needed --noconfirm curl openssl pacman yajl perl expac git sudo
 aur_install "cower"
 aur_install "pacaur"
+
+# Pacaur config
+# URLS:
+# https://github.com/rmarquis/pacaur/blob/master/config
+# https://github.com/rmarquis/pacaur/issues/399
+# https://github.com/rmarquis/pacaur/issues/304
+# Place all built packages in pacman cache folder.
+grepadd "PKGDEST=/var/cache/pacman/pkg" "/etc/xdg/pacaur/config"
+# Ignore arch when building packages.
+grepadd 'makeopts+=("--ignorearch")' "/etc/xdg/pacaur/config"
