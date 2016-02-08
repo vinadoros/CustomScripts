@@ -139,6 +139,7 @@ fi
 if [ "$(id -u)" == "0" ]; then
 
 	grepadd "set CUSTOMSCRIPTPATH \"$SCRIPTDIR\"" "$ROOTFISH"
+	grepadd "set USERNAMEVAR \"$USERNAMEVAR\"" "$ROOTFISH"
 
 	multilineadd "$ROOTFISH" "function stop" <<'EOL'
 set -gx EDITOR nano
@@ -193,16 +194,19 @@ function pmi
 	sudo pacman -Syu --needed $argv
 end
 function in
-	echo "Installing $argv using apacman."
-	sudo apacman -S --needed --ignorearch $argv
+	echo "Installing $argv using AUR helper."
+	# sudo apacman -S --needed --ignorearch $argv
+	yaourt -ASa --needed "$argv"
 end
 function iny
-	echo "Installing $argv using apacman."
-	sudo apacman -S --needed --noconfirm --ignorearch $argv
+	echo "Installing $argv using AUR helper."
+	# sudo apacman -S --needed --noconfirm --ignorearch $argv
+	yaourt -ASa --needed --noconfirm "$argv"
 end
 function up
-	echo "Starting full system update using apacman."
-	sudo apacman -Syu --noconfirm --ignorearch
+	echo "Starting full system update using AUR helper."
+	# sudo apacman -Syu --noconfirm --ignorearch
+	yaourt -ASyua --needed --noconfirm
 end
 function rmd
 	echo "Removing /var/lib/pacman/db.lck."
@@ -217,12 +221,14 @@ function rmv
 	sudo pacman -Rsn $argv
 end
 function se
-	echo "Searching for $argv using apacman."
-	apacman -Ss $argv
+	echo "Searching for $argv using AUR helper."
+	# apacman -Ss $argv
+	yaourt -Ss "$argv"
 end
 function gitup
 	echo "Upgrading git packages from AUR."
-	sudo apacman -S --skipcache --noconfirm --ignorearch (pacman -Qq | grep -i "\-git")
+	# sudo apacman -S --skipcache --noconfirm --ignorearch (pacman -Qq | grep -i "\-git")
+	yaourt -ASa --noconfirm (pacman -Qq | grep -i "\-git")
 end
 EOL
 
@@ -234,16 +240,19 @@ function pmi
 	pacman -Syu --needed $argv
 end
 function in
-	echo "Installing $argv using apacman."
-	apacman -S --needed --ignorearch $argv
+	echo "Installing $argv using AUR helper."
+	# apacman -S --needed --ignorearch $argv
+	su $USERNAMEVAR -c "yaourt -ASa --needed $argv"
 end
 function iny
-	echo "Installing $argv using apacman."
-	apacman -S --needed --noconfirm --ignorearch $argv
+	echo "Installing $argv using AUR helper."
+	# apacman -S --needed --noconfirm --ignorearch $argv
+	su $USERNAMEVAR -c "yaourt -ASa --needed --noconfirm $argv"
 end
 function up
-	echo "Starting full system update using apacman."
-	apacman -Syu --noconfirm --ignorearch
+	echo "Starting full system update using AUR helper."
+	# apacman -Syu --noconfirm --ignorearch
+	su $USERNAMEVAR -c "yaourt -ASyua --needed --noconfirm"
 end
 function rmd
 	echo "Removing /var/lib/pacman/db.lck."
@@ -258,12 +267,14 @@ function rmv
 	pacman -Rsn $argv
 end
 function se
-	echo "Searching for $argv using apacman."
-	apacman -Ss $argv
+	echo "Searching for $argv using AUR helper."
+	# apacman -Ss $argv
+	yaourt -Ss "$argv"
 end
 function gitup
 	echo "Upgrading git packages from AUR."
-	apacman -S --skipcache --noconfirm --ignorearch (pacman -Qq | grep -i "\-git")
+	# apacman -S --skipcache --noconfirm --ignorearch (pacman -Qq | grep -i "\-git")
+	su $USERNAMEVAR -c 'yaourt -ASa --noconfirm (pacman -Qq | grep -i "\-git")'
 end
 EOL
 	fi

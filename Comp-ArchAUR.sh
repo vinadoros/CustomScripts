@@ -88,12 +88,14 @@ if [ -f /etc/sudoers.w ]; then
 	rm /etc/sudoers.w
 fi
 
-# Install apacman (allows installation of packages using root).
-# TODO uncomment once license array error is fixed with apacman.
-# pacman -S --needed --noconfirm binutils ca-certificates curl fakeroot file grep jshon sed tar wget
-# aur_install "apacman"
-# dist_install apacman-deps
-
 # Install yaourt.
 aur_install "package-query"
 aur_install "yaourt"
+
+# TODO add makepkg global flag to save cache to /var/cache/pacman/pkg
+# TODO add makepkg global flag to ignore architecture
+
+# Install pacaur.
+pacman -S --needed --noconfirm curl openssl pacman yajl perl expac git sudo
+aur_install "cower"
+aur_install "pacaur"
