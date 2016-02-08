@@ -62,7 +62,7 @@ aur_install(){
 	tar zxvf ${AURPKG}.tar.gz
 	chmod a+rwx -R ${AURPKG}
 	cd ${AURPKG}
-	su nobody -s /bin/bash <<'EOL'
+	su $USERNAMEVAR -s /bin/bash <<'EOL'
 		makepkg --noconfirm -s
 EOL
 	pacman -U --noconfirm ./${AURPKG}-*.pkg.tar.xz
