@@ -272,6 +272,8 @@ case $SETDE in
 	dist_install mate xdg-user-dirs-gtk gnome-themes-standard gnome-keyring seahorse dconf-editor
 	# MATE Extras
 	dist_install atril caja-gksu caja-open-terminal caja-share engrampa eom gnome-calculator mate-applets mate-media mate-netspeed mate-power-manager mate-sensors-applet mate-system-monitor mate-terminal mate-utils mozo pluma unrar mate-screensaver
+	# Clipboard monitor
+	dist_install clipit
 
 	#MATE gtk3
 	#dist_install mate-gtk3 xdg-user-dirs-gtk gnome-themes-standard gnome-keyring seahorse dconf-editor
