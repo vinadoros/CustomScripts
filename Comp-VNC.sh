@@ -93,7 +93,7 @@ PAMName=login
 
 # Clean any existing files in /tmp/.X11-unix environment
 ExecStartPre=/bin/sh -c '/usr/bin/vncserver -kill :2 > /dev/null 2>&1 || :'
-ExecStart=/usr/bin/vncserver :2 -geometry 1024x768 -fg -alwaysshared -rfbauth "$VNCPASS"
+ExecStart=/usr/bin/vncserver :2 -geometry 1024x768 -fg -alwaysshared -rfbauth "$VNCPASS" -auth ~/.Xauthority
 ExecStop=/usr/bin/vncserver -kill :2
 PIDFile=$USERHOME/.vnc/%H:2.pid
 Restart=on-failure
