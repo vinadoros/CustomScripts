@@ -88,21 +88,23 @@ echo "Executing \$0"
 
 SERVER="\$(<$HOSTFILE)"
 
-# Note: uncomment the below lines when a server has been placed in the above file location.
-
-if type -p synergyc &> /dev/null; then
+if type -p synergyc &> /dev/null && [[ "$SERVER" != "HostnameHere" ]]; then
 	echo "Starting Synergy client."
-	# synergyc "\$SERVER"
+	synergyc "\$SERVER"
 fi
 
-if type -p synergyc &> /dev/null; then
+if type -p x0vncserver &> /dev/null && [ -f $USERHOME/.vnc/passwd ]; then
 	echo "Starting vnc."
-	# x0vncserver -passwordfile $USERHOME/.vnc/passwd &
+	x0vncserver -passwordfile $USERHOME/.vnc/passwd &
 fi
 
-if type -p xscreensaver &> /dev/null; then
+if type -p xset &> /dev/null; then
 	echo "Starting xscreensaver."
-	xscreensaver -no-splash &
+	# http://shallowsky.com/linux/x-screen-blanking.html
+	# http://www.x.org/releases/X11R7.6/doc/man/man1/xset.1.xhtml
+	# Turn screen off in 60 seconds.
+	xset s 60
+	xset dpms 60 60 60
 fi
 
 exit 0
