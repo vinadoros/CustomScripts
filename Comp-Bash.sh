@@ -167,7 +167,7 @@ function pmi () {
 	echo "Installing $@ or updating using pacman."
 	sudo pacman -Syu --needed $@
 }
-function in () {
+function ins () {
 	echo "Installing $@ using AUR helper."
 	# sudo apacman -S --needed --ignorearch "$@"
 	yaourt -ASa --needed $@
@@ -212,7 +212,7 @@ function pmi () {
 	echo "Installing $@ or updating using pacman."
 	pacman -Syu --needed $@
 }
-function in () {
+function ins () {
 	echo "Installing $@ using AUR helper."
 	# apacman -S --needed --ignorearch "$@"
 	su $USERNAMEVAR -s /bin/bash -c "yaourt -ASa --needed $@"
@@ -256,7 +256,7 @@ elif [[ $(type -P apt-get) ]]; then
 
 	multilineadd "$USERHOME/.bashrc" "function afix" <<'EOL'
 export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
-function in () {
+function ins () {
 	echo "Installing $@."
 	sudo apt-get install $@
 }
@@ -300,7 +300,7 @@ EOL
 	if [ "$(id -u)" == "0" ]; then
 		multilineadd "/root/.bashrc" "function afix" <<'EOL'
 export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
-function in () {
+function ins () {
 	echo "Installing $@."
 	apt-get install $@
 }
@@ -345,7 +345,7 @@ EOL
 elif [[ $(type -P dnf) ]]; then
 
 	multilineadd "$USERHOME/.bashrc" "function diy" <<'EOL'
-function in () {
+function ins () {
 	echo "Installing $@."
 	sudo dnf install $@
 }
@@ -375,7 +375,7 @@ EOL
 
 	if [ "$(id -u)" == "0" ]; then
 		multilineadd "/root/.bashrc" "function diy" <<'EOL'
-function in () {
+function ins () {
 	echo "Installing $@."
 	dnf install $@
 }

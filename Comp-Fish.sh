@@ -198,7 +198,7 @@ function ins
 	# sudo apacman -S --needed --ignorearch $argv
 	yaourt -ASa --needed $argv
 end
-function iny
+function inyano
 	echo "Installing $argv using AUR helper."
 	# sudo apacman -S --needed --noconfirm --ignorearch $argv
 	yaourt -ASa --needed --noconfirm $argv
