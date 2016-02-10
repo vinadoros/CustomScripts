@@ -163,15 +163,24 @@ case $SETDE in
 	multilinereplace "/usr/local/bin/dpms-gnome.sh" <<"EOL"
 #!/bin/bash
 
-# http://shallowsky.com/linux/x-screen-blanking.html
-# http://www.x.org/releases/X11R7.6/doc/man/man1/xset.1.xhtml
-# Turn screen off in 300 seconds, only if gnome is running and gdm is not running.
 if pgrep gnome-session &> /dev/null && ! pgrep gdm &> /dev/null; then
-	echo "Starting xset dpms."
-	xset s 300
-	xset dpms 300 300 300
+	echo "Start xscreensaver."
+	xscreensaver -no-splash &
 fi
-
+EOL
+	multilinereplace "$USERHOME/.xscreensaver" <<"EOL"
+timeout:	0:05:00
+cycle:		0:10:00
+lock:		False
+lockTimeout:	0:00:00
+passwdTimeout:	0:00:30
+dpmsEnabled:	True
+dpmsQuickOff:	True
+dpmsStandby:	0:05:00
+dpmsSuspend:	0:05:00
+dpmsOff:	0:05:00
+mode:		blank
+selected:	211
 EOL
 	multilinereplace "/etc/xdg/autostart/dpms-gnome.desktop" <<"EOL"
 [Desktop Entry]
