@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Disable error handling.
+set +eu
+
 # Get folder of this script
 SCRIPTSOURCE="${BASH_SOURCE[0]}"
 FLWSOURCE="$(readlink -f "$SCRIPTSOURCE")"
