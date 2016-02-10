@@ -165,17 +165,17 @@ if [[ $(type -P pacman) ]]; then
 	multilineadd "$USERHOME/.bashrc" "function pmi" <<'EOL'
 function pmi () {
 	echo "Installing $@ or updating using pacman."
-	sudo pacman -Syu --needed "$@"
+	sudo pacman -Syu --needed $@
 }
 function in () {
 	echo "Installing $@ using AUR helper."
 	# sudo apacman -S --needed --ignorearch "$@"
-	yaourt -ASa --needed "$@"
+	yaourt -ASa --needed $@
 }
 function iny () {
 	echo "Installing $@ using AUR helper."
 	# sudo apacman -S --needed --noconfirm --ignorearch "$@"
-	yaourt -ASa --needed --noconfirm "$@"
+	yaourt -ASa --needed --noconfirm $@
 }
 function up () {
 	echo "Starting full system update using AUR helper."
@@ -192,7 +192,7 @@ function cln () {
 }
 function rmv () {
 	echo "Removing $@ and dependancies using pacman."
-	sudo pacman -Rsn "$@"
+	sudo pacman -Rsn $@
 }
 function se () {
 	echo "Searching for $@ using AUR helper."
@@ -210,7 +210,7 @@ EOL
 		multilineadd "/root/.bashrc" "function pmi" <<'EOL'
 function pmi () {
 	echo "Installing $@ or updating using pacman."
-	pacman -Syu --needed "$@"
+	pacman -Syu --needed $@
 }
 function in () {
 	echo "Installing $@ using AUR helper."
@@ -237,7 +237,7 @@ function cln () {
 }
 function rmv () {
 	echo "Removing $@ and dependancies using pacman."
-	pacman -Rsn "$@"
+	pacman -Rsn $@
 }
 function se () {
 	echo "Searching for $@ using AUR helper."
@@ -258,11 +258,11 @@ elif [[ $(type -P apt-get) ]]; then
 export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
 function in () {
 	echo "Installing $@."
-	sudo apt-get install "$@"
+	sudo apt-get install $@
 }
 function iny () {
 	echo "Installing $@."
-	sudo apt-get install -y "$@"
+	sudo apt-get install -y $@
 }
 function afix () {
 	echo "Running apt-get -f install."
@@ -270,7 +270,7 @@ function afix () {
 }
 function rmv () {
 	echo "Removing $@."
-	sudo apt-get --purge remove "$@"
+	sudo apt-get --purge remove $@
 }
 function agu () {
 	echo "Updating Repos."
@@ -278,9 +278,9 @@ function agu () {
 }
 function se () {
 	echo "Searching for $@."
-	apt-cache search "$@"
+	apt-cache search $@
 	echo "Policy for $@."
-	apt-cache policy "$@"
+	apt-cache policy $@
 }
 function cln () {
 	echo "Auto-removing packages."
@@ -302,11 +302,11 @@ EOL
 export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
 function in () {
 	echo "Installing $@."
-	apt-get install "$@"
+	apt-get install $@
 }
 function iny () {
 	echo "Installing $@."
-	apt-get install -y "$@"
+	apt-get install -y $@
 }
 function afix () {
 	echo "Running apt-get -f install."
@@ -314,7 +314,7 @@ function afix () {
 }
 function rmv () {
 	echo "Removing $@."
-	apt-get --purge remove "$@"
+	apt-get --purge remove $@
 }
 function agu () {
 	echo "Updating Repos."
@@ -322,9 +322,9 @@ function agu () {
 }
 function se () {
 	echo "Searching for $@."
-	apt-cache search "$@"
+	apt-cache search $@
 	echo "Policy for $@."
-	apt-cache policy "$@"
+	apt-cache policy $@
 }
 function cln () {
 	echo "Auto-removing packages."
@@ -347,11 +347,11 @@ elif [[ $(type -P dnf) ]]; then
 	multilineadd "$USERHOME/.bashrc" "function diy" <<'EOL'
 function in () {
 	echo "Installing $@."
-	sudo dnf install "$@"
+	sudo dnf install $@
 }
 function iny () {
 	echo "Installing $@."
-	sudo dnf install -y "$@"
+	sudo dnf install -y $@
 }
 function rmv () {
 	echo "Removing $@."
@@ -377,15 +377,15 @@ EOL
 		multilineadd "/root/.bashrc" "function diy" <<'EOL'
 function in () {
 	echo "Installing $@."
-	dnf install "$@"
+	dnf install $@
 }
 function iny () {
 	echo "Installing $@."
-	dnf install -y "$@"
+	dnf install -y $@
 }
 function rmv () {
 	echo "Removing $@."
-	dnf remove "$@"
+	dnf remove $@
 }
 function se () {
 	echo "Searching for $@."

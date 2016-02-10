@@ -196,12 +196,12 @@ end
 function in
 	echo "Installing $argv using AUR helper."
 	# sudo apacman -S --needed --ignorearch $argv
-	yaourt -ASa --needed "$argv"
+	yaourt -ASa --needed $argv
 end
 function iny
 	echo "Installing $argv using AUR helper."
 	# sudo apacman -S --needed --noconfirm --ignorearch $argv
-	yaourt -ASa --needed --noconfirm "$argv"
+	yaourt -ASa --needed --noconfirm $argv
 end
 function up
 	echo "Starting full system update using AUR helper."
