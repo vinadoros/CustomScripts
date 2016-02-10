@@ -109,7 +109,6 @@ fi
 
 exit 0
 EOLXYZ
-	echo "Be sure to uncomment the lines in $LDSTART."
 fi
 
 LDSTOP="/usr/local/bin/ldstop.sh"
