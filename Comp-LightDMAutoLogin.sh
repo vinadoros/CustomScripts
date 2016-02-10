@@ -100,6 +100,11 @@ if type -p synergyc &> /dev/null; then
 	# x0vncserver -passwordfile $USERHOME/.vnc/passwd &
 fi
 
+if type -p xscreensaver &> /dev/null; then
+	echo "Starting xscreensaver."
+	xscreensaver -no-splash &
+fi
+
 exit 0
 EOLXYZ
 	echo "Be sure to uncomment the lines in $LDSTART."
@@ -114,6 +119,9 @@ if pgrep synergyc; then
 fi
 if pgrep x0vncserver; then
 	killall x0vncserver
+fi
+if pgrep xscreensaver; then
+	killall xscreensaver
 fi
 
 exit 0
