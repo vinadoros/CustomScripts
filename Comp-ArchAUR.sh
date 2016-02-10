@@ -76,19 +76,12 @@ pacman -Syu --needed --noconfirm base base-devel
 
 # Allow sudo pacman use without password (for Yaourt)
 # Syntax: username ALL=(ALL) NOPASSWD: /usr/bin/pacman
-SUDOPACMANCMD="$USERNAMEVAR ALL=(ALL) NOPASSWD: $(type -P pacman)"
-CPCMD="$USERNAMEVAR ALL=(ALL) NOPASSWD: $(type -P cp)"
-if ! grep -iq "^${SUDOPACMANCMD}$" /etc/sudoers; then
-	cp /etc/sudoers /etc/sudoers.w
-	echo "" >> /etc/sudoers
-	echo "# Allow user to run pacman without password (for Yaourt/makepkg)." >> /etc/sudoers
-	echo "$SUDOPACMANCMD" >> /etc/sudoers
-	echo "$CPCMD" >> /etc/sudoers
-fi
-visudo -c
-if [ -f /etc/sudoers.w ]; then
-	rm /etc/sudoers.w
-fi
+sudoersmultilineadd "$USERNAMEVAR ALL=(ALL) NOPASSWD: $(type -P pacman)" <<EOL
+
+# Allow user to run pacman without password (for Yaourt/makepkg).
+$USERNAMEVAR ALL=(ALL) NOPASSWD: $(type -P pacman)
+$USERNAMEVAR ALL=(ALL) NOPASSWD: $(type -P cp)
+EOL
 
 # Set up GPG.
 # Make sure .gnupg folder exists for root

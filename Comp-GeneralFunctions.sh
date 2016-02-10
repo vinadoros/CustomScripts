@@ -117,6 +117,43 @@ multilineadd () {
 
 }
 
+sudoersmultilineadd () {
+	SUDOERSFILE="/etc/sudoers"
+	SUDOERSREPLACEFILE="/etc/sudoers.w"
+	if [ ! -f "$SUDOERSFILE" ]; then
+		echo "No sudoers file found. Exiting."
+		return 1;
+	fi
+
+	MULTILINE="$(cat /dev/stdin)"
+	if [ -z "$MULTILINE" ]; then
+		echo "No text found."
+		return 1;
+	fi
+
+	if [ -z "$1" ]; then
+		echo "No parameter passed."
+		return 1;
+	else
+		TESTSTRING="$1"
+	fi
+
+	if ! grep -iq "${TESTSTRING}" "${SUDOERSFILE}"; then
+		echo "Adding text block to $SUDOERSFILE"
+		cp "$SUDOERSFILE" "$SUDOERSREPLACEFILE"
+		echo "${MULTILINE}" >> "${SUDOERSFILE}"
+		if ! visudo -c; then
+			echo "Error parsing sudoers file. Restoring old sudoers file."
+			cp "$SUDOERSREPLACEFILE" "$SUDOERSFILE"
+		elif [ -f /etc/sudoers.w ]; then
+			rm /etc/sudoers.w
+		fi
+	else
+		echo "Text block already in $SUDOERSFILE. Not changing."
+	fi
+
+}
+
 nscriptadd () {
 	if [ -z "$1" ]; then
 		echo "No source file passed."
