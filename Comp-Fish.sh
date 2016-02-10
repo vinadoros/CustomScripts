@@ -193,7 +193,7 @@ function pmi
 	echo "Installing $argv or updating using pacman."
 	sudo pacman -Syu --needed $argv
 end
-function in
+function ins
 	echo "Installing $argv using AUR helper."
 	# sudo apacman -S --needed --ignorearch $argv
 	yaourt -ASa --needed $argv
@@ -239,7 +239,7 @@ function pmi
 	echo "Installing $argv or updating using pacman."
 	pacman -Syu --needed $argv
 end
-function in
+function ins
 	echo "Installing $argv using AUR helper."
 	# apacman -S --needed --ignorearch $argv
 	su $USERNAMEVAR -c "yaourt -ASa --needed $argv"
@@ -284,7 +284,7 @@ elif [[ $(type -P apt-get) ]]; then
 	echo "Appending apt to $USERFISH."
 	cat >>"$USERFISH" <<'EOL'
 set -gx PATH $PATH /usr/local/sbin /usr/sbin /sbin
-function in
+function ins
 	echo "Installing $argv."
 	sudo apt-get install $argv
 end
@@ -329,7 +329,7 @@ EOL
 		echo "Appending apt to $ROOTFISH."
 		cat >>"$ROOTFISH" <<'EOL'
 set -gx PATH $PATH /usr/local/sbin /usr/sbin /sbin
-function in
+function ins
 	echo "Installing $argv."
 	apt-get install $argv
 end
@@ -375,7 +375,7 @@ elif [[ $(type -P dnf) ]]; then
 
 	echo "Appending dnf to $USERFISH."
 	cat >>"$USERFISH" <<'EOL'
-function in
+function ins
 	echo "Installing $argv."
 	sudo dnf install $argv
 end
@@ -406,7 +406,7 @@ EOL
 	if [ "$(id -u)" == "0" ]; then
 		echo "Appending dnf to $ROOTFISH."
 		cat >>"$ROOTFISH" <<'EOL'
-function in
+function ins
 	echo "Installing $argv."
 	dnf install $argv
 end
