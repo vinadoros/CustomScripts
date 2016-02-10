@@ -159,15 +159,18 @@ case $SETDE in
 	dist_install gnome-shell-extension-dash-to-dock-git gnome-shell-extension-topicons gnome-shell-extension-mediaplayer-git
 	dist_install gnome-shell-extension-volume-mixer-git
 
-	# Temporary fix for GNOME screenblanking with lightdm
+	# GNOME screenblanking with lightdm (or rather, not GDM)
+	dist_install xscreensaver
 	multilinereplace "/usr/local/bin/dpms-gnome.sh" <<"EOL"
 #!/bin/bash
 
-if pgrep gnome-session &> /dev/null && ! pgrep gdm &> /dev/null; then
+# Run xscreensaver if gnome-session is running, gdm is not running, and xscreensaver exists.
+if pgrep gnome-session &> /dev/null && ! pgrep gdm &> /dev/null && type -p xscreensaver &> /dev/null; then
 	echo "Start xscreensaver."
 	xscreensaver -no-splash &
 fi
 EOL
+	# Screen blanks in 5 minutes.
 	multilinereplace "$USERHOME/.xscreensaver" <<"EOL"
 timeout:	0:05:00
 cycle:		0:10:00
