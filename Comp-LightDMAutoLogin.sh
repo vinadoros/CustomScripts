@@ -88,7 +88,7 @@ echo "Executing \$0"
 
 SERVER="\$(<$HOSTFILE)"
 
-if type -p synergyc &> /dev/null && [[ "$SERVER" != "HostnameHere" ]]; then
+if type -p synergyc &> /dev/null && [[ "\$SERVER" != "HostnameHere" ]]; then
 	echo "Starting Synergy client."
 	synergyc "\$SERVER"
 fi
