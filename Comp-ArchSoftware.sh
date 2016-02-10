@@ -476,12 +476,12 @@ EOL
 	fi
 
 	# Install areca backup
-	if pacman -Q jre8-openjdk-headless-infinality &> /dev/null; then
-		pacman -Rdd --noconfirm jre8-openjdk-headless-infinality jre8-openjdk-infinality
-	fi
-	dist_install jre8-openjdk
-	archlinux-java fix
-	dist_install areca-bin
+	# if pacman -Q jre8-openjdk-headless-infinality &> /dev/null; then
+	# 	pacman -Rdd --noconfirm jre8-openjdk-headless-infinality jre8-openjdk-infinality
+	# fi
+	# dist_install jre8-openjdk
+	# archlinux-java fix
+	# dist_install areca-bin
 
 
 elif [ "${MACHINEARCH}" = "armv7l" ]; then
