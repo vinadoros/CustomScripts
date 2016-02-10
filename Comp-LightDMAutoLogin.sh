@@ -99,7 +99,7 @@ if type -p x0vncserver &> /dev/null && [ -f $USERHOME/.vnc/passwd ]; then
 fi
 
 if type -p xset &> /dev/null; then
-	echo "Starting xscreensaver."
+	echo "Starting xset dpms."
 	# http://shallowsky.com/linux/x-screen-blanking.html
 	# http://www.x.org/releases/X11R7.6/doc/man/man1/xset.1.xhtml
 	# Turn screen off in 60 seconds.
@@ -120,9 +120,6 @@ if pgrep synergyc; then
 fi
 if pgrep x0vncserver; then
 	killall x0vncserver
-fi
-if pgrep xscreensaver; then
-	killall xscreensaver
 fi
 
 exit 0

@@ -74,79 +74,6 @@ dist_install rsync base-devel
 ########################        Display Managers      #########################
 ###############################################################################
 
-# Set up lightdm
-function lightdmscript(){
-	dist_install lightdm
-	systemctl enable -f lightdm
-}
-
-# Set up dpms settings for lightdm.
-function lightdmdpms(){
-	pacman -Syu --needed --noconfirm xscreensaver
-	if ! grep -iq "xscrnsvr.sh" /etc/lightdm/lightdm.conf; then
-		echo "Setting xscreensaver values for lightdm"
-		sudo sed -i '/^\[SeatDefaults\]$/ s:$:\ndisplay-setup-script=/usr/local/bin/xscrnsvr.sh:' /etc/lightdm/lightdm.conf
-	fi
-	if [ ! -f /usr/local/bin/xscrnsvr.sh ]; then
-		echo "Creating xscrnsvr.sh."
-		sudo bash -c "cat >/usr/local/bin/xscrnsvr.sh" <<'EOL'
-#!/bin/bash
-sleep 10
-( /usr/bin/xscreensaver -no-splash -display :0.0 ) &
-exit
-EOL
-		sudo chmod 777 /usr/local/bin/xscrnsvr.sh
-	fi
-	if [ ! -f /etc/xdg/autostart/xscreensaver.desktop ]; then
-		echo "Creating xscreensaver.desktop."
-		sudo bash -c "cat >/etc/xdg/autostart/xscreensaver.desktop" <<'EOL'
-[Desktop Entry]
-Name=xscreensaver
-Exec=/usr/local/bin/xscrnsvr.sh
-Type=Application
-Terminal=false
-StartupNotify=false
-X-GNOME-Autostart-enabled=true
-EOL
-		sudo chmod 644 /etc/xdg/autostart/xscreensaver.desktop
-	fi
-	if [ ! -f $USERHOME/.xscreensaver ]; then
-		echo "Creating ~/.xscreensaver for $USERNAMEVAR."
-		bash -c "cat >$USERHOME/.xscreensaver" <<'EOL'
-timeout:	0:05:00
-cycle:		0:10:00
-lock:		False
-lockTimeout:	0:00:00
-passwdTimeout:	0:00:30
-dpmsEnabled:	True
-dpmsQuickOff:	True
-dpmsStandby:	0:05:00
-dpmsSuspend:	0:05:00
-dpmsOff:	0:05:00
-mode:		blank
-selected:	211
-EOL
-		chown -R $USERNAMEVAR:$USERGROUP $USERHOME/.xscreensaver
-	fi
-	if [ ! -f ~/.xscreensaver ]; then
-		echo "Creating ~/.xscreensaver for root."
-		bash -c "cat >~/.xscreensaver" <<'EOL'
-timeout:	0:05:00
-cycle:		0:10:00
-lock:		False
-lockTimeout:	0:00:00
-passwdTimeout:	0:00:30
-dpmsEnabled:	True
-dpmsQuickOff:	True
-dpmsStandby:	0:05:00
-dpmsSuspend:	0:05:00
-dpmsOff:	0:05:00
-mode:		blank
-selected:	211
-EOL
-	fi
-}
-
 
 # Case for SETDM variable.
 case $SETDM in
@@ -172,8 +99,8 @@ EOL
 
 [2]* )
 	echo "Setting up lightdm with GTK greeter."
-	lightdmscript
 	dist_install lightdm lightdm-gtk-greeter
+	systemctl enable -f lightdm
 	sed -i 's/greeter-session=.*$/greeter-session=lightdm-gtk-greeter/g' /etc/lightdm/lightdm.conf
 	;;
 
@@ -185,8 +112,8 @@ EOL
 
 [4]* )
 	echo "Setting up lightdm with KDE greeter."
-	lightdmscript
 	dist_install lightdm lightdm-kde-greeter
+	systemctl enable -f lightdm
 	sed -i 's/greeter-session=.*$/greeter-session=lightdm-kde-greeter/g' /etc/lightdm/lightdm.conf
 	;;
 
@@ -232,9 +159,27 @@ case $SETDE in
 	dist_install gnome-shell-extension-dash-to-dock-git gnome-shell-extension-topicons gnome-shell-extension-mediaplayer-git
 	dist_install gnome-shell-extension-volume-mixer-git
 
-	if [ $SETDM != 3 ] && [ $SETDM != 0 ]; then
-		lightdmdpms
-	fi
+	# Temporary fix for GNOME screenblanking with lightdm
+	multilinereplace "/usr/local/bin/dpms-gnome.sh" <<"EOL"
+#!/bin/bash
+
+# http://shallowsky.com/linux/x-screen-blanking.html
+# http://www.x.org/releases/X11R7.6/doc/man/man1/xset.1.xhtml
+# Turn screen off in 300 seconds, only if gnome is running and gdm is not running.
+if pgrep gnome-session &> /dev/null && ! pgrep gdm &> /dev/null; then
+	echo "Starting xset dpms."
+	xset s 300
+	xset dpms 300 300 300
+fi
+
+EOL
+	multilinereplace "/etc/xdg/autostart/dpms-gnome.desktop" <<"EOL"
+[Desktop Entry]
+Name=Gnome DPMS Setting
+Exec=/usr/local/bin/dpms-gnome.sh
+Terminal=false
+Type=Application
+EOL
 
 	;;
 
@@ -254,6 +199,7 @@ case $SETDE in
 	dist_install atril caja-gksu caja-open-terminal caja-share engrampa eom gnome-calculator mate-applets mate-media mate-netspeed mate-power-manager mate-sensors-applet mate-system-monitor mate-terminal mate-utils mozo pluma unrar mate-screensaver
 	# Clipboard monitor
 	dist_install clipit
+	cp /usr/share/applications/clipit.desktop $USERHOME/.config/autostart/
 
 	#MATE gtk3
 	#dist_install mate-gtk3 xdg-user-dirs-gtk gnome-themes-standard gnome-keyring seahorse dconf-editor
