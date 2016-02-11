@@ -78,8 +78,7 @@ if [ ! -f "$HOSTFILE" ]; then
 fi
 
 LDSTART="/usr/local/bin/ldstart.sh"
-if [ ! -f "$LDSTART" ]; then
-	multilinereplace "$LDSTART" <<EOLXYZ
+multilinereplace "$LDSTART" <<EOLXYZ
 #!/bin/bash
 echo "Executing \$0"
 
@@ -109,17 +108,25 @@ fi
 
 exit 0
 EOLXYZ
-fi
 
 LDSTOP="/usr/local/bin/ldstop.sh"
 multilinereplace "$LDSTOP" <<'EOLXYZ'
 #!/bin/bash
 echo "Executing $0"
+
+# Kill synergy client.
 if pgrep synergyc; then
 	killall synergyc
 fi
+
+# Kill X VNC server.
 if pgrep x0vncserver; then
 	killall x0vncserver
+fi
+
+# Set xset parameters back to defaults.
+if type -p xset &> /dev/null; then
+	xset s
 fi
 
 exit 0
