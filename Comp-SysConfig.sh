@@ -82,7 +82,7 @@ if [[ $(type -P gdm) || $(type -P gdm3) && -f /etc/pulse/default.pa ]]; then
 	if [ ! -d "$GDMPATH/.config/pulse/" ]; then
 		mkdir -p "$GDMPATH/.config/pulse/"
 	fi
-	
+
 	#~ bash -c "cat >$GDMPATH/.config/pulse/client.conf" <<EOL
 #~ autospawn = no
 #~ daemon-binary = /bin/true
@@ -163,10 +163,10 @@ su $USERNAMEVAR -s /bin/bash <<'EOL'
 if [ -d $USERHOME/.cache/thumbnails ]; then
 	SIZEVAR=$(du -s $USERHOME/.cache/thumbnails | awk '{ print $1 }')
 	echo "Size is \$SIZEVAR"
-	if [[ \$SIZEVAR -ge 100000 ]]; then 
+	if [[ \$SIZEVAR -ge 100000 ]]; then
 		echo "Removing thumbnails."
 		rm -rf $USERHOME/.cache/thumbnails
-	else 
+	else
 		echo "Not Removing thumbnails."
 	fi
 else
@@ -177,10 +177,45 @@ EOL
 EOFXYZ
 fi
 
+# Font configuration
+if [[ ! -f "/etc/fonts/conf.d/10-base-rendering.conf" ]]; then
+	multilinereplace "/etc/fonts/conf.avail/10-custom-rmk.conf" <<"EOF"
+	<?xml version='1.0'?>
+	<!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>
+	<fontconfig>
+
+	  <!-- ## Base rendering settings ## -->
+	  <match target="font">
+	    <edit name="rgba" mode="assign">
+	      <const>rgb</const>
+	    </edit>
+	    <edit name="hinting" mode="assign">
+	      <bool>true</bool>
+	    </edit>
+	    <edit name="autohint" mode="assign">
+	      <bool>true</bool>
+	    </edit>
+	    <edit name="antialias" mode="assign">
+	      <bool>true</bool>
+	    </edit>
+	    <edit name="hintstyle" mode="assign">
+	      <const>hintslight</const>
+	    </edit>
+	    <edit name="lcdfilter" mode="assign">
+	      <const>lcddefault</const>
+	    </edit>
+	  </match>
+
+	</fontconfig>
+
+EOF
+	ln -sf /etc/fonts/conf.avail/10-custom-rmk.conf /etc/fonts/conf.d/10-custom-rmk.conf
+fi
+
 
 if [ "${MACHINEARCH}" != "armv7l" ]; then
 	echo "Install x86 specific tweaks."
-	
+
 	# Edit grub timeout
 	if [ -f /etc/default/grub ]; then
 		sed -i 's/GRUB_TIMEOUT=.*$/GRUB_TIMEOUT=1/g' /etc/default/grub
@@ -189,5 +224,5 @@ if [ "${MACHINEARCH}" != "armv7l" ]; then
 
 elif [ "${MACHINEARCH}" = "armv7l" ]; then
 	echo "Install arm specific tweaks."
-	
+
 fi
