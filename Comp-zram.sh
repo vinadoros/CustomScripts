@@ -49,6 +49,10 @@ FRACTION=75
 
 MEMORY=`perl -ne'/^MemTotal:\s+(\d+)/ && print $1*1024;' < /proc/meminfo`
 CPUS=`grep -c processor /proc/cpuinfo`
+# Alternative: CPUS=`nproc`
+# If CPUs greater than 4, reduce to 4.
+[[ $CPUS -gt 4 ]] && CPUS=4
+
 SIZE=$(( MEMORY * FRACTION / 100 / CPUS ))
 
 case "$1" in
@@ -95,7 +99,7 @@ WantedBy=multi-user.target
 EOLXYZ
 	systemctl daemon-reload
 	systemctl enable "$(basename ${ZRAMSERVICE})"
-	
+
 	# Swap file setup
 	SWAPFILE="/var/swap"
 	if [ ! -f "$SWAPFILE" ] && ! swapon | grep -i [s/v]d[a-z][0-9]; then
@@ -112,7 +116,5 @@ EOLXYZ
 	else
 		echo "Swap detected on $(swapon | grep -i [s/v]d[a-z][0-9]), not creating."
 	fi
-	
+
 fi
-
-
