@@ -82,7 +82,7 @@ for ISOFILES in "${ISOFOLDER}"/$SEARCHFILTER; do
 	#echo "LINUX_ROOT_DEVICE: $LINUX_ROOT_DEVICE"
 	#echo "ISOHDUUID: $ISOHDUUID"
 	#echo "ISOFILESMOD: $ISOFILESMOD"
-	
+
 	# Boot parameters for Arch iso:
 	# https://projects.archlinux.org/archiso.git/tree/docs/README.bootparams
 
@@ -95,6 +95,8 @@ menuentry "$ISOFILENAME" {
 	initrd (loop)/arch/boot/x86_64/archiso.img
 }
 "
+
+gettext_printf "Found iso image: %s\n" "${$ISOFILENAME}" >&2
 
 done
 EOL
