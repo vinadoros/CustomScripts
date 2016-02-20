@@ -105,6 +105,8 @@ menuentry "$ISOFILENAME" {
 }
 "
 
+gettext_printf "Found iso image: %s\n" "${$ISOFILENAME}" >&2
+
 done
 EOL
 
