@@ -1,9 +1,18 @@
 #!/bin/bash
 
+set +eu
+
 if [ "$(id -u)" != "0" ]; then
 	echo "Not running as root. Please run the script with sudo or root privledges."
 	exit 1;
 fi
+
+# Get folder of this script
+SCRIPTSOURCE="${BASH_SOURCE[0]}"
+FLWSOURCE="$(readlink -f "$SCRIPTSOURCE")"
+SCRIPTDIR="$(dirname "$FLWSOURCE")"
+SCRNAME="$(basename $SCRIPTSOURCE)"
+echo "Executing ${SCRNAME}."
 
 # Add general functions if they don't exist.
 type -t grepadd >> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
@@ -82,7 +91,7 @@ for ISOFILES in "${ISOFOLDER}"/$SEARCHFILTER; do
 	#echo "LINUX_ROOT_DEVICE: $LINUX_ROOT_DEVICE"
 	#echo "ISOHDUUID: $ISOHDUUID"
 	#echo "ISOFILESMOD: $ISOFILESMOD"
-	
+
 	# Boot parameters for Arch iso:
 	# https://projects.archlinux.org/archiso.git/tree/docs/README.bootparams
 
@@ -102,4 +111,3 @@ EOL
 chmod a+rwx "$GRUBSCRIPT"
 
 grub_update
-grub-mkconfig
