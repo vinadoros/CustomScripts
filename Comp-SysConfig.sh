@@ -161,7 +161,7 @@ echo "Executing \$0"
 su $USERNAMEVAR -s /bin/bash <<'EOL'
 
 if [ -d $USERHOME/.cache/thumbnails ]; then
-	SIZEVAR=$(du -s $USERHOME/.cache/thumbnails | awk '{ print $1 }')
+	SIZEVAR="\$(du -s $USERHOME/.cache/thumbnails | awk '{ print \$1 }')"
 	echo "Size is \$SIZEVAR"
 	if [[ \$SIZEVAR -ge 100000 ]]; then
 		echo "Removing thumbnails."
