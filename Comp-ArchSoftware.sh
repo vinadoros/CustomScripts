@@ -287,12 +287,17 @@ dist_install pamac-aur
 # Install utils for cron
 dist_install run-parts
 
+# For x86_64 only
+if [ "${MACHINEARCH}" = "x86_64" ]; then
+	echo "x86_64 Software for Arch."
+
+	#Install atom editor.
+	dist_install atom-editor-bin
+fi
+
 # For x86_64 and i686 only
 if [ "${MACHINEARCH}" != "armv7l" ]; then
 	echo "i686 and x86_64 Software for Arch."
-
-	#Install atom editor.
-	# dist_install atom-editor-bin
 
 	#Setup x2go
 	dist_install x2goserver x2goclient
