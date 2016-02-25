@@ -45,6 +45,9 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1;
 fi
 
+###############################################################################
+#############################        LightDM      #############################
+###############################################################################
 
 # Set-up lightdm autologin
 if [ -f /etc/systemd/system/display-manager.service ] && ls -la /etc/systemd/system/display-manager.service | grep -iq "lightdm"; then
@@ -58,10 +61,6 @@ fi
 if [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 || $LIGHTDMAUTO = 1 ]] && [ -f /etc/lightdm/lightdm.conf ]; then
 	echo "Enabling lightdm autologin for $USERNAMEVAR."
 	sed -i 's/#autologin-user=/autologin-user='$USERNAMEVAR'/g' /etc/lightdm/lightdm.conf
-	# Enable gnome kerying unlock
-	#~ grepadd "auth       optional     pam_gnome_keyring.so" "/etc/pam.d/login"
-	#~ grepadd "session    optional     pam_gnome_keyring.so        auto_start" "/etc/pam.d/login"
-	#~ grepadd "password	optional	pam_gnome_keyring.so" "/etc/pam.d/passwd"
 fi
 
 # Enable listing of users
@@ -141,3 +140,91 @@ if [ -f /etc/lightdm/lightdm.conf ]; then
 	sed -i "s@display-setup-script=.*@display-setup-script=$LDSTART@g" /etc/lightdm/lightdm.conf
 	sed -i "s@session-setup-script=.*@session-setup-script=$LDSTOP@g" /etc/lightdm/lightdm.conf
 fi
+
+###############################################################################
+###############################        GDM      ###############################
+###############################################################################
+
+# GNOME screenblanking with lightdm (or rather, not GDM)
+multilinereplace "/usr/local/bin/dpms-gnome.sh" <<"EOL"
+#!/bin/bash
+
+# Run xscreensaver if gnome-session is running, gdm is not running, and xscreensaver exists.
+if pgrep gnome-session &> /dev/null && ! pgrep gdm &> /dev/null && type -p xscreensaver &> /dev/null; then
+	echo "Start xscreensaver."
+	xscreensaver -no-splash &
+fi
+EOL
+# Screen blanks in 5 minutes.
+multilinereplace "$USERHOME/.xscreensaver" <<"EOL"
+timeout:	0:05:00
+cycle:		0:10:00
+lock:		False
+lockTimeout:	0:00:00
+passwdTimeout:	0:00:30
+dpmsEnabled:	True
+dpmsQuickOff:	True
+dpmsStandby:	0:05:00
+dpmsSuspend:	0:05:00
+dpmsOff:	0:05:00
+mode:		blank
+selected:	211
+EOL
+multilinereplace "/etc/xdg/autostart/dpms-gnome.desktop" <<"EOL"
+[Desktop Entry]
+Name=Gnome DPMS Setting
+Exec=/usr/local/bin/dpms-gnome.sh
+Terminal=false
+Type=Application
+EOL
+
+# Pulseaudio gdm fix
+# http://www.debuntu.org/how-to-disable-pulseaudio-and-sound-in-gdm/
+# https://bbs.archlinux.org/viewtopic.php?id=202915
+if [[ $(type -P gdm) || $(type -P gdm3) && -f /etc/pulse/default.pa ]]; then
+	echo "Executing gdm pulseaudio fix."
+	set +eu
+	if type -P gdm3; then
+		GDMUID="$(id -u Debian-gdm)"
+		GDMGID="$(id -g Debian-gdm)"
+		GDMPATH="/var/lib/gdm3"
+	elif type -P gdm; then
+		GDMUID="$(id -u gdm)"
+		GDMGID="$(id -g gdm)"
+		GDMPATH="/var/lib/gdm"
+	fi
+	set -eu
+
+	if [ ! -d "$GDMPATH/.config/pulse/" ]; then
+		mkdir -p "$GDMPATH/.config/pulse/"
+	fi
+
+	cp /etc/pulse/default.pa "$GDMPATH/.config/pulse/default.pa"
+	sed -i '/^load-module .*/s/^/#/g' "$GDMPATH/.config/pulse/default.pa"
+
+	chown -R $GDMUID:$GDMGID "$GDMPATH/"
+fi
+
+#### Enable synergy and vnc in gdm ####
+# https://help.gnome.org/admin/gdm/stable/configuration.html.en
+# https://forums-lb.gentoo.org/viewtopic-t-1027688.html
+# https://bugs.gentoo.org/show_bug.cgi?id=553446
+# https://major.io/2008/07/30/automatically-starting-synergy-in-gdm-in-ubuntufedora/
+
+# Disable Wayland in GDM
+sed -i '/^#WaylandEnable=.*/s/^#//' "/etc/gdm/custom.conf"
+sed -i 's/^WaylandEnable=.*/WaylandEnable=false/g' "/etc/gdm/custom.conf"
+
+# Start xvnc and synergy
+multilinereplace "/usr/share/gdm/greeter/autostart/gdm_start.desktop" <<EOL
+[Desktop Entry]
+Type=Application
+Name=GDM Startup
+X-GNOME-Autostart-enabled=true
+X-GNOME-AutoRestart=true
+Exec=${LDSTART}
+NoDisplay=true
+EOL
+
+# Stop apps after login
+grepadd "$LDSTOP" "/etc/gdm/PreSession/Default"

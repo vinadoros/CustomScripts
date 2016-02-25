@@ -62,38 +62,6 @@ EndSection
 EOL
 fi
 
-# Pulseaudio gdm fix
-# http://www.debuntu.org/how-to-disable-pulseaudio-and-sound-in-gdm/
-# https://bbs.archlinux.org/viewtopic.php?id=202915
-if [[ $(type -P gdm) || $(type -P gdm3) && -f /etc/pulse/default.pa ]]; then
-	echo "Executing gdm pulseaudio fix."
-	set +eu
-	if type -P gdm3; then
-		GDMUID="$(id -u Debian-gdm)"
-		GDMGID="$(id -g Debian-gdm)"
-		GDMPATH="/var/lib/gdm3"
-	elif type -P gdm; then
-		GDMUID="$(id -u gdm)"
-		GDMGID="$(id -g gdm)"
-		GDMPATH="/var/lib/gdm"
-	fi
-	set -eu
-
-	if [ ! -d "$GDMPATH/.config/pulse/" ]; then
-		mkdir -p "$GDMPATH/.config/pulse/"
-	fi
-
-	#~ bash -c "cat >$GDMPATH/.config/pulse/client.conf" <<EOL
-#~ autospawn = no
-#~ daemon-binary = /bin/true
-#~ EOL
-
-	cp /etc/pulse/default.pa "$GDMPATH/.config/pulse/default.pa"
-	sed -i '/^load-module .*/s/^/#/g' "$GDMPATH/.config/pulse/default.pa"
-
-	chown -R $GDMUID:$GDMGID "$GDMPATH/"
-fi
-
 # Enable pulseaudio flat volumes
 if ! grep -iq "^flat-volumes=no" /etc/pulse/daemon.conf; then
 	echo 'flat-volumes=no' >> /etc/pulse/daemon.conf
