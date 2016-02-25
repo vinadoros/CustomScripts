@@ -93,7 +93,7 @@ fi
 
 if type -p x0vncserver &> /dev/null && [ -f $USERHOME/.vnc/passwd ]; then
 	echo "Starting vnc."
-	x0vncserver -passwordfile $USERHOME/.vnc/passwd &
+	x0vncserver -passwordfile $USERHOME/.vnc/passwd -rfbport 5900 &
 fi
 
 # Don't run if gdm is running.

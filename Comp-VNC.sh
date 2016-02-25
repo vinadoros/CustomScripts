@@ -44,8 +44,8 @@ fi
 
 # VNC Variables
 VNCLOCATION="$(which x0vncserver)"
-VNCPASSPATH="${USERHOME}/.vnc"
-VNCPASS="${VNCPASSPATH}/passwd"
+VNCPASSPATH="/etc"
+VNCPASS="${VNCPASSPATH}/vncpasswd"
 XHOSTLOCATION="$(which xhost)"
 SDPATH="/etc/systemd/system"
 X0SDSERVICE="vncxorg@.service"
@@ -103,25 +103,60 @@ WantedBy=multi-user.target
 EOL
 echo "Run \"systemctl enable vncuser.service\" to enable vnc standalone client."
 
-echo "Creating $SDPATH/$X0SDSERVICE."
-bash -c "cat >$SDPATH/$X0SDSERVICE" <<EOL
+# echo "Creating $SDPATH/$X0SDSERVICE."
+# bash -c "cat >$SDPATH/$X0SDSERVICE" <<EOL
+# [Unit]
+# Description=TigerVNC server for connecting to display %i
+# Requires=graphical.target
+# After=network.target nss-lookup.target network-online.target graphical.target
+#
+# [Service]
+# Type=simple
+# Environment="DISPLAY=:%i"
+# ExecStartPre=${XHOSTLOCATION} +localhost
+# ExecStart=${VNCLOCATION} -display :%i -passwordfile ${VNCPASS}
+# Restart=always
+# RestartSec=10s
+# TimeoutStopSec=7s
+# User=${USERNAMEVAR}
+#
+# [Install]
+# WantedBy=graphical.target
+# EOL
+# systemctl daemon-reload
+# echo "Run \"systemctl enable vncxorg@0.service\" to enable vnc xorg client."
+
+SDUSERPATH="$USERHOME/.config/systemd/user"
+mkdir -p "$SDUSERPATH"
+
+DEFAULTUSERTARGET="default.target"
+echo "Creating $SDUSERPATH/$DEFAULTUSERTARGET."
+bash -c "cat >$SDUSERPATH/$DEFAULTUSERTARGET" <<EOL
 [Unit]
-Description=TigerVNC server for connecting to display %i
-Requires=graphical.target
-After=network.target nss-lookup.target network-online.target graphical.target
+Description=Default target
+Requires=dbus.socket
+AllowIsolate=true
+EOL
+
+X0USERSERVICE="vncx0user.service"
+echo "Creating $SDUSERPATH/$X0USERSERVICE."
+bash -c "cat >$SDUSERPATH/$X0USERSERVICE" <<EOL
+[Unit]
+Description=TigerVNC server for user session.
 
 [Service]
 Type=simple
-Environment="DISPLAY=:%i"
-ExecStartPre=${XHOSTLOCATION} +localhost
-ExecStart=${VNCLOCATION} -display :%i -passwordfile ${VNCPASS}
+ExecStart=${VNCLOCATION} -passwordfile ${VNCPASS} -rfbport 5900
 Restart=always
 RestartSec=10s
 TimeoutStopSec=7s
-User=${USERNAMEVAR}
 
 [Install]
-WantedBy=graphical.target
+WantedBy=default.target
 EOL
+
+mkdir -p "$SDUSERPATH/default.target.wants"
+ln -sf "$SDUSERPATH/$X0USERSERVICE" "$SDUSERPATH/default.target.wants/$X0USERSERVICE"
+
+chown $USERNAMEVAR:$USERGROUP -R "$USERHOME/.config/"
 systemctl daemon-reload
-echo "Run \"systemctl enable vncxorg@0.service\" to enable vnc xorg client."
