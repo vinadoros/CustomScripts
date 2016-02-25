@@ -96,7 +96,8 @@ if type -p x0vncserver &> /dev/null && [ -f $USERHOME/.vnc/passwd ]; then
 	x0vncserver -passwordfile $USERHOME/.vnc/passwd &
 fi
 
-if type -p xset &> /dev/null; then
+# Don't run if gdm is running.
+if type -p xset &> /dev/null && ! pgrep gdm &> /dev/null; then
 	echo "Starting xset dpms."
 	# http://shallowsky.com/linux/x-screen-blanking.html
 	# http://www.x.org/releases/X11R7.6/doc/man/man1/xset.1.xhtml
@@ -124,7 +125,7 @@ if pgrep x0vncserver; then
 fi
 
 # Set xset parameters back to defaults.
-if type -p xset &> /dev/null; then
+if type -p xset &> /dev/null && ! pgrep gdm &> /dev/null; then
 	xset s
 fi
 
