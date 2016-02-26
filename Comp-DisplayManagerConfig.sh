@@ -91,9 +91,13 @@ if type -p synergyc &> /dev/null && [[ "\$SERVER" != "HostnameHere" ]]; then
 	synergyc "\$SERVER"
 fi
 
-if type -p x0vncserver &> /dev/null && [ -f $USERHOME/.vnc/passwd ]; then
+if type -p x0vncserver &> /dev/null && [ -f /etc/vncpasswd ]; then
+	if [ -z \$DISPLAY ]; then
+		echo "Setting variables for xvnc."
+		DISPLAY=:0
+	fi
 	echo "Starting vnc."
-	x0vncserver -passwordfile $USERHOME/.vnc/passwd -rfbport 5900 &
+	x0vncserver -passwordfile /etc/vncpasswd -rfbport 5900 &
 fi
 
 # Don't run if gdm is running.
