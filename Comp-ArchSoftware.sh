@@ -69,6 +69,9 @@ fi
 # Setup devel stuff
 dist_install rsync base-devel
 
+# Xorg stuff
+dist_install xdg-utils perl-file-mimeinfo
+
 
 ###############################################################################
 ########################        Display Managers      #########################
@@ -148,13 +151,13 @@ case $SETDE in
 [2]* )
 	# Install cinnamon
 	echo "Installing Cinnamon."
-	dist_install cinnamon nemo-fileroller nemo-preview nemo-share evince eog baobab gnome-calculator gnome-font-viewer gnome-disk-utility gnome-icon-theme gnome-system-log gnome-system-monitor gnome-terminal totem vino file-roller cdrkit lrzip unace unrar gnome-color-manager gedit gnome-clocks seahorse gufw xdg-utils gnome-logs
+	dist_install cinnamon nemo-fileroller nemo-preview nemo-share evince eog baobab gnome-calculator gnome-font-viewer gnome-disk-utility gnome-icon-theme gnome-system-log gnome-system-monitor gnome-terminal totem vino file-roller cdrkit lrzip unace unrar gnome-color-manager gedit gnome-clocks seahorse gufw gnome-logs
 	;;
 
 [3]* )
 	# Install GNOME
 	echo "Installing GNOME."
-	dist_install gnome file-roller cdrkit lrzip unace unrar gedit gnome-clocks seahorse gufw gnome-tweak-tool xdg-utils gnome-logs dconf-editor gpaste
+	dist_install gnome file-roller cdrkit lrzip unace unrar gedit gnome-clocks seahorse gufw gnome-tweak-tool gnome-logs dconf-editor gpaste
 	# Install gnome shell extensions and misc apps
 	dist_install gnome-shell-extension-dash-to-dock-git gnome-shell-extension-topicons gnome-shell-extension-mediaplayer-git
 	dist_install gnome-shell-extension-volume-mixer-git
