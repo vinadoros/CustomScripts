@@ -161,6 +161,7 @@ xf86-video-vmware
 open-vm-tools
 mate
 mate-extra
+onboard
 networkmanager
 network-manager-applet
 gnome-keyring
