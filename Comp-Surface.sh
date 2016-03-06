@@ -61,7 +61,7 @@ TEMPFOLDER="mnt-${RANDOMSTRING}"
 # Gnome Settings
 if type -p gnome-session &> /dev/null; then
   #Onboard extension
-  ONBOARDEXTFOLDER="onboardintegration@simon.schumann.web.de"
+  ONBOARDEXTFOLDER="onboard@simon.schumann.web.de"
   git clone https://github.com/schuhumi/gnome-shell-extension-onboard-integration "$TEMPFOLDER"
   cd "$TEMPFOLDER"
   mkdir -p "/usr/share/gnome-shell/extensions/$ONBOARDEXTFOLDER/"
@@ -72,7 +72,7 @@ if type -p gnome-session &> /dev/null; then
   rm -rf "$TEMPFOLDER"
 
   # Enable the extension
-  gsettings set org.gnome.shell enabled-extensions "['places-menu@gnome-shell-extensions.gcampax.github.com', 'window-list@gnome-shell-extensions.gcampax.github.com', 'activities-config@nls1729', 'dash-to-dock@micxgx.gmail.com', 'AdvancedVolumeMixer@harry.karvonen.gmail.com', 'GPaste@gnome-shell-extensions.gnome.org', 'mediaplayer@patapon.info', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'shell-volume-mixer@derhofbauer.at', 'onboardintegration@simon.schumann.web.de']"
+  gsettings set org.gnome.shell enabled-extensions "['places-menu@gnome-shell-extensions.gcampax.github.com', 'window-list@gnome-shell-extensions.gcampax.github.com', 'activities-config@nls1729', 'dash-to-dock@micxgx.gmail.com', 'AdvancedVolumeMixer@harry.karvonen.gmail.com', 'GPaste@gnome-shell-extensions.gnome.org', 'mediaplayer@patapon.info', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'shell-volume-mixer@derhofbauer.at', 'onboard@simon.schumann.web.de']"
 
   # Gsettings
   gsettings set org.gnome.settings-daemon.peripherals.mouse locate-pointer true
