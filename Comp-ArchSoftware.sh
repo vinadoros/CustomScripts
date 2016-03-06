@@ -182,7 +182,19 @@ case $SETDE in
 	dist_install atril caja-gksu caja-open-terminal caja-share engrampa eom gnome-calculator mate-applets mate-media mate-netspeed mate-power-manager mate-sensors-applet mate-system-monitor mate-terminal mate-utils mozo pluma unrar mate-screensaver
 	# Clipboard monitor
 	dist_install clipit
-	cp /usr/share/applications/clipit.desktop $USERHOME/.config/autostart/
+	# cp /usr/share/applications/clipit.desktop $USERHOME/.config/autostart/
+	multilinereplace "$USERHOME/.config/autostart/clipit.desktop" << EOFXYZ
+[Desktop Entry]
+Name=ClipIt
+Comment=Clipboard Manager
+Icon=clipit-trayicon
+Exec=clipit
+Terminal=false
+Type=Application
+Categories=GTK;GNOME;Application;Utility;
+X-GNOME-Autostart-enabled=false
+	EOFXYZ
+	chown $USERNAMEVAR:$USERGROUP "$USERHOME/.config/autostart/clipit.desktop"
 
 	#MATE gtk3
 	#dist_install mate-gtk3 xdg-user-dirs-gtk gnome-themes-standard gnome-keyring seahorse dconf-editor

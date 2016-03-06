@@ -49,8 +49,7 @@ if [ ! -d /etc/X11/xorg.conf.d/ ]; then
 	mkdir -p /etc/X11/xorg.conf.d/
 	chmod a+r /etc/X11/xorg.conf.d/
 fi
-if [ ! -f /etc/X11/xorg.conf.d/50-joystick.conf ]; then
-	bash -c "cat >>/etc/X11/xorg.conf.d/50-joystick.conf" <<'EOL'
+bash -c "cat >>/etc/X11/xorg.conf.d/50-joystick.conf" <<'EOL'
 Section "InputClass"
         Identifier "joystick catchall"
         MatchIsJoystick "on"
@@ -60,7 +59,6 @@ Section "InputClass"
         Option "StartMouseEnabled" "False"      #support
 EndSection
 EOL
-fi
 
 # Enable pulseaudio flat volumes
 if ! grep -iq "^flat-volumes=no" /etc/pulse/daemon.conf; then

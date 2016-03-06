@@ -86,16 +86,17 @@ echo "Executing \$0"
 
 SERVER="\$(<$HOSTFILE)"
 
+if [ -z \$DISPLAY ]; then
+	echo "Setting variables for xvnc."
+	DISPLAY=:0
+fi
+
 if type -p synergyc &> /dev/null && [[ "\$SERVER" != "HostnameHere" ]]; then
 	echo "Starting Synergy client."
 	synergyc "\$SERVER"
 fi
 
 if type -p x0vncserver &> /dev/null && [ -f /etc/vncpasswd ]; then
-	if [ -z \$DISPLAY ]; then
-		echo "Setting variables for xvnc."
-		DISPLAY=:0
-	fi
 	echo "Starting vnc."
 	x0vncserver -passwordfile /etc/vncpasswd -rfbport 5900 &
 fi
@@ -108,6 +109,11 @@ if type -p xset &> /dev/null && ! pgrep gdm &> /dev/null; then
 	# Turn screen off in 60 seconds.
 	xset s 60
 	xset dpms 60 60 60
+fi
+
+if type -p onboard &> /dev/null; then
+	echo "Starting onboard."
+	onboard &
 fi
 
 exit 0
@@ -131,6 +137,11 @@ fi
 # Set xset parameters back to defaults.
 if type -p xset &> /dev/null && ! pgrep gdm &> /dev/null; then
 	xset s
+fi
+
+# Kill onboard.
+if pgrep onboard; then
+	killall onboard
 fi
 
 exit 0
