@@ -55,7 +55,7 @@ source "$SCRIPTDIR/Comp-CSClone.sh"
 
 source "$SCRIPTDIR/Comp-BoxDAV.sh"
 
-source "$SCRIPTDIR/Comp-LightDMAutoLogin.sh"
+source "$SCRIPTDIR/Comp-DisplayManagerConfig.sh"
 
 source "$SCRIPTDIR/Comp-SambaConfig.sh"
 
