@@ -45,6 +45,7 @@ if [ ! -d /etc/X11/xorg.conf.d/ ]; then
 	mkdir -p /etc/X11/xorg.conf.d/
 	chmod a+r /etc/X11/xorg.conf.d/
 fi
+# This is to enable volume up and down buttons in xorg.
 bash -c "cat >>/etc/X11/xorg.conf.d/50-surface.conf" <<'EOL'
 Section "InputClass"
         Identifier "MICROSOFT SAM"
