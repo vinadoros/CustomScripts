@@ -73,6 +73,8 @@ if type -p gnome-session &> /dev/null; then
   rm -rf "$TEMPFOLDER"
 
   # Enable the extension
+	# Disable error handling due to possible dbus errors.
+	set +eu
   gsettings set org.gnome.shell enabled-extensions "['places-menu@gnome-shell-extensions.gcampax.github.com', 'window-list@gnome-shell-extensions.gcampax.github.com', 'activities-config@nls1729', 'dash-to-dock@micxgx.gmail.com', 'AdvancedVolumeMixer@harry.karvonen.gmail.com', 'GPaste@gnome-shell-extensions.gnome.org', 'mediaplayer@patapon.info', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'shell-volume-mixer@derhofbauer.at', 'onboard@simon.schumann.web.de']"
 
   # Gsettings
