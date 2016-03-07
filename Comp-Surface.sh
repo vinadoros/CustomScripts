@@ -79,7 +79,8 @@ if type -p gnome-session &> /dev/null; then
   gsettings set org.gnome.settings-daemon.peripherals.mouse locate-pointer true
   gsettings set org.gnome.desktop.interface text-scaling-factor 1.1
 	gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 1200
-	gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type suspend
+	gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type nothing
 	gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 600
 	gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type suspend
+	gsettings set org.gnome.desktop.session idle-delay 180
 fi
