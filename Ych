@@ -95,11 +95,11 @@ safermfld () {
 	else
 		RMFLD="$1"
 	fi
-	
-	if [[ -z $(ls "$RMFLD") ]]; then 
+
+	if [[ -z $(ls "$RMFLD") ]]; then
 		echo "Removing $RMFLD"
 		rm -rf "$RMFLD"
-	else 
+	else
 		echo "$RMFLD is not empty. Not removing."
 		ls -la "$RMFLD"
 	fi
@@ -112,18 +112,18 @@ bindmount () {
 	else
 		BINDMNTFOLDER="$1"
 	fi
-		
+
 	if [ ! -d "${CHPATH}/bindmnt" ]; then
 		mkdir -p "${CHPATH}/bindmnt"
 		chmod a+rwx "${CHPATH}/bindmnt"
 	fi
-	
+
 	for FLD in "${BINDMNTFOLDER}"/*/; do
 		FLDBASE="$(basename $FLD)"
 		# Base folder name (i.e. mnt, media).
 		DIRFLDNAME="$(dirname $FLD)"
 		DIRFLDNAME="${DIRFLDNAME//[\/-._]/}"
-		
+
 		CHFLD="${CHPATH}/bindmnt/${DIRFLDNAME}-${FLDBASE}"
 		mkdir -p "${CHFLD}"
 		chmod a+rwx "${CHFLD}"
@@ -136,7 +136,7 @@ bindmount () {
 }
 
 bindumount () {
-	
+
 	for FLD in "${CHPATH}"/bindmnt/*/; do
 		echo "Unmounting $FLD"
 		BSNFLD="$(basename $FLD)"
@@ -145,9 +145,9 @@ bindumount () {
 		fi
 		if mount | grep -iq "$BSNFLD"; then
 			umount -f "$FLD"
-		fi 
+		fi
 		if mount | grep -iq "$BSNFLD"; then
-			echo "Cannot unmount, exiting."; 
+			echo "Cannot unmount, exiting.";
 			exit 1;
 		fi
 		unset BSNFLD
@@ -158,19 +158,19 @@ bindumount () {
 
 launchxorg () {
 	CURRDISP="$(echo $DISPLAY | awk -F':' '{print $2}' | awk -F'.' '{print $1}')"
-	
+
 	# If the current display is 0 or less, force it to be one
 	[ $CURRDISP -le 0 ] && CURRDISP=1
-	
+
 	NEXTDISP="$(( $CURRDISP + 1))"
 	VTDISP="$(( $NEXTDISP + 1))"
-	
+
 	cp -av "$USERHOME/.config/pulse/cookie" "$CHUSERHOME/.config/pulse/"
-	
+
 	# Launch xorg on next display.
 	#~ xterm -e "X :${NEXTDISP} vt${VTDISP}"
 	X :${NEXTDISP} vt${VTDISP} &
-	
+
 	# Get background process of xorg.
 	# Source: https://serverfault.com/questions/222424/the-pid-of-a-bash-child-proccess-imapsync-how-do-you-get-it
 	XORGPID="$!"
@@ -184,21 +184,27 @@ killxorg () {
 }
 
 addscripts () {
-	
+
 	# Find the normal user 1000 in the chroot
 	CHUSERVAR=$(chroot "${CHPATH}" id -un 1000)
 	CHUSERHOME="$CHPATH/home/$CHUSERVAR"
-	
+
 	xhost +localhost
 	if [ ! -z "$XAUTHORITY" ]; then
 		NEWXAUTH="/Xauthority"
 		cp -a "$XAUTHORITY" "${CHPATH}${NEWXAUTH}"
 	fi
-	
+
 	multilinereplace "$CHPATH/usr/local/bin/sx" <<'EOL'
 #!/bin/bash
 USERNAMEVAR=$(id 1000 -un)
-DISPLAY=$DISPLAY su "$USERNAMEVAR" -c xterm &
+if type -p mate-terminal &> /dev/null; then
+	DISPLAY=$DISPLAY su "$USERNAMEVAR" -c mate-terminal &
+elif type -p xterm &> /dev/null; then
+	DISPLAY=$DISPLAY su "$USERNAMEVAR" -c xterm &
+else
+	echo "Terminal command not found."
+fi
 EOL
 
 	# Enable visiblepw option for sudo askpass.
@@ -213,17 +219,17 @@ EOL
 }
 
 prechroot () {
-	
+
 	if [ -f "$INPUTVAR" ]; then
 		# Generate a random 8 character string
 		RANDOMSTRING=$( date | sha1sum | fold -w6 | head -n1 )
-		
+
 		TEMPFOLDER="mnt-${RANDOMSTRING}"
 		INSTALLFILE="$(readlink -f $INPUTVAR)"
 		FILEPATH="$(dirname $INSTALLFILE)"
 		FILENAME="$(basename $INSTALLFILE)"
 		CHPATH="${FILEPATH}/${TEMPFOLDER}"
-		
+
 		mkdir -p "${CHPATH}"
 		chmod a+rwx -R "${CHPATH}"
 		mount "${INPUTVAR}" "${CHPATH}"
@@ -232,12 +238,12 @@ prechroot () {
 	if [ -d "$INPUTVAR" ]; then
 		CHPATH="$INPUTVAR"
 	fi
-	
+
 	if [ -z "$CHPATH" ]; then
 		echo "Error, no file or image selected. Exiting."
 		usage
 	fi
-	
+
 	bindmount "/media"
 	bindmount "/mnt"
 	addscripts
@@ -259,7 +265,7 @@ sdxorgchroot () {
 	#~ systemd-nspawn -D "${CHPATH}" --share-system --bind /tmp/.X11-unix:/tmp/.X11-unix --setenv=DISPLAY=:${NEXTDISP} --setenv=QT_X11_NO_MITSHM=1 su $CHUSERVAR -c ${XORGCMD}
 	#~ systemd-nspawn -D "${CHPATH}" --share-system --bind /sys/module --setenv=DISPLAY=:${NEXTDISP} --setenv=QT_X11_NO_MITSHM=1 su $CHUSERVAR -c ${XORGCMD}
 	systemd-nspawn -D "${CHPATH}" --setenv=DISPLAY=:${NEXTDISP} --bind /sys/module --setenv=PULSE_SERVER=unix:/run/user/1000/pulse/native --bind=/run/dbus/system_bus_socket:/run/dbus/system_bus_socket --setenv=QT_X11_NO_MITSHM=1 --bind=/dev/snd:/dev/snd --bind /tmp/.X11-unix:/tmp/.X11-unix --bind=/dev/shm:/dev/shm --bind=/dev/dri:/dev/dri --bind=/run/user/1000:/run/user/1000 --bind=/etc/machine-id:/etc/machine-id su "$CHUSERVAR" -c "${XORGCMD}"
-	
+
 	killxorg
 }
 
@@ -268,15 +274,15 @@ arxorgchroot () {
 	DISPLAY=:${NEXTDISP} QT_X11_NO_MITSHM=1 Ymychroot "$CHPATH" /bin/su "$CHUSERVAR" -c "${XORGCMD}"
 	#systemd-nspawn -D "${CHPATH}" --setenv=DISPLAY=:${NEXTDISP} --setenv=QT_X11_NO_MITSHM=1 --bind=/run/dbus/system_bus_socket:/run/dbus/system_bus_socket --bind=/dev/snd:/dev/snd --bind /tmp/.X11-unix:/tmp/.X11-unix --bind=/dev/shm:/dev/shm --bind=/dev/dri:/dev/dri --bind=/run/user/1000/pulse:/run/user/1000/pulse --bind=/etc/machine-id:/etc/machine-id su $USERVAR -c ${XORGCMD}
 	#~ systemd-nspawn -D "${CHPATH}" --share-system --bind /tmp/.X11-unix:/tmp/.X11-unix --setenv=DISPLAY=:${NEXTDISP} --setenv=QT_X11_NO_MITSHM=1 su $USERVAR -c ${XORGCMD}
-	
+
 	killxorg
 }
 
 
 postchroot () {
-	
+
 	bindumount
-	
+
 	# Cleanup for file mode
 	if [ -f "$INPUTVAR" ] && mount | grep -iq "$(basename ${CHPATH})"; then
 		if mount | grep -iq "$(basename ${CHPATH})"; then
