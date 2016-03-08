@@ -60,10 +60,19 @@ RANDOMSTRING=$( date | sha1sum | fold -w6 | head -n1 )
 TEMPFOLDER="mnt-${RANDOMSTRING}"
 
 # Grub script
-multilinereplace "$USERHOME/Desktop/grubboot.sh" <<'EOL'
+multilinereplace "/usr/local/bin/grubboot.sh" <<'EOL'
 #!/bin/bash
 read -p "Enter a grub number (0 is 1st entry):" GRUBNUMBER
 sudo grub-reboot $GRUBNUMBER
+EOL
+
+# Grub Desktop entry
+multilinereplace "$USERHOME/Desktop/grub-boot.desktop" <<"EOL"
+[Desktop Entry]
+Name=Grub Boot
+Exec=/usr/local/bin/grubboot.sh
+Terminal=true
+Type=Application
 EOL
 
 # DPMS Desktop entry
@@ -71,24 +80,6 @@ multilinereplace "$USERHOME/Desktop/surface-dpms.desktop" <<"EOL"
 [Desktop Entry]
 Name=Surface DPMS
 Exec=/usr/local/bin/turnoffscreen.sh
-Terminal=false
-Type=Application
-EOL
-
-# Gnome suspend 600
-multilinereplace "$USERHOME/Desktop/gnome_suspend_600.desktop" <<"EOL"
-[Desktop Entry]
-Name=Gnome Suspend 600
-Exec=gsettings set org.gnome.desktop.session idle-delay 600
-Terminal=false
-Type=Application
-EOL
-
-# Gnome suspend 0
-multilinereplace "$USERHOME/Desktop/gnome_suspend_0.desktop" <<"EOL"
-[Desktop Entry]
-Name=Gnome Suspend 0
-Exec=gsettings set org.gnome.desktop.session idle-delay 0
 Terminal=false
 Type=Application
 EOL
@@ -114,7 +105,7 @@ if type -p gnome-session &> /dev/null; then
   gsettings set org.gnome.settings-daemon.peripherals.mouse locate-pointer true
   gsettings set org.gnome.desktop.interface text-scaling-factor 1.1
 
-	# These commands do not currently work on the Surface. They are here for reference in case they do work someday.
+	# Suspend surface on battery.
 	gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 1200
 	gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type nothing
 	gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 600
@@ -150,40 +141,3 @@ Exec=xscreensaver -no-splash
 Terminal=false
 Type=Application
 EOL
-
-# Set idle-delay for GNOME depending on plugged in or not, to suspend Surface (see workaround above)
-# Writing Udev rules: http://www.reactivated.net/writing_udev_rules.html
-# Reference for charging udev rules: http://stackoverflow.com/questions/15069063/activating-a-script-using-udev-when-power-supply-is-connected-disconnected
-bash -c "cat >/etc/udev/rules.d/50-surface.rules" <<'EOL'
-SUBSYSTEM=="power_supply", ENV{POWER_SUPPLY_ONLINE}=="1", RUN+="/usr/local/bin/surface-acdetect.sh"
-SUBSYSTEM=="power_supply", ENV{POWER_SUPPLY_ONLINE}=="0", RUN+="/usr/local/bin/surface-acdetect.sh"
-EOL
-
-multilinereplace "/usr/local/bin/surface-acdetect.sh" <<'EOLXYZ'
-#!/bin/bash
-
-# Set user folders if they don't exist.
-if [ -z $USERNAMEVAR ]; then
-	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
-		export USERNAMEVAR="$SUDO_USER"
-	elif [ "$USER" != "root" ]; then
-		export USERNAMEVAR="$USER"
-	else
-		export USERNAMEVAR="$(id 1000 -un)"
-	fi
-	USERGROUP="$(id 1000 -gn)"
-	USERHOME="/home/$USERNAMEVAR"
-fi
-
-# Detect charge state.
-if [ $(cat /sys/class/power_supply/AC0/online) = 1 ]; then
-	echo "Charging, setting idle-delay to 0."
-	su $USERNAMEVAR -s /bin/bash -c 'gsettings set org.gnome.desktop.session idle-delay 0'
-else
-	echo "Discharging, setting idle-delay to 600."
-	su $USERNAMEVAR -s /bin/bash -c 'gsettings set org.gnome.desktop.session idle-delay 600'
-fi
-EOLXYZ
-
-# Reload udev
-udevadm control --reload
