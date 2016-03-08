@@ -59,6 +59,40 @@ EOL
 RANDOMSTRING=$( date | sha1sum | fold -w6 | head -n1 )
 TEMPFOLDER="mnt-${RANDOMSTRING}"
 
+# Grub script
+multilinereplace "$USERHOME/Desktop/grubboot.sh" <<'EOL'
+#!/bin/bash
+read -p "Enter a grub number (0 is 1st entry):" $GRUBNUMBER
+sudo grub-reboot $GRUBNUMBER
+EOL
+
+# DPMS Desktop entry
+multilinereplace "$USERHOME/Desktop/surface-dpms.desktop" <<"EOL"
+[Desktop Entry]
+Name=Surface DPMS
+Exec=/usr/local/bin/turnoffscreen.sh
+Terminal=false
+Type=Application
+EOL
+
+# Gnome suspend 600
+multilinereplace "$USERHOME/Desktop/gnome_suspend_600.desktop" <<"EOL"
+[Desktop Entry]
+Name=Gnome Suspend 600
+Exec=gsettings set org.gnome.desktop.session idle-delay 600
+Terminal=false
+Type=Application
+EOL
+
+# Gnome suspend 0
+multilinereplace "$USERHOME/Desktop/gnome_suspend_0.desktop" <<"EOL"
+[Desktop Entry]
+Name=Gnome Suspend 0
+Exec=gsettings set org.gnome.desktop.session idle-delay 0
+Terminal=false
+Type=Application
+EOL
+
 # Gnome Settings
 if type -p gnome-session &> /dev/null; then
   #Onboard extension
