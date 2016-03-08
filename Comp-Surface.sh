@@ -79,11 +79,77 @@ if type -p gnome-session &> /dev/null; then
   # Gsettings
   gsettings set org.gnome.settings-daemon.peripherals.mouse locate-pointer true
   gsettings set org.gnome.desktop.interface text-scaling-factor 1.1
+
+	# These commands do not currently work on the Surface. They are here for reference in case they do work someday.
 	gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 1200
 	gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type nothing
 	gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 600
 	gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type suspend
-	gsettings set org.gnome.desktop.session idle-delay 180
+
+	# Workaround for GNOME suspending Surface when idle.
+	gsettings set org.gnome.desktop.session idle-delay 0
+
+EOL
+fi
+
+# Screen blanks in 3 minutes.
+multilinereplace "$USERHOME/.xscreensaver" <<"EOL"
+timeout:	0:03:00
+cycle:		0:10:00
+lock:		False
+lockTimeout:	0:00:00
+passwdTimeout:	0:00:30
+dpmsEnabled:	True
+dpmsQuickOff:	True
+dpmsStandby:	0:03:00
+dpmsSuspend:	0:03:00
+dpmsOff:	0:03:00
+mode:		blank
+selected:	211
 EOL
 
+# Use xscreensaver, since GNOME suspends Surface when idle.
+multilinereplace "/etc/xdg/autostart/surface-xscr.desktop" <<"EOL"
+[Desktop Entry]
+Name=Surface Xscreensaver
+Exec=xscreensaver -no-splash
+Terminal=false
+Type=Application
+EOL
+
+# Set idle-delay for GNOME depending on plugged in or not, to suspend Surface (see workaround above)
+# Writing Udev rules: http://www.reactivated.net/writing_udev_rules.html
+# Reference for charging udev rules: http://stackoverflow.com/questions/15069063/activating-a-script-using-udev-when-power-supply-is-connected-disconnected
+bash -c "cat >/etc/udev/rules.d/50-surface.rules" <<'EOL'
+SUBSYSTEM=="power_supply", ENV{POWER_SUPPLY_ONLINE}=="1", RUN+="/usr/local/bin/surface-acdetect.sh"
+SUBSYSTEM=="power_supply", ENV{POWER_SUPPLY_ONLINE}=="0", RUN+="/usr/local/bin/surface-acdetect.sh"
+EOL
+
+multilinereplace "/usr/local/bin/surface-acdetect.sh" <<'EOLXYZ'
+#!/bin/bash
+
+# Set user folders if they don't exist.
+if [ -z $USERNAMEVAR ]; then
+	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
+		export USERNAMEVAR="$SUDO_USER"
+	elif [ "$USER" != "root" ]; then
+		export USERNAMEVAR="$USER"
+	else
+		export USERNAMEVAR="$(id 1000 -un)"
+	fi
+	USERGROUP="$(id 1000 -gn)"
+	USERHOME="/home/$USERNAMEVAR"
 fi
+
+# Detect charge state.
+if [ $(cat /sys/class/power_supply/AC0/online) = 1 ]; then
+	echo "Charging, setting idle-delay to 0."
+	su $USERNAMEVAR -s /bin/bash -c 'gsettings set org.gnome.desktop.session idle-delay 0'
+else
+	echo "Discharging, setting idle-delay to 600."
+	su $USERNAMEVAR -s /bin/bash -c 'gsettings set org.gnome.desktop.session idle-delay 600'
+fi
+EOLXYZ
+
+# Reload udev
+udevadm control --reload
