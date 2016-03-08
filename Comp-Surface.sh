@@ -62,7 +62,7 @@ TEMPFOLDER="mnt-${RANDOMSTRING}"
 # Grub script
 multilinereplace "$USERHOME/Desktop/grubboot.sh" <<'EOL'
 #!/bin/bash
-read -p "Enter a grub number (0 is 1st entry):" $GRUBNUMBER
+read -p "Enter a grub number (0 is 1st entry):" GRUBNUMBER
 sudo grub-reboot $GRUBNUMBER
 EOL
 
