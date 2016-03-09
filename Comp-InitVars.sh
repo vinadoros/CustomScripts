@@ -18,9 +18,6 @@ else
 	export USERNAMEVAR=$(id 1000 -un)
 fi
 
-# Enable error halting.
-set -eu
-
 export MACHINEARCH=$(uname -m)
 export USERGROUP=$(id $USERNAMEVAR -gn)
 export USERHOME=/home/$USERNAMEVAR
@@ -81,3 +78,6 @@ while [[ "$SMBPASSWORD" != "$SMBPASSWORD2" ||  -z "$SMBPASSWORD" ]]; do
 done
 SMBPASS="${SMBPASSWORD}"
 echo -n "${SMBPASSWORD}" >> "$SAMBAFILEPASS"
+
+# Enable error halting.
+set -eu
