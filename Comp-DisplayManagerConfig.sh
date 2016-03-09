@@ -111,11 +111,6 @@ if type -p xset &> /dev/null && ! pgrep gdm &> /dev/null; then
 	xset dpms 60 60 60
 fi
 
-if type -p onboard &> /dev/null; then
-	echo "Starting onboard."
-	onboard &
-fi
-
 exit 0
 EOLXYZ
 
@@ -137,11 +132,6 @@ fi
 # Set xset parameters back to defaults.
 if type -p xset &> /dev/null && ! pgrep gdm &> /dev/null; then
 	xset s
-fi
-
-# Kill onboard.
-if pgrep onboard; then
-	killall onboard
 fi
 
 exit 0
