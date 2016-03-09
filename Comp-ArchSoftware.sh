@@ -193,7 +193,7 @@ Terminal=false
 Type=Application
 Categories=GTK;GNOME;Application;Utility;
 X-GNOME-Autostart-enabled=false
-	EOFXYZ
+EOFXYZ
 	chown $USERNAMEVAR:$USERGROUP "$USERHOME/.config/autostart/clipit.desktop"
 
 	#MATE gtk3
