@@ -43,7 +43,8 @@ fi
 ###############################################################################
 # Install virtualbox guest utils
 if [ $VBOXGUEST = 1 ]; then
-	dist_install virtualbox-guest-modules virtualbox-guest-utils
+	dist_install virtualbox-guest-dkms linux-headers
+	dist_install virtualbox-guest-utils
 	modprobe -a vboxguest vboxsf vboxvideo
 
 	# Add the user to the vboxsf group, so that the shared folders can be accessed.
@@ -76,7 +77,6 @@ if [ $VMWGUEST = 1 ]; then
 	dist_install xf86-input-vmmouse xf86-video-vmware mesa
 	systemctl enable vmtoolsd.service
 	systemctl enable vmware-vmblock-fuse.service
-	systemctl enable dkms.service
 	if [ ! -f /etc/modules-load.d/vmware-guest.conf ]; then
 		cat >>/etc/modules-load.d/vmware-guest.conf <<EOL
 vmw_balloon

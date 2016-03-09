@@ -26,6 +26,12 @@ if [ -z $USERNAMEVAR ]; then
 	USERHOME=/home/$USERNAMEVAR
 fi
 
+# Samba password location
+SAMBAFILEPASS="/var/tmp/sambapass.txt"
+if [ -f $SAMBAFILEPASS ]; then
+	SMBPASS="\$(<$SAMBAFILEPASS)"
+fi
+
 if [ "$(id -u)" != "0" ]; then
 	echo "Not running with root. Please run the script with su privledges."
 	exit 1;
@@ -63,11 +69,11 @@ sambaconfigadd () {
 	else
 		MNTFOLDER="$1"
 	fi
-	
+
 	for FLD in "${MNTFOLDER}"/*/; do
 		echo "Detected folder $FLD"
 		FLDBASE=$(basename "$FLD")
-		
+
 		if [ -d "$FLD" ] && ! grep -iq "\[${FLDBASE}\]" /etc/samba/smb.conf; then
 			echo "Adding ${FLDBASE} share for ${FLD} to smb.conf."
 			bash -c "cat >>/etc/samba/smb.conf" <<EOL
@@ -84,7 +90,7 @@ sambaconfigadd () {
 
 EOL
 		fi
-		
+
 	done
 }
 

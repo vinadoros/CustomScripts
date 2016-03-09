@@ -24,6 +24,7 @@ set -eu
 export MACHINEARCH=$(uname -m)
 export USERGROUP=$(id $USERNAMEVAR -gn)
 export USERHOME=/home/$USERNAMEVAR
+export SAMBAFILEPASS="/var/tmp/sambapass.txt"
 if [ ! -d $USERHOME ]; then
 	echo "User home not found. Exiting."
 	exit 1;
@@ -56,16 +57,27 @@ else
 	echo "VMWare not Detected"
 fi
 
+checksambapass () {
+	if [ -f $SAMBAFILEPASS ]; then
+		SMBPASSWORD="\$(<$SAMBAFILEPASS)"
+		SMBPASSWORD2="\$(<$SAMBAFILEPASS)"
+	fi
+}
+
 sambapass () {
-	echo "Input a samba password: " 
+	echo "Input a samba password: "
 	read -s SMBPASSWORD
 	echo "Please confirm password: "
 	read -s SMBPASSWORD2
 }
 
-sambapass
+checksambapass
+if [ -z "$SMBPASSWORD" ]; then
+	sambapass
+fi
 while [[ "$SMBPASSWORD" != "$SMBPASSWORD2" ||  -z "$SMBPASSWORD" ]]; do
 	echo "Passwords do not match."
 	sambapass
 done
 SMBPASS="${SMBPASSWORD}"
+echo -n "${SMBPASSWORD}" >> "$SAMBAFILEPASS"

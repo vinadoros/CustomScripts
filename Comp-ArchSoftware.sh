@@ -386,7 +386,7 @@ EOL
 	###############################################################################
 	# Install virtualbox host
 	if [[ $VBOXGUEST = 0 && $QEMUGUEST = 0 && $VMWGUEST = 0 ]]; then
-		dist_install virtualbox-host-modules virtualbox virtualbox-guest-iso
+		dist_install virtualbox-host-dkms linux-headers virtualbox virtualbox-guest-iso
 		dist_install virtualbox-ext-oracle
 		depmod -a
 
