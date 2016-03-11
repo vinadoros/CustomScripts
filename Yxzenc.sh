@@ -2,9 +2,9 @@
 
 usage () {
 	echo -e "\nUsage:"
-	echo "h - Help."
-	echo "d - Decrypt file."
-	echo "e - Encrypt file."
+	echo "-h - Help."
+	echo "-d - Decrypt file."
+	echo "-e - Encrypt file."
 	exit 0;
 }
 
@@ -94,8 +94,8 @@ set -e
 
 setxzopts
 
-if [[ ! -z $DECFILE && ! -z $ENCFILE ]]; then
-	echo "Only select encryption or decryption. Exiting."
+if [[ ! -z $DECFILE && ! -z $ENCFILE ]] || [[ -z $DECFILE && -z $ENCFILE ]]; then
+	echo "Select either encryption or decryption. Exiting."
 	usage
 fi
 
