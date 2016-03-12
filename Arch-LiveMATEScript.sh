@@ -227,11 +227,16 @@ EOL
 	fi
 fi
 
-# Virtualbox stuff
-cat >/etc/modules-load.d/virtualbox.conf <<EOL
+# Modules to load on startup
+cat >/etc/modules-load.d/bootmodules.conf <<EOL
 vboxguest
 vboxsf
 vboxvideo
+vmw_balloon
+vmw_pvscsi
+vmw_vmci
+vmwgfx
+vmxnet3
 EOL
 
 systemctl enable vboxservice
