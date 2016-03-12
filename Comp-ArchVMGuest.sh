@@ -72,8 +72,7 @@ fi
 
 # Install VMWare guest utils
 if [ $VMWGUEST = 1 ]; then
-	dist_install open-vm-tools linux-headers
-	dist_install open-vm-tools-dkms
+	dist_install open-vm-tools
 	dist_install xf86-input-vmmouse xf86-video-vmware mesa
 	systemctl enable vmtoolsd.service
 	systemctl enable vmware-vmblock-fuse.service
@@ -84,8 +83,6 @@ vmw_pvscsi
 vmw_vmci
 vmwgfx
 vmxnet3
-vmw_vsock_vmci_transport
-vmhgfs
 EOL
 	fi
 fi

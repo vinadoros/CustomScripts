@@ -161,7 +161,8 @@ xorg-server-utils
 xorg-drivers
 mesa-libgl
 xorg-xinit
-virtualbox-guest-modules
+linux-headers
+virtualbox-guest-dkms
 virtualbox-guest-utils
 xf86-input-vmmouse
 xf86-video-vmware
