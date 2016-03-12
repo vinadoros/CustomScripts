@@ -38,11 +38,19 @@ REPOFOLDER=/var/tmp/${REPONAME}
 
 # Function for AUR build.
 aur_build(){
-	if [ -f "/var/cache/pacman/pkg/debootstrap"* ]; then
-		sudo rm "/var/cache/pacman/pkg/debootstrap"*
+
+	if [ -z "$1" ]; then
+		echo "No paramter passed. Returning."
+		return 0;
+	else
+		AURPKG="$1"
+	fi
+
+	if [ -f "/var/cache/pacman/pkg/${AURPKG}"* ]; then
+		sudo rm "/var/cache/pacman/pkg/${AURPKG}"*
 	fi
 	cd $BUILDFOLDER
-	wget https://aur4.archlinux.org/cgit/aur.git/snapshot/${AURPKG}.tar.gz
+	wget https://aur.archlinux.org/cgit/aur.git/snapshot/${AURPKG}.tar.gz
 	tar zxvf ${AURPKG}.tar.gz
 	sudo chmod a+rwx -R ${AURPKG}
 	cd ${AURPKG}
@@ -126,9 +134,8 @@ if [ ! -d ${REPOFOLDER} ]; then
 	chmod a+rwx -R ${REPOFOLDER}
 fi
 
-# Build debootstrap from AUR
-AURPKG=debootstrap
-aur_build
+# Build software from AUR
+aur_build "debootstrap"
 
 # Build the local repo.
 build_repo
