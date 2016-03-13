@@ -1,9 +1,11 @@
 #!/bin/bash
 
-if [ "$(id -u)" != "0" ]; then
-	echo "Not running with root. Please run the script with su privledges."
-	exit 1;
-fi
+# Get folder of this script
+SCRIPTSOURCE="${BASH_SOURCE[0]}"
+FLWSOURCE="$(readlink -f "$SCRIPTSOURCE")"
+SCRIPTDIR="$(dirname "$FLWSOURCE")"
+SCRNAME="$(basename $SCRIPTSOURCE)"
+echo "Executing ${SCRNAME}."
 
 # Disable error handlingss
 set +eu
@@ -32,6 +34,11 @@ fi
 [ -z $VMWGUEST ] && ! grep -iq "VMware" "/sys/devices/virtual/dmi/id/product_name" && VMWGUEST=0
 
 set -eu
+
+if [ "$(id -u)" != "0" ]; then
+	echo "Not running with root. Please run the script with su privledges."
+	exit 1;
+fi
 
 # Create and set /media folder permissions.
 if [ ! -d /media ]; then
