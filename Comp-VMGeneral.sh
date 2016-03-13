@@ -21,7 +21,7 @@ if [ -z $USERNAMEVAR ]; then
 	USERHOME=/home/$USERNAMEVAR
 fi
 
-[ -z $VBOXGUEST ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1 
+[ -z $VBOXGUEST ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1
 [ -z $VBOXGUEST ] && ! grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=0
 [ -z $QEMUGUEST ] && grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=1
 [ -z $QEMUGUEST ] && ! grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=0
@@ -38,6 +38,9 @@ chmod a+rwx /media
 
 
 if [ $QEMUGUEST = 1 ]; then
+
+	SDUSERPATH="$USERHOME/.config/systemd/user"
+	mkdir -p "$SDUSERPATH"
 
 	# Set up ra script for auto resolution xrandr.
 	echo "Creating /etc/systemd/system/ra@.service"
@@ -85,7 +88,7 @@ case "\$1" in
 esac
 EOL
 	chmod a+rwx /usr/local/bin/ra.sh
-	
+
 	#~ echo "Creating ra.desktop."
 	#~ bash -c "cat >/etc/xdg/autostart/ra.desktop" <<'EOL'
 #~ [Desktop Entry]
@@ -97,8 +100,8 @@ EOL
 #~ X-GNOME-Autostart-enabled=true
 #~ EOL
 	#~ chmod 644 /etc/xdg/autostart/ra.desktop
-	
-	
+
+
 	# Set up virtio filesystem mounts.
 	if ! grep -iq "virtio" /etc/fstab; then
 		echo "Editing fstab for virtio filesystem."

@@ -269,7 +269,6 @@ dist_update () {
 
 	if type -p yaourt &> /dev/null; then
 		echo "Updating system using AUR helper."
-		# $SUDOCMD apacman -Syu --noconfirm --ignorearch
 		su $USERNAMEVAR -s /bin/bash -c "yaourt -ASyua --needed --noconfirm"
 	elif type -p pacman &> /dev/null; then
 		echo "Updating system using pacman."
@@ -300,5 +299,49 @@ grub_update () {
 		echo "Updating grub config using mkconfig grub."
 		$SUDOCMD grub-mkconfig -o /boot/grub/grub.cfg
 	fi
+
+}
+
+# Commands to create user systemd service
+user_systemd_service () {
+
+	if [ -z "$1" ]; then
+		echo "No parameter passed."
+		return 1;
+	else
+		SYSTEMDUSERSERVICE="$1"
+	fi
+
+	MULTILINE="$(cat /dev/stdin)"
+	if [ -z "$MULTILINE" ]; then
+		echo "No text found."
+		return 1;
+	fi
+
+	[ "$(id -u)" != "0" ] && SUDOCMD="sudo" || SUDOCMD=""
+
+	SDUSERPATH="$USERHOME/.config/systemd/user"
+	if [ ! -d "$SDUSERPATH" ]; then
+		mkdir -p "$SDUSERPATH"
+		mkdir -p "$SDUSERPATH/default.target.wants"
+	fi
+
+	DEFAULTUSERTARGET="default.target"
+	echo "Creating $SDUSERPATH/$DEFAULTUSERTARGET."
+	bash -c "cat >$SDUSERPATH/$DEFAULTUSERTARGET" <<EOL
+	[Unit]
+	Description=Default target
+	Requires=dbus.socket
+	AllowIsolate=true
+EOL
+
+	echo "Creating $SDUSERPATH/$SYSTEMDUSERSERVICE."
+	echo "${MULTILINE}" > "$SDUSERPATH/$SYSTEMDUSERSERVICE"
+
+	ln -sf "$SDUSERPATH/$SYSTEMDUSERSERVICE" "$SDUSERPATH/default.target.wants/$SYSTEMDUSERSERVICE"
+
+	[ "$(id -u)" = "0" ] && chown $USERNAMEVAR:$USERGROUP -R "$USERHOME/.config"
+
+	[ "$(id -u)" != "0" ] && systemctl --user daemon-reload
 
 }
