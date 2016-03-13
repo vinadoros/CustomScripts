@@ -39,30 +39,43 @@ chmod a+rwx /media
 
 if [ $QEMUGUEST = 1 ]; then
 
-	SDUSERPATH="$USERHOME/.config/systemd/user"
-	mkdir -p "$SDUSERPATH"
+# 	# Set up ra script for auto resolution xrandr.
+# 	echo "Creating /etc/systemd/system/ra@.service"
+# 	cat >"/etc/systemd/system/ra@.service" <<EOL
+# [Unit]
+# Description=Display Resize script
+# Requires=graphical.target
+# After=systemd-user-sessions.service graphical.target
+#
+# [Service]
+# Type=simple
+# Environment="DISPLAY=:%i" "XAUTHORITY=$USERHOME/.Xauthority"
+# ExecStart=/usr/local/bin/ra.sh
+# Restart=on-failure
+#
+# [Install]
+# WantedBy=graphical.target
+# EOL
+# 	systemctl daemon-reload
+# 	systemctl enable ra@0.service
 
-	# Set up ra script for auto resolution xrandr.
-	echo "Creating /etc/systemd/system/ra@.service"
-	cat >"/etc/systemd/system/ra@.service" <<EOL
+# Create user systemd service for ra.
+user_systemd_service "ra.service" <<EOL
 [Unit]
 Description=Display Resize script
-Requires=graphical.target
-After=systemd-user-sessions.service graphical.target
 
 [Service]
 Type=simple
-Environment="DISPLAY=:%i" "XAUTHORITY=$USERHOME/.Xauthority"
 ExecStart=/usr/local/bin/ra.sh
 Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=7s
 
 [Install]
-WantedBy=graphical.target
+WantedBy=default.target
 EOL
-	systemctl daemon-reload
-	systemctl enable ra@0.service
-	echo "Creating /usr/local/bin/ra.sh"
-	cat >/usr/local/bin/ra.sh <<'EOL'
+
+	multilinereplace "/usr/local/bin/ra.sh" <<'EOL'
 #!/bin/bash
 
 loopra () {
@@ -87,7 +100,6 @@ case "\$1" in
     ;;
 esac
 EOL
-	chmod a+rwx /usr/local/bin/ra.sh
 
 	#~ echo "Creating ra.desktop."
 	#~ bash -c "cat >/etc/xdg/autostart/ra.desktop" <<'EOL'
