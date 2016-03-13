@@ -93,7 +93,7 @@ loopra () {
 	xhost +localhost
 	while true; do
 		sleep 1
-		env DISPLAY=$DISPLAY xrandr --output Virtual-0 --auto
+		xrandr --output Virtual-0 --auto
 	done
 }
 

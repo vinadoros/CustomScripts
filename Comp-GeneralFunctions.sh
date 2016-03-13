@@ -321,10 +321,8 @@ user_systemd_service () {
 	[ "$(id -u)" != "0" ] && SUDOCMD="sudo" || SUDOCMD=""
 
 	SDUSERPATH="$USERHOME/.config/systemd/user"
-	if [ ! -d "$SDUSERPATH" ]; then
-		mkdir -p "$SDUSERPATH"
-		mkdir -p "$SDUSERPATH/default.target.wants"
-	fi
+	mkdir -p "$SDUSERPATH"
+	mkdir -p "$SDUSERPATH/default.target.wants"
 
 	DEFAULTUSERTARGET="default.target"
 	echo "Creating $SDUSERPATH/$DEFAULTUSERTARGET."
