@@ -367,7 +367,7 @@ EOL
 		dist_install clementine gstreamer0.10-good-plugins gstreamer0.10-bad-plugins gstreamer0.10-ugly-plugins gstreamer0.10-ffmpeg
 		# Wine
 		dist_install wine alsa-lib alsa-plugins cups dosbox giflib lcms2 libcl libjpeg-turbo libldap libpng libpulse libxcomposite libxinerama libxml2 libxslt mpg123 ncurses openal samba v4l-utils wine_gecko wine-mono playonlinux
-		if [ $(uname -m) == "x86_64" ]; then
+		if [ "${MACHINEARCH}" == "x86_64" ]; then
 			dist_install lib32-alsa-lib lib32-alsa-plugins lib32-giflib lib32-gnutls lib32-lcms2 lib32-libcl lib32-libjpeg-turbo lib32-libldap lib32-libpng lib32-libpulse lib32-libxcomposite lib32-libxinerama lib32-libxml2 lib32-libxslt lib32-mpg123 lib32-ncurses lib32-openal lib32-v4l-utils lib32-sdl
 		fi
 	fi
@@ -375,10 +375,14 @@ EOL
 	# MS and other Fonts
 	dist_install ttf-ms-fonts ttf-vista-fonts
 
-	# Install google-chrome and remove chromium
-	dist_install google-chrome
-	if (pacman -Q chromium &>/dev/null); then
-		pacman -Rs --noconfirm chromium
+	if [ "${MACHINEARCH}" == "x86_64" ]; then
+		# Install google-chrome and remove chromium
+		dist_install google-chrome
+		if (pacman -Q chromium &>/dev/null); then
+			pacman -Rs --noconfirm chromium
+		fi
+	else
+		dist_install chromium
 	fi
 
 	###############################################################################
@@ -397,16 +401,6 @@ EOL
 		if [ ! -d /media ]; then
 			mkdir /media
 			chmod 777 /media
-		fi
-
-		# Have the kernel modules load on startup, which is required by vbox.
-		if [ ! -f /etc/modules-load.d/virtualbox.conf ]; then
-			bash -c "cat >>/etc/modules-load.d/virtualbox.conf" <<EOL
-vboxdrv
-vboxpci
-vboxnetadp
-vboxnetflt
-EOL
 		fi
 
 	fi

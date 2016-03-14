@@ -50,15 +50,6 @@ if [ $VBOXGUEST = 1 ]; then
 	# Add the user to the vboxsf group, so that the shared folders can be accessed.
 	gpasswd -a $SUDO_USER vboxsf
 
-	# Have the kernel modules load on startup, so that the shared folders will appear.
-	if [ ! -f /etc/modules-load.d/virtualbox.conf ]; then
-		bash -c "cat >>/etc/modules-load.d/virtualbox.conf" <<EOL
-vboxguest
-vboxsf
-vboxvideo
-EOL
-	fi
-
 	systemctl enable vboxservice
 	systemctl start vboxservice
 fi
