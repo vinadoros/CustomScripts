@@ -50,7 +50,7 @@ fi
 ###############################################################################
 
 # Set-up lightdm autologin
-if [ -f /etc/systemd/system/display-manager.service ] && ls -la /etc/systemd/system/display-manager.service | grep -iq "lightdm"; then
+if [[ $(type -P lightdm) ]]; then
 	if ! grep -i "^autologin" /etc/group; then
 		groupadd autologin
 	fi
@@ -218,19 +218,25 @@ fi
 # https://major.io/2008/07/30/automatically-starting-synergy-in-gdm-in-ubuntufedora/
 
 # Disable Wayland in GDM
-sed -i '/^#WaylandEnable=.*/s/^#//' "/etc/gdm/custom.conf"
-sed -i 's/^WaylandEnable=.*/WaylandEnable=false/g' "/etc/gdm/custom.conf"
+if [ -f "/etc/gdm/custom.conf" ]; then
+	sed -i '/^#WaylandEnable=.*/s/^#//' "/etc/gdm/custom.conf"
+	sed -i 's/^WaylandEnable=.*/WaylandEnable=false/g' "/etc/gdm/custom.conf"
+fi
 
-# Start xvnc and synergy
-multilinereplace "/usr/share/gdm/greeter/autostart/gdm_start.desktop" <<EOL
-[Desktop Entry]
-Type=Application
-Name=GDM Startup
-X-GNOME-Autostart-enabled=true
-X-GNOME-AutoRestart=true
-Exec=${LDSTART}
-NoDisplay=true
+if [[ $(type -P gdm) || $(type -P gdm3) ]]; then
+
+	# Start xvnc and synergy
+	multilinereplace "/usr/share/gdm/greeter/autostart/gdm_start.desktop" <<EOL
+	[Desktop Entry]
+	Type=Application
+	Name=GDM Startup
+	X-GNOME-Autostart-enabled=true
+	X-GNOME-AutoRestart=true
+	Exec=${LDSTART}
+	NoDisplay=true
 EOL
 
-# Stop apps after login
-grepadd "$LDSTOP" "/etc/gdm/PreSession/Default"
+	# Stop apps after login
+	grepadd "$LDSTOP" "/etc/gdm/PreSession/Default"
+
+fi
