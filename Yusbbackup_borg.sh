@@ -116,9 +116,7 @@ if [[ ! $(type -P borg) ]]; then
 fi
 
 #Install scripts if they are not present yet.
-#Command to list usb devices seen by systemd: systemctl --all --full -t device
-#Taken from: https://bbs.archlinux.org/viewtopic.php?id=149419
-#Actually above is not used below. Instead used mount target for systemd.
+# SIGINT Kill signal is used to make borg remove lock on backup target.
 echo "Creating $SDPATH/$SDSERVICE."
 bash -c "cat >$SDPATH/$SDSERVICE" <<EOL
 [Unit]
@@ -127,6 +125,7 @@ After=${SYSTEMDMNT}
 [Service]
 ExecStart=${HDSCRIPT}
 User=${USERNAMEVAR}
+KillSignal=SIGINT
 
 [Install]
 WantedBy=${SYSTEMDMNT}
@@ -136,11 +135,19 @@ systemctl enable "$SDSERVICE"
 
 multilinereplace "$HDSCRIPT" <<EOL
 #!/bin/bash
+
+# Get folder of this script
+SCRIPTSOURCE="\${BASH_SOURCE[0]}"
+FLWSOURCE="\$(readlink -f "\$SCRIPTSOURCE")"
+SCRIPTDIR="\$(dirname "\$FLWSOURCE")"
+SCRNAME="\$(basename \$SCRIPTSOURCE)"
+echo "Executing \${SCRNAME}."
+
 set -eu
 
 if [[ ! \$(type -P borg) ]]; then
 	echo "No borg command found. Exiting."
-	exit 1;
+	exit 1
 fi
 
 initvars () {
@@ -165,17 +172,28 @@ sleep 5
 
 initvars
 
+# Clear the lock if borg is not running and lock folder exists.
+if [[ ! \$(pgrep borg) && -d "\$DESTPATH/lock.exclusive" ]]; then
+	borg break-lock "\$DESTPATH"
+fi
+
+# Exit if Borg is running
+if [[ \$(pgrep borg) ]]; then
+	echo "Borg is currently running at process \$(pgrep borg). Exiting."
+	exit 0
+fi
+
 echo "Sync begin."
 
 if [[ -d "\$DESTPATH" ]]; then
 	# Backup all included folders
-	borg create -vs -C lz4 \$DESTINATIONPATH::\`hostname\`-\`date +%Y-%m-%d_%H%M\` \$BORGFOLDERS --exclude '*/.stversions*' --exclude '*/VMs*'
+	borg create -vs --list -C lz4 \$DESTPATH::\`hostname\`-\`date +%Y-%m-%d_%H%M\` \$BORGFOLDERS --exclude '*/.stversions*' --exclude '*/VMs*'
 
 	# Use the \`prune\` subcommand to maintain 26 weeks of
 	# archives of THIS machine. --prefix `hostname`- is very important to
 	# limit prune's operation to this machine's archives and not apply to
 	# other machine's archives also.
-	borg prune -v \$DESTINATIONPATH --prefix \`hostname\`- –keep-within 26w
+	borg prune -v \$DESTPATH --prefix \`hostname\`- –keep-within 26w
 else
 	echo "Destination \$DESTPATH path not found. Exiting."
 fi
