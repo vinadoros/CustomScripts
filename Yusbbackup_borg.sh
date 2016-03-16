@@ -1,6 +1,29 @@
 #!/bin/bash
 # Yusbbackup.sh, borg-backup version.
 
+# Get folder of this script
+SCRIPTSOURCE="${BASH_SOURCE[0]}"
+FLWSOURCE="$(readlink -f "$SCRIPTSOURCE")"
+SCRIPTDIR="$(dirname "$FLWSOURCE")"
+SCRNAME="$(basename $SCRIPTSOURCE)"
+echo "Executing ${SCRNAME}."
+
+# Add general functions if they don't exist.
+type -t grepadd &> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
+
+# Set user folders if they don't exist.
+if [ -z $USERNAMEVAR ]; then
+	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
+		export USERNAMEVAR="$SUDO_USER"
+	elif [ "$USER" != "root" ]; then
+		export USERNAMEVAR="$USER"
+	else
+		export USERNAMEVAR="$(id 1000 -un)"
+	fi
+	USERGROUP="$(id 1000 -gn)"
+	USERHOME="/home/$USERNAMEVAR"
+fi
+
 function usage()
 {
 cat <<EOF
@@ -10,14 +33,6 @@ Example: sudo Yusbbackup.sh "/mnt/Backup" "/mnt/Backup/borg" "/mnt/Storage/Files
 EOF
 exit 1;
 }
-
-if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
-	USERNAMEVAR="$SUDO_USER"
-elif [ "$USER" != "root" ]; then
-	USERNAMEVAR="$USER"
-else
-	USERNAMEVAR="$(id 1000 -un)"
-fi
 
 if [ "$(id -u)" != "0" ]; then
 	echo "Not running with root. Please run the script with su privledges."
@@ -64,16 +79,10 @@ setsourcefoldercmd () {
 		echo "No parameter passed."
 		return 1;
 	else
-		NEWPATH="$1"
+		NEWPATH="$(readlink -f $1)"
 	fi
 
-	# Inputs a path, finds the block device associated with it using df.
-	# Feeds it into lsblk to output the UUID, and cuts off characters after the dash.
-	# This makes the folder names unique, even if they are the same name across devices.
-	UUIDCUT="$(lsblk -n -o UUID $(df --output=source $NEWPATH|tail -1) | cut -d"-" -f1)"
-	NEWPATHBASE="$UUIDCUT-$(basename $NEWPATH)"
-
-	BORGCMD="${BORGCMD}\nborgbak \"$NEWPATH\" \"\$DESTPATH/$NEWPATHBASE\""
+	BORGFOLDERS="${BORGFOLDERS} ${NEWPATH}"
 }
 
 getvars
@@ -96,7 +105,8 @@ echo "Script path: $HDSCRIPT"
 echo "Device service: $SYSTEMDMNT"
 echo "Systemd Service: $SDPATH/$SDSERVICE"
 echo "Destination Path: $DESTPATH"
-echo -e "borg cmd: $BORGCMD"
+echo "Ensure the borg Destination Path has been initialized before running the backup script."
+echo -e "borg source folders to backup: $BORGFOLDERS"
 echo ""
 read -p "Press any key to create script."
 
@@ -124,8 +134,7 @@ EOL
 systemctl daemon-reload
 systemctl enable "$SDSERVICE"
 
-echo "Creating $HDSCRIPT"
-bash -c "cat >$HDSCRIPT" <<EOL
+multilinereplace "$HDSCRIPT" <<EOL
 #!/bin/bash
 set -eu
 
@@ -142,51 +151,13 @@ initvars () {
 		exit 1
 	fi
 
+	BORGFOLDERS="$(echo -e $BORGFOLDERS)"
+
 	DESTPATH="$DESTPATH"
 	if [ ! -d "\$DESTPATH" ]; then
 		echo "Destination path \$DESTPATH not found. Exiting."
 		exit 1
 	fi
-}
-
-borgbak () {
-
-	if [ -z "\$1" ]; then
-		echo "No parameter passed."
-		return 1;
-	else
-		SOURCEPATH="\$1"
-	fi
-
-	if [ -z "\$2" ]; then
-		echo "No parameter passed."
-		return 1;
-	else
-		DESTINATIONPATH="\$2"
-	fi
-
-	if [ -d "\$SOURCEPATH" ]; then
-		rdiff-backup -v5 --force --no-compression --exclude '**/.stversions**' --exclude '**/VMs**' "\$SOURCEPATH" "\$DESTINATIONPATH"
-		rdiff-backup -v5 --remove-older-than 26W "\$DESTINATIONPATH"
-	else
-		echo "\$SOURCEPATH not found. Not syncing."
-	fi
-
-	if [[ -d "\$SOURCEPATH" && -d "\$DESTINATIONPATH" ]]; then
-		# Backup all of /home and /var/www except a few
-		# excluded directories
-		borg create -vs --list \$DESTINATIONPATH::`hostname`-`date +%Y-%m-%d` "\$SOURCEPATH" --exclude '*/.stversions*' --exclude '*/VMs*'
-
-		# Use the `prune` subcommand to maintain 7 daily, 4 weekly and 6 monthly
-		# archives of THIS machine. --prefix `hostname`- is very important to
-		# limit prune's operation to this machine's archives and not apply to
-		# other machine's archives also.
-		borg prune -v \$DESTINATIONPATH --prefix `hostname`- –keep-within 26w
-	else
-		echo "Source \$SOURCEPATH or Destination \$DESTINATIONPATH path not found. Exiting."
-	fi
-
-	sync || true
 }
 
 #Wait 5 seconds.
@@ -196,11 +167,22 @@ initvars
 
 echo "Sync begin."
 
-$(echo -e $BORGCMD)
+if [[ -d "\$DESTPATH" ]]; then
+	# Backup all included folders
+	borg create -vs -C lz4 \$DESTINATIONPATH::\`hostname\`-\`date +%Y-%m-%d_%H%M\` \$BORGFOLDERS --exclude '*/.stversions*' --exclude '*/VMs*'
 
-echo “Backup successfully completed on $(date).”
+	# Use the \`prune\` subcommand to maintain 26 weeks of
+	# archives of THIS machine. --prefix `hostname`- is very important to
+	# limit prune's operation to this machine's archives and not apply to
+	# other machine's archives also.
+	borg prune -v \$DESTINATIONPATH --prefix \`hostname\`- –keep-within 26w
+else
+	echo "Destination \$DESTPATH path not found. Exiting."
+fi
+
+sync || true
+
+echo “Backup successfully completed on \$(date).”
 EOL
-chmod a+rwx "$HDSCRIPT"
-
 
 echo "Script completed successfully."
