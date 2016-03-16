@@ -46,17 +46,17 @@ getvars() {
 	BASEPATH="$(basename $HDPATH)"
 	# Remove spaces from basepath.
 	BASEPATH="${BASEPATH//[[:blank:]]/}"
-	
+
 	# Get mount device in /dev
 	#DEVDRIVE="$(mount | grep "${HDPATH}" | awk -F" " '{ print $1 }')"
-	
+
 	# Get systemd mount name.
-	SYSTEMDMNT="$(systemctl | grep "${HDPATH}" | awk -F" " '{ print $1 }')"	
-	
+	SYSTEMDMNT="$(systemctl | grep "${HDPATH}" | awk -F" " '{ print $1 }')"
+
 	HDSCRIPT="/usr/local/bin/usbbak-${BASEPATH}.sh"
 	SDPATH="/etc/systemd/system"
 	SDSERVICE="usbbak-${BASEPATH}.service"
-	
+
 }
 
 setsourcefoldercmd () {
@@ -66,13 +66,13 @@ setsourcefoldercmd () {
 	else
 		NEWPATH="$1"
 	fi
-	
+
 	# Inputs a path, finds the block device associated with it using df.
 	# Feeds it into lsblk to output the UUID, and cuts off characters after the dash.
 	# This makes the folder names unique, even if they are the same name across devices.
 	UUIDCUT="$(lsblk -n -o UUID $(df --output=source $NEWPATH|tail -1) | cut -d"-" -f1)"
 	NEWPATHBASE="$UUIDCUT-$(basename $NEWPATH)"
-	
+
 	RDIFFCMD="${RDIFFCMD}\nrdiffbak \"$NEWPATH\" \"\$DESTPATH/$NEWPATHBASE\""
 }
 
@@ -141,7 +141,7 @@ initvars () {
 		echo "Hard drive \$HDPATH not mounted. Exiting."
 		exit 1
 	fi
-	
+
 	DESTPATH="$DESTPATH"
 	if [ ! -d "\$DESTPATH" ]; then
 		echo "Destination path \$DESTPATH not found. Exiting."
@@ -150,45 +150,45 @@ initvars () {
 }
 
 rsyncfunc () {
-	
+
 	if [ -z "\$1" ]; then
 		echo "No parameter passed."
 		return 1;
 	else
 		SOURCEPATH="\$1"
 	fi
-	
+
 }
 
 rdiffbak () {
-	
+
 	if [ -z "\$1" ]; then
 		echo "No parameter passed."
 		return 1;
 	else
 		SOURCEPATH="\$1"
 	fi
-	
+
 	if [ -z "\$2" ]; then
 		echo "No parameter passed."
 		return 1;
 	else
 		DESTINATIONPATH="\$2"
 	fi
-	
+
 	if [ ! -d "\$DESTINATIONPATH" ]; then
 		echo "Creating \$DESTINATIONPATH."
 		mkdir -p "\$DESTINATIONPATH"
 		chmod a+rwx "\$DESTINATIONPATH"
 	fi
-	
+
 	if [ -d "\$SOURCEPATH" ]; then
-		rdiff-backup -v5 --force --no-compression --exclude '**/.stversions**' --exclude '**/VMs**' "\$SOURCEPATH" "\$DESTINATIONPATH" 
+		rdiff-backup -v5 --force --no-compression --exclude '**/.stversions**' --exclude '**/VMs**' "\$SOURCEPATH" "\$DESTINATIONPATH"
 		rdiff-backup -v5 --remove-older-than 26W "\$DESTINATIONPATH"
 	else
 		echo "\$SOURCEPATH not found. Not syncing."
 	fi
-	
+
 	sync || true
 }
 
@@ -201,10 +201,9 @@ echo "Sync begin."
 
 $(echo -e $RDIFFCMD)
 
-echo “Backup successfully completed on $(date).”
+echo “Backup successfully completed on \$(date).”
 EOL
 chmod a+rwx "$HDSCRIPT"
 
 
 echo "Script completed successfully."
-
