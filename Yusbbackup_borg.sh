@@ -187,7 +187,7 @@ echo "Sync begin."
 
 if [[ -d "\$DESTPATH" ]]; then
 	# Backup all included folders
-	borg create -vs --list -C lz4 \$DESTPATH::\`hostname\`-\`date +%Y-%m-%d_%H%M\` \$BORGFOLDERS --exclude '*/.stversions*' --exclude '*/VMs*'
+	borg create -vs --list --filter=AME -C lz4 \$DESTPATH::\`hostname\`-\`date +%Y-%m-%d_%H%M\` \$BORGFOLDERS --exclude '*/.stversions*' --exclude '*/VMs*'
 
 	# Use the \`prune\` subcommand to maintain 26 weeks of
 	# archives of THIS machine. --prefix `hostname`- is very important to
