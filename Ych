@@ -211,10 +211,8 @@ EOL
 	grepadd "Defaults visiblepw" "$CHPATH/etc/sudoers"
 	visudo -c -f "$CHPATH/etc/sudoers"
 
-	if [ -d "$CHPATH/bindmnt/media-Box/LinuxScripts" ]; then
-		grepadd 'export PATH=$PATH:/bindmnt/media-Box/LinuxScripts' "$CHPATH/root/.bashrc"
-		grepadd 'export PATH=$PATH:/bindmnt/Box/LinuxScripts' "$CHUSERHOME/.bashrc"
-	fi
+	grepadd 'export PATH=$PATH:/bin' "$CHPATH/root/.bashrc"
+	grepadd 'export PATH=$PATH:/bin' "$CHUSERHOME/.bashrc"
 
 }
 
