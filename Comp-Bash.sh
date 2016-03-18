@@ -40,7 +40,7 @@ grepadd "CUSTOMSCRIPTPATH=\"$SCRIPTDIR\"" "$USERHOME/.bashrc"
 multilineadd "$USERHOME/.bashrc" "function stop" <<'EOL'
 export EDITOR=nano
 if [ $(uname -m) != "armv7l" ]; then
-	export XZ_OPT="-9T0"
+	export XZ_OPT="-T0"
 fi
 alias la='ls -lah --color=auto'
 if timeout 3 test -d "$CUSTOMSCRIPTPATH" && ! echo $PATH | grep -iq "$CUSTOMSCRIPTPATH"; then
@@ -118,7 +118,7 @@ if [ "$(id -u)" == "0" ]; then
 	multilineadd "/root/.bashrc" "function stop" <<'EOL'
 export EDITOR=nano
 if [ $(uname -m) != "armv7l" ]; then
-	export XZ_OPT="-9T0"
+	export XZ_OPT="-T0"
 fi
 alias la='ls -lah --color=auto'
 if timeout 3 test -d "$CUSTOMSCRIPTPATH" && ! echo $PATH | grep -iq "$CUSTOMSCRIPTPATH"; then

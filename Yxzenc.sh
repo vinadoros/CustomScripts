@@ -10,13 +10,11 @@ usage () {
 
 setxzopts () {
 	MACHINEARCH=$(uname -m)
-	#~ unset XZ_OPT
 	if [ "${MACHINEARCH}" = "armv7l" ]; then
 		export XZ_OPT=-1
 	else
-		export XZ_OPT=-9T0
+		export XZ_OPT=-T0
 	fi
-	#~ echo "XZ_OPT: $XZ_OPT"
 }
 
 xzfile () {
