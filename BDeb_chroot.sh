@@ -46,10 +46,10 @@ echo "Install architecture is ${DEBARCH}."
 
 [ -z "$DISTROCHOICE" ] && DISTROCHOICE="0"
 [ -z "$DISTRONUM" ] && DISTRONUM="0"
-while [[ "${DISTRONUM}" -le "0" || "${DISTRONUM}" -gt "3" ]]; do
-    read -p "Choose a distro (1=Debian Stable, 2=Debian Unstable, 3=Ubuntu ${DIST_UBUNTU}.)" DISTRONUM
+while [[ "${DISTRONUM}" -le "0" || "${DISTRONUM}" -gt "4" ]]; do
+    read -p "Choose a distro (1=Debian Stable, 2=Debian Unstable, 3=Ubuntu ${DIST_UBUNTU}, 4=Custom Ubuntu release.)" DISTRONUM
     case $DISTRONUM in
-    [1-3] ) 
+    [1-4] )
 	;;
 	* ) echo "Please input a number."
 	;;
@@ -57,15 +57,15 @@ while [[ "${DISTRONUM}" -le "0" || "${DISTRONUM}" -gt "3" ]]; do
 done
 
 case $DISTRONUM in
-    [1] ) 
+  [1] )
 	DISTROCHOICE=${DIST_DEBSTABLE}
 	URL=$DEBIANURL
 	;;
-	[2] ) 
+	[2] )
 	DISTROCHOICE=${DIST_DEBUNSTABLE}
 	URL=$DEBIANURL
 	;;
-	[3] ) 
+	[3] )
 	DISTROCHOICE=${DIST_UBUNTU}
 	if [ ${DEBARCH} = "armhf" ]; then
 		URL=${UBUNTUARMURL}
@@ -73,7 +73,15 @@ case $DISTRONUM in
 		URL=${UBUNTUURL}
 	fi
 	;;
-	* ) 
+	[4] )
+	read -p "Enter an Ubuntu release:" DISTROCHOICE
+	if [ ${DEBARCH} = "armhf" ]; then
+		URL=${UBUNTUARMURL}
+	else
+		URL=${UBUNTUURL}
+	fi
+	;;
+	* )
 	echo "Error, invalid distro number $DISTRONUM detected. Exiting."
 	exit 1;
 	;;
@@ -81,7 +89,7 @@ esac
 
 echo "Installing ${DISTROCHOICE}."
 echo "Debootstrap will install ${DEBARCH} ${DISTROCHOICE} to ${INSTALLPATH} using ${URL}."
-read -p "Press any key to continue." 
+read -p "Press any key to continue."
 
 # Create install path
 if [ ! -d ${INSTALLPATH} ]; then
@@ -95,8 +103,8 @@ if [ ! -f "${INSTALLPATH}/etc/hostname" ]; then
 	if [[ ${DEBARCH} = "i386" || ${DEBARCH} = "amd64" ]]; then
 		debootstrap --no-check-gpg --arch ${DEBARCH} ${DISTROCHOICE} ${INSTALLPATH} ${URL}
 		# || : forces error code of genfstab to be 0 if it fails, like if the path isn't a mount point.
-		genfstab -Up ${INSTALLPATH} > ${INSTALLPATH}/etc/fstab || : 
-	
+		genfstab -Up ${INSTALLPATH} > ${INSTALLPATH}/etc/fstab || :
+
 	elif [[ ${DEBARCH} = "armhf" ]]; then
 		if [[ ! $(type -P update-binfmts) || ! $(type -P qemu-arm-static) ]]; then
 			echo "No qemu-arm-static or update-binfmts binaries found. Exiting."
@@ -300,12 +308,12 @@ bash -c "cat >>${GRUBSCRIPT}" <<'EOLXYZ'
 export PATH=$PATH:/bin:/usr/local/sbin:/usr/sbin:/sbin
 
 case $SETGRUB in
-[1]) 
+[1])
 	echo "Not installing kernel."
 	;;
 [2-4])
 	echo "Installing kernel."
-	
+
 	# Liquorix repo
 	if [[ "$DEBARCH" = "amd64" || "$DEBARCH" = "i386" ]] && ! grep -iq "liquorix.net" /etc/apt/sources.list; then
 		echo "Installing liquorix kernel."
@@ -314,7 +322,7 @@ case $SETGRUB in
 		apt-get install -y --force-yes liquorix-keyring
 		apt-get update
 	fi
-	
+
 	# Install kernels.
 	[ "${DEBARCH}" = "amd64" ] && apt-get install -y linux-image-liquorix-amd64 linux-headers-liquorix-amd64
 	[ "${DEBARCH}" = "i386" ] && apt-get install -y linux-image-liquorix-686-pae linux-headers-liquorix-686-pae
@@ -322,7 +330,7 @@ case $SETGRUB in
 	dpkg-query -l | grep -iq "linux-image-amd64" && apt-get --purge remove -y linux-image-amd64
 	dpkg-query -l | grep -iq "linux-image-686-pae" && apt-get --purge remove -y linux-image-686-pae
 	dpkg-query -l | grep -iq "linux-headers-generic" && apt-get --purge remove -y linux-headers-generic
-	
+
 	if [[ "$DISTRONUM" -eq "1" || "$DISTRONUM" -eq "2" ]]; then
 <<COMMENT2
 		if [[ "$DEBARCH" = "amd64" ]]; then
@@ -335,51 +343,51 @@ COMMENT2
 		apt-get install -y firmware-linux gfxboot
 		echo "firmware-ipw2x00 firmware-ipw2x00/license/accepted boolean true" | debconf-set-selections
 		echo "firmware-ivtv firmware-ivtv/license/accepted boolean true" | debconf-set-selections
-		DEBIAN_FRONTEND=noninteractive apt-get install -y ^firmware-* 
+		DEBIAN_FRONTEND=noninteractive apt-get install -y ^firmware-*
 	fi
-	
+
 	if [[ "$DISTRONUM" -eq "3" ]]; then
 		#apt-get install -y linux-image-generic linux-headers-generic
 		apt-get install -y gfxboot gfxboot-theme-ubuntu linux-firmware
 	fi
 	;;
-	
+
 esac
-    
+
 case $SETGRUB in
 
-[1]* ) 
+[1]* )
 	echo "You asked to do nothing. Be sure to install a bootloader."
 	;;
 
-[2]* ) 
+[2]* )
 	echo "You asked to perform 'grub-isntall $DEVPART'."
 	DEBIAN_FRONTEND=noninteractive apt-get install -y grub-pc
 	grub-install --target=i386-pc --recheck --debug $DEVPART
 	update-grub2
 	;;
 
-[3]* ) 
+[3]* )
 	echo "You asked to install efi bootloader."
 	while ! mount | grep -iq "/boot/efi"; do
 		echo "/boot/efi is not mounted. Please mount it."
 		read -p "Press any key to continue."
 	done
-	
+
 	DEBIAN_FRONTEND=noninteractive apt-get install -y grub-efi-amd64
-	
+
 	if [[ "$DISTRONUM" -eq "1" || "$DISTRONUM" -eq "2" ]]; then
 		grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=debian --recheck --debug
 	fi
-	
+
 	if [[ "$DISTRONUM" -eq "3" ]]; then
 		grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ubuntu --recheck --debug
 	fi
-	
+
 	update-grub2
 	;;
 
-[4]* ) 
+[4]* )
 	if [ ! -z $PART ]; then
 		echo "Installing grub to $PART."
 		DEBIAN_FRONTEND=noninteractive apt-get install -y grub-pc
