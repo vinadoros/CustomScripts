@@ -193,7 +193,7 @@ if [[ -d "\$DESTPATH" ]]; then
 	# archives of THIS machine. --prefix `hostname`- is very important to
 	# limit prune's operation to this machine's archives and not apply to
 	# other machine's archives also.
-	borg prune -v \$DESTPATH --prefix \`hostname\`- -–keep-within 26w
+	borg prune -v \$DESTPATH --prefix \`hostname\`- --keep-within 26w
 else
 	echo "Destination \$DESTPATH path not found. Exiting."
 fi
