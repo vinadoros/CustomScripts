@@ -50,6 +50,7 @@ XHOSTLOCATION="$(which xhost)"
 SDPATH="/etc/systemd/system"
 X0SDSERVICE="vncxorg@.service"
 VNCUSERSERVICE="vncuser.service"
+# VNCUSERSOCKET="vncuser.socket"
 
 if [ ! -d $USERHOME/.vnc/ ]; then
 	mkdir $USERHOME/.vnc/
@@ -92,16 +93,30 @@ User=$USERNAMEVAR
 PAMName=login
 
 # Clean any existing files in /tmp/.X11-unix environment
-ExecStartPre=/bin/sh -c '/usr/bin/vncserver -kill :2 > /dev/null 2>&1 || :'
-ExecStart=/usr/bin/vncserver :2 -geometry 1024x768 -fg -alwaysshared -rfbauth "$VNCPASS" -auth ~/.Xauthority
-ExecStop=/usr/bin/vncserver -kill :2
-PIDFile=$USERHOME/.vnc/%H:2.pid
+ExecStartPre=/bin/sh -c '/usr/bin/vncserver -kill :5 > /dev/null 2>&1 || :'
+ExecStart=/usr/bin/vncserver :5 -geometry 1024x768 -fg -alwaysshared -rfbport 5905 -rfbauth "$VNCPASS" -auth ~/.Xauthority
+ExecStop=/usr/bin/vncserver -kill :5
+PIDFile=$USERHOME/.vnc/%H:5.pid
 Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
 EOL
 echo "Run \"systemctl enable vncuser.service\" to enable vnc standalone client."
+
+# echo "Creating $SDPATH/$VNCUSERSOCKET."
+# bash -c "cat >$SDPATH/$VNCUSERSOCKET" <<EOL
+# [Unit]
+# Description=Remote desktop service as user (VNC) Socket
+#
+# [Socket]
+# ListenStream=5905
+#
+# [Install]
+# WantedBy=sockets.target
+# EOL
+# systemctl daemon-reload
+# systemctl enable vncuser.socket
 
 # Create user systemd service for x0vncserver.
 user_systemd_service "vncx0user.service" <<EOL
