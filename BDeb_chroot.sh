@@ -219,6 +219,8 @@ if [ ${DISTRO} = "Ubuntu" ]; then
 	if ! grep -i "${DEBRELEASE}-backports main" /etc/apt/sources.list; then
 		add-apt-repository "deb ${URL} ${DEBRELEASE}-backports main restricted universe multiverse"
 	fi
+
+	apt-get install -f --force-yes apt-transport-https
 fi
 
 apt-get update
