@@ -196,7 +196,7 @@ else
 	echo "Destination \$DESTPATH path not found. Exiting."
 fi
 
-sync || true
+sync
 
 echo “Backup successfully completed on \$(date).”
 EOL
