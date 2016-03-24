@@ -143,8 +143,6 @@ SCRIPTDIR="\$(dirname "\$FLWSOURCE")"
 SCRNAME="\$(basename \$SCRIPTSOURCE)"
 echo "Executing \${SCRNAME}."
 
-set -eu
-
 if [[ ! \$(type -P borg) ]]; then
 	echo "No borg command found. Exiting."
 	exit 1
