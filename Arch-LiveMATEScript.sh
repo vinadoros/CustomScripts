@@ -135,10 +135,10 @@ if [ ! -d ${REPOFOLDER} ]; then
 fi
 
 # Build software from AUR
-aur_build "debootstrap"
+# aur_build "debootstrap"
 
 # Build the local repo.
-build_repo
+# build_repo
 
 # Add local created repo if it exists to pacman.conf for live disk.
 if [ -d ${REPOFOLDER} ] && ! grep -ixq "\[${REPONAME}\]" $ARCHLIVEPATH/pacman.conf; then
@@ -194,8 +194,6 @@ gvfs-smb
 binutils
 git
 chntpw
-
-# AUR packages
 debootstrap
 EOL
 fi
