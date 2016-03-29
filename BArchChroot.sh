@@ -123,7 +123,7 @@ pacman -S --needed --noconfirm network-manager-applet gnome-keyring gnome-icon-t
 #Install openbox
 pacman -S --needed --noconfirm openbox
 
-usermod -aG lp,network,video,audio,storage,scanner,power,disk,sys,games,optical,avahi,systemd-journal $USERNAMEVAR
+usermod -aG lp,network,video,audio,storage,scanner,power,disk,sys,games,optical,avahi,uucp,systemd-journal $USERNAMEVAR
 
 pacman -S --needed --noconfirm git
 git clone "https://github.com/vinadoros/CustomScripts.git" "/opt/CustomScripts"

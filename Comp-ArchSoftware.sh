@@ -59,7 +59,7 @@ systemctl enable haveged
 pacman -Syu --needed --noconfirm
 
 # Add groups to current user
-usermod -aG lp,network,video,audio,storage,scanner,power,disk,sys,games,optical,avahi,systemd-journal $USERNAMEVAR
+usermod -aG lp,network,video,audio,storage,scanner,power,disk,sys,games,optical,avahi,uucp,systemd-journal $USERNAMEVAR
 
 # Remove xnoise, if it exists
 if (pacman -Q xnoise &>/dev/null); then
