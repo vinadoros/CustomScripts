@@ -1,5 +1,4 @@
 #!/bin/bash
-set -eu
 
 # Get folder of this script
 SCRIPTSOURCE="${BASH_SOURCE[0]}"
@@ -8,21 +7,60 @@ SCRIPTDIR="$(dirname "$FLWSOURCE")"
 SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
+# Set user folders if they don't exist.
+if [ -z $USERNAMEVAR ]; then
+	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
+		export USERNAMEVAR="$SUDO_USER"
+	elif [ "$USER" != "root" ]; then
+		export USERNAMEVAR="$USER"
+	else
+		export USERNAMEVAR="$(id 1000 -un)"
+	fi
+	USERGROUP="$(id 1000 -gn)"
+	USERHOME="/home/$USERNAMEVAR"
+fi
+
 # Date if ISO build.
 DATE=$(date +"%F")
 # Name of ISO.
 ISOFILENAME=archMATEcustom
 
+if [ ! -z "$1" ]; then
+	INPUTFOLDER="$(readlink -f $1)"
+fi
+
 # Set location to perform build and store ISO.
-if [ -d /mnt/Storage ]; then
-	ARCHLIVEPATH=/mnt/Storage/archlive
-	OUTFOLDER=/mnt/Storage
-elif [ -d /media/sf_Storage ]; then
-	ARCHLIVEPATH=~/archlive
-	OUTFOLDER=/media/sf_Storage
+if [ -d "$INPUTFOLDER" ]; then
+	ARCHLIVEPATH=$INPUTFOLDER/archlive
+	OUTFOLDER=$INPUTFOLDER
 else
-	ARCHLIVEPATH=~/archlive
-	OUTFOLDER=~
+	ARCHLIVEPATH=$PWD/archlive
+	OUTFOLDER=$PWD
+fi
+
+cleanup () {
+	if [ -d "$ARCHLIVEPATH" ]; then
+		echo "Removing $ARCHLIVEPATH"
+		sudo umount -l $ARCHLIVEPATH/work/mnt/airootfs
+		sudo umount -l $ARCHLIVEPATH/work/i686/airootfs
+		sudo umount -l $ARCHLIVEPATH/work/x86_64/airootfs
+		sudo rm -rf "$ARCHLIVEPATH"
+	fi
+	if [ -d "${REPOFOLDER}" ]; then
+		echo "Removing $REPOFOLDER"
+		sudo rm -rf "${REPOFOLDER}"
+	fi
+}
+
+trap cleanup SIGHUP SIGINT SIGTERM
+
+# Check free space of current folder. If less than 30 gb, error out.
+FREESPACE=$(($(stat -f --format="%a*%S" $OUTFOLDER)))
+echo "Free Space of $OUTFOLDER is $FREESPACE."
+if [[ $FREESPACE -lt 32212254720 ]]; then
+	echo "Not enough free space. Exiting."
+	cleanup
+	exit 0;
 fi
 
 # Repo variables
@@ -80,8 +118,6 @@ build_repo(){
 	#~ sudo chown 1000:100 -R ${REPOFOLDER}
 }
 
-
-
 # Install archiso if folders are missing.
 if [ ! -d /usr/share/archiso/configs/releng/ ]; then
 	sudo pacman -S --needed --noconfirm archiso curl
@@ -89,17 +125,7 @@ fi
 
 if [ -d $ARCHLIVEPATH ]; then
 	echo "Cleaning existing archlive folder."
-	set +e
-	sudo umount -l $ARCHLIVEPATH/work/mnt/airootfs
-	sudo umount -l $ARCHLIVEPATH/work/i686/airootfs
-	sudo umount -l $ARCHLIVEPATH/work/x86_64/airootfs
-	sudo rm -rf $ARCHLIVEPATH
-	set -e
-fi
-
-# Clean local repo if it exists.
-if [ -d ${REPOFOLDER} ]; then
-	rm -rf ${REPOFOLDER}
+	cleanup
 fi
 
 cp -r /usr/share/archiso/configs/releng/ $ARCHLIVEPATH
@@ -141,7 +167,7 @@ fi
 # build_repo
 
 # Add local created repo if it exists to pacman.conf for live disk.
-if [ -d ${REPOFOLDER} ] && ! grep -ixq "\[${REPONAME}\]" $ARCHLIVEPATH/pacman.conf; then
+if [[ -d ${REPOFOLDER} && -f ${REPOFOLDER}/i686/localrepo.db ]] && ! grep -ixq "\[${REPONAME}\]" $ARCHLIVEPATH/pacman.conf; then
 	echo "Adding ${REPONAME} to $ARCHLIVEPATH/pacman.conf."
 	bash -c "cat >>${ARCHLIVEPATH}/pacman.conf" <<EOL
 [${REPONAME}]
@@ -199,7 +225,7 @@ EOL
 fi
 
 if ! grep -Fq "$SCRIPTBASENAME" $ARCHLIVEPATH/airootfs/root/customize_airootfs.sh; then
-	sudo sh -c "cat >>$ARCHLIVEPATH/airootfs/root/customize_airootfs.sh" <<EOLXYZ
+	sudo bash -c "cat >>$ARCHLIVEPATH/airootfs/root/customize_airootfs.sh" <<EOLXYZ
 
 SCRIPTBASENAME="/$SCRIPTBASENAME"
 
@@ -207,7 +233,7 @@ EOLXYZ
 fi
 
 if ! grep -Fq "Arch-Plain.sh" $ARCHLIVEPATH/airootfs/root/customize_airootfs.sh; then
-	sudo sh -c "cat >>$ARCHLIVEPATH/airootfs/root/customize_airootfs.sh" <<'EOLXYZ'
+	sudo bash -c "cat >>$ARCHLIVEPATH/airootfs/root/customize_airootfs.sh" <<'EOLXYZ'
 
 savespace(){
 	localepurge
@@ -291,15 +317,18 @@ fi
 EOLXYZ
 fi
 
-cd $ARCHLIVEPATH
-
+cd "$ARCHLIVEPATH"
 
 sudo bash <<EOF
-"$ARCHLIVEPATH"/build.sh -v -o "$OUTFOLDER" -N "$ISOFILENAME"
-rm -rf "$ARCHLIVEPATH"
+bash -x "$ARCHLIVEPATH"/build.sh -v -o "$OUTFOLDER" -N "$ISOFILENAME"
+if [ -d "$ARCHLIVEPATH" ]; then
+	echo "Removing $ARCHLIVEPATH"
+	rm -rf "$ARCHLIVEPATH"
+fi
 if [ -d "${REPOFOLDER}" ]; then
+	echo "Removing $REPOFOLDER"
 	rm -rf "${REPOFOLDER}"
 fi
-chown $USER:users "$OUTFOLDER/$ISOFILENAME"*
+chown $USERNAMEVAR:$USERGROUP "$OUTFOLDER/$ISOFILENAME"*
 chmod a+rwx "$OUTFOLDER/$ISOFILENAME"*
 EOF
