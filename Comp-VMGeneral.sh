@@ -90,6 +90,10 @@ EOL
 
 loopra () {
 	sleep 5
+	if [ -z $DISPLAY ]; then
+		echo "Display variable not set. Exiting."
+		exit 1;
+	fi
 	xhost +localhost
 	while true; do
 		sleep 1
