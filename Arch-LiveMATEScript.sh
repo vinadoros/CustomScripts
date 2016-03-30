@@ -137,6 +137,10 @@ if ! grep -Fq "copytoram" $ARCHLIVEPATH/syslinux/archiso_sys64.cfg; then
 fi
 COMMENT5
 
+# Edit build.sh to umount dev (this is a fix for dkms running inside the chroot)
+sed -i '/run_once make_packages_efi/iumount -l ${work_dir}/i686/airootfs/dev' "$ARCHLIVEPATH"/build.sh
+sed -i '/run_once make_packages_efi/iumount -l ${work_dir}/x86_64/airootfs/dev' "$ARCHLIVEPATH"/build.sh
+
 # Copy script folder to iso root
 #~ cp -r "$SCRIPTDIR" "$ARCHLIVEPATH/airootfs/"
 git clone "https://github.com/vinadoros/CustomScripts.git" "$ARCHLIVEPATH/airootfs/CustomScripts"
@@ -320,7 +324,7 @@ fi
 cd "$ARCHLIVEPATH"
 
 sudo bash <<EOF
-bash -x "$ARCHLIVEPATH"/build.sh -v -o "$OUTFOLDER" -N "$ISOFILENAME"
+"$ARCHLIVEPATH"/build.sh -v -o "$OUTFOLDER" -N "$ISOFILENAME"
 if [ -d "$ARCHLIVEPATH" ]; then
 	echo "Removing $ARCHLIVEPATH"
 	rm -rf "$ARCHLIVEPATH"
