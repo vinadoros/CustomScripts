@@ -138,8 +138,8 @@ fi
 COMMENT5
 
 # Edit build.sh to umount dev (this is a fix for dkms running inside the chroot)
-sed -i '/run_once make_packages_efi/iumount -l ${work_dir}/i686/airootfs/dev' "$ARCHLIVEPATH"/build.sh
-sed -i '/run_once make_packages_efi/iumount -l ${work_dir}/x86_64/airootfs/dev' "$ARCHLIVEPATH"/build.sh
+sed -i '/run_once make_packages_efi/iumount -Rdl ${work_dir}/i686/airootfs' "$ARCHLIVEPATH"/build.sh
+sed -i '/run_once make_packages_efi/iumount -Rdl ${work_dir}/x86_64/airootfs' "$ARCHLIVEPATH"/build.sh
 
 # Copy script folder to iso root
 #~ cp -r "$SCRIPTDIR" "$ARCHLIVEPATH/airootfs/"
