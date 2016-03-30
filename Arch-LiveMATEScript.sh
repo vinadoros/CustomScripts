@@ -236,7 +236,7 @@ SCRIPTBASENAME="/$SCRIPTBASENAME"
 EOLXYZ
 fi
 
-if ! grep -Fq "Arch-Plain.sh" $ARCHLIVEPATH/airootfs/root/customize_airootfs.sh; then
+if ! grep -Fq "CustomScripts" $ARCHLIVEPATH/airootfs/root/customize_airootfs.sh; then
 	sudo bash -c "cat >>$ARCHLIVEPATH/airootfs/root/customize_airootfs.sh" <<'EOLXYZ'
 
 savespace(){
