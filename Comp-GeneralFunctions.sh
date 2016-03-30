@@ -342,4 +342,5 @@ EOL
 
 	[ "$(id -u)" != "0" ] && systemctl --user daemon-reload
 
+	return 0;
 }
