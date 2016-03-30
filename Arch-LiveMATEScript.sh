@@ -184,31 +184,12 @@ fi
 if ! grep -Fq "lxdm" $ARCHLIVEPATH/packages.both; then
 	sudo sh -c "cat >>$ARCHLIVEPATH/packages.both" <<'EOL'
 # My custom packages
-ipw2200-fw
-zd1211-firmware
-xorg-server
-xorg-server-utils
-xorg-drivers
-mesa-libgl
-xorg-xinit
-linux-headers
-virtualbox-guest-dkms
-virtualbox-guest-utils
-xf86-input-vmmouse
-xf86-video-vmware
-open-vm-tools
-mate
-mate-extra
-onboard
-networkmanager
-network-manager-applet
-gnome-keyring
-gnome-icon-theme
+
+# Utilities
 zip
 unzip
 p7zip
 unrar
-lxdm
 gparted
 clonezilla
 partimage
@@ -216,15 +197,57 @@ fsarchiver
 btrfs-progs
 xfsprogs
 gnome-disk-utility
-midori
 grsync
 smbclient
-gvfs
-gvfs-smb
 binutils
 git
 chntpw
 debootstrap
+
+# Kernel stuff
+ipw2200-fw
+zd1211-firmware
+linux-headers
+virtualbox-guest-dkms
+virtualbox-guest-utils
+
+# Desktop stuff
+lxdm
+xorg-server
+xorg-server-utils
+xorg-drivers
+mesa-libgl
+xorg-xinit
+xf86-input-vmmouse
+xf86-video-vmware
+open-vm-tools
+onboard
+networkmanager
+network-manager-applet
+gnome-keyring
+gnome-icon-theme
+midori
+gvfs
+gvfs-smb
+
+# Mate Desktop
+mate
+
+# Mate Extra tools
+atril
+caja-gksu
+caja-open-terminal
+engrampa
+eom
+galculator-gtk2
+mate-applets
+mate-icon-theme-faenza
+mate-power-manager
+mate-screensaver
+mate-system-monitor
+mate-terminal
+mate-utils
+pluma
 EOL
 fi
 
