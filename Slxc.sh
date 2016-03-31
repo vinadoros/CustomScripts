@@ -54,7 +54,9 @@ while true; do
 	systemctl disable lxc
 	systemctl stop lxc
 	btrfsrmsubvol
-	pacman -Rsn lxc lua-filesystem lua-alt-getopt
+	pacman -Rsn lxc
+	pacman -Rsn lua-filesystem
+	pacman -Rsn lua-alt-getopt
 	break;;
 
 	* ) echo "Please input 0, 1 or 2.";;
