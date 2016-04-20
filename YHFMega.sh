@@ -211,10 +211,12 @@ fulltarcmd () {
 	composetarcmd ".config/syncthing"
 	composetarcmd ".config/syncthing-gtk"
 	composetarcmd ".config/VirtualBox"
-	composetarcmd ".config/geany"
+	composetarcmd ".config/mupen64plus"
 
 	# Misc
 	composetarcmd ".local/share/data/ownCloud"
+	composetarcmd ".local/share/mupen64plus"
+	composetarcmd ".fceux"
 	composetarcmd ".areca"
 	composetarcmd ".mozilla"
 	composetarcmd ".thunderbird"
