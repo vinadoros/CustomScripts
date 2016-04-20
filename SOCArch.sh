@@ -7,10 +7,12 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1;
 fi
 
+# Add general functions if they don't exist.
+type -t grepadd &> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
 
 OCDATAPATH=""
 
-pacman -Syu --needed --noconfirm owncloud php-xcache php-intl php-mcrypt php-apache mariadb ffmpeg openssl
+pacman -Syu --needed --noconfirm owncloud php-apcu php-intl php-mcrypt php-apache mariadb ffmpeg openssl
 
 if [ -d /usr/share/webapps/owncloud ]; then
 	OCLOCATION="/usr/share/webapps/owncloud"
@@ -45,7 +47,7 @@ else
 	HTTPSPORT=$NEWHTTPSPORT
 fi
 
-read -p "Press any key to continue." 
+read -p "Press any key to continue."
 echo ""
 
 set -u
@@ -64,6 +66,7 @@ if [ ! -f /etc/httpd/conf/extra/owncloud.conf ]; then
 fi
 
 # Uncomment lines in php.ini
+sed -i '/^;.*=opcache.so/s/^;//' /etc/php/php.ini
 sed -i '/^;.*=gd.so/s/^;//' /etc/php/php.ini
 sed -i '/^;.*=iconv.so/s/^;//' /etc/php/php.ini
 sed -i '/^;.*=xmlrpc.so/s/^;//' /etc/php/php.ini
@@ -75,7 +78,8 @@ sed -i '/^;.*=mcrypt.so/s/^;//' /etc/php/php.ini
 sed -i '/^;.*=openssl.so/s/^;//' /etc/php/php.ini
 sed -i '/^;.*=pdo_mysql.so/s/^;//' /etc/php/php.ini
 sed -i '/^;.*=mysql.so/s/^;//' /etc/php/php.ini
-sed -i '/^;.*=xcache.so/s/^;//' /etc/php/conf.d/xcache.ini
+sed -i '/^;.*=apcu.so/s/^;//' /etc/php/conf.d/apcu.ini
+grepadd "apc.enable_cli=1" /etc/php/conf.d/apcu.ini
 
 # httpd.conf changes
 sed -i '/^#LoadModule ssl_module modules\/mod_ssl.so/s/^#//g' /etc/httpd/conf/httpd.conf
@@ -85,7 +89,7 @@ sed -i '/^#Include conf\/extra\/httpd-ssl.conf/s/^#//g' /etc/httpd/conf/httpd.co
 if ! grep -q "^Include conf/extra/owncloud.conf" "/etc/httpd/conf/httpd.conf"; then
 	echo "Include conf/extra/owncloud.conf" >> /etc/httpd/conf/httpd.conf
 fi
-	
+
 if ! grep -q "^Include conf/extra/php5_module.conf" "/etc/httpd/conf/httpd.conf"; then
 	echo "Include conf/extra/php5_module.conf" >> /etc/httpd/conf/httpd.conf
 fi
@@ -147,7 +151,7 @@ fi
 sleep 3
 
 if [ -f "$OCLOCALCONFIG" ] && ! grep -q "memcache.local" "$OCLOCALCONFIG"; then
-	sed -i "/'installed'/a\ \ \'memcache\.local\' => \'\\\OC\\\Memcache\\\XCache\'," "$OCLOCALCONFIG"
+	sed -i "/'installed'/a\ \ \'memcache\.local\' => \'\\\OC\\\Memcache\\\APCu\'," "$OCLOCALCONFIG"
 fi
 
 if [ -f "$OCLOCALCONFIG" ] && ! $(grep "'datadirectory'" "$OCLOCALCONFIG" | grep -q "$OCDATADIRECTORY" "$OCLOCALCONFIG"); then
