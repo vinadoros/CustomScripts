@@ -2,13 +2,20 @@
 
 set -e
 
+# Get folder of this script
+SCRIPTSOURCE="${BASH_SOURCE[0]}"
+FLWSOURCE="$(readlink -f "$SCRIPTSOURCE")"
+SCRIPTDIR="$(dirname "$FLWSOURCE")"
+SCRNAME="$(basename $SCRIPTSOURCE)"
+echo "Executing ${SCRNAME}."
+
+# Add general functions if they don't exist.
+type -t grepadd &> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
+
 if [ "$(id -u)" != "0" ]; then
 	echo "Not running with root. Please run the script with su privledges."
 	exit 1;
 fi
-
-# Add general functions if they don't exist.
-type -t grepadd &> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
 
 OCDATAPATH=""
 
