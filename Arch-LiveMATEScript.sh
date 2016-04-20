@@ -181,8 +181,7 @@ Server = file://${REPOFOLDER}/\$arch
 EOL
 fi
 
-if ! grep -Fq "lxdm" $ARCHLIVEPATH/packages.both; then
-	sudo sh -c "cat >>$ARCHLIVEPATH/packages.both" <<'EOL'
+sudo sh -c "cat >>$ARCHLIVEPATH/packages.both" <<'EOL'
 # My custom packages
 
 # Utilities
@@ -249,18 +248,15 @@ mate-terminal
 mate-utils
 pluma
 EOL
-fi
 
-if ! grep -Fq "$SCRIPTBASENAME" $ARCHLIVEPATH/airootfs/root/customize_airootfs.sh; then
-	sudo bash -c "cat >>$ARCHLIVEPATH/airootfs/root/customize_airootfs.sh" <<EOLXYZ
+sudo bash -c "cat >>$ARCHLIVEPATH/airootfs/root/customize_airootfs.sh" <<EOLXYZ
 
+set -x
 SCRIPTBASENAME="/$SCRIPTBASENAME"
 
 EOLXYZ
-fi
 
-if ! grep -Fq "CustomScripts" $ARCHLIVEPATH/airootfs/root/customize_airootfs.sh; then
-	sudo bash -c "cat >>$ARCHLIVEPATH/airootfs/root/customize_airootfs.sh" <<'EOLXYZ'
+sudo bash -c "cat >>$ARCHLIVEPATH/airootfs/root/customize_airootfs.sh" <<'EOLXYZ'
 
 savespace(){
 	localepurge
@@ -342,7 +338,6 @@ fi
 #savespace
 
 EOLXYZ
-fi
 
 cd "$ARCHLIVEPATH"
 
