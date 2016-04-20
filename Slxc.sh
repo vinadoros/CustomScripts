@@ -28,8 +28,6 @@ btrfsrmsubvol () {
 	fi
 }
 
-set -e
-
 while true; do
     read -p "1: Install/enable lxc. 2: Remove lxc. Enter 0 to do nothing. (0/1/2)" QU
     case $QU in

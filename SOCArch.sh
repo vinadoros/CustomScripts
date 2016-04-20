@@ -84,7 +84,7 @@ sed -i '/^;.*=intl.so/s/^;//' /etc/php/php.ini
 sed -i '/^;.*=mcrypt.so/s/^;//' /etc/php/php.ini
 sed -i '/^;.*=openssl.so/s/^;//' /etc/php/php.ini
 sed -i '/^;.*=pdo_mysql.so/s/^;//' /etc/php/php.ini
-sed -i '/^;.*=mysql.so/s/^;//' /etc/php/php.ini
+sed -i '/^;.*=mysqli.so/s/^;//' /etc/php/php.ini
 sed -i '/^;.*=apcu.so/s/^;//' /etc/php/conf.d/apcu.ini
 grepadd "apc.enable_cli=1" /etc/php/conf.d/apcu.ini
 
