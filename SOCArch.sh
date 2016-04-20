@@ -97,8 +97,8 @@ if ! grep -q "^Include conf/extra/owncloud.conf" "/etc/httpd/conf/httpd.conf"; t
 	echo "Include conf/extra/owncloud.conf" >> /etc/httpd/conf/httpd.conf
 fi
 
-if ! grep -q "^Include conf/extra/php5_module.conf" "/etc/httpd/conf/httpd.conf"; then
-	echo "Include conf/extra/php5_module.conf" >> /etc/httpd/conf/httpd.conf
+if ! grep -q "^Include conf/extra/php7_module.conf" "/etc/httpd/conf/httpd.conf"; then
+	echo "Include conf/extra/php7_module.conf" >> /etc/httpd/conf/httpd.conf
 fi
 
 if grep -q "^LoadModule mpm_event_module modules/mod_mpm_event.so" /etc/httpd/conf/httpd.conf; then
@@ -115,7 +115,7 @@ if grep -q "^LoadModule dav_fs_module modules/mod_dav_fs.so" /etc/httpd/conf/htt
 fi
 
 if ! grep -q "^LoadModule php5_module modules/libphp5.so" /etc/httpd/conf/httpd.conf; then
-	sed -i "/LoadModule dir_module modules\/mod_dir.so/aLoadModule php5_module modules\/libphp5.so" /etc/httpd/conf/httpd.conf
+	sed -i "/LoadModule dir_module modules\/mod_dir.so/aLoadModule php7_module modules\/libphp7.so" /etc/httpd/conf/httpd.conf
 fi
 
 sed -i "s/^Listen .*/Listen 127.0.0.1:80/" /etc/httpd/conf/httpd.conf
