@@ -217,6 +217,7 @@ fulltarcmd () {
 	composetarcmd ".local/share/data/ownCloud"
 	composetarcmd ".local/share/mupen64plus"
 	composetarcmd ".fceux"
+	composetarcmd ".dolphin-emu"
 	composetarcmd ".areca"
 	composetarcmd ".mozilla"
 	composetarcmd ".thunderbird"
