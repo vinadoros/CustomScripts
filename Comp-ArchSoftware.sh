@@ -134,17 +134,9 @@ case $SETDE in
 [1]* )
 	# Install KDE
 	echo "Installing KDE."
-	dist_install drkonqi kde-gtk-config kdeplasma-addons khelpcenter kinfocenter kio-extras kscreen ksysguard kwrited oxygen oxygen-cursors plasma-desktop plasma-nm plasma-workspace-wallpapers sni-qt breeze-kde4
-	if [ "${MACHINEARCH}" == "x86_64" ]; then
-		dist_install lib32-sni-qt
-	fi
-	#dist_install libappindicator-gtk2 libappindicator-gtk3
+	dist_install plasma-meta
 	# KDE Software
-	if pacman -Q | grep -iq "khelpcenter"; then
-		pacman -Rdd --noconfirm khelpcenter
-	fi
-	dist_install kate kdebase-dolphin konsole konsolepart4 ruby
-	dist_install kde-servicemenus-rootactions
+	dist_install kate kdebase-dolphin konsole
 	dist_install kdebase-kwrite kdegraphics-okular ebook-tools kdeutils-ark unzip zip p7zip unrar
 	;;
 
