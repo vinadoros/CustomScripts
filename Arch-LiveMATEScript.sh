@@ -138,8 +138,8 @@ fi
 COMMENT5
 
 # Edit build.sh to umount dev (this is a fix for dkms running inside the chroot)
-sed -i '/run_once make_packages_efi/iumount -Rdl ${work_dir}/i686/airootfs || true' "$ARCHLIVEPATH"/build.sh
-sed -i '/run_once make_packages_efi/iumount -Rdl ${work_dir}/x86_64/airootfs || true' "$ARCHLIVEPATH"/build.sh
+# sed -i '/run_once make_packages_efi/iumount -Rdl ${work_dir}/i686/airootfs || true' "$ARCHLIVEPATH"/build.sh
+# sed -i '/run_once make_packages_efi/iumount -Rdl ${work_dir}/x86_64/airootfs || true' "$ARCHLIVEPATH"/build.sh
 
 # Copy script folder to iso root
 #~ cp -r "$SCRIPTDIR" "$ARCHLIVEPATH/airootfs/"
@@ -206,8 +206,7 @@ debootstrap
 # Kernel stuff
 ipw2200-fw
 zd1211-firmware
-linux-headers
-virtualbox-guest-dkms
+virtualbox-guest-modules-arch
 virtualbox-guest-utils
 
 # Desktop stuff
