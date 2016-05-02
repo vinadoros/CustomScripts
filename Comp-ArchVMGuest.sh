@@ -43,7 +43,7 @@ fi
 ###############################################################################
 # Install virtualbox guest utils
 if [ $VBOXGUEST = 1 ]; then
-	dist_install virtualbox-guest-dkms linux-headers
+	dist_install virtualbox-guest-modules-arch
 	dist_install virtualbox-guest-utils
 	modprobe -a vboxguest vboxsf vboxvideo
 
