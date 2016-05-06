@@ -38,7 +38,7 @@ while true; do
 
     [1]* )
     echo "You asked to install lxc."
-	sudo pacman -Syu --needed lxc dnsmasq lua-filesystem lua-alt-getopt
+	sudo pacman -Syu --needed lxc dnsmasq lua-filesystem lua-alt-getopt arch-install-scripts
 	btrfsrmsubvol
 	#~ sudo sed -i 's/#user = \"root\"/user = \"'$USERNAMEVAR'\"/g' /etc/libvirt/qemu.conf
 	#~ #sudo sed -i 's/group=.*/group=\"users\"/g' /etc/libvirt/qemu.conf
