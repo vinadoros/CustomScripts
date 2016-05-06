@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# Get folder of this script
+SCRIPTSOURCE="${BASH_SOURCE[0]}"
+FLWSOURCE="$(readlink -f "$SCRIPTSOURCE")"
+SCRIPTDIR="$(dirname "$FLWSOURCE")"
+SCRNAME="$(basename $SCRIPTSOURCE)"
+echo "Executing ${SCRNAME}."
+
+# Add general functions if they don't exist.
+type -t grepadd &> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
+
 if [ "$(id -u)" != "0" ]; then
 	echo "Not running as root. Please run the script with sudo or root privledges."
 	exit 1;
@@ -46,6 +56,20 @@ while true; do
 	#~ sed -i 's/#save_image_format = \"raw\"/save_image_format = \"xz"/g' /etc/libvirt/qemu.conf
 	#~ sed -i 's/#dump_image_format = \"raw\"/dump_image_format = \"xz"/g' /etc/libvirt/qemu.conf
 	#~ sed -i 's/#snapshot_image_format = \"raw\"/snapshot_image_format = \"xz"/g' /etc/libvirt/qemu.conf
+
+	multilinereplace "/etc/lxc/default.conf" <<EOLXYZ
+lxc.network.type=veth
+lxc.network.link=lxcbr0
+lxc.network.flags=up
+lxc.network.name=eth0
+
+lxc.mount.entry = tmpfs tmp tmpfs defaults
+lxc.mount.entry = /dev/dri dev/dri none bind,optional,create=dir
+lxc.mount.entry = /dev/snd dev/snd none bind,optional,create=dir
+lxc.mount.entry = /tmp/.X11-unix tmp/.X11-unix none bind,optional,create=dir
+lxc.mount.entry = /dev/video0 dev/video0 none bind,optional,create=file
+EOLXYZ
+
 	break;;
 
 	[2]* )
