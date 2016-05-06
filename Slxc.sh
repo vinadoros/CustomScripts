@@ -51,11 +51,6 @@ while true; do
 	pacman -Syu --needed lxc dnsmasq lua-filesystem lua-alt-getopt arch-install-scripts
 	btrfsrmsubvol
 	sed -i '/USE_LXC_BRIDGE="false"/s/^/#/g' /etc/default/lxc
-	#~ sed -i 's/#user = \"root\"/user = \"'$USERNAMEVAR'\"/g' /etc/libvirt/qemu.conf
-	#~ #sed -i 's/group=.*/group=\"users\"/g' /etc/libvirt/qemu.conf
-	#~ sed -i 's/#save_image_format = \"raw\"/save_image_format = \"xz"/g' /etc/libvirt/qemu.conf
-	#~ sed -i 's/#dump_image_format = \"raw\"/dump_image_format = \"xz"/g' /etc/libvirt/qemu.conf
-	#~ sed -i 's/#snapshot_image_format = \"raw\"/snapshot_image_format = \"xz"/g' /etc/libvirt/qemu.conf
 
 	multilinereplace "/etc/lxc/default.conf" <<EOLXYZ
 lxc.network.type=veth
@@ -68,6 +63,10 @@ lxc.mount.entry = /dev/dri dev/dri none bind,optional,create=dir
 lxc.mount.entry = /dev/snd dev/snd none bind,optional,create=dir
 lxc.mount.entry = /tmp/.X11-unix tmp/.X11-unix none bind,optional,create=dir
 lxc.mount.entry = /dev/video0 dev/video0 none bind,optional,create=file
+
+#lxc.network.ipv4=10.0.3.2
+#lxc.network.ipv4.gateway=10.0.3.1
+#lxc.hook.pre-start=${LXC_ROOTFS_PATH}/../script.sh
 EOLXYZ
 
 	break;;
