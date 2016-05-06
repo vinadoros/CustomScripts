@@ -114,7 +114,7 @@ if grep -q "^LoadModule dav_fs_module modules/mod_dav_fs.so" /etc/httpd/conf/htt
 	sed -i '/^LoadModule dav_fs_module modules\/mod_dav_fs.so/s/^/#/g' /etc/httpd/conf/httpd.conf
 fi
 
-if ! grep -q "^LoadModule php5_module modules/libphp5.so" /etc/httpd/conf/httpd.conf; then
+if ! grep -q "^LoadModule php7_module modules/libphp7.so" /etc/httpd/conf/httpd.conf; then
 	sed -i "/LoadModule dir_module modules\/mod_dir.so/aLoadModule php7_module modules\/libphp7.so" /etc/httpd/conf/httpd.conf
 fi
 
