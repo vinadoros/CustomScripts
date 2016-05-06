@@ -38,13 +38,14 @@ while true; do
 
     [1]* )
     echo "You asked to install lxc."
-	sudo pacman -Syu --needed lxc dnsmasq lua-filesystem lua-alt-getopt arch-install-scripts
+	pacman -Syu --needed lxc dnsmasq lua-filesystem lua-alt-getopt arch-install-scripts
 	btrfsrmsubvol
-	#~ sudo sed -i 's/#user = \"root\"/user = \"'$USERNAMEVAR'\"/g' /etc/libvirt/qemu.conf
-	#~ #sudo sed -i 's/group=.*/group=\"users\"/g' /etc/libvirt/qemu.conf
-	#~ sudo sed -i 's/#save_image_format = \"raw\"/save_image_format = \"xz"/g' /etc/libvirt/qemu.conf
-	#~ sudo sed -i 's/#dump_image_format = \"raw\"/dump_image_format = \"xz"/g' /etc/libvirt/qemu.conf
-	#~ sudo sed -i 's/#snapshot_image_format = \"raw\"/snapshot_image_format = \"xz"/g' /etc/libvirt/qemu.conf
+	sed -i '/USE_LXC_BRIDGE="false"/s/^/#/g' /etc/default/lxc
+	#~ sed -i 's/#user = \"root\"/user = \"'$USERNAMEVAR'\"/g' /etc/libvirt/qemu.conf
+	#~ #sed -i 's/group=.*/group=\"users\"/g' /etc/libvirt/qemu.conf
+	#~ sed -i 's/#save_image_format = \"raw\"/save_image_format = \"xz"/g' /etc/libvirt/qemu.conf
+	#~ sed -i 's/#dump_image_format = \"raw\"/dump_image_format = \"xz"/g' /etc/libvirt/qemu.conf
+	#~ sed -i 's/#snapshot_image_format = \"raw\"/snapshot_image_format = \"xz"/g' /etc/libvirt/qemu.conf
 	break;;
 
 	[2]* )
