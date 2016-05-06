@@ -152,7 +152,9 @@ systemctl restart httpd
 sleep 1
 
 if [ ! -f "$OCLOCALCONFIG" ] || ! grep -q "'datadirectory'" "$OCLOCALCONFIG"; then
+	set +e
 	xdg-open http://127.0.0.1/
+	set -e
 fi
 
 sleep 3
