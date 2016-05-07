@@ -275,9 +275,9 @@ if [ "${MACHINEARCH}" != "armv7l" ]; then
 	echo "i686 and x86_64 Software for Arch."
 
 	#Setup x2go
-	dist_install x2goserver x2goclient
-	x2godbadmin --createdb
-	systemctl enable x2goserver
+	# dist_install x2goserver x2goclient
+	# x2godbadmin --createdb
+	# systemctl enable x2goserver
 
 	# Cups-pdf configuration
 	pacman -S --noconfirm --needed cups-pdf
