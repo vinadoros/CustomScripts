@@ -21,7 +21,7 @@ fi
 dist_install apache openssl
 
 # Install php
-dist_install php php-apache php-apcu php-intl php-mcrypt php-fpm php-gd xdebug
+dist_install php php-apache php-apcu php-intl php-mcrypt php-fpm php-gd php-composer xdebug
 
 # Install mysql/mariadb
 dist_install mariadb
