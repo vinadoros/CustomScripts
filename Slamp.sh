@@ -26,6 +26,9 @@ dist_install php php-apache php-apcu php-intl php-mcrypt php-fpm php-gd xdebug
 # Install mysql/mariadb
 dist_install mariadb
 
+# Reload systemd services before running mysql commands.
+systemctl daemon-reload
+
 set -eu
 
 # Php changes
