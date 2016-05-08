@@ -17,9 +17,12 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1;
 fi
 
+echo "Installing LAMP stack."
+source "$SCRIPTDIR/Slamp.sh"
+
 OCDATAPATH=""
 
-pacman -Syu --needed --noconfirm owncloud php-apcu php-intl php-mcrypt php-apache mariadb ffmpeg openssl
+dist_install owncloud ffmpeg openssl
 
 if [ -d /usr/share/webapps/owncloud ]; then
 	OCLOCATION="/usr/share/webapps/owncloud"
@@ -66,27 +69,11 @@ if [ -d "$OCDATADIRECTORY" ]; then
 	chmod 755 "$OCDATADIRECTORY"
 fi
 
-chown -R http:http /usr/share/webapps/owncloud/
+chown -R http:http "${OCLOCATION}"
 
 if [ ! -f /etc/httpd/conf/extra/owncloud.conf ]; then
 	cp /etc/webapps/owncloud/apache.example.conf /etc/httpd/conf/extra/owncloud.conf
 fi
-
-# Uncomment lines in php.ini
-sed -i '/^;.*=opcache.so/s/^;//' /etc/php/php.ini
-sed -i '/^;.*=gd.so/s/^;//' /etc/php/php.ini
-sed -i '/^;.*=iconv.so/s/^;//' /etc/php/php.ini
-sed -i '/^;.*=xmlrpc.so/s/^;//' /etc/php/php.ini
-sed -i '/^;.*=zip.so/s/^;//' /etc/php/php.ini
-sed -i '/^;.*=bz2.so/s/^;//' /etc/php/php.ini
-sed -i '/^;.*=curl.so/s/^;//' /etc/php/php.ini
-sed -i '/^;.*=intl.so/s/^;//' /etc/php/php.ini
-sed -i '/^;.*=mcrypt.so/s/^;//' /etc/php/php.ini
-sed -i '/^;.*=openssl.so/s/^;//' /etc/php/php.ini
-sed -i '/^;.*=pdo_mysql.so/s/^;//' /etc/php/php.ini
-sed -i '/^;.*=mysqli.so/s/^;//' /etc/php/php.ini
-sed -i '/^;.*=apcu.so/s/^;//' /etc/php/conf.d/apcu.ini
-grepadd "apc.enable_cli=1" /etc/php/conf.d/apcu.ini
 
 # httpd.conf changes
 sed -i '/^#LoadModule ssl_module modules\/mod_ssl.so/s/^#//g' /etc/httpd/conf/httpd.conf
@@ -97,27 +84,7 @@ if ! grep -q "^Include conf/extra/owncloud.conf" "/etc/httpd/conf/httpd.conf"; t
 	echo "Include conf/extra/owncloud.conf" >> /etc/httpd/conf/httpd.conf
 fi
 
-if ! grep -q "^Include conf/extra/php7_module.conf" "/etc/httpd/conf/httpd.conf"; then
-	echo "Include conf/extra/php7_module.conf" >> /etc/httpd/conf/httpd.conf
-fi
-
-if grep -q "^LoadModule mpm_event_module modules/mod_mpm_event.so" /etc/httpd/conf/httpd.conf; then
-	sed -i '/^LoadModule mpm_event_module modules\/mod_mpm_event.so/s/^/#/g' /etc/httpd/conf/httpd.conf
-	sed -i '/^#LoadModule mpm_prefork_module modules\/mod_mpm_prefork.so/s/^#//g' /etc/httpd/conf/httpd.conf
-fi
-
-if grep -q "^LoadModule dav_module modules/mod_dav.so" /etc/httpd/conf/httpd.conf; then
-	sed -i '/^LoadModule dav_module modules\/mod_dav.so/s/^/#/g' /etc/httpd/conf/httpd.conf
-fi
-
-if grep -q "^LoadModule dav_fs_module modules/mod_dav_fs.so" /etc/httpd/conf/httpd.conf; then
-	sed -i '/^LoadModule dav_fs_module modules\/mod_dav_fs.so/s/^/#/g' /etc/httpd/conf/httpd.conf
-fi
-
-if ! grep -q "^LoadModule php7_module modules/libphp7.so" /etc/httpd/conf/httpd.conf; then
-	sed -i "/LoadModule dir_module modules\/mod_dir.so/aLoadModule php7_module modules\/libphp7.so" /etc/httpd/conf/httpd.conf
-fi
-
+# Listen on port 80 only with localhost.
 sed -i "s/^Listen .*/Listen 127.0.0.1:80/" /etc/httpd/conf/httpd.conf
 
 #Https changes
@@ -134,15 +101,6 @@ if [ ! -f /etc/httpd/conf/server.crt ]; then
 	openssl req -new -key /etc/httpd/conf/server.key -out /etc/httpd/conf/server.csr -subj '/C=US/ST=SomeState/CN=Test'
 	openssl x509 -req -days 3652 -in /etc/httpd/conf/server.csr -signkey /etc/httpd/conf/server.key -out /etc/httpd/conf/server.crt
 fi
-
-set +eu
-if [ ! -f /var/lib/mysql/mysql-bin.000001 ]; then
-	systemctl stop mysqld
-	mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
-	systemctl restart mysqld
-	mysql_secure_installation
-fi
-set -eu
 
 systemctl enable mysqld
 systemctl restart mysqld
@@ -172,8 +130,6 @@ if ! $(grep "php_admin_value" /etc/httpd/conf/extra/owncloud.conf | grep -q "$OC
 	echo "Changing OC data folder in /etc/httpd/conf/extra/owncloud.conf."
 	sed -i "s@\(php_admin_value\ open_basedir.*/etc/webapps/owncloud\)\(.*\"\)@\1:$OCDATADIRECTORY\"@" /etc/httpd/conf/extra/owncloud.conf
 fi
-
-
 
 systemctl restart httpd
 
