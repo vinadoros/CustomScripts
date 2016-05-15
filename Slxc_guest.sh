@@ -99,6 +99,7 @@ case $LXCVMCHOICE in
 [2] )
 	if [ -f /usr/share/lxc/templates/lxc-archlinux ]; then
 		lxc-create -n "${LXCVMNAME}" -t /usr/share/lxc/templates/lxc-archlinux
+		"$SCRIPTDIR/BArchChroot.sh" "${LXCVMROOT}"
 	else
 		echo "Arch template not found. Exiting."
 	fi
