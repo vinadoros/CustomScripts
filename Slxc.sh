@@ -52,7 +52,7 @@ while true; do
 	btrfsrmsubvol
 	sed -i '/USE_LXC_BRIDGE="false"/s/^/#/g' /etc/default/lxc
 
-	multilinereplace "/etc/lxc/default.conf" <<EOLXYZ
+	multilinereplace "/etc/lxc/default.conf" <<'EOLXYZ'
 lxc.network.type=veth
 lxc.network.link=lxcbr0
 lxc.network.flags=up
@@ -66,7 +66,7 @@ lxc.mount.entry = /dev/video0 dev/video0 none bind,optional,create=file
 
 #lxc.network.ipv4=10.0.3.2
 #lxc.network.ipv4.gateway=10.0.3.1
-#lxc.hook.pre-start=\${LXC_ROOTFS_PATH}/../script.sh
+#lxc.hook.pre-start=LXC_ROOTFS/../script.sh
 EOLXYZ
 
 	break;;
