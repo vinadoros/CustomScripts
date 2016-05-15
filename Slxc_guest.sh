@@ -132,3 +132,6 @@ if [ -f "${LXCVMCONFIG}" ]; then
 	sed -i '/^#lxc.network.ipv4.gateway=.*/s/^#//g' "${LXCVMCONFIG}"
 	sed -i '/^#lxc.hook.pre-start=.*/s/^#//g' "${LXCVMCONFIG}"
 fi
+
+cd "${LXCVMROOT}/opt"
+git clone https://github.com/vinadoros/CustomScripts.git
