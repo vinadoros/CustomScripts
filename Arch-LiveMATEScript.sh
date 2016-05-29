@@ -201,6 +201,10 @@ binutils
 git
 chntpw
 debootstrap
+openssh
+avahi
+nss-mdns
+tmux
 
 # Kernel stuff
 ipw2200-fw
@@ -295,6 +299,13 @@ sed -i 's/#\ autologin=dgod/autologin=root/g' /etc/lxdm/lxdm.conf
 sed -i 's/#\ session=\/usr\/bin\/startlxde/session=\/usr\/bin\/mate-session/g' /etc/lxdm/lxdm.conf
 
 systemctl enable NetworkManager
+
+# Set root password
+echo "root:asdf" | chpasswd
+
+# Enable avahi and ssh
+systemctl enable sshd
+systemctl enable avahi-daemon
 
 # Set computer to not sleep on lid close
 if ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf; then
