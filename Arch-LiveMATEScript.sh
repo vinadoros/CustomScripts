@@ -130,12 +130,11 @@ fi
 
 cp -r /usr/share/archiso/configs/releng/ $ARCHLIVEPATH
 
-<<"COMMENT5"
+# Enable copytoram, but only for 64bit machiens.
 if ! grep -Fq "copytoram" $ARCHLIVEPATH/syslinux/archiso_sys64.cfg; then
-	sed -i '/APPEND/ s|$| copytoram=y |' $ARCHLIVEPATH/syslinux/archiso_sys32.cfg
+	#sed -i '/APPEND/ s|$| copytoram=y |' $ARCHLIVEPATH/syslinux/archiso_sys32.cfg
 	sed -i '/APPEND/ s|$| copytoram=y |' $ARCHLIVEPATH/syslinux/archiso_sys64.cfg
 fi
-COMMENT5
 
 # Edit build.sh to umount dev (this is a fix for dkms running inside the chroot)
 # sed -i '/run_once make_packages_efi/iumount -Rdl ${work_dir}/i686/airootfs || true' "$ARCHLIVEPATH"/build.sh
