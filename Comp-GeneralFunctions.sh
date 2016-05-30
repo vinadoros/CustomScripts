@@ -347,7 +347,7 @@ EOL
 
 # Command to loop through an array of groups and add the group to the specified user.
 addgrouptouser () {
-	if [ -z "${!1}" ]; then
+	if [ -z "${1}" ]; then
 		echo "No array of groups passed."
 		return 1;
 	else
@@ -361,9 +361,11 @@ addgrouptouser () {
 		USERFORGROUPS="$2"
 	fi
 
+	# Loop through array.
 	for grp in "${GROUPARRAY[@]}"; do
 		echo "Adding $USERFORGROUPS to group $grp."
-		usermod -aG $grp $USERFORGROUPS
+		# Force success even if it fails.
+		usermod -aG $grp $USERFORGROUPS || true
 	done
 
 }
