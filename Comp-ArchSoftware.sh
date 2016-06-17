@@ -268,7 +268,7 @@ if [ "${MACHINEARCH}" = "x86_64" ]; then
 	echo "x86_64 Software for Arch."
 
 	#Install atom editor.
-	dist_install atom-editor-bin
+	dist_install atom-editor
 fi
 
 # For x86_64 and i686 only

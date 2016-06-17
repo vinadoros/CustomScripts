@@ -45,7 +45,7 @@ set +e
 if ! grep -Fq "infinality-bundle" /etc/pacman.conf; then
 
 	if [ "${MACHINEARCH}" = "x86_64" ]; then
-	
+
 		while read line
 		do
 		echo $line | grep -q "#\[testing\]"
@@ -60,12 +60,12 @@ Server = http://bohoomil.com/repo/multilib/$arch
 Server = http://bohoomil.com/repo/fonts
 
 EOL
-			
+
 		echo $line
 		done < /etc/pacman.conf | cat > ~/pacman.conf.new
-	
+
 	else
-	
+
 		while read line
 		do
 		echo $line | grep -q "#\[testing\]"
@@ -80,9 +80,9 @@ EOL
 
 		echo $line
 		done < /etc/pacman.conf | cat > ~/pacman.conf.new
-		
+
 	fi
-	
+
 	if grep -Fq "[infinality-bundle]" ~/pacman.conf.new; then
 		echo "Replacing pacman.conf"
 		rm /etc/pacman.conf
@@ -121,6 +121,7 @@ if ! pacman -Q | grep -i "freetype2-infinality"; then
 	pacman -Rdd --noconfirm cairo
 	pacman -Rdd --noconfirm fontconfig
 	pacman -Rdd --noconfirm freetype2
+	pacman -Rdd --noconfirm noto-fonts
 fi
 
 if [ ${MACHINEARCH} == "x86_64" ] && ! pacman -Q | grep -i "lib32-freetype2-infinality"; then
