@@ -71,7 +71,7 @@ fi
 dist_install rsync base-devel
 
 # Xorg stuff
-dist_install xdg-utils perl-file-mimeinfo
+dist_install xdg-utils xdg-user-dirs perl-file-mimeinfo
 
 
 ###############################################################################
