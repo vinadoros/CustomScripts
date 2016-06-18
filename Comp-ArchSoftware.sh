@@ -267,8 +267,6 @@ dist_install run-parts
 if [ "${MACHINEARCH}" = "x86_64" ]; then
 	echo "x86_64 Software for Arch."
 
-	#Install atom editor.
-	dist_install atom-editor
 fi
 
 # For x86_64 and i686 only
@@ -354,15 +352,25 @@ EOL
 	if [[ $VBOXGUEST = 0 && $QEMUGUEST = 0 && $VMWGUEST = 0 ]]; then
 		# VLC
 		dist_install vlc
-		# Banshee
-		# dist_install banshee
-		# Clementine (remove 0.10 plugins when clementine moves to gst 1.0)
-		dist_install clementine gstreamer0.10-good-plugins gstreamer0.10-bad-plugins gstreamer0.10-ugly-plugins gstreamer0.10-ffmpeg
+		# Clementine
+		dist_install clementine
 		# Wine
 		dist_install wine alsa-lib alsa-plugins cups dosbox giflib lcms2 libcl libjpeg-turbo libldap libpng libpulse libxcomposite libxinerama libxml2 libxslt mpg123 ncurses openal samba v4l-utils wine_gecko wine-mono playonlinux
 		if [ "${MACHINEARCH}" == "x86_64" ]; then
 			dist_install lib32-alsa-lib lib32-alsa-plugins lib32-giflib lib32-gnutls lib32-lcms2 lib32-libcl lib32-libjpeg-turbo lib32-libldap lib32-libpng lib32-libpulse lib32-libxcomposite lib32-libxinerama lib32-libxml2 lib32-libxslt lib32-mpg123 lib32-ncurses lib32-openal lib32-v4l-utils lib32-sdl
 		fi
+
+		# For x86_64 only
+		if [ "${MACHINEARCH}" = "x86_64" ]; then
+			echo "x86_64 Software for Arch."
+
+			#Install atom editor.
+			dist_install atom-editor
+
+			#Install Visual Studio Code.
+			dist_install visual-studio-code-oss
+		fi
+
 	fi
 
 	# MS and other Fonts
@@ -407,15 +415,6 @@ EOL
 		sed -i 's/GRUB_GFXMODE=auto/GRUB_GFXMODE=1024x768/g' /etc/default/grub
 		grub_update
 	fi
-
-	# Install areca backup
-	# if pacman -Q jre8-openjdk-headless-infinality &> /dev/null; then
-	# 	pacman -Rdd --noconfirm jre8-openjdk-headless-infinality jre8-openjdk-infinality
-	# fi
-	# dist_install jre8-openjdk
-	# archlinux-java fix
-	# dist_install areca-bin
-
 
 elif [ "${MACHINEARCH}" = "armv7l" ]; then
 	echo "ARM Software for Arch."
