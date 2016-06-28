@@ -61,8 +61,9 @@ EndSection
 EOL
 
 # Enable pulseaudio flat volumes
-if ! grep -iq "^flat-volumes=no" /etc/pulse/daemon.conf; then
-	echo 'flat-volumes=no' >> /etc/pulse/daemon.conf
+if ! grep -iq "^flat-volumes = no" /etc/pulse/daemon.conf; then
+	sed -i '/^;.*flat-volumes =.*/s/^;//g' /etc/pulse/daemon.conf
+	sed -i 's/flat-volumes =.*/flat-volumes = no/g' /etc/pulse/daemon.conf
 fi
 
 # Modify journald log size
