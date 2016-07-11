@@ -10,6 +10,9 @@ SCRIPTDIR="$(dirname "$FLWSOURCE")"
 SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
+TEMPFOLDERPATH="/mnt"
+TEMPFOLDERHEADER="borgmount"
+
 usage () {
 	echo "h - help"
 	echo "s - borg backup folder"
@@ -54,7 +57,7 @@ borgumount () {
 }
 
 borgcleanup () {
-	for mntfolders in /mnt/mnt-*; do
+	for mntfolders in "${TEMPFOLDERPATH}/${TEMPFOLDERHEADER}-"*; do
 		if [ -d "$mntfolders" ]; then
 			echo "Cleaning up $mntfolders"
 			borgumount "$mntfolders"
@@ -67,8 +70,7 @@ randomfolder() {
 	# Generate a random 8 character string
 	RANDOMSTRING=$( cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w6 | head -n1 )
 	# Set temporary folder
-	TEMPFOLDER="mnt-${RANDOMSTRING}"
-	FULLTEMPFOLDER="/mnt/$TEMPFOLDER"
+	FULLTEMPFOLDER="${TEMPFOLDERPATH}/${TEMPFOLDERHEADER}-${RANDOMSTRING}"
 }
 
 # Borg List function
@@ -137,7 +139,7 @@ if [[ -z "$@" ]]; then
 fi
 
 # Get options
-while getopts "hs:b:d:ca" OPT
+while getopts "hs:b:d:cfx:y:" OPT
 do
 	case $OPT in
 		h)
@@ -158,6 +160,12 @@ do
 			;;
 		f)
 			OPTION=3
+			;;
+		x)
+			BORGBACKUPNAMEONE="$OPTARG"
+			;;
+		y)
+			BORGBACKUPNAMETWO="$OPTARG"
 			;;
 		\?)
 			echo "Invalid option: -$OPTARG" 1>&2
@@ -191,19 +199,43 @@ if [ -z $OPTION ]; then
 	FOLDERONE="$BORGFOLDERMOUNTONE/$DESTFOLDER"
 	FOLDERTWO="$DESTFOLDER"
 	rsyncdryrun
-	read -p "Press y to sync or enter to not sync: " QU
-	if [[ $QU = [Yy] ]]; then
-		echo ""
-		rsyncrealcmd
+	if [[ $OPTION -ne 2 ]]; then
+		read -p "Press y to sync or enter to not sync: " QU
+		if [[ $QU = [Yy] ]]; then
+			echo ""
+			rsyncrealcmd
+		fi
 	fi
 
 	# Unmount and remove the temporary borg mount.
 	borgumount "$BORGFOLDERMOUNTONE"
-
-elif [ $OPTION -eq 2 ]; then
-	echo "Dry run."
 elif [ $OPTION -eq 3 ]; then
 	echo "Comparing borg backups."
+	# Set mount folder
+	randomfolder
+	BORGFOLDERMOUNTONE="$FULLTEMPFOLDER"
+	randomfolder
+	BORGFOLDERMOUNTTWO="$FULLTEMPFOLDER"
+
+	borglist
+	[ -z "$BORGBACKUPNAMEONE" ] && read -p "Input first backup from the above list: " BORGBACKUPNAMEONE
+	[ -z "$BORGBACKUPNAMETWO" ] && read -p "Input second backup from the above list: " BORGBACKUPNAMETWO
+
+	# Mount the backup
+	borgmount "$BORGBACKUPNAMEONE" "$BORGFOLDERMOUNTONE"
+	borgmount "$BORGBACKUPNAMETWO" "$BORGFOLDERMOUNTTWO"
+
+	# Perform dry run.
+	FOLDERONE="$BORGFOLDERMOUNTONE/"
+	FOLDERTWO="$BORGFOLDERMOUNTTWO/"
+	rsyncdryrun
+
+	# Unmount and remove the temporary borg mount.
+	borgumount "$BORGFOLDERMOUNTONE"
+	borgumount "$BORGFOLDERMOUNTTWO"
 fi
+
+# Cleanup everything (just in case)
+borgcleanup
 
 echo -e "\nScript completed successfully.\n"
