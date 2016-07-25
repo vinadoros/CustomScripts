@@ -26,7 +26,7 @@ DIST_DEBSTABLE=jessie
 # Debian unstable release
 DIST_DEBUNSTABLE=unstable
 # Ubuntu release
-DIST_UBUNTU=wily
+DIST_UBUNTU=xenial
 
 UBUNTUURL="http://archive.ubuntu.com/ubuntu/"
 UBUNTUARMURL="http://ports.ubuntu.com/ubuntu-ports/"
@@ -121,21 +121,6 @@ if [ ! -f "${INSTALLPATH}/etc/hostname" ]; then
 	echo "America/New_York" > "${INSTALLPATH}/etc/timezone"
 	sed -i 's/\(127.0.0.1\tlocalhost\)\(.*\)/\1 '${NEWHOSTNAME}'/g' "${INSTALLPATH}/etc/hosts"
 	echo "${NEWHOSTNAME}" > "${INSTALLPATH}/etc/hostname"
-<<COMMENT2
-	# Add sbin path to normal user environment.
-	if ! grep -q "^PATH=" ${INSTALLPATH}/etc/environment; then
-		echo 'PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"' | tee -a ${INSTALLPATH}/etc/environment
-	fi
-	if ! grep -iq '/usr/games:/usr/local/sbin:/usr/sbin:/sbin' ${INSTALLPATH}/etc/login.defs; then
-		sed -i '/ENV_PATH\tPATH=/s/$/:\/usr\/local\/sbin:\/usr\/sbin:\/sbin/' ${INSTALLPATH}/etc/login.defs
-	fi
-	if ! grep -iq 'PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"' ${INSTALLPATH}/etc/profile; then
-		sed -i '/PATH=\"\/usr\/local\/bin:\/usr\/bin:\/bin:\/usr\/local\/games:\/usr\/games/s/\"$/:\/usr\/local\/sbin:\/usr\/sbin:\/sbin\"/' ${INSTALLPATH}/etc/profile
-	fi
-	if ! grep -iq '/usr/games:/usr/local/sbin:/usr/sbin:/sbin' ${INSTALLPATH}/usr/share/base-files/profile; then
-		sed -i '/PATH=\"\/usr\/local\/bin:\/usr\/bin:\/bin:\/usr\/local\/games:\/usr\/games/s/\"$/:\/usr\/local\/sbin:\/usr\/sbin:\/sbin\"/' ${INSTALLPATH}/usr/share/base-files/profile
-	fi
-COMMENT2
 else
 	echo "${INSTALLPATH} not empty. Skipping debootstrap."
 fi

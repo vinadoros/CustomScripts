@@ -255,7 +255,11 @@ EOL
 elif [[ $(type -P apt-get) ]]; then
 
 	multilineadd "$USERHOME/.bashrc" "function afix" <<'EOL'
-export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
+if [ -f /etc/environment ]; then
+	PATH2=$PATH
+	source /etc/environment
+	export PATH=$PATH:$PATH2
+fi
 function ins () {
 	echo "Installing $@."
 	sudo apt-get install $@
@@ -299,7 +303,11 @@ EOL
 
 	if [ "$(id -u)" == "0" ]; then
 		multilineadd "/root/.bashrc" "function afix" <<'EOL'
-export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
+if [ -f /etc/environment ]; then
+	PATH2=$PATH
+	source /etc/environment
+	export PATH=$PATH:$PATH2
+fi
 function ins () {
 	echo "Installing $@."
 	apt-get install $@
