@@ -258,7 +258,7 @@ elif [[ $(type -P apt-get) ]]; then
 if [ -f /etc/environment ]; then
 	PATH2=$PATH
 	source /etc/environment
-	export PATH=$PATH:$PATH2
+	export PATH=$PATH:$PATH2:/sbin:/usr/sbin:/usr/local/sbin
 fi
 function ins () {
 	echo "Installing $@."
@@ -306,7 +306,7 @@ EOL
 if [ -f /etc/environment ]; then
 	PATH2=$PATH
 	source /etc/environment
-	export PATH=$PATH:$PATH2
+	export PATH=$PATH:$PATH2:/sbin:/usr/sbin:/usr/local/sbin
 fi
 function ins () {
 	echo "Installing $@."
