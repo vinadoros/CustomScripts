@@ -216,8 +216,6 @@ dist_install pavucontrol paprefs pulseaudio pulseaudio-alsa pulseaudio-gconf pul
 # Bluetooth
 dist_install bluez bluez-firmware bluez-hid2hci bluez-libs bluez-utils pulseaudio-bluetooth
 
-# dist_install geany geany-plugins
-dist_install firefox firefox-i18n-en-us
 dist_install leafpad gnome-disk-utility gparted p7zip unrar gvfs-smb gvfs-gphoto2 gvfs-goa gvfs-mtp gvfs-google gvfs-nfs libmtp systemd-ui meld
 # System monitoring programs
 dist_install iotop powertop jnettop nethogs
@@ -342,9 +340,6 @@ EOL
 	# Email
 	dist_install thunderbird thunderbird-i18n-en-us
 
-	# Flash
-	dist_install flashplugin
-
 	###############################################################################
 	######################       Live Computer Section      #######################
 	###############################################################################
@@ -376,15 +371,10 @@ EOL
 	# MS and other Fonts
 	dist_install ttf-ms-fonts ttf-vista-fonts
 
-	if [ "${MACHINEARCH}" == "x86_64" ]; then
-		# Install google-chrome and remove chromium
-		dist_install google-chrome
-		if (pacman -Q chromium &>/dev/null); then
-			pacman -Rs --noconfirm chromium
-		fi
-	else
-		dist_install chromium
-	fi
+	# Install browsers
+	dist_install chromium
+	dist_install firefox firefox-i18n-en-us
+	dist_install adobe-flashplugin freshplayerplugin
 
 	###############################################################################
 	#########################       Virtualbox Host      ##########################
