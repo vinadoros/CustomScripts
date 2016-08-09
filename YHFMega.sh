@@ -287,7 +287,7 @@ done
 
 if [ -z "$NEWHOSTNAME" ]; then
 	read -p "Input a hostname (if you want to change the above name): " NEWHOSTNAME
-	NEWHOSTNAME=${NEWHOSTNAME//[^a-zA-Z0-9_]/}
+	NEWHOSTNAME=${NEWHOSTNAME//[^a-zA-Z0-9_-]/}
 fi
 if [[ -z "$NEWHOSTNAME" && ! -z "$HOSTNAME" ]]; then
 	echo "No input found. Defaulting to $HOSTNAME."
