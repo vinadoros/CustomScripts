@@ -277,7 +277,7 @@ if [ "${MACHINEARCH}" != "armv7l" ]; then
 	# systemctl enable x2goserver
 
 	# Cups-pdf configuration
-	pacman -S --noconfirm --needed cups-pdf
+	dist_install cups-pdf
 	systemctl enable org.cups.cupsd.service
 	systemctl restart org.cups.cupsd.service
 	if ! grep -iq "Desktop" /etc/cups/cups-pdf.conf; then
@@ -290,6 +290,8 @@ if [ "${MACHINEARCH}" != "armv7l" ]; then
 	done
 	lpadmin -p cups-pdf -o Resolution=600dpi
 	lpadmin -p cups-pdf -o PageSize=Letter
+	# Cups PPD packages
+	dist_install gutenprint foomatic-db foomatic-db-ppds foomatic-db-engine foomatic-db-gutenprint foomatic-db-gutenprint-ppds foomatic-db-nonfree foomatic-db-nonfree-ppds
 
 	# Install laptop mode tools
 	dist_install tlp smartmontools ethtool
