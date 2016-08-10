@@ -232,23 +232,24 @@ gvfs
 gvfs-smb
 
 # Mate Desktop
-mate
+mate-gtk3
 
 # Mate Extra tools
-atril
-caja-gksu
-caja-open-terminal
-engrampa
-eom
-galculator-gtk2
-mate-applets
-mate-icon-theme-faenza
-mate-power-manager
-mate-screensaver
+atril-gtk3
+caja-gksu-gtk3
+caja-open-terminal-gtk3
+engrampa-gtk3
+eom-gtk3
+galculator
+mate-applets-gtk3
+mate-power-manager-gtk3
+mate-screensaver-gtk3
 mate-system-monitor
-mate-terminal
-mate-utils
-pluma
+mate-terminal-gtk3
+mate-utils-gtk3
+pluma-gtk3
+mate-icon-theme-faenza
+noto-fonts
 EOL
 
 sudo bash -c "cat >>$ARCHLIVEPATH/airootfs/root/customize_airootfs.sh" <<EOLXYZ
