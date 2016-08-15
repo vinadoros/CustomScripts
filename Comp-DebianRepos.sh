@@ -49,7 +49,7 @@ apt-get upgrade -y
 apt-get dist-upgrade -y
 
 # Install add-apt-repository command
-apt-get install -y software-properties-common
+apt-get install -y software-properties-common dirmngr
 
 # Main, contrib and non-free for normal distro
 add-apt-repository main
