@@ -249,7 +249,8 @@ mate-terminal-gtk3
 mate-utils-gtk3
 pluma-gtk3
 mate-icon-theme-faenza
-noto-fonts
+ttf-dejavu
+ttf-liberation
 EOL
 
 sudo bash -c "cat >>$ARCHLIVEPATH/airootfs/root/customize_airootfs.sh" <<EOLXYZ
