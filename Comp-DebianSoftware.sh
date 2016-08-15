@@ -54,7 +54,7 @@ function debequivs () {
 	else
 		EQUIVPACKAGE="$1"
 	fi
-		
+
 	apt-get install -y equivs
 	if ! dpkg -l | grep -i "$EQUIVPACKAGE"; then
 		echo "Creating and installing dummy package $EQUIVPACKAGE."
@@ -163,9 +163,8 @@ apt-get install -y alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pul
 # Media Playback
 apt-get install -y vlc audacious ffmpeg
 
-# Code utilities
-apt-get install -y geany meld
-#apt-get install -y geany-plugins
+# Browsers
+apt-get install chromium
 
 # Utils
 apt-get install -y iotop
@@ -190,34 +189,34 @@ EOL
 ###############################################################################
 # Case for SETDE variable. 0=do nothing, 1=KDE, 2=cinnamon
 case $SETDE in
-[1]* ) 
+[1]* )
     # KDE
     echo "KDE stuff."
-    
+
     break;;
 
-[2]* ) 
+[2]* )
     # GNOME
     echo "GNOME stuff."
-    
+
 	if [ "$OS" = "Ubuntu" ]; then
 		echo ""
 		#apt-get install -y mate-terminal
 	elif [ "$OS" = "Debian" ]; then
 		debequivs "iceweasel"
 		debequivs "gnome-user-share"
-		
+
 		# Locale fix for gnome-terminal.
 		localectl set-locale LANG="en_US.UTF-8"
-		
+
 		apt-get install -y gnome-core alacarte desktop-base file-roller gedit gedit-plugins gnome-clocks gnome-color-manager gnome-logs gnome-nettool gnome-tweak-tool seahorse gnome-shell-extensions-gpaste
 		apt-get install -y gdm3
 		apt-get install -y gnome-packagekit network-manager-gnome
 	fi
 
     break;;
-    
-[3]* ) 
+
+[3]* )
     # MATE
     echo "MATE stuff."
 
@@ -229,7 +228,7 @@ case $SETDE in
 		apt-get install -y lightdm accountsservice
 		apt-get install -y gnome-packagekit pk-update-icon network-manager-gnome
 	fi
-	
+
 	apt-get install -y dconf-cli
 
     break;;
@@ -247,10 +246,10 @@ apt-get install -y numix-icon-theme-circle
 
 if [ "${MACHINEARCH}" != "armv7l" ]; then
 	echo "Install x86 specific software."
-	
+
 	# TLP
 	apt-get install -y tlp smartmontools ethtool
-	
+
 	# Liquorix repo
 	if ! grep -iq "liquorix.net" /etc/apt/sources.list; then
 		echo "Installing liquorix kernel."
@@ -269,7 +268,7 @@ if [ "${MACHINEARCH}" != "armv7l" ]; then
 
 elif [ "${MACHINEARCH}" = "armv7l" ]; then
 	echo "Install arm specific software."
-	
+
 	# Install omxplayer
 	if ! dpkg-query -l | grep -iq "omxplayer"; then
 		apt-get install -y xclip youtube-dl
@@ -278,14 +277,14 @@ elif [ "${MACHINEARCH}" = "armv7l" ]; then
 		rm ~/omxplayer*.deb
 	fi
 
-	
+
 	if [ "$OS" = "Ubuntu" ]; then
 
 		# Linux firmware
 		apt-get install -y linux-firmware
-		
+
 		# NTP Fix
-		if type -P ntpd &> /dev/null; then 
+		if type -P ntpd &> /dev/null; then
 			apt-get install -y ntpdate
 		fi
 
@@ -293,15 +292,15 @@ elif [ "${MACHINEARCH}" = "armv7l" ]; then
 
 		# Linux Firmware
 		apt-get install -y firmware-linux
-		
+
 		# Iceweasel
 		apt-get install -y iceweasel
-		
+
 		# Midori
 		apt-get install -y midori
 
 	fi
-	
+
 	# Rpi watchdog
 	apt-get install -y watchdog
 	#~ sed -i 's/watchdog_module=.*$/watchdog_module="bcm2708_wdog"/g' /etc/default/watchdog

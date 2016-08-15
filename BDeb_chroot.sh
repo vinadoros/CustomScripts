@@ -161,7 +161,7 @@ update-locale
 localectl set-locale LANG="en_US.UTF-8"
 
 # Install lsb_release
-apt-get install -y lsb-release nano sudo less
+apt-get install -y lsb-release nano sudo less apt-transport-https
 
 # Delete defaults in sudoers for Debian.
 if grep -iq $'^Defaults\tenv_reset' /etc/sudoers; then

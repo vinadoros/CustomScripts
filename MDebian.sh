@@ -59,8 +59,6 @@ source "$SCRIPTDIR/Comp-DisplayManagerConfig.sh"
 
 source "$SCRIPTDIR/Comp-SambaConfig.sh"
 
-source "$SCRIPTDIR/Comp-DebGChrome.sh"
-
 #source "$SCRIPTDIR/Comp-DebVBoxHost.sh"
 
 source "$SCRIPTDIR/Comp-DebVMGuest.sh"
