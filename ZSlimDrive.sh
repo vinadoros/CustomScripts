@@ -7,6 +7,12 @@ fi
 
 BTRFSOPT=0
 SWAP=0
+FOLDERMOUNT=/mnt
+BTRFSSUBVOLNAME=root
+
+if [ ! -d "$FOLDERMOUNT" ]; then
+	mkdir -p /mnt
+fi
 
 # Get options
 while getopts ":sbd:" OPT
@@ -84,19 +90,24 @@ else
 	parted -s -a optimal "$DRIVE" -- mkpart primary linux-swap $(( $MAINDRIVE )) 100%
 fi
 
-if [[ $BTRFSOPT -eq 1 ]]; then 
-	mkfs.btrfs "${DRIVE}1"
-else
-	mkfs.ext4 "${DRIVE}1"
-fi
-
 if [[ $SWAP = 1 ]]; then
 	mkswap "${DRIVE}2"
 	swapon "${DRIVE}2"
 fi
 
+if [[ $BTRFSOPT -eq 1 ]]; then
+	mkfs.btrfs "${DRIVE}1"
+	mount "${DRIVE}1" "${FOLDERMOUNT}"
+	cd "${FOLDERMOUNT}"
+	btrfs subvol create ${BTRFSSUBVOLNAME}
+	cd /
+	umount "${FOLDERMOUNT}"
+	mount "${DRIVE}1" "${FOLDERMOUNT}" -o subvol=/${BTRFSSUBVOLNAME}
+else
+	mkfs.ext4 "${DRIVE}1"
+	mount "${DRIVE}1" "${FOLDERMOUNT}"
+fi
+
 sync
 
-mount "${DRIVE}1" /mnt
-
-
+echo "Script Completed Successfully."
