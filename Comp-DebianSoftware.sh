@@ -87,6 +87,27 @@ elif [ "$OS" = "Debian" ]; then
 	# Apt updating sources
 	dist_install apt-config-auto-update
 
+	# Set up GPG.
+	# Make sure .gnupg folder exists for root
+	if [ ! -d /root/.gnupg ]; then
+		echo "Creating /root/.gnupg folder."
+		mkdir -p /root/.gnupg
+	else
+		echo "Skipping /root/.gnupg creation, folder exists."
+	fi
+
+	# Set gnupg to auto-retrive keys. This is needed for some aur packages.
+	su $USERNAMEVAR -s /bin/bash <<'EOL'
+		# First create the gnupg database if it doesn't exist.
+		if [ ! -d ~/.gnupg ]; then
+			gpg --list-keys
+		fi
+		# Have gnupg autoretrieve keys.
+		if [ -f ~/.gnupg/gpg.conf ]; then
+			sed -i 's/#keyserver-options auto-key-retrieve/keyserver-options auto-key-retrieve/g' ~/.gnupg/gpg.conf
+		fi
+	EOL
+
 fi
 
 # PPASCRIPT, common to Debian and Ubuntu for now.
