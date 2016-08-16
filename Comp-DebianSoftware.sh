@@ -91,7 +91,11 @@ elif [ "$OS" = "Debian" ]; then
 	# Make sure .gnupg folder exists for root
 	if [ ! -d /root/.gnupg ]; then
 		echo "Creating /root/.gnupg folder."
-		mkdir -p /root/.gnupg
+		gpg --list-keys
+		# Have gnupg autoretrieve keys.
+		if [ -f /root/.gnupg/gpg.conf ]; then
+			sed -i 's/#keyserver-options auto-key-retrieve/keyserver-options auto-key-retrieve/g' ~/.gnupg/gpg.conf
+		fi
 	else
 		echo "Skipping /root/.gnupg creation, folder exists."
 	fi
@@ -106,7 +110,7 @@ elif [ "$OS" = "Debian" ]; then
 		if [ -f ~/.gnupg/gpg.conf ]; then
 			sed -i 's/#keyserver-options auto-key-retrieve/keyserver-options auto-key-retrieve/g' ~/.gnupg/gpg.conf
 		fi
-	EOL
+EOL
 
 fi
 
