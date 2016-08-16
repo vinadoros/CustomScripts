@@ -224,7 +224,7 @@ case $SETDE in
 		dist_install ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop
 		dist_install ubuntu-mate-lightdm-theme
 	elif [ "$OS" = "Debian" ]; then
-		dist_install mate-desktop-environment caja-open-terminal caja-gksu caja-share dconf-editor gnome-keyring mate-gnome-main-menu-applet mate-netspeed mate-sensors-applet mozo
+		dist_install mate-desktop-environment caja-open-terminal caja-gksu caja-share dconf-editor gnome-keyring mate-sensors-applet mozo
 		dist_install lightdm accountsservice
 		dist_install gnome-packagekit pk-update-icon network-manager-gnome
 	fi
