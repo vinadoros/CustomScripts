@@ -55,7 +55,7 @@ function debequivs () {
 		EQUIVPACKAGE="$1"
 	fi
 
-	apt-get install -y equivs
+	dist_install equivs
 	if ! dpkg -l | grep -i "$EQUIVPACKAGE"; then
 		echo "Creating and installing dummy package $EQUIVPACKAGE."
 		bash -c "cat >/var/tmp/$EQUIVPACKAGE" <<EOL
@@ -85,7 +85,7 @@ elif [ "$OS" = "Debian" ]; then
 	echo "Installing Debian specific software."
 
 	# Apt updating sources
-	apt-get install -y apt-config-auto-update
+	dist_install apt-config-auto-update
 
 fi
 
@@ -112,7 +112,7 @@ EOL
 chmod a+rwx "$PPASCRIPT"
 
 # Make user part of sudo group
-apt-get install -y sudo
+dist_install sudo
 usermod -aG sudo $USERNAMEVAR
 # Delete defaults in sudoers for Debian.
 if grep -iq $'^Defaults\tenv_reset' /etc/sudoers; then
@@ -123,28 +123,28 @@ fi
 visudo -c
 
 # Install openssh
-apt-get install -y ssh tmux
+dist_install ssh tmux
 
 # Install fish
-apt-get install -y fish
+dist_install fish
 FISHPATH=$(which fish)
 if ! grep -iq "$FISHPATH" /etc/shells; then
 	echo "$FISHPATH" | tee -a /etc/shells
 fi
 
 # For general desktop
-apt-get install -y synaptic gdebi gparted xdg-utils leafpad
-apt-get install -y gnome-disk-utility btrfs-tools f2fs-tools
+dist_install synaptic gdebi gparted xdg-utils leafpad
+dist_install gnome-disk-utility btrfs-tools f2fs-tools
 DEBIAN_FRONTEND=noninteractive apt-get install -y nbd-client
 
 # Timezone stuff
 dpkg-reconfigure -f noninteractive tzdata
 
 # CLI utilities
-apt-get install -y curl rsync less
+dist_install curl rsync less
 
 # Samba
-apt-get install -y samba winbind
+dist_install samba winbind
 
 # NTP
 systemctl enable systemd-timesyncd
@@ -152,26 +152,26 @@ timedatectl set-local-rtc false
 timedatectl set-ntp 1
 
 # Avahi
-apt-get install -y avahi-daemon avahi-discover libnss-mdns
+dist_install avahi-daemon avahi-discover libnss-mdns
 
 # Cups-pdf
-apt-get install -y cups-pdf
+dist_install cups-pdf
 
 # Audio
-apt-get install -y alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pulseaudio-module-bluetooth
+dist_install alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pulseaudio-module-bluetooth
 
 # Media Playback
-apt-get install -y vlc audacious ffmpeg
+dist_install vlc audacious ffmpeg
 
 # Browsers
-[ "$OS" = "Debian" ] && apt-get install chromium
-[ "$OS" = "Ubuntu" ] && apt-get install chromium-browser
+[ "$OS" = "Debian" ] && dist_install chromium
+[ "$OS" = "Ubuntu" ] && dist_install chromium-browser
 
 # Utils
-apt-get install -y iotop
+dist_install iotop
 
 # Cron
-apt-get install -y cron anacron
+dist_install cron anacron
 systemctl disable cron
 systemctl disable anacron
 
@@ -202,7 +202,6 @@ case $SETDE in
 
 	if [ "$OS" = "Ubuntu" ]; then
 		echo ""
-		#apt-get install -y mate-terminal
 	elif [ "$OS" = "Debian" ]; then
 		debequivs "iceweasel"
 		debequivs "gnome-user-share"
@@ -210,9 +209,9 @@ case $SETDE in
 		# Locale fix for gnome-terminal.
 		localectl set-locale LANG="en_US.UTF-8"
 
-		apt-get install -y gnome-core alacarte desktop-base file-roller gedit gedit-plugins gnome-clocks gnome-color-manager gnome-logs gnome-nettool gnome-tweak-tool seahorse gnome-shell-extensions-gpaste
-		apt-get install -y gdm3
-		apt-get install -y gnome-packagekit network-manager-gnome
+		dist_install gnome-core alacarte desktop-base file-roller gedit gedit-plugins gnome-clocks gnome-color-manager gnome-logs gnome-nettool gnome-tweak-tool seahorse gnome-shell-extensions-gpaste
+		dist_install gdm3
+		dist_install gnome-packagekit network-manager-gnome
 	fi
 
     break;;
@@ -222,15 +221,15 @@ case $SETDE in
     echo "MATE stuff."
 
 	if [ "$OS" = "Ubuntu" ]; then
-		apt-get install -y ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop
-		apt-get install -y ubuntu-mate-lightdm-theme
+		dist_install ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop
+		dist_install ubuntu-mate-lightdm-theme
 	elif [ "$OS" = "Debian" ]; then
-		apt-get install -y mate-desktop-environment caja-open-terminal caja-gksu caja-share dconf-editor gnome-keyring mate-gnome-main-menu-applet mate-netspeed mate-sensors-applet mozo
-		apt-get install -y lightdm accountsservice
-		apt-get install -y gnome-packagekit pk-update-icon network-manager-gnome
+		dist_install mate-desktop-environment caja-open-terminal caja-gksu caja-share dconf-editor gnome-keyring mate-gnome-main-menu-applet mate-netspeed mate-sensors-applet mozo
+		dist_install lightdm accountsservice
+		dist_install gnome-packagekit pk-update-icon network-manager-gnome
 	fi
 
-	apt-get install -y dconf-cli
+	dist_install dconf-cli
 
     break;;
 
@@ -242,14 +241,14 @@ esac
 
 # PPA software
 ppa ppa:numix/ppa
-apt-get install -y numix-icon-theme-circle
+dist_install numix-icon-theme-circle
 
 
 if [ "${MACHINEARCH}" != "armv7l" ]; then
 	echo "Install x86 specific software."
 
 	# TLP
-	apt-get install -y tlp smartmontools ethtool
+	dist_install tlp smartmontools ethtool
 
 	# Liquorix repo
 	if ! grep -iq "liquorix.net" /etc/apt/sources.list; then
@@ -259,8 +258,8 @@ if [ "${MACHINEARCH}" != "armv7l" ]; then
 		apt-get install -y --force-yes liquorix-keyring
 		apt-get update
 		# Install kernels.
-		[ "${MACHINEARCH}" = "x86_64" ] && apt-get install -y linux-image-liquorix-amd64 linux-headers-liquorix-amd64
-		[ "${MACHINEARCH}" = "i686" ] && apt-get install -y linux-image-liquorix-686-pae linux-headers-liquorix-686-pae
+		[ "${MACHINEARCH}" = "x86_64" ] && dist_install linux-image-liquorix-amd64 linux-headers-liquorix-amd64
+		[ "${MACHINEARCH}" = "i686" ] && dist_install linux-image-liquorix-686-pae linux-headers-liquorix-686-pae
 		# Remove stock kernels if installed.
 		dpkg-query -l | grep -iq "linux-image-amd64" && apt-get --purge remove -y linux-image-amd64
 		dpkg-query -l | grep -iq "linux-image-686-pae" && apt-get --purge remove -y linux-image-686-pae
@@ -272,7 +271,7 @@ elif [ "${MACHINEARCH}" = "armv7l" ]; then
 
 	# Install omxplayer
 	if ! dpkg-query -l | grep -iq "omxplayer"; then
-		apt-get install -y xclip youtube-dl
+		dist_install xclip youtube-dl
 		wget -P ~/ "${OMXURL}"
 		gdebi -n ~/omxplayer*.deb
 		rm ~/omxplayer*.deb
@@ -282,28 +281,28 @@ elif [ "${MACHINEARCH}" = "armv7l" ]; then
 	if [ "$OS" = "Ubuntu" ]; then
 
 		# Linux firmware
-		apt-get install -y linux-firmware
+		dist_install linux-firmware
 
 		# NTP Fix
 		if type -P ntpd &> /dev/null; then
-			apt-get install -y ntpdate
+			dist_install ntpdate
 		fi
 
 	elif [ "$OS" = "Debian" ]; then
 
 		# Linux Firmware
-		apt-get install -y firmware-linux
+		dist_install firmware-linux
 
 		# Iceweasel
-		apt-get install -y iceweasel
+		dist_install iceweasel
 
 		# Midori
-		apt-get install -y midori
+		dist_install midori
 
 	fi
 
 	# Rpi watchdog
-	apt-get install -y watchdog
+	dist_install watchdog
 	#~ sed -i 's/watchdog_module=.*$/watchdog_module="bcm2708_wdog"/g' /etc/default/watchdog
 	bash -c "cat >/lib/systemd/system/wdt_bcm.service" <<'EOL'
 [Unit]
