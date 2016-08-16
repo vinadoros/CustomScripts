@@ -115,18 +115,19 @@ EOL
 fi
 
 # Set up import missing keys.
-multilinereplace "/usr/bin/local/keymissing" <<"EOFXYZ"
+multilinereplace "/usr/bin/local/keymissing" <<'EOFXYZ'
 #!/bin/bash
-sudo apt-get update 2> /tmp/keymissing
-if [ -f /tmp/keymissing ]
+APTLOG=/tmp/aptlog
+sudo apt-get update 2> $APTLOG
+if [ -f $APTLOG ]
 then
-	for key in $(grep "NO_PUBKEY" /tmp/keymissing |sed "s/.*NO_PUBKEY //")
+	for key in $(grep "NO_PUBKEY" $APTLOG |sed "s/.*NO_PUBKEY //")
 			do
 			echo -e "\nProcessing key: $key"
 			sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $key
 			sudo apt-get update
 	done
-	rm /tmp/keymissing
+	rm $APTLOG
 fi
 EOFXYZ
 
