@@ -114,6 +114,22 @@ EOL
 
 fi
 
+# Set up import missing keys.
+multilinereplace "/usr/bin/local/keymissing" <<"EOFXYZ"
+#!/bin/bash
+sudo apt-get update 2> /tmp/keymissing
+if [ -f /tmp/keymissing ]
+then
+	for key in $(grep "NO_PUBKEY" /tmp/keymissing |sed "s/.*NO_PUBKEY //")
+			do
+			echo -e "\nProcessing key: $key"
+			sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $key
+			sudo apt-get update
+	done
+	rm /tmp/keymissing
+fi
+EOFXYZ
+
 # PPASCRIPT, common to Debian and Ubuntu for now.
 PPASCRIPT="/usr/local/bin/ppa"
 echo "Creating $PPASCRIPT"
@@ -133,6 +149,7 @@ PPA="$1"
 
 add-apt-repository -y "$PPA"
 apt-get update
+keymissing
 EOL
 chmod a+rwx "$PPASCRIPT"
 
