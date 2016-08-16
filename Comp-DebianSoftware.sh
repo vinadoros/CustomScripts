@@ -115,9 +115,8 @@ EOL
 fi
 
 # Set up import missing keys.
-KEYMISSSCRIPT="/usr/bin/local/keymissing"
-echo "Creating $KEYMISSSCRIPT"
-bash -c "cat >$KEYMISSSCRIPT" <<'EOL'
+KEYMISSSCRIPT="/usr/local/bin/keymissing"
+multilinereplace "$KEYMISSSCRIPT" <<'EOL'
 #!/bin/bash
 APTLOG=/tmp/aptlog
 sudo apt-get update 2> $APTLOG
@@ -136,8 +135,7 @@ chmod a+rwx "$KEYMISSSCRIPT"
 
 # PPASCRIPT, common to Debian and Ubuntu for now.
 PPASCRIPT="/usr/local/bin/ppa"
-echo "Creating $PPASCRIPT"
-bash -c "cat >$PPASCRIPT" <<'EOL'
+multilinereplace "$PPASCRIPT" <<'EOL'
 #!/bin/bash
 
 if [ -z $1 ]; then
@@ -155,7 +153,6 @@ add-apt-repository -y "$PPA"
 apt-get update
 keymissing
 EOL
-chmod a+rwx "$PPASCRIPT"
 
 # Make user part of sudo group
 dist_install sudo
