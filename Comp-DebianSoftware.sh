@@ -115,7 +115,7 @@ EOL
 fi
 
 # Set up import missing keys.
-multilinereplace "/usr/bin/local/keymissing" <<'EOFXYZ'
+bash -c "cat >/usr/bin/local/keymissing" <<'EOFXYZ'
 #!/bin/bash
 APTLOG=/tmp/aptlog
 sudo apt-get update 2> $APTLOG
@@ -130,6 +130,7 @@ then
 	rm $APTLOG
 fi
 EOFXYZ
+chmod a+rwx "/usr/bin/local/keymissing"
 
 # PPASCRIPT, common to Debian and Ubuntu for now.
 PPASCRIPT="/usr/local/bin/ppa"
