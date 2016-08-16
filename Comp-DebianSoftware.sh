@@ -164,7 +164,8 @@ apt-get install -y alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pul
 apt-get install -y vlc audacious ffmpeg
 
 # Browsers
-apt-get install chromium
+[ "$OS" = "Debian" ] && apt-get install chromium
+[ "$OS" = "Ubuntu" ] && apt-get install chromium-browser
 
 # Utils
 apt-get install -y iotop
