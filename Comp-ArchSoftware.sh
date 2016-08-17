@@ -357,7 +357,7 @@ EOL
 			echo "x86_64 Software for Arch."
 
 			#Install atom editor.
-			dist_install atom-editor
+			dist_install atom
 
 			#Install Visual Studio Code.
 			dist_install visual-studio-code-oss
