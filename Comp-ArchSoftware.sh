@@ -293,9 +293,8 @@ if [ "${MACHINEARCH}" != "armv7l" ]; then
 	systemctl enable tlp
 	systemctl enable tlp-sleep
 
-	# Install systemd-swap
-	#~ dist_install systemd-swap
-	#~ systemctl enable systemd-swap
+	#Install atom editor.
+	dist_install atom
 
 	# Install reflector and sort mirrors for speed. Install service which loads on bootup.
 	dist_install reflector
@@ -355,9 +354,6 @@ EOL
 		# For x86_64 only
 		if [ "${MACHINEARCH}" = "x86_64" ]; then
 			echo "x86_64 Software for Arch."
-
-			#Install atom editor.
-			dist_install atom
 
 			#Install Visual Studio Code.
 			dist_install visual-studio-code-oss
