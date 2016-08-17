@@ -183,8 +183,10 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y nbd-client
 # Timezone stuff
 dpkg-reconfigure -f noninteractive tzdata
 
-# CLI utilities
+# CLI and system utilities
 dist_install curl rsync less
+# Needed for systemd user sessions.
+dist_install dbus-user-session
 
 # Samba
 dist_install samba winbind
