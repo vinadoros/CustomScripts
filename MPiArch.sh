@@ -18,31 +18,13 @@ SCRIPTDIR="$(dirname "$FLWSOURCE")"
 SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
-source "$SCRIPTDIR/Comp-NScriptSetup.sh"
-
 source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
 
 ###############################################################################
 #########################        Compose Script      ##########################
 ###############################################################################
 
-bash -c "cat >>${SETUPSCRIPT}" <<'EOLXYZ'
-#!/bin/bash
-# Halt on any error.
-set -eu
-
-if [ "$(id -u)" != "0" ]; then
-	echo "Not running with root. Please run the script with su privledges."
-	exit 1;
-fi
-
-EOLXYZ
-
-nscriptadd "$SCRIPTDIR/Comp-GeneralFunctions.sh" "${SETUPSCRIPT}"
-
-nscriptadd "$SCRIPTDIR/Comp-InitVars.sh" "${SETUPSCRIPT}"
-
-bash -c "cat >>${SETUPSCRIPT}" <<'EOLXYZ'
+source "$SCRIPTDIR/Comp-InitVars.sh"
 
 # Install a desktop environment. 0=do nothing, 1=KDE, 2=cinnamon, 3=GNOME, 4=xfce, 5=MATE
 read -p "Enter a number to install a desktop environment (0=do nothing/default option, 1=KDE, 2=cinnamon, 3=GNOME, 4=xfce, 5=MATE):" SETDE
@@ -51,7 +33,7 @@ if [ -z "$SETDE" ]; then
 	echo "No input found. Defaulting to 0."
 	SETDE=0
 fi
-echo "You entered" $SETDE
+echo "You entered $SETDE"
 
 # Change/Setup display manager. 0=do nothing, 1=SDDM, 2=LightDM gtk, 3=GDM, 4=LightDM kde
 read -p "Enter a number to install a display manager (0=do nothing/default option, 1=SDDM, 2=LightDM gtk, 3=GDM, 4=LightDM kde):" SETDM
@@ -60,7 +42,7 @@ if [ -z "$SETDM" ]; then
 	echo "No input found. Defaulting to 0."
 	SETDM=0
 fi
-echo "You entered" $SETDM
+echo "You entered $SETDM"
 
 read -p "Press any key to continue."
 
@@ -70,47 +52,39 @@ if [[ ! -d $USERHOME/.config/autostart/ ]]; then
 	chown -R $USERNAMEVAR:$USERGROUP $USERHOME/.config
 fi
 
-# Set lightdm autologin flag to true.
-export LIGHTDMAUTO=1
+source "$SCRIPTDIR/Comp-ArchAUR.sh"
 
-EOLXYZ
+source "$SCRIPTDIR/Comp-ArchSoftware.sh"
 
-nscriptadd "$SCRIPTDIR/Comp-ArchAUR.sh" "${SETUPSCRIPT}"
+source "$SCRIPTDIR/Comp-sdtimers.sh"
 
-nscriptadd "$SCRIPTDIR/Comp-ArchSoftware.sh" "${SETUPSCRIPT}"
+source "$SCRIPTDIR/Comp-ArchCron.sh"
 
-nscriptadd "$SCRIPTDIR/Comp-sdtimers.sh" "${SETUPSCRIPT}"
+source "$SCRIPTDIR/Comp-ArchInfinality.sh"
 
-nscriptadd "$SCRIPTDIR/Comp-ArchCron.sh" "${SETUPSCRIPT}"
+source "$SCRIPTDIR/Comp-sshconfig.sh"
 
-nscriptadd "$SCRIPTDIR/Comp-ArchInfinality.sh" "${SETUPSCRIPT}"
+source "$SCRIPTDIR/Comp-Fish.sh"
 
-nscriptadd "$SCRIPTDIR/Comp-sshconfig.sh" "${SETUPSCRIPT}"
+source "$SCRIPTDIR/Comp-Bash.sh"
 
-nscriptadd "$SCRIPTDIR/Comp-Fish.sh" "${SETUPSCRIPT}"
+source "$SCRIPTDIR/Comp-CSClone.sh"
 
-nscriptadd "$SCRIPTDIR/Comp-Bash.sh" "${SETUPSCRIPT}"
+source "$SCRIPTDIR/Comp-BoxDAV.sh"
 
-nscriptadd "$SCRIPTDIR/Comp-CSClone.sh" "${SETUPSCRIPT}"
+source "$SCRIPTDIR/Comp-DisplayManagerConfig.sh"
 
-nscriptadd "$SCRIPTDIR/Comp-BoxDAV.sh" "${SETUPSCRIPT}"
+source "$SCRIPTDIR/Comp-SambaConfig.sh"
 
-nscriptadd "$SCRIPTDIR/Comp-LightDMAutoLogin.sh" "${SETUPSCRIPT}"
+source "$SCRIPTDIR/Comp-xdgdirs.sh"
 
-nscriptadd "$SCRIPTDIR/Comp-SambaConfig.sh" "${SETUPSCRIPT}"
+source "$SCRIPTDIR/Comp-zram.sh"
 
-nscriptadd "$SCRIPTDIR/Comp-xdgdirs.sh" "${SETUPSCRIPT}"
+source "$SCRIPTDIR/Comp-RPiGeneral.sh"
 
-nscriptadd "$SCRIPTDIR/Comp-zram.sh" "${SETUPSCRIPT}"
+source "$SCRIPTDIR/Comp-SysConfig.sh"
 
-nscriptadd "$SCRIPTDIR/Comp-RPiGeneral.sh" "${SETUPSCRIPT}"
-
-nscriptadd "$SCRIPTDIR/Comp-SysConfig.sh" "${SETUPSCRIPT}"
-
-bash -c "cat >>${SETUPSCRIPT}" <<'EOLXYZ'
-
-echo -e "\n****************************************\n*****Script Completed Successfully!*****\n****************************************\n"
-EOLXYZ
-
-chmod a+rwx "${SETUPSCRIPT}"
-echo "Script generated at ${SETUPSCRIPT}."
+sleep 1
+echo ""
+echo "Script Completed Successfully."
+echo ""

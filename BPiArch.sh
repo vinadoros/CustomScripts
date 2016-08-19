@@ -156,6 +156,10 @@ pacman -S --needed --noconfirm wget networkmanager dhclient ntfs-3g gptfdisk dos
 systemctl enable NetworkManager
 systemctl enable sshd
 
+pacman -S --needed --noconfirm git
+git clone "https://github.com/vinadoros/CustomScripts.git" "/opt/CustomScripts"
+chmod a+rwx "/opt/CustomScripts"
+
 EOLXYZ
 
 chmod a+rwx ${INSTALLPATH}/setupscript.sh
@@ -170,12 +174,6 @@ set -e
 
 # Delete script when done.
 rm "${SETUPSCRIPT}"
-
-# Delete script when done.
 rm "${GRUBSCRIPT}"
-
-# Create new setup script for post-install tasks.
-echo "Creating post-install setup script."
-"$SCRIPTDIR/NRPi-Arch.sh" "${INSTALLPATH}"
 
 echo "Script finished successfully."
