@@ -394,7 +394,7 @@ elif [ "${MACHINEARCH}" = "armv7l" ]; then
 	#Install xorg
 	dist_install xorg-server xorg-server-utils mesa-libgl xorg-xinit xterm mesa xf86-video-fbdev
 
-	dist_install wget python networkmanager network-manager-applet ntfs-3g gptfdisk dosfstools ntp alsa-utils btrfs-progs xfsprogs f2fs-tools
+	dist_install wget python networkmanager network-manager-applet ntfs-3g gptfdisk dosfstools alsa-utils btrfs-progs xfsprogs f2fs-tools
 	systemctl enable NetworkManager
 
 	# Install browsers
