@@ -60,8 +60,6 @@ source "$SCRIPTDIR/Comp-sdtimers.sh"
 
 source "$SCRIPTDIR/Comp-ArchCron.sh"
 
-source "$SCRIPTDIR/Comp-ArchInfinality.sh"
-
 source "$SCRIPTDIR/Comp-sshconfig.sh"
 
 source "$SCRIPTDIR/Comp-Fish.sh"
