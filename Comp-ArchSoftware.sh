@@ -215,7 +215,7 @@ dist_install leafpad gnome-disk-utility gparted p7zip unrar gvfs-smb gvfs-gphoto
 # System monitoring programs
 dist_install iotop powertop jnettop nethogs
 # Catfish search software
-dist_install catfish findutils mlocate pinot antiword catdoc poppler djvulibre unrtf
+dist_install findutils mlocate
 
 # Install avahi
 dist_install avahi nss-mdns pygtk python2-dbus
