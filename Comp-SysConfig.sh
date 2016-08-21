@@ -147,33 +147,33 @@ fi
 # Font configuration
 if [[ ! -f "/etc/fonts/conf.d/10-base-rendering.conf" ]]; then
 	multilinereplace "/etc/fonts/conf.avail/10-custom-rmk.conf" <<"EOF"
-	<?xml version='1.0'?>
-	<!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>
-	<fontconfig>
+<?xml version='1.0'?>
+<!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>
+<fontconfig>
 
-	  <!-- ## Base rendering settings ## -->
-	  <match target="font">
-	    <edit name="rgba" mode="assign">
-	      <const>rgb</const>
-	    </edit>
-	    <edit name="hinting" mode="assign">
-	      <bool>true</bool>
-	    </edit>
-	    <edit name="autohint" mode="assign">
-	      <bool>true</bool>
-	    </edit>
-	    <edit name="antialias" mode="assign">
-	      <bool>true</bool>
-	    </edit>
-	    <edit name="hintstyle" mode="assign">
-	      <const>hintslight</const>
-	    </edit>
-	    <edit name="lcdfilter" mode="assign">
-	      <const>lcddefault</const>
-	    </edit>
-	  </match>
+  <!-- ## Base rendering settings ## -->
+  <match target="font">
+    <edit name="rgba" mode="assign">
+      <const>rgb</const>
+    </edit>
+    <edit name="hinting" mode="assign">
+      <bool>true</bool>
+    </edit>
+    <edit name="autohint" mode="assign">
+      <bool>true</bool>
+    </edit>
+    <edit name="antialias" mode="assign">
+      <bool>true</bool>
+    </edit>
+    <edit name="hintstyle" mode="assign">
+      <const>hintslight</const>
+    </edit>
+    <edit name="lcdfilter" mode="assign">
+      <const>lcddefault</const>
+    </edit>
+  </match>
 
-	</fontconfig>
+</fontconfig>
 
 EOF
 	ln -sf /etc/fonts/conf.avail/10-custom-rmk.conf /etc/fonts/conf.d/10-custom-rmk.conf
