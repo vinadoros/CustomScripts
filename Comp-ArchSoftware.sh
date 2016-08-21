@@ -170,7 +170,7 @@ case $SETDE in
 [5]* )
 	# Install MATE
 	echo "Installing MATE."
-	dist_install mate-gtk3 xdg-user-dirs-gtk gnome-themes-standard gnome-keyring seahorse dconf-editor
+	dist_install mate-gtk3 xdg-user-dirs-gtk gnome-themes-standard gnome-keyring seahorse dconf-editor mate-menu
 	# MATE Extras
 	dist_install atril-gtk3 caja-gksu-gtk3 caja-open-terminal-gtk3 caja-share-gtk3 engrampa-gtk3 eom-gtk3 gnome-calculator mate-applets-gtk3 mate-media-gtk3 mate-power-manager-gtk3 mate-sensors-applet-gtk3 mate-system-monitor mate-terminal-gtk3 mate-utils-gtk3 mozo pluma-gtk3 unrar mate-screensaver-gtk3 mate-icon-theme-faenza
 	# Clipboard monitor

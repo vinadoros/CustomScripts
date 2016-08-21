@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Disable error handlingss
+set +eu
+
 # Get folder of this script
 SCRIPTSOURCE="${BASH_SOURCE[0]}"
 FLWSOURCE="$(readlink -f "$SCRIPTSOURCE")"
@@ -7,8 +10,8 @@ SCRIPTDIR="$(dirname "$FLWSOURCE")"
 SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
-# Disable error handlingss
-set +eu
+# Add general functions if they don't exist.
+type -t grepadd &> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
 
 # Set user folders if they don't exist.
 if [ -z $USERNAMEVAR ]; then
