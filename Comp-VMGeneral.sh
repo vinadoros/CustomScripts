@@ -95,9 +95,14 @@ loopra () {
 		exit 1;
 	fi
 	xhost +localhost
+	# Detect the display output from xrandr.
+	RADISPLAYS=$(xrandr --listmonitors | awk '{print $4}')
 	while true; do
 		sleep 1
-		xrandr --output Virtual-0 --auto
+		# Loop through every detected display and autoset them.
+		for disp in ${RADISPLAYS[@]}; do
+			xrandr --output $disp --auto
+		done
 	done
 }
 
