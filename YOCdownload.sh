@@ -43,28 +43,28 @@ while [ $occount -le $ocendcount ]
 do
     echo "Current URL: http://ocremix.org/remix/OCR0${occount}"
     OCURL="http://ocremix.org/remix/OCR0${occount}"
-    
-    # Skip the first URL, cycle through the other 3 mirrors.
+
+    # Skip the first URL, cycle through the other 3 (out of 4) mirrors.
     #ocmodulus=$(( ( $occount % 3 ) + 2 ))
 	# Cycle through all 4 mirrors.
-    ocmodulus=$(( ( $occount % 4 ) + 1 ))
-	
+    ocmodulus=$(( ( $occount % 3 ) + 1 ))
+
 	echo "Modulus: $ocmodulus"
-	
+
 	CURLURL=$(curl -s "${OCURL}" | grep -oie "\(http\|https\|ftp\|www\).*\.\(mp3\|wav\|m4a\|ogg\|mp4\)" | sort | uniq | sed -n "${ocmodulus}"p | head)
 	echo "Download $occount from $CURLURL"
-	
+
 	curl -A "$USERAGENT" -sOL "$CURLURL" &
-	
+
 	# Wait for process to finish
 	# Source: https://stackoverflow.com/questions/1058047/wait-for-any-process-to-finish
-	if [[ $ocmodulus -ge 4 ]]; then
+	if [[ $ocmodulus -ge 3 ]]; then
 		while pgrep curl >> /dev/null; do sleep 1; done
 	fi
-	
+
 	# Check filesize, if smaller than certain value, retry with different mirror.
 	# stat --format=%s $(basename "$CURLURL")
-	
+
     ((occount++))
 done
 
@@ -82,5 +82,3 @@ for f in *.mp3; do
 done
 
 echo -e "\nScript Completed Successfully."
-
-
