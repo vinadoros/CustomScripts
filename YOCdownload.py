@@ -7,7 +7,6 @@ from html.parser import HTMLParser
 import urllib.parse
 import os
 from multiprocessing import Pool
-from multiprocessing.dummy import Pool as ThreadPool
 
 # Variables.
 BASEOCURL="http://ocremix.org/remix/OCR0"
@@ -84,8 +83,10 @@ def ocremix_download(url):
 # Get the info of the first oc mix as a starting reference.
 ocremix_geturls(ocstart)
 # Create threads based on number of mirrors.
-# Reference: http://chriskiehl.com/article/parallelism-in-one-line/
-pool = ThreadPool(threadnumber)
+# http://chriskiehl.com/article/parallelism-in-one-line/
+# https://stackoverflow.com/questions/2846653/how-to-use-threading-in-python#2846697
+# Use Pool instead of ThreadPool to really use multiprocessing instead of multiprocessing.dummy.
+pool = Pool(threadnumber)
 # Loop through each mix, ending at ocend. Range is ocend+1 since range function needs to include ocend.
 allurls = pool.map(ocremix_geturls, range(ocstart, ocend+1))
 # Pass the function and array of urls to the pool for downloading.
