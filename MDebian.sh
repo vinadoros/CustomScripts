@@ -3,8 +3,7 @@
 ###############################################################################
 ##################        Initial Setup and Variables      ####################
 ###############################################################################
-# Halt on any error.
-set -eu
+set +eu
 
 if [ "$(id -u)" != "0" ]; then
 	echo "Not running with root. Please run the script with su privledges."
@@ -40,6 +39,7 @@ fi
 echo "You entered $SETDE"
 
 read -p "Press any key to continue."
+set -eu
 
 source "$SCRIPTDIR/Comp-DebianRepos.sh"
 
