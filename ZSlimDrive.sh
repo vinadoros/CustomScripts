@@ -7,6 +7,7 @@ fi
 
 BTRFSOPT=0
 SWAP=0
+NOPROMPT=0
 FOLDERMOUNT=/mnt
 BTRFSSUBVOLNAME=root
 
@@ -15,7 +16,7 @@ if [ ! -d "$FOLDERMOUNT" ]; then
 fi
 
 # Get options
-while getopts ":sbd:" OPT
+while getopts ":sbd:n" OPT
 do
 	case $OPT in
 		b)
@@ -26,6 +27,9 @@ do
 			;;
 		d)
 			DRIVE="$OPTARG"
+			;;
+		n)
+			NOPROMPT=1
 			;;
 		\?)
 			echo "Invalid option: -$OPTARG" 1>&2
@@ -73,7 +77,9 @@ if [[ $SWAP = 1 ]]; then
 	echo "Swap Size: ${SWAPSIZE}"
 	echo "Main Partition Size: ${MAINDRIVE}"
 fi
-read -p "Press any key to continue."
+if [[ $NOPROMPT != 1 ]]; then
+	read -p "Press any key to continue."
+fi
 
 # Remove each partition
 for v_partition in $(parted -s "$DRIVE" print|awk '/^ / {print $1}')
