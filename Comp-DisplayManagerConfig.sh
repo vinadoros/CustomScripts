@@ -182,46 +182,49 @@ Terminal=false
 Type=Application
 EOL
 
-# Pulseaudio gdm fix
-# http://www.debuntu.org/how-to-disable-pulseaudio-and-sound-in-gdm/
-# https://bbs.archlinux.org/viewtopic.php?id=202915
-if [[ $(type -P gdm) || $(type -P gdm3) && -f /etc/pulse/default.pa ]]; then
-	echo "Executing gdm pulseaudio fix."
+# Detect gdm folders
+if [[ $(type -P gdm) || $(type -P gdm3) ]]; then
 	set +eu
 	if type -P gdm3; then
 		GDMUID="$(id -u Debian-gdm)"
 		GDMGID="$(id -g Debian-gdm)"
 		GDMPATH="/var/lib/gdm3"
+		GDMETCPATH="/etc/gdm3"
 	elif type -P gdm; then
 		GDMUID="$(id -u gdm)"
 		GDMGID="$(id -g gdm)"
 		GDMPATH="/var/lib/gdm"
+		GDMETCPATH="/etc/gdm"
 	fi
 	set -eu
 
-	if [ ! -d "$GDMPATH/.config/pulse/" ]; then
-		mkdir -p "$GDMPATH/.config/pulse/"
+	# Pulseaudio gdm fix
+	# http://www.debuntu.org/how-to-disable-pulseaudio-and-sound-in-gdm/
+	# https://bbs.archlinux.org/viewtopic.php?id=202915
+	if [[ -f /etc/pulse/default.pa ]]; then
+		echo "Executing gdm pulseaudio fix."
+
+		if [ ! -d "$GDMPATH/.config/pulse/" ]; then
+			mkdir -p "$GDMPATH/.config/pulse/"
+		fi
+
+		cp /etc/pulse/default.pa "$GDMPATH/.config/pulse/default.pa"
+		sed -i '/^load-module .*/s/^/#/g' "$GDMPATH/.config/pulse/default.pa"
+
+		chown -R $GDMUID:$GDMGID "$GDMPATH/"
 	fi
 
-	cp /etc/pulse/default.pa "$GDMPATH/.config/pulse/default.pa"
-	sed -i '/^load-module .*/s/^/#/g' "$GDMPATH/.config/pulse/default.pa"
+	#### Enable synergy and vnc in gdm ####
+	# https://help.gnome.org/admin/gdm/stable/configuration.html.en
+	# https://forums-lb.gentoo.org/viewtopic-t-1027688.html
+	# https://bugs.gentoo.org/show_bug.cgi?id=553446
+	# https://major.io/2008/07/30/automatically-starting-synergy-in-gdm-in-ubuntufedora/
 
-	chown -R $GDMUID:$GDMGID "$GDMPATH/"
-fi
-
-#### Enable synergy and vnc in gdm ####
-# https://help.gnome.org/admin/gdm/stable/configuration.html.en
-# https://forums-lb.gentoo.org/viewtopic-t-1027688.html
-# https://bugs.gentoo.org/show_bug.cgi?id=553446
-# https://major.io/2008/07/30/automatically-starting-synergy-in-gdm-in-ubuntufedora/
-
-# Disable Wayland in GDM
-if [ -f "/etc/gdm/custom.conf" ]; then
-	sed -i '/^#WaylandEnable=.*/s/^#//' "/etc/gdm/custom.conf"
-	sed -i 's/^WaylandEnable=.*/WaylandEnable=false/g' "/etc/gdm/custom.conf"
-fi
-
-if [[ $(type -P gdm) || $(type -P gdm3) ]]; then
+	# Disable Wayland in GDM
+	if [ -f "$GDMETCPATH/custom.conf" ]; then
+		sed -i '/^#WaylandEnable=.*/s/^#//' "/etc/gdm/custom.conf"
+		sed -i 's/^WaylandEnable=.*/WaylandEnable=false/g' "/etc/gdm/custom.conf"
+	fi
 
 	# Start xvnc and synergy
 	multilinereplace "/usr/share/gdm/greeter/autostart/gdm_start.desktop" <<EOL
@@ -235,6 +238,6 @@ if [[ $(type -P gdm) || $(type -P gdm3) ]]; then
 EOL
 
 	# Stop apps after login
-	grepadd "$LDSTOP" "/etc/gdm/PreSession/Default"
+	grepadd "$LDSTOP" "$GDMETCPATH/PreSession/Default"
 
 fi
