@@ -58,6 +58,8 @@ checksambapass () {
 	if [ -f $SAMBAFILEPASS ]; then
 		SMBPASSWORD="\$(<$SAMBAFILEPASS)"
 		SMBPASSWORD2="\$(<$SAMBAFILEPASS)"
+	else if [ ! -z "$SMBPASSWORD" ]; then
+		SMBPASSWORD2="$SMBPASSWORD"
 	fi
 }
 

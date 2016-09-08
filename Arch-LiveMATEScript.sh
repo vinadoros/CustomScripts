@@ -131,10 +131,10 @@ fi
 cp -r /usr/share/archiso/configs/releng/ $ARCHLIVEPATH
 
 # Enable copytoram, but only for 64bit machiens.
-if ! grep -Fq "copytoram" $ARCHLIVEPATH/syslinux/archiso_sys64.cfg; then
-	#sed -i '/APPEND/ s|$| copytoram=y |' $ARCHLIVEPATH/syslinux/archiso_sys32.cfg
-	sed -i '/APPEND/ s|$| copytoram=y |' $ARCHLIVEPATH/syslinux/archiso_sys64.cfg
-fi
+# if ! grep -Fq "copytoram" $ARCHLIVEPATH/syslinux/archiso_sys64.cfg; then
+# 	sed -i '/APPEND/ s|$| copytoram=y |' $ARCHLIVEPATH/syslinux/archiso_sys32.cfg
+# 	sed -i '/APPEND/ s|$| copytoram=y |' $ARCHLIVEPATH/syslinux/archiso_sys64.cfg
+# fi
 
 # Edit build.sh to umount dev (this is a fix for dkms running inside the chroot)
 # sed -i '/run_once make_packages_efi/iumount -Rdl ${work_dir}/i686/airootfs || true' "$ARCHLIVEPATH"/build.sh
@@ -148,7 +148,7 @@ SCRIPTBASENAME="CustomScripts"
 
 # Set syslinux timeout
 if ! grep -iq "^TIMEOUT" "$ARCHLIVEPATH/syslinux/archiso_sys_both_inc.cfg"; then
-	echo "TIMEOUT 50" >> "$ARCHLIVEPATH/syslinux/archiso_sys_both_inc.cfg"
+	echo "TIMEOUT 30" >> "$ARCHLIVEPATH/syslinux/archiso_sys_both_inc.cfg"
 	echo "TOTALTIMEOUT 600" >> "$ARCHLIVEPATH/syslinux/archiso_sys_both_inc.cfg"
 fi
 
