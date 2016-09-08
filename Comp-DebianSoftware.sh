@@ -11,7 +11,7 @@ set +eu
 
 # URL for omxplayer deb file.
 # http://omxplayer.sconde.net/
-OMXURL="http://omxplayer.sconde.net/builds/omxplayer_0.3.6~git20150627~843744e_armhf.deb"
+OMXURL="http://omxplayer.sconde.net/builds/omxplayer_0.3.7~git20160713~66f9076_armhf.deb"
 
 # Add general functions if they don't exist.
 type -t grepadd >> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
@@ -211,6 +211,7 @@ dist_install vlc audacious ffmpeg
 # Browsers
 [ "$OS" = "Debian" ] && dist_install chromium
 [ "$OS" = "Ubuntu" ] && dist_install chromium-browser
+dist_install firefox
 
 # Utils
 dist_install iotop

@@ -97,18 +97,7 @@ if [ ! -f /etc/apt/sources.list.d/syncthing-release.list ]; then
 fi
 
 if [ "${MACHINEARCH}" != "armv7l" ]; then
-	# Ubuntuzilla
-	if ! grep -i "ubuntuzilla" /etc/apt/sources.list; then
-		add-apt-repository "deb http://downloads.sourceforge.net/project/ubuntuzilla/mozilla/apt all main"
-		apt-key adv --recv-keys --keyserver keyserver.ubuntu.com C1289A29
-		apt-get update
-	fi
-	# Remove iceweasel
-	if dpkg-query -l | grep -iq "iceweasel"; then
-		apt-get remove --purge -y iceweasel
-	fi
-	apt-get install -y firefox-mozilla-build
-
+	echo "Installing non-arm specific repos."
 elif [ "${MACHINEARCH}" = "armv7l" ]; then
 	echo "Installing arm specific repos."
 fi
