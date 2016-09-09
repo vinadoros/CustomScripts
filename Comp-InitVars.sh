@@ -80,6 +80,3 @@ while [[ "$SMBPASSWORD" != "$SMBPASSWORD2" ||  -z "$SMBPASSWORD" ]]; do
 done
 SMBPASS="${SMBPASSWORD}"
 echo -n "${SMBPASSWORD}" >> "$SAMBAFILEPASS"
-
-# Enable error halting.
-set -eu

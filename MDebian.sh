@@ -3,7 +3,6 @@
 ###############################################################################
 ##################        Initial Setup and Variables      ####################
 ###############################################################################
-set +eu
 
 if [ "$(id -u)" != "0" ]; then
 	echo "Not running with root. Please run the script with su privledges."
@@ -24,6 +23,45 @@ source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
 ###############################################################################
 
 DEBRELEASE=$(lsb_release -sc)
+NOPROMPT=0
+
+usage () {
+	echo "h - help"
+	echo "e - Set Desktop Environment"
+	echo "s - Samba password"
+	echo "n - Do not prompt to continue."
+	exit 0;
+}
+
+# Get options
+while getopts ":e:s:nh" OPT
+do
+	case $OPT in
+		h)
+			echo "Select a valid option."
+			usage
+			;;
+		e)
+			SETDE="$OPTARG"
+			;;
+		s)
+			SMBPASSWORD="$OPTARG"
+			;;
+		n)
+			NOPROMPT=1
+			;;
+		\?)
+			echo "Invalid option: -$OPTARG" 1>&2
+			usage
+			exit 1
+			;;
+		:)
+			echo "Option -$OPTARG requires an argument" 1>&2
+			usage
+			exit 1
+			;;
+	esac
+done
 
 source "$SCRIPTDIR/Comp-InitVars.sh"
 
@@ -36,9 +74,11 @@ if [ -z "$SETDE" ]; then
 		export SETDE=0
 	fi
 fi
-echo "You entered $SETDE"
+echo "Desktop Environment is $SETDE"
 
-read -p "Press any key to continue."
+if [[ $NOPROMPT != 1 ]]; then
+	read -p "Press any key to continue."
+fi
 set -eu
 
 source "$SCRIPTDIR/Comp-DebianRepos.sh"
