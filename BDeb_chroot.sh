@@ -19,7 +19,7 @@ SCRIPTDIR="$(dirname "$FLWSOURCE")"
 SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
-source "$SCRIPTDIR/F-ChrootInitVars.sh"
+NOPROMPT=0
 
 # Debian stable release
 DIST_DEBSTABLE=jessie
@@ -33,6 +33,69 @@ UBUNTUARMURL="http://ports.ubuntu.com/ubuntu-ports/"
 # Debian URL is blank because debootstrap chooses a reliable URL.
 DEBIANURL=""
 
+usage () {
+	echo "h - help"
+	echo "a - Debian architecture (i.e. amd64, i386, armhf, etc)"
+	echo "b - Distro number (1=Debian Stable, 2=Debian Unstable, 3=Ubuntu ${DIST_UBUNTU}, 4=Custom Ubuntu release.)"
+	echo "c - Hostname"
+	echo "u - Username"
+	echo "f - Full Name"
+	echo "v - Password"
+	echo "g - Grub Install Number"
+	echo "p - Install Path"
+	echo "n - Do not prompt to continue."
+	exit 0;
+}
+
+# Get options
+while getopts ":a:b:c:u:f:v:g:p:nh" OPT
+do
+	case $OPT in
+		h)
+			echo "Select a valid option."
+			usage
+			;;
+		a)
+			DEBARCH="$OPTARG"
+			;;
+		b)
+			DISTRONUM="$OPTARG"
+			;;
+		c)
+			NEWHOSTNAME="$OPTARG"
+			;;
+		u)
+			USERNAMEVAR="$OPTARG"
+			;;
+		f)
+			FULLNAME="$OPTARG"
+			;;
+		v)
+			SETPASS="$OPTARG"
+			;;
+		g)
+			SETGRUB="$OPTARG"
+			;;
+		p)
+			INSTALLPATH="$OPTARG"
+			;;
+		n)
+			NOPROMPT=1
+			;;
+		\?)
+			echo "Invalid option: -$OPTARG" 1>&2
+			usage
+			exit 1
+			;;
+		:)
+			echo "Option -$OPTARG requires an argument" 1>&2
+			usage
+			exit 1
+			;;
+	esac
+done
+
+source "$SCRIPTDIR/F-ChrootInitVars.sh"
 
 if [ -z "$DEBARCH" ]; then
 	DEBARCH=amd64
@@ -89,7 +152,9 @@ esac
 
 echo "Installing ${DISTROCHOICE}."
 echo "Debootstrap will install ${DEBARCH} ${DISTROCHOICE} to ${INSTALLPATH} using ${URL}."
-read -p "Press any key to continue."
+if [[ $NOPROMPT != 1 ]]; then
+	read -p "Press any key to continue."
+fi
 
 # Create install path
 if [ ! -d ${INSTALLPATH} ]; then

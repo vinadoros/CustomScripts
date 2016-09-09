@@ -19,12 +19,69 @@ SCRIPTDIR="$(dirname "$FLWSOURCE")"
 SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
+MACHINEARCH=$(uname -m)
+NOPROMPT=0
+
+usage () {
+	echo "h - help"
+	echo "c - Hostname"
+	echo "u - Username"
+	echo "f - Full Name"
+	echo "v - Password"
+	echo "g - Grub Install Number"
+	echo "p - Install Path"
+	echo "n - Do not prompt to continue."
+	exit 0;
+}
+
+# Get options
+while getopts ":c:u:f:v:g:p:nh" OPT
+do
+	case $OPT in
+		h)
+			echo "Select a valid option."
+			usage
+			;;
+		c)
+			NEWHOSTNAME="$OPTARG"
+			;;
+		u)
+			USERNAMEVAR="$OPTARG"
+			;;
+		f)
+			FULLNAME="$OPTARG"
+			;;
+		v)
+			SETPASS="$OPTARG"
+			;;
+		g)
+			SETGRUB="$OPTARG"
+			;;
+		p)
+			INSTALLPATH="$OPTARG"
+			;;
+		n)
+			NOPROMPT=1
+			;;
+		\?)
+			echo "Invalid option: -$OPTARG" 1>&2
+			usage
+			exit 1
+			;;
+		:)
+			echo "Option -$OPTARG requires an argument" 1>&2
+			usage
+			exit 1
+			;;
+	esac
+done
+
 source "$SCRIPTDIR/F-ChrootInitVars.sh"
 
-MACHINEARCH=$(uname -m)
-
 echo "Pacstrap will install to ${INSTALLPATH}."
-read -p "Press any key to continue."
+if [[ $NOPROMPT != 1 ]]; then
+	read -p "Press any key to continue."
+fi
 
 # Create install path
 if [ ! -d ${INSTALLPATH} ]; then

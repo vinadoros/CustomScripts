@@ -34,7 +34,11 @@ else
 fi
 
 # Strip trailing slash if it exists.
-INSTALLPATH=$(readlink -f ${1%/})
+if [ -z "${INSTALLPATH}" ]; then
+	INSTALLPATH=$(readlink -f ${1%/})
+else
+	INSTALLPATH=$(readlink -f ${INSTALLPATH%/})
+fi
 if [ -z "${INSTALLPATH}" ]; then
 	echo "No install path found. Exiting."
 	exit 1;
@@ -98,7 +102,7 @@ fi
 echo "You entered" $FULLNAME
 
 if [ -z "$SETPASS" ]; then
-	echo "Input a user and root password: " 
+	echo "Input a user and root password: "
 	read -s PASSWORD
 	echo "Please confirm password: "
 	read -s PASSWORD2
@@ -108,7 +112,7 @@ if [ -z "$SETPASS" ]; then
 	fi
 	while [[ "$PASSWORD" != "$PASSWORD2" ]]; do
 		echo "Passwords do not match."
-		echo "Input a user and root password: " 
+		echo "Input a user and root password: "
 		read -s PASSWORD
 		echo "Please confirm password: "
 		read -s PASSWORD2
@@ -125,16 +129,16 @@ set -e
 while [[ "${SETGRUB}" -le "0" || "${SETGRUB}" -gt "4" ]]; do
 	read -p "Enter 2 to perform 'grub-install $DEVPART', 3 to install efi bootloader (make sure /boot/efi is mounted), or 4 to 'grub-install' to a custom partition. Enter 1 to do nothing. (1/2/3/4)" SETGRUB
     case $SETGRUB in
-    [1] ) 
+    [1] )
 	echo "You asked to not install a bootloader."
 	;;
-	[2] ) 
+	[2] )
 	echo "You asked to perform 'grub-install $DEVPART'."
 	;;
 	[3] )
 	echo "You asked to install efi bootloader. Ensure boot/efi is mounted in the chroot."
 	;;
-	[4] ) 
+	[4] )
 	echo "You asked to perform grub-install with a custom partition."
 
 	read -p "Enter the partition to grub-install to (i.e. /dev/sda1): " PART
