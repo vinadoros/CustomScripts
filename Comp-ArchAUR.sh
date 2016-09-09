@@ -119,6 +119,8 @@ if [ "$MACHINEARCH" = "armv7l" ]; then
 	PATH="$PATH:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl"
 fi
 pacman -S --needed --noconfirm curl openssl pacman yajl perl expac git sudo
+# Add perl binaries to path.
+PATH=$PATH:/usr/bin/core_perl
 aur_install "cower"
 aur_install "pacaur"
 
