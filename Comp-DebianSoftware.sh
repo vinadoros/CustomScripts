@@ -213,7 +213,9 @@ dist_install vlc audacious ffmpeg
 # Browsers
 [ "$OS" = "Debian" ] && dist_install chromium
 [ "$OS" = "Ubuntu" ] && dist_install chromium-browser
-dist_install firefox
+if [ "$DEBRELEASE" != "jessie" ]; then
+	dist_install firefox
+fi
 
 # Utils
 dist_install iotop
