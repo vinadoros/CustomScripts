@@ -226,22 +226,14 @@ update-locale
 localectl set-locale LANG="en_US.UTF-8"
 
 # Install lsb_release
-apt-get install -y lsb-release nano sudo less apt-transport-https
-
-# Delete defaults in sudoers for Debian.
-if grep -iq $'^Defaults\tenv_reset' /etc/sudoers; then
-	sed -i $'/^Defaults\tenv_reset/ s/^#*/#/' /etc/sudoers
-	sed -i $'/^Defaults\tmail_badpass/ s/^#*/#/' /etc/sudoers
-	sed -i $'/^Defaults\tsecure_path/ s/^#*/#/' /etc/sudoers
-fi
-visudo -c
+DEBIAN_FRONTEND=noninteractive apt-get install -y lsb-release nano sudo less apt-transport-https
 
 # Store distro being used.
 DISTRO=$(lsb_release -si)
 DEBRELEASE=$(lsb_release -sc)
 echo Distro used is: ${DISTRO}. Release used is: ${DEBRELEASE}
 
-apt-get install -y software-properties-common
+DEBIAN_FRONTEND=noninteractive apt-get install -y software-properties-common
 
 if [ ${DISTRO} = "Debian" ]; then
 	# Contrib and non-free for normal distro
@@ -270,11 +262,18 @@ if [ ${DISTRO} = "Ubuntu" ]; then
 		add-apt-repository "deb ${URL} ${DEBRELEASE}-backports main restricted universe multiverse"
 	fi
 
-	apt-get install -f --force-yes apt-transport-https
 fi
 
 apt-get update
 apt-get dist-upgrade -y
+
+# Delete defaults in sudoers for Debian.
+if grep -iq $'^Defaults\tenv_reset' /etc/sudoers; then
+	sed -i $'/^Defaults\tenv_reset/ s/^#*/#/' /etc/sudoers
+	sed -i $'/^Defaults\tmail_badpass/ s/^#*/#/' /etc/sudoers
+	sed -i $'/^Defaults\tsecure_path/ s/^#*/#/' /etc/sudoers
+fi
+visudo -c
 
 if [ -z "$SETPASS" ]; then
 	echo "Enter a root password."
