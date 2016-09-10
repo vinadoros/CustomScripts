@@ -290,8 +290,10 @@ esac
 
 
 # PPA software
-ppa ppa:numix/ppa
-dist_install numix-icon-theme-circle
+if [ "$DEBRELEASE" != "jessie" ]; then
+	ppa ppa:numix/ppa
+	dist_install numix-icon-theme-circle
+fi
 
 
 if [ "${MACHINEARCH}" != "armv7l" ]; then
