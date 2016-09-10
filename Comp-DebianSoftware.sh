@@ -186,7 +186,9 @@ dpkg-reconfigure -f noninteractive tzdata
 # CLI and system utilities
 dist_install curl rsync less
 # Needed for systemd user sessions.
-dist_install dbus-user-session
+if [ "$DEBRELEASE" != "jessie" ]; then
+	dist_install dbus-user-session
+fi
 
 # Samba
 dist_install samba winbind
