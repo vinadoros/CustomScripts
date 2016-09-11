@@ -224,6 +224,8 @@ dpkg-reconfigure --frontend=noninteractive locales
 update-locale
 # Locale fix for gnome-terminal.
 localectl set-locale LANG="en_US.UTF-8"
+# Set keymap for Ubuntu
+echo "console-setup	console-setup/charmap47	select	UTF-8" | debconf-set-selections
 
 # Install lsb_release
 DEBIAN_FRONTEND=noninteractive apt-get install -y lsb-release nano sudo less apt-transport-https
