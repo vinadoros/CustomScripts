@@ -44,8 +44,8 @@ fi
 
 [ -z "$MACHINEARCH" ] && MACHINEARCH="$(uname -m)"
 
-# Enable error halting.
-set -eu
+# Disable error halting.
+set +eu
 
 function debequivs () {
 	if [ -z "$1" ]; then
@@ -143,9 +143,6 @@ if [ -z $1 ]; then
 	exit 1;
 fi
 
-#Error handling.
-set -eu
-
 #Variables
 PPA="$1"
 
@@ -213,9 +210,7 @@ dist_install vlc audacious ffmpeg
 # Browsers
 [ "$OS" = "Debian" ] && dist_install chromium
 [ "$OS" = "Ubuntu" ] && dist_install chromium-browser
-if [ "$DEBRELEASE" != "jessie" ]; then
-	dist_install firefox
-fi
+dist_install firefox
 
 # Utils
 dist_install iotop
