@@ -154,35 +154,6 @@ sudoersmultilineadd () {
 
 }
 
-nscriptadd () {
-	if [ -z "$1" ]; then
-		echo "No source file passed."
-		return 1;
-	else
-		SOURCEFILE="$1"
-	fi
-
-	if [ -z "$2" ]; then
-		echo "No destination file passed."
-		return 1;
-	else
-		DESTFILE="$2"
-	fi
-
-	echo "Adding $SOURCEFILE."
-
-	echo "echo \"Executing $SOURCEFILE.\"" >> "${DESTFILE}"
-	cat "$SOURCEFILE" >> "${DESTFILE}"
-
-	sed -i '/# Get folder of this script/d' "${DESTFILE}"
-	sed -i '/SCRIPTSOURCE="${BASH_SOURCE\[0\]}"/d' "${DESTFILE}"
-	sed -i '/FLWSOURCE="$(readlink -f "$SCRIPTSOURCE")"/d' "${DESTFILE}"
-	sed -i '/SCRIPTDIR="$(dirname "$FLWSOURCE")"/d' "${DESTFILE}"
-	sed -i '/SCRNAME="$(basename $SCRIPTSOURCE)"/d' "${DESTFILE}"
-	sed -i '/echo "Executing ${SCRNAME}."/d' "${DESTFILE}"
-
-}
-
 # Install pkg commands for distributions.
 dist_install () {
 	INSTALLPKGS="$@"
