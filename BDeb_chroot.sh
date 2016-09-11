@@ -367,6 +367,7 @@ case $SETGRUB in
 [2-4])
 	echo "Installing kernel."
 
+<<COMMENT2
 	# Liquorix repo
 	if [[ "$DEBARCH" = "amd64" || "$DEBARCH" = "i386" ]] && ! grep -iq "liquorix.net" /etc/apt/sources.list; then
 		echo "Installing liquorix kernel."
@@ -383,16 +384,17 @@ case $SETGRUB in
 	dpkg-query -l | grep -iq "linux-image-amd64" && apt-get --purge remove -y linux-image-amd64
 	dpkg-query -l | grep -iq "linux-image-686-pae" && apt-get --purge remove -y linux-image-686-pae
 	dpkg-query -l | grep -iq "linux-headers-generic" && apt-get --purge remove -y linux-headers-generic
+COMMENT2
 
 	if [[ "$DISTRONUM" -eq "1" || "$DISTRONUM" -eq "2" ]]; then
-<<COMMENT2
+
 		if [[ "$DEBARCH" = "amd64" ]]; then
 			apt-get install -y linux-image-amd64
 		fi
 		if [[ "$DEBARCH" = "i386" || "$DEBARCH" = "i686" ]]; then
 			apt-get install -y linux-image-686-pae
 		fi
-COMMENT2
+
 		apt-get install -y firmware-linux gfxboot
 		echo "firmware-ipw2x00 firmware-ipw2x00/license/accepted boolean true" | debconf-set-selections
 		echo "firmware-ivtv firmware-ivtv/license/accepted boolean true" | debconf-set-selections
@@ -400,7 +402,7 @@ COMMENT2
 	fi
 
 	if [[ "$DISTRONUM" -eq "3" ]]; then
-		#apt-get install -y linux-image-generic linux-headers-generic
+		apt-get install -y linux-image-generic linux-headers-generic
 		apt-get install -y gfxboot gfxboot-theme-ubuntu linux-firmware
 	fi
 	;;

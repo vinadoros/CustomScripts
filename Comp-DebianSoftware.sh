@@ -297,6 +297,7 @@ if [ "${MACHINEARCH}" != "armv7l" ]; then
 	# TLP
 	dist_install tlp smartmontools ethtool
 
+<<COMMENT2
 	# Liquorix repo
 	if ! grep -iq "liquorix.net" /etc/apt/sources.list; then
 		echo "Installing liquorix kernel."
@@ -312,6 +313,7 @@ if [ "${MACHINEARCH}" != "armv7l" ]; then
 		dpkg-query -l | grep -iq "linux-image-686-pae" && apt-get --purge remove -y linux-image-686-pae
 		dpkg-query -l | grep -iq "linux-headers-generic" && apt-get --purge remove -y linux-headers-generic
 	fi
+COMMENT2
 
 elif [ "${MACHINEARCH}" = "armv7l" ]; then
 	echo "Install arm specific software."
