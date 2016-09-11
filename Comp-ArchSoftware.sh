@@ -357,7 +357,7 @@ EOL
 	# Install browsers
 	dist_install chromium
 	dist_install firefox firefox-i18n-en-us
-	dist_install adobe-flashplugin freshplayerplugin
+	dist_install pepper-flash freshplayerplugin
 
 	###############################################################################
 	#########################       Virtualbox Host      ##########################

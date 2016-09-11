@@ -44,8 +44,10 @@ fi
 
 [ -z "$MACHINEARCH" ] && MACHINEARCH="$(uname -m)"
 
-# Disable error halting.
-set +eu
+# Enable error halting.
+if [ "$DEBRELEASE" != "jessie" ]; then
+	set -eu
+fi
 
 function debequivs () {
 	if [ -z "$1" ]; then
