@@ -51,7 +51,7 @@ if [ $VBOXGUEST = 1 ]; then
 	modprobe -a vboxguest vboxsf vboxvideo
 
 	# Add the user to the vboxsf group, so that the shared folders can be accessed.
-	gpasswd -a $SUDO_USER vboxsf
+	gpasswd -a $USERNAMEVAR vboxsf
 
 	systemctl enable vboxservice
 	systemctl start vboxservice
