@@ -389,10 +389,10 @@ COMMENT2
 	if [[ "$DISTRONUM" -eq "1" || "$DISTRONUM" -eq "2" ]]; then
 
 		if [[ "$DEBARCH" = "amd64" ]]; then
-			apt-get install -y linux-image-amd64
+			DEBIAN_FRONTEND=noninteractive apt-get install -y linux-image-amd64
 		fi
 		if [[ "$DEBARCH" = "i386" || "$DEBARCH" = "i686" ]]; then
-			apt-get install -y linux-image-686-pae
+			DEBIAN_FRONTEND=noninteractive apt-get install -y linux-image-686-pae
 		fi
 
 		apt-get install -y firmware-linux gfxboot
@@ -402,8 +402,8 @@ COMMENT2
 	fi
 
 	if [[ "$DISTRONUM" -eq "3" ]]; then
-		apt-get install -y linux-image-generic linux-headers-generic
-		apt-get install -y gfxboot gfxboot-theme-ubuntu linux-firmware
+		DEBIAN_FRONTEND=noninteractive apt-get install -y linux-image-generic linux-headers-generic
+		DEBIAN_FRONTEND=noninteractive apt-get install -y gfxboot gfxboot-theme-ubuntu linux-firmware
 	fi
 	;;
 
