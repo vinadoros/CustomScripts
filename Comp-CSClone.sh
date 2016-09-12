@@ -125,3 +125,5 @@ EOFXYZ
 	chmod a+rwx "$ROOTFOLDER/${REPONAME}"
 
 }
+
+clonerepo "$REPO" "$PATH"
