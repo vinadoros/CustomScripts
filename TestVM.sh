@@ -21,10 +21,17 @@ USER=user
 FULLNAME="User Name"
 PASSWORD=asdf
 COMMAND=1
+# Detect CPUs
 if [ $(nproc) -gt 4 ]; then
 	NUMCPUS=4
 else
 	NUMCPUS=$(nproc)
+fi
+# Detect ssh key
+if [ ~/.ssh/id_ed25519.pub ]; then
+	ROOTSSHKEY="$(<~/.ssh/id_ed25519.pub)"
+elif [ ~/.ssh/id_rsa.pub ]; then
+	ROOTSSHKEY="$(<~/.ssh/id_rsa.pub)"
 fi
 
 usage () {
@@ -37,7 +44,7 @@ usage () {
   echo "i - Path to live cd"
   echo "m - Memory for VM (default is $VBOXMEMORY)"
   echo "p - Path of Virtual Machine folders"
-  echo "v - Root SSH Key (required)"
+  echo "v - Root SSH Key (required, detected as $ROOTSSHKEY)"
   echo "w - Live SSH Username (default is $LIVESSHUSER)"
   echo "x - Live SSH Password (default is $LIVESSHPASS)"
   echo "y - VM Username (default is $USER)"
@@ -124,9 +131,10 @@ echo "Path to Live cd is $FULLPATHTOISO"
 echo "VM Memory is $VBOXMEMORY"
 echo "Path to VM Files is $PATHTOVDI"
 echo "Live SSH user is $LIVESSHUSER"
+echo "SSH Key is $ROOTSSHKEY"
 echo "VM User is $USER"
-if [ -z "$VBOXOSID" ]; then
-  echo "No VM type selected."
+if [[ -z "$VBOXOSID" || -z "$ROOTSSHKEY" ]]; then
+  echo "Parameters are missing."
   usage
 fi
 
