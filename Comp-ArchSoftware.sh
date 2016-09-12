@@ -344,15 +344,13 @@ EOL
 		if [ "${MACHINEARCH}" = "x86_64" ]; then
 			echo "x86_64 Software for Arch."
 
-			#Install Visual Studio Code.
-			dist_install visual-studio-code-oss
 		fi
 
 	fi
 
 	# MS and other Fonts
-	dist_install ttf-ms-fonts ttf-vista-fonts
-	#dist_install noto-fonts ttf-liberation
+	# dist_install ttf-ms-fonts ttf-vista-fonts
+	# dist_install noto-fonts ttf-liberation
 
 	# Install browsers
 	dist_install chromium
