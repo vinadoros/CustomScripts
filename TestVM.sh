@@ -20,6 +20,7 @@ LIVESSHPASS=asdf
 USER=user
 FULLNAME="User Name"
 PASSWORD=asdf
+COMMAND=1
 if [ $(nproc) -gt 4 ]; then
 	NUMCPUS=4
 else
@@ -31,6 +32,7 @@ usage () {
 	echo "a - Arch VM"
 	echo "b - Debian Unstable VM"
   echo "c - Ubuntu VM"
+	echo "d - Fedora VM"
   echo "f - Full Name (defualt is $FULLNAME)"
   echo "i - Path to live cd"
   echo "m - Memory for VM (default is $VBOXMEMORY)"
@@ -45,7 +47,7 @@ usage () {
 }
 
 # Get options
-while getopts ":p:i:v:w:x:y:z:f:nhabc" OPT
+while getopts ":p:i:v:w:x:y:z:f:nhabcds" OPT
 do
 	case $OPT in
 		h)
@@ -67,6 +69,15 @@ do
       VMNAME="UbuntuTest"
       VBOXOSID="Ubuntu_64"
       ;;
+		d)
+			echo "Fedora VM Selected"
+			VMNAME="FedoraTest"
+			VBOXOSID="Fedora_64"
+			;;
+		s)
+			echo "Not executing install commands."
+			COMMAND=0
+			;;
     f)
       FULLNAME="$OPTARG"
       ;;
@@ -174,38 +185,44 @@ VBoxManage startvm "$VMNAME"
 # Wait for the VM to boot
 sshwait $LIVESSHUSER $LIVESSHPASS
 
-# LiveCD Commands
-sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "cd /CustomScripts/; git pull"
-sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "/CustomScripts/ZSlimDrive.sh -n -s"
-if [ "$VBOXOSID" = "ArchLinux_64" ]; then
-  sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "/CustomScripts/BArchChroot.sh -n -p /mnt -c $VMNAME -u $USER -f \"$FULLNAME\" -v $PASSWORD -g 2"
-elif [ "$VBOXOSID" = "Debian_64" ]; then
-  sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "/CustomScripts/BDeb_chroot.sh -n -p /mnt -a amd64 -b 2 -c $VMNAME -u $USER -f \"$FULLNAME\" -v $PASSWORD -g 2"
-elif [ "$VBOXOSID" = "Ubuntu_64" ]; then
-  sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "/CustomScripts/BDeb_chroot.sh -n -p /mnt -a amd64 -b 3 -c $VMNAME -u $USER -f \"$FULLNAME\" -v $PASSWORD -g 2"
+if [ $COMMAND = 1 ]; then
+	# LiveCD Commands
+	sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "cd /CustomScripts/; git pull"
+	sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "/CustomScripts/ZSlimDrive.sh -n -s"
+	if [ "$VBOXOSID" = "ArchLinux_64" ]; then
+	  sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "/CustomScripts/BArchChroot.sh -n -p /mnt -c $VMNAME -u $USER -f \"$FULLNAME\" -v $PASSWORD -g 2"
+	elif [ "$VBOXOSID" = "Debian_64" ]; then
+	  sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "/CustomScripts/BDeb_chroot.sh -n -p /mnt -a amd64 -b 2 -c $VMNAME -u $USER -f \"$FULLNAME\" -v $PASSWORD -g 2"
+	elif [ "$VBOXOSID" = "Ubuntu_64" ]; then
+	  sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "/CustomScripts/BDeb_chroot.sh -n -p /mnt -a amd64 -b 3 -c $VMNAME -u $USER -f \"$FULLNAME\" -v $PASSWORD -g 2"
+	elif [ "$VBOXOSID" = "Fedora_64" ]; then
+		echo "Future code here."
+	fi
+	sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "mkdir -p /mnt/root/.ssh/; echo \"$ROOTSSHKEY\" >> /mnt/root/.ssh/authorized_keys"
+	sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "poweroff"
+	while VBoxManage list runningvms | grep -i "$VMNAME"; do
+	  echo "Waiting for shutdown..."
+	  sleep 10
+	done
+
+	# Detach the iso
+	sleep 2
+	VBoxManage storageattach "$VMNAME" --storagectl "$STORAGECONTROLLER" --port 1 --device 0 --type dvddrive --medium none
+
+	# Restart the VM
+	sleep 2
+	VBoxManage startvm "$VMNAME"
+	sshwait "$USER" "$PASSWORD"
+	ssh 127.0.0.1 -p $SSHPORT -l root "cd /opt/CustomScripts/; git pull"
+	if [ "$VBOXOSID" = "ArchLinux_64" ]; then
+	  ssh 127.0.0.1 -p $SSHPORT -l root "/opt/CustomScripts/MArch.sh -n -e 3 -m 3 -s $PASSWORD"
+	elif [ "$VBOXOSID" = "Debian_64" ]; then
+	  ssh 127.0.0.1 -p $SSHPORT -l root "/opt/CustomScripts/MDebUbu.sh -n -e 2 -d -s $PASSWORD"
+	elif [ "$VBOXOSID" = "Ubuntu_64" ]; then
+	  ssh 127.0.0.1 -p $SSHPORT -l root "/opt/CustomScripts/MDebUbu.sh -n -e 3 -u -s $PASSWORD"
+	elif [ "$VBOXOSID" = "Fedora_64" ]; then
+		echo "Future code here."
+	fi
+
+	ssh 127.0.0.1 -p $SSHPORT -l root "reboot"
 fi
-sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "mkdir -p /mnt/root/.ssh/; echo \"$ROOTSSHKEY\" >> /mnt/root/.ssh/authorized_keys"
-sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "poweroff"
-while VBoxManage list runningvms | grep -i "$VMNAME"; do
-  echo "Waiting for shutdown..."
-  sleep 10
-done
-
-# Detach the iso
-sleep 2
-VBoxManage storageattach "$VMNAME" --storagectl "$STORAGECONTROLLER" --port 1 --device 0 --type dvddrive --medium none
-
-# Restart the VM
-sleep 2
-VBoxManage startvm "$VMNAME"
-sshwait "$USER" "$PASSWORD"
-ssh 127.0.0.1 -p $SSHPORT -l root "cd /opt/CustomScripts/; git pull"
-if [ "$VBOXOSID" = "ArchLinux_64" ]; then
-  ssh 127.0.0.1 -p $SSHPORT -l root "/opt/CustomScripts/MArch.sh -n -e 3 -m 3 -s $PASSWORD"
-elif [ "$VBOXOSID" = "Debian_64" ]; then
-  ssh 127.0.0.1 -p $SSHPORT -l root "/opt/CustomScripts/MDebUbu.sh -n -e 2 -d -s $PASSWORD"
-elif [ "$VBOXOSID" = "Ubuntu_64" ]; then
-  ssh 127.0.0.1 -p $SSHPORT -l root "/opt/CustomScripts/MDebUbu.sh -n -e 3 -u -s $PASSWORD"
-fi
-
-ssh 127.0.0.1 -p $SSHPORT -l root "reboot"
