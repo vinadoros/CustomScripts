@@ -33,12 +33,12 @@ if [ -f $PRIVATEVARS ]; then
 fi
 # Default variables.
 REPO="vinadoros/CustomScripts"
-PATH="/opt"
+CLONEPATH="/opt"
 
 usage () {
 	echo "h - help"
 	echo "r - Github repo (i.e. $REPO)"
-	echo "p - Base path on comptuer (i.e. $PATH)"
+	echo "p - Base path on comptuer (i.e. $CLONEPATH)"
 	exit 0;
 }
 
@@ -54,7 +54,7 @@ do
 			REPO="$OPTARG"
 			;;
 		p)
-			PATH="$OPTARG"
+			CLONEPATH="$OPTARG"
 			;;
 		\?)
 			echo "Invalid option: -$OPTARG" 1>&2
@@ -89,7 +89,7 @@ function clonerepo {
 	else
 		ROOTFOLDER="/opt"
 	fi
-	echo "Root Folder is $ROOTFOLDER."
+	echo "Repo is $GITHUBREPO. Cloning to $ROOTFOLDER/$REPONAME."
 
 	cd "$ROOTFOLDER"
 
@@ -111,7 +111,7 @@ function clonerepo {
 
 	# Update scripts folder every hour.
 	if [ -d "/etc/cron.hourly" ]; then
-		multilinereplace "/etc/cron.hourly/update-${GITHUBREPO}" << EOFXYZ
+		multilinereplace "/etc/cron.hourly/update${REPONAME}" << EOFXYZ
 	#!/bin/bash
 	echo "Executing \$0"
 	su $USERNAMEVAR -s /bin/bash <<'EOL'
@@ -126,4 +126,4 @@ EOFXYZ
 
 }
 
-clonerepo "$REPO" "$PATH"
+clonerepo "$REPO" "$CLONEPATH"
