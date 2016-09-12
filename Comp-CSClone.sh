@@ -31,57 +31,97 @@ PRIVATEVARS="/usr/local/bin/privateconfig.sh"
 if [ -f $PRIVATEVARS ]; then
 	source "$PRIVATEVARS"
 fi
+# Default variables.
+REPO="vinadoros/CustomScripts"
+PATH="/opt"
 
-# If passed a folder, use it.
-if [ -d "$1" ]; then
-	CSROOTFOLDER="$(readlink -f $1)"
-	if [ "$(basename $CSROOTFOLDER)" = "CustomScripts" ]; then
-		CSROOTFOLDER="$(dirname $CSROOTFOLDER)"
+usage () {
+	echo "h - help"
+	echo "r - Github repo (i.e. $REPO)"
+	echo "p - Base path on comptuer (i.e. $PATH)"
+	exit 0;
+}
+
+# Get options
+while getopts ":r:p:h" OPT
+do
+	case $OPT in
+		h)
+			echo "Select a valid option."
+			usage
+			;;
+		r)
+			REPO="$OPTARG"
+			;;
+		p)
+			PATH="$OPTARG"
+			;;
+		\?)
+			echo "Invalid option: -$OPTARG" 1>&2
+			usage
+			exit 1
+			;;
+		:)
+			echo "Option -$OPTARG requires an argument" 1>&2
+			usage
+			exit 1
+			;;
+	esac
+done
+
+function clonerepo {
+	if [[ -z $1 || -z $2 ]]; then
+		echo "Not enough paramters. Exiting."
+		return;
 	fi
-else
-	CSROOTFOLDER="/opt"
-fi
-echo "CSRootFolder is $CSROOTFOLDER."
+	GITHUBREPO="$1"
+	LOCATION="$2"
 
-set -e
+	# Save the repo name (after the slash).
+	REPONAME="${GITHUBREPO##*/}"
 
-cd "$CSROOTFOLDER"
+	# If passed a folder, use it.
+	if [ -d "$LOCATION" ]; then
+		ROOTFOLDER="$(readlink -f $LOCATION)"
+		if [ "$(basename $ROOTFOLDER)" = "$REPONAME" ]; then
+			ROOTFOLDER="$(dirname $ROOTFOLDER)"
+		fi
+	else
+		ROOTFOLDER="/opt"
+	fi
+	echo "Root Folder is $ROOTFOLDER."
 
-if [ ! -d "CustomScripts" ]; then
-	git clone https://github.com/vinadoros/CustomScripts.git
-fi
+	cd "$ROOTFOLDER"
 
-cd "$CSROOTFOLDER/CustomScripts"
-git config remote.origin.url "https://github.com/vinadoros/CustomScripts.git"
-git pull
+	if [ ! -d "$REPONAME" ]; then
+		git clone https://github.com/"$GITHUBREPO".git
+	fi
 
-if [[ ! -z "$GITHUBCOMMITNAME" && ! -z "$GITHUBCOMMITEMAIL" && -f "$GITHUBRSAPUB" ]]; then
-	echo "Adding commit information for CustomScripts github account."
-	git config remote.origin.url "git@gitserv:vinadoros/CustomScripts.git"
-	git config push.default simple
-	git config user.name "${GITHUBCOMMITNAME}"
-	git config user.email "${GITHUBCOMMITEMAIL}"
-fi
+	cd "$ROOTFOLDER/$REPONAME"
+	git config remote.origin.url "https://github.com/${GITHUBREPO}.git"
+	git pull
 
-# Update scripts folder every hour using fcron.
-#~ if type -p crontab &> /dev/null; then
-	#~ grepcheckadd "0 * * * * cd $CSROOTFOLDER/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "0 \* \* \* \* cd $CSROOTFOLDER/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "/var/spool/cron/$USERNAMEVAR"
-	#~ grepcheckadd "@reboot cd $CSROOTFOLDER/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "@reboot cd $CSROOTFOLDER/CustomScripts; git pull https://github.com/vinadoros/CustomScripts master" "/var/spool/cron/$USERNAMEVAR"
-	#~ su - $USERNAMEVAR -c "crontab /var/spool/cron/$USERNAMEVAR"
-#~ elif type -p fcrontab &> /dev/null; then
-	#~ grepcheckadd "&b 0 * * * * \"cd $CSROOTFOLDER/CustomScripts; git pull\"" "cd $CSROOTFOLDER/CustomScripts; git pull" "/var/spool/fcron/$USERNAMEVAR.orig"
-	#~ chown fcron:fcron "/var/spool/fcron/$USERNAMEVAR.orig"
-	#~ su - "$USERNAMEVAR" -c "fcrontab -z"
-if [ -d "/etc/cron.hourly" ]; then
-	multilinereplace "/etc/cron.hourly/updatecs" << EOFXYZ
-#!/bin/bash
-echo "Executing \$0"
-su $USERNAMEVAR -s /bin/bash <<'EOL'
-cd $CSROOTFOLDER/CustomScripts
+	if [[ ! -z "$GITHUBCOMMITNAME" && ! -z "$GITHUBCOMMITEMAIL" && -f "$GITHUBRSAPUB" ]]; then
+		echo "Adding commit information for $REPONAME github account."
+		git config remote.origin.url "git@gitserv:${GITHUBREPO}.git"
+		git config push.default simple
+		git config user.name "${GITHUBCOMMITNAME}"
+		git config user.email "${GITHUBCOMMITEMAIL}"
+	fi
+
+	# Update scripts folder every hour.
+	if [ -d "/etc/cron.hourly" ]; then
+		multilinereplace "/etc/cron.hourly/update-${GITHUBREPO}" << EOFXYZ
+	#!/bin/bash
+	echo "Executing \$0"
+	su $USERNAMEVAR -s /bin/bash <<'EOL'
+cd $ROOTFOLDER/${REPONAME}
 git pull
 EOL
 EOFXYZ
-fi
+	fi
 
-chown "$USERNAMEVAR":"$USERGROUP" -R "$CSROOTFOLDER/CustomScripts"
-chmod a+rwx "$CSROOTFOLDER/CustomScripts"
+	chown "$USERNAMEVAR":"$USERGROUP" -R "$ROOTFOLDER/${REPONAME}"
+	chmod a+rwx "$ROOTFOLDER/${REPONAME}"
+
+}
