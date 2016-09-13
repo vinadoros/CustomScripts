@@ -112,11 +112,11 @@ function clonerepo {
 	# Update scripts folder every hour.
 	if [ -d "/etc/cron.hourly" ]; then
 		multilinereplace "/etc/cron.hourly/update${REPONAME}" << EOFXYZ
-	#!/bin/bash
-	echo "Executing \$0"
-	su $USERNAMEVAR -s /bin/bash <<'EOL'
-cd $ROOTFOLDER/${REPONAME}
-git pull
+#!/bin/bash
+echo "Executing \$0"
+su $USERNAMEVAR -s /bin/bash <<'EOL'
+	cd $ROOTFOLDER/${REPONAME}
+	git pull
 EOL
 EOFXYZ
 	fi
