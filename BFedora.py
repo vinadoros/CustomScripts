@@ -19,7 +19,7 @@ parser.add_argument("-u", "--username", dest="username", help='Username', defaul
 parser.add_argument("-f", "--fullname", dest="fullname", help='Full Name', default="User Name")
 parser.add_argument("-q", "--password", dest="password", help='Password', default="asdf")
 parser.add_argument("-g", "--grub", type=int, dest="grubtype", help='Grub Install Number', default=1)
-parser.add_argument("-i", "--grubpartition", dest="grubpartition", help='Grub Custom Parition (if using grub option 4, i.e. /dev/sdb)', default=None)
+parser.add_argument("-i", "--grubpartition", dest="grubpartition", help='Grub Custom Parition (if autodetection isnt working, i.e. /dev/sdb)', default=None)
 parser.add_argument("-t", "--type", dest="type", help='Type of release (fedora, centos, etc)', default="fedora")
 parser.add_argument("-v", "--version", dest="version", help='Version of Release', default=24)
 parser.add_argument("installpath", help='Path of Installation')
@@ -38,7 +38,11 @@ print("Version of Release:",args.version)
 DEVPART = subprocess.run('sh -c df -m | grep " \+'+absinstallpath+'$" | grep -Eo "/dev/[a-z]d[a-z]"', shell=True, stdout=subprocess.PIPE, universal_newlines=True)
 grubautopart = format(DEVPART.stdout.strip())
 print("Autodetect grub partition:",grubautopart)
-print("Specified grub partition (if any):",args.grubpartition)
+if args.grubpartition != None and stat.S_ISBLK(os.stat(args.grubpartition).st_mode) == True:
+    grubpart = args.grubpartition
+else:
+    grubpart = grubautopart
+print("Grub partitoin to be used:",grubpart)
 
 # Exit if not root.
 if not os.geteuid() == 0:
@@ -102,34 +106,32 @@ chmod a+rwx "/opt/CustomScripts"
 """.format(args.hostname, args.username, args.password, args.fullname))
 
 # Install kernel, grub.
-if 2 <= args.grubtype <= 4:
+if 2 <= args.grubtype <= 3:
     SETUPSCRIPT_VAR.write("""
 # Install kernel and grub
-dnf install -y kernel kernel-modules kernel-modules-extra @hardware-support grub2 grub2-efi efibootmgr
-# Create grub config
-grub2-mkconfig -o /boot/grub2/grub.cfg
+dnf install -y kernel kernel-modules kernel-modules-extra @hardware-support grub2
     """)
 
 # Grub install selection statement.
-# Use autodetected grub partition.
 if args.grubtype == 1:
     print("Not installing grub.")
+# Use autodetected or specified grub partition.
 elif args.grubtype == 2:
-    # Add if variable is a block device
-    if stat.S_ISBLK(os.stat(grubautopart).st_mode) == True:
-        SETUPSCRIPT_VAR.write('\ngrub2-install --target=i386-pc --recheck --debug {0}'.format(grubautopart))
+    # Add if partition is a block device
+    if stat.S_ISBLK(os.stat(grubpart).st_mode) == True:
+        SETUPSCRIPT_VAR.write('\ngrub2-mkconfig -o /boot/grub2/grub.cfg')
+        SETUPSCRIPT_VAR.write('\ngrub2-install --target=i386-pc --recheck --debug {0}'.format(grubpart))
     else:
-        print("ERROR Grub Mode 2, partition {0} is not a block device.".format(grubautopart))
+        print("ERROR Grub Mode 2, partition {0} is not a block device.".format(grubpart))
 # Use efi partitioning
 elif args.grubtype == 3:
-    SETUPSCRIPT_VAR.write('\ngrub2-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=fedora --recheck --debug')
-# Use pre-selected partition.
-elif args.grubtype == 4:
-    # Add if variable is a block device
-    if stat.S_ISBLK(os.stat(args.grubpartition).st_mode) == True:
-        SETUPSCRIPT_VAR.write('\ngrub2-install --target=i386-pc --recheck --debug {0}'.format(args.grubpartition))
+    # Add if /boot/efi is mounted, and partition is a block device.
+    if os.path.ismount("/boot/efi") == True and stat.S_ISBLK(os.stat(grubpart).st_mode) == True:
+        SETUPSCRIPT_VAR.write('\ndnf install -y grub2-efi grub2-efi-modules shim efibootmgr')
+        SETUPSCRIPT_VAR.write('\ngrub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg')
+        SETUPSCRIPT_VAR.write('\nefibootmgr -c -L fedora -d {0} -p 1 -l \\EFI\\fedora\\shim.efi'.format(grubpart))
     else:
-        print("ERROR Grub Mode 4, partition {0} is not a block device.".format(args.grubpartition))
+        print("ERROR Grub Mode 3, /boot/efi isn't a mount point or {0} is not a block device.".format(grubpart))
 
 # Close and run the script.
 SETUPSCRIPT_VAR.close()
