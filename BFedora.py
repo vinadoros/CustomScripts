@@ -30,10 +30,12 @@ print("Hostname:",args.hostname)
 print("Username:",args.username)
 print("Full Name:",args.fullname)
 print("Grub Install Number:",args.grubtype)
-print("Path of Installation:",args.installpath)
+# Get absolute path of the given path.
+absinstallpath = os.path.realpath(args.installpath)
+print("Path of Installation:",absinstallpath)
 print("Type of release:",args.type)
 print("Version of Release:",args.version)
-DEVPART = subprocess.run('sh -c df -m | grep " \+'+args.installpath+'$" | grep -Eo "/dev/[a-z]d[a-z]"', shell=True, stdout=subprocess.PIPE, universal_newlines=True)
+DEVPART = subprocess.run('sh -c df -m | grep " \+'+absinstallpath+'$" | grep -Eo "/dev/[a-z]d[a-z]"', shell=True, stdout=subprocess.PIPE, universal_newlines=True)
 grubautopart = format(DEVPART.stdout.strip())
 print("Autodetect grub partition:",grubautopart)
 print("Specified grub partition (if any):",args.grubpartition)
@@ -45,14 +47,14 @@ if not os.geteuid() == 0:
 if args.noprompt == False:
     input("Press Enter to continue.")
 
-subprocess.run("dnf --releasever={0} --installroot={1} --assumeyes install @core".format(args.version, args.installpath), shell=True, check=True)
+subprocess.run("dnf --releasever={0} --installroot={1} --assumeyes install @core".format(args.version, absinstallpath), shell=True, check=True)
 # Generate fstab
-subprocess.run("genfstab -U {0} > {0}/etc/fstab".format(args.installpath), shell=True, check=True)
+subprocess.run("genfstab -U {0} > {0}/etc/fstab".format(absinstallpath), shell=True, check=True)
 # Copy resolv.conf into chroot (needed for arch-chroot)
-shutil.copy2("/etc/resolv.conf", args.installpath+"/etc/resolv.conf")
+shutil.copy2("/etc/resolv.conf", absinstallpath+"/etc/resolv.conf")
 
 # Create and run setup script.
-SETUPSCRIPT_PATH = args.installpath+"/setupscript.sh"
+SETUPSCRIPT_PATH = absinstallpath+"/setupscript.sh"
 SETUPSCRIPT_VAR = open(SETUPSCRIPT_PATH, mode='w')
 SETUPSCRIPT_VAR.write("""
 #!/bin/bash
@@ -132,7 +134,7 @@ elif args.grubtype == 4:
 # Close and run the script.
 SETUPSCRIPT_VAR.close()
 os.chmod(SETUPSCRIPT_PATH, 0o777)
-subprocess.run("arch-chroot {0} /setupscript.sh".format(args.installpath), shell=True)
+subprocess.run("arch-chroot {0} /setupscript.sh".format(absinstallpath), shell=True)
 # Remove after running
 os.remove(SETUPSCRIPT_PATH)
 print("Script finished successfully.")

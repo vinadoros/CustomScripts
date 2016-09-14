@@ -236,7 +236,7 @@ case $SETGRUB in
 	echo "You asked to perform grub-install with a custom partition."
 	if [ ! -z $PART ]; then
 		echo "Installing grub to $PART."
-		DEBIAN_FRONTEND=noninteractive apt-get install -y grub-pc
+		pacman -S --needed --noconfirm grub os-prober
 		grub-install --target=i386-pc --recheck --debug $PART
 	else
 		echo "No partition variable specified. Not installing grub."
