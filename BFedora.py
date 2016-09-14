@@ -55,7 +55,7 @@ subprocess.run("dnf --releasever={0} --installroot={1} --assumeyes install @core
 # Generate fstab
 subprocess.run("genfstab -U {0} > {0}/etc/fstab".format(absinstallpath), shell=True, check=True)
 # Copy resolv.conf into chroot (needed for arch-chroot)
-shutil.copy2("/etc/resolv.conf", absinstallpath+"/etc/resolv.conf")
+shutil.copy2("/etc/resolv.conf", "{0}/etc/resolv.conf".format(absinstallpath))
 
 # Create and run setup script.
 SETUPSCRIPT_PATH = absinstallpath+"/setupscript.sh"
@@ -100,7 +100,7 @@ chpasswd <<<"$PY_USERNAME:$PY_PASSWORD"
 # Clone csrepo
 dnf install -y git
 git clone "https://github.com/vinadoros/CustomScripts.git" "/opt/CustomScripts"
-chmod a+rwx "/opt/CustomScripts"
+chmod a+rwx -R "/opt/CustomScripts"
 
 # Process Grub Options
 """.format(args.hostname, args.username, args.password, args.fullname))
@@ -126,12 +126,12 @@ elif args.grubtype == 2:
 # Use efi partitioning
 elif args.grubtype == 3:
     # Add if /boot/efi is mounted, and partition is a block device.
-    if os.path.ismount("/boot/efi") == True and stat.S_ISBLK(os.stat(grubpart).st_mode) == True:
+    if os.path.ismount("{0}/boot/efi".format(absinstallpath)) == True and stat.S_ISBLK(os.stat(grubpart).st_mode) == True:
         SETUPSCRIPT_VAR.write('\ndnf install -y grub2-efi grub2-efi-modules shim efibootmgr')
         SETUPSCRIPT_VAR.write('\ngrub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg')
         SETUPSCRIPT_VAR.write('\nefibootmgr -c -L fedora -d {0} -p 1 -l \\EFI\\fedora\\shim.efi'.format(grubpart))
     else:
-        print("ERROR Grub Mode 3, /boot/efi isn't a mount point or {0} is not a block device.".format(grubpart))
+        print("ERROR Grub Mode 3, {0}/boot/efi isn't a mount point or {0} is not a block device.".format(absinstallpath, grubpart))
 
 # Close and run the script.
 SETUPSCRIPT_VAR.close()
@@ -139,4 +139,5 @@ os.chmod(SETUPSCRIPT_PATH, 0o777)
 subprocess.run("arch-chroot {0} /setupscript.sh".format(absinstallpath), shell=True)
 # Remove after running
 os.remove(SETUPSCRIPT_PATH)
+os.remove("{0}/etc/resolv.conf".format(absinstallpath))
 print("Script finished successfully.")
