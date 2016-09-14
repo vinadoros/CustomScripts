@@ -66,6 +66,15 @@ PY_FULLNAME="{3}"
 
 echo "Running Fedora Setup Script"
 
+# Set hostname
+echo "$PY_HOSTNAME" > /etc/hostname
+# Set locale
+export LANG=en_US.utf8
+echo "LANG=en_US.utf8" > /etc/locale.conf
+# Set timezone
+[ -f /etc/localtime ] && rm -f /etc/localtime
+ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
+
 # Install more packages
 dnf install -y @fonts @base-x @networkmanager-submodules avahi
 dnf install -y util-linux-user nano
@@ -77,15 +86,6 @@ passwd -u root
 chpasswd <<<"root:$PY_PASSWORD"
 # Disable selinux
 sed -i 's/SELINUX=.*/SELINUX=permissive/g' /etc/selinux/config
-# Set hostname
-echo "$PY_HOSTNAME" > /etc/hostname
-hostnamectl set-hostname "$PY_HOSTNAME"
-# Set locale
-export LANG=en_US.utf8
-localectl set-locale LANG=en_US.utf8
-# Set timezone
-[ -f /etc/localtime ] && rm -f /etc/localtime
-ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
 # Setup new user.
 useradd -m -g users -G wheel -s /bin/bash $PY_USERNAME
 chfn -f "$PY_FULLNAME" $PY_USERNAME

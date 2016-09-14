@@ -204,7 +204,7 @@ if [ $COMMAND = 1 ]; then
 	elif [ "$VBOXOSID" = "Ubuntu_64" ]; then
 	  sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "/CustomScripts/BDeb_chroot.sh -n -p /mnt -a amd64 -b 3 -c $VMNAME -u $USER -f \"$FULLNAME\" -v $PASSWORD -g 2"
 	elif [ "$VBOXOSID" = "Fedora_64" ]; then
-		echo "Future code here."
+		sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "/CustomScripts/BFedora.py -n -c $VMNAME -u $USER -f \"$FULLNAME\" -q $PASSWORD -g 2 /mnt"
 	fi
 	sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "mkdir -p /mnt/root/.ssh/; echo \"$ROOTSSHKEY\" >> /mnt/root/.ssh/authorized_keys"
 	sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "poweroff"
