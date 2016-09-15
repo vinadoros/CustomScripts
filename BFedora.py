@@ -42,7 +42,7 @@ if args.grubpartition != None and stat.S_ISBLK(os.stat(args.grubpartition).st_mo
     grubpart = args.grubpartition
 else:
     grubpart = grubautopart
-print("Grub partitoin to be used:",grubpart)
+print("Grub partition to be used:",grubpart)
 
 # Exit if not root.
 if not os.geteuid() == 0:
@@ -128,8 +128,12 @@ elif args.grubtype == 3:
     # Add if /boot/efi is mounted, and partition is a block device.
     if os.path.ismount("{0}/boot/efi".format(absinstallpath)) == True and stat.S_ISBLK(os.stat(grubpart).st_mode) == True:
         SETUPSCRIPT_VAR.write('\ndnf install -y grub2-efi grub2-efi-modules shim efibootmgr')
-        SETUPSCRIPT_VAR.write('\ngrub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg')
-        SETUPSCRIPT_VAR.write('\nefibootmgr -c -L fedora -d {0} -p 1 -l \\EFI\\fedora\\shim.efi'.format(grubpart))
+        # Not using built in fedora method to boot efi. TODO Fix later.
+        # SETUPSCRIPT_VAR.write('\ngrub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg')
+        # SETUPSCRIPT_VAR.write('\nefibootmgr -c -L fedora -d {0} -p 1 -l \\EFI\\fedora\\shim.efi'.format(grubpart))
+        # Use standard grub method for booting efi.
+        SETUPSCRIPT_VAR.write('\ngrub2-mkconfig -o /boot/grub2/grub.cfg')
+        SETUPSCRIPT_VAR.write('\ngrub2-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=fedora --recheck --debug')
     else:
         print("ERROR Grub Mode 3, {0}/boot/efi isn't a mount point or {0} is not a block device.".format(absinstallpath, grubpart))
 

@@ -196,7 +196,7 @@ sshwait $LIVESSHUSER $LIVESSHPASS
 if [ $COMMAND = 1 ]; then
 	# LiveCD Commands
 	sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "cd /CustomScripts/; git pull"
-	sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "/CustomScripts/ZSlimDrive.sh -n -s"
+	sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "/CustomScripts/ZSlimDrive.py -n"
 	if [ "$VBOXOSID" = "ArchLinux_64" ]; then
 	  sshpass -p $LIVESSHPASS ssh 127.0.0.1 -p $SSHPORT -l $LIVESSHUSER "/CustomScripts/BArchChroot.sh -n -p /mnt -c $VMNAME -u $USER -f \"$FULLNAME\" -v $PASSWORD -g 2"
 	elif [ "$VBOXOSID" = "Debian_64" ]; then

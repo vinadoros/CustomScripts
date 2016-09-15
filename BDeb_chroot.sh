@@ -416,7 +416,7 @@ case $SETGRUB in
 	;;
 
 [2]* )
-	echo "You asked to perform 'grub-isntall $DEVPART'."
+	echo "You asked to perform 'grub-install $DEVPART'."
 	DEBIAN_FRONTEND=noninteractive apt-get install -y grub-pc
 	grub-install --target=i386-pc --recheck --debug $DEVPART
 	update-grub2
