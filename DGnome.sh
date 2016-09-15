@@ -57,9 +57,9 @@ fi
 if [ $VBOXGUEST = 1 ]; then
 	gsettings set org.gnome.desktop.session idle-delay 0
 fi
-gsettings set org.gnome.settings-daemon.plugins.xsettings antialiasing rgba
-gsettings set org.gnome.settings-daemon.plugins.xsettings hinting full
-gsettings set org.gnome.desktop.interface text-scaling-factor 0.9
+gsettings set org.gnome.settings-daemon.plugins.xsettings antialiasing grayscale
+gsettings set org.gnome.settings-daemon.plugins.xsettings hinting slight
+gsettings set org.gnome.desktop.interface text-scaling-factor 1.0
 gsettings set org.gnome.desktop.interface clock-show-date true
 gsettings set org.gnome.shell enabled-extensions "['places-menu@gnome-shell-extensions.gcampax.github.com', 'window-list@gnome-shell-extensions.gcampax.github.com', 'activities-config@nls1729', 'dash-to-dock@micxgx.gmail.com', 'AdvancedVolumeMixer@harry.karvonen.gmail.com', 'GPaste@gnome-shell-extensions.gnome.org', 'mediaplayer@patapon.info', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'shell-volume-mixer@derhofbauer.at', 'TopIcons@phocean.net']"
 gsettings set org.gnome.desktop.wm.preferences button-layout :minimize,maximize,close

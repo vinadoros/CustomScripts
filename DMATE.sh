@@ -61,8 +61,8 @@ gsettings set org.mate.power-manager action-critical-battery nothing
 gsettings set org.mate.screensaver idle-activation-enabled false
 gsettings set org.mate.screensaver lock-enabled false
 gsettings set org.mate.screensaver mode blank-only
-gsettings set org.mate.font-rendering antialiasing rgba
-gsettings set org.mate.font-rendering hinting full
+gsettings set org.mate.font-rendering antialiasing grayscale
+gsettings set org.mate.font-rendering hinting slight
 gsettings set org.mate.peripherals-mouse middle-button-enabled true
 dconf write /org/mate/panel/objects/clock/prefs/format "'12-hour'"
 dconf write /org/mate/panel/objects/clock/position "0"
@@ -85,4 +85,3 @@ dconf write /org/mate/desktop/keybindings/$BINDING/name "'turnoffscreen'"
 
 # Icon theme
 gsettings set org.mate.interface icon-theme "Numix-Circle-Light"
-
