@@ -8,6 +8,8 @@ import pwd
 import subprocess
 import sys
 
+print("Running {0}".format(__file__))
+
 # Get arguments
 parser = argparse.ArgumentParser(description='Install Fedora Software.')
 parser.add_argument("-d", "--desktop", dest="desktop", type=int, help='Desktop Environment', default="0")
@@ -30,7 +32,7 @@ else:
     USERNAMEVAR=pwd.getpwuid(1000)[0]
 # https://docs.python.org/3/library/grp.html
 USERGROUP=grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
-USERHOME="/home/"+USERNAMEVAR
+USERHOME=os.path.expanduser("~")
 print("Username is:",USERNAMEVAR)
 print("Group Name is:",USERGROUP)
 
