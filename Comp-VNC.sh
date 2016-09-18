@@ -27,7 +27,7 @@ if [ -z $USERNAMEVAR ]; then
 fi
 
 # Install tigervnc
-dist_install tigervnc
+dist_install tigervnc autocutsel
 
 # Enable error halting.
 set -eu
@@ -133,3 +133,13 @@ TimeoutStopSec=7s
 [Install]
 WantedBy=default.target
 EOL
+
+# Add autocutsel to xinitrc to enable clipboard sharing
+if [ -d /etc/X11/xinit/xinitrc.d/ ]; then
+	echo "Creating /etc/X11/xinit/xinitrc.d/40-autocutsel.sh."
+	bash -c "cat >/etc/X11/xinit/xinitrc.d/40-autocutsel.sh" <<'EOL'
+#!/bin/bash
+autocutsel -fork &
+EOL
+	chmod 777 /etc/X11/xinit/xinitrc.d/40-autocutsel.sh
+fi
