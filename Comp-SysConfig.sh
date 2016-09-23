@@ -28,8 +28,6 @@ fi
 
 [ -z "$MACHINEARCH" ] && MACHINEARCH="$(uname -m)"
 
-# Enable error halting.
-set -eu
 
 if [ "$(id -u)" != "0" ]; then
 	echo "Not running with root. Please run the script with su privledges."
@@ -143,42 +141,6 @@ fi
 EOL
 EOFXYZ
 fi
-
-# Font configuration
-if [[ ! -f "/etc/fonts/conf.d/10-base-rendering.conf" ]]; then
-	multilinereplace "/etc/fonts/conf.avail/10-custom-rmk.conf" <<"EOF"
-<?xml version='1.0'?>
-<!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>
-<fontconfig>
-
-  <!-- ## Base rendering settings ## -->
-  <match target="font">
-    <edit name="rgba" mode="assign">
-      <const>rgb</const>
-    </edit>
-    <edit name="hinting" mode="assign">
-      <bool>true</bool>
-    </edit>
-    <edit name="autohint" mode="assign">
-      <bool>true</bool>
-    </edit>
-    <edit name="antialias" mode="assign">
-      <bool>true</bool>
-    </edit>
-    <edit name="hintstyle" mode="assign">
-      <const>hintslight</const>
-    </edit>
-    <edit name="lcdfilter" mode="assign">
-      <const>lcddefault</const>
-    </edit>
-  </match>
-
-</fontconfig>
-
-EOF
-	ln -sf /etc/fonts/conf.avail/10-custom-rmk.conf /etc/fonts/conf.d/10-custom-rmk.conf
-fi
-
 
 if [ "${MACHINEARCH}" != "armv7l" ]; then
 	echo "Install x86 specific tweaks."
