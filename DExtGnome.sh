@@ -7,7 +7,7 @@ if type -p pacman &> /dev/null; then
 elif type -p apt-get &> /dev/null; then
 	sudo apt-get install -y git build-essential zip gnome-common libglib2.0-dev
 elif type -p dnf &> /dev/null; then
-	sudo dnf install -y gnome-common intltool glib2-devel
+	sudo dnf install -y gnome-common intltool glib2-devel zip unzip
 fi
 
 TEMPFOLDER=./tempfolder

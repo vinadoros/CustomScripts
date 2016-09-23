@@ -52,7 +52,7 @@ SOFTWARESCRIPT="""
 #!/bin/bash
 
 # Install cli tools
-dnf install -y fish tmux iotop rsync p7zip p7zip-plugins util-linux-user
+dnf install -y fish tmux iotop rsync p7zip p7zip-plugins zip unzip util-linux-user
 
 # Management tools
 dnf install -y yumex-dnf gparted
