@@ -148,6 +148,7 @@ if [ "${MACHINEARCH}" != "armv7l" ]; then
 	# Edit grub timeout
 	if [ -f /etc/default/grub ]; then
 		sed -i 's/GRUB_TIMEOUT=.*$/GRUB_TIMEOUT=1/g' /etc/default/grub
+		sed -i 's/GRUB_HIDDEN_TIMEOUT=.*$/GRUB_HIDDEN_TIMEOUT=1/g' /etc/default/grub
 		grub_update
 	fi
 
