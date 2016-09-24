@@ -36,8 +36,9 @@ yum-config-manager --enable centosplus
 # Centos Fasttrack
 yum-config-manager --enable fasttrack
 
-# Webtatic
-yum install -y http://repo.webtatic.com/yum/el7/webtatic-release.rpm
+# IUS
+# https://ius.io/
+yum install -y https://centos7.iuscommunity.org/ius-release.rpm
 
 # Software Collections
 # https://www.softwarecollections.org
