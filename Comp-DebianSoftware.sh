@@ -258,7 +258,7 @@ case $SETDE in
 
 		dist_install gnome-core alacarte desktop-base file-roller gedit gnome-clocks gnome-color-manager gnome-logs gnome-nettool gnome-tweak-tool seahorse
 		# Shell extensions
-		dist_install gnome-shell-extensions-gpaste gnome-shell-extensions-top-icons-plus gnome-shell-extensions-mediaplayer
+		dist_install gnome-shell-extensions-gpaste gnome-shell-extension-top-icons-plus gnome-shell-extension-mediaplayer
 		dist_install gdm3
 		dist_install gnome-packagekit network-manager-gnome
 	fi
