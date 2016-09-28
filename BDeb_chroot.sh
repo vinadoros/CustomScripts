@@ -317,6 +317,11 @@ apt-get install -y ssh
 # Install essential programs for startup
 DEBIAN_FRONTEND=noninteractive apt-get install -y btrfs-tools f2fs-tools nbd-client
 
+# Enable 32-bit support for 64-bit arch.
+if [[ "$DEBARCH" = "amd64" ]]; then
+	dpkg --add-architecture i386
+fi
+
 # Fetch scripts
 apt-get install -y git
 git clone "https://github.com/vinadoros/CustomScripts.git" "/opt/CustomScripts"
