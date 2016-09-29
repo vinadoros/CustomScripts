@@ -75,20 +75,13 @@ else:
 debootstrap --no-check-gpg --arch {DEBARCH} {DISTROCHOICE} {INSTALLPATH} {URL}
 genfstab -U {INSTALLPATH} > {INSTALLPATH}/etc/fstab
 """.format(DEBARCH=args.architecture, DISTROCHOICE=args.release, INSTALLPATH=absinstallpath, URL=osurl)
-BOOTSTRAPSCRIPT += """
-echo "America/New_York" > "{INSTALLPATH}/etc/timezone"
-sed -i 's/\(127.0.0.1\tlocalhost\)\(.*\)/\1 '{NEWHOSTNAME}'/g' "{INSTALLPATH}/etc/hosts"
-""".format(INSTALLPATH=absinstallpath, NEWHOSTNAME=args.hostname)
-print(BOOTSTRAPSCRIPT)
-# subprocess.run(BOOTSTRAPSCRIPT), shell=True, check=True)
+subprocess.run(BOOTSTRAPSCRIPT, shell=True, check=True)
 
 # Copy resolv.conf into chroot (needed for arch-chroot)
-# shutil.copy2("/etc/resolv.conf", "{0}/etc/resolv.conf".format(absinstallpath))
+shutil.copy2("/etc/resolv.conf", "{0}/etc/resolv.conf".format(absinstallpath))
 
 # Create and run setup script.
-SETUPSCRIPT = """
-#!/bin/bash
-
+SETUPSCRIPT = """#!/bin/bash
 echo "Running Debian Setup Script"
 
 # Exporting Path for chroot
@@ -96,38 +89,58 @@ export PATH=$PATH:/bin:/usr/local/sbin:/usr/sbin:/sbin
 
 # Set hostname
 echo "{HOSTNAME}" > /etc/hostname
+sed -i 's/\(127.0.0.1\tlocalhost\)\(.*\)/\1 '{HOSTNAME}'/g' "/etc/hosts"
 
-# Set locale
-# export LANG=en_US.utf8
-# echo "LANG=en_US.utf8" > /etc/locale.conf
-# Install locales
-apt-get update
-apt-get install -y locales
-locale-gen --purge en_US en_US.UTF-8
+# Update repos
+apt update
+
+# Set timezone
+echo "America/New_York" > "/etc/timezone"
+[ -f /etc/localtime ] && rm -f /etc/localtime
+ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
+apt install -y tzdata
 dpkg-reconfigure -f noninteractive tzdata
+
+# Install locales
+apt install -y locales
+locale-gen --purge en_US en_US.UTF-8
 sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
 echo 'LANG="en_US.UTF-8"'>/etc/default/locale
 dpkg-reconfigure --frontend=noninteractive locales
 update-locale
 # Locale fix for gnome-terminal.
 localectl set-locale LANG="en_US.UTF-8"
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
 # Set keymap for Ubuntu
 echo "console-setup	console-setup/charmap47	select	UTF-8" | debconf-set-selections
 
-# Set timezone
-[ -f /etc/localtime ] && rm -f /etc/localtime
-ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
-
 # Install lsb_release
-DEBIAN_FRONTEND=noninteractive apt-get install -y lsb-release nano sudo less apt-transport-https
+DEBIAN_FRONTEND=noninteractive apt install -y lsb-release nano sudo less apt-transport-https
 
 # Store distro being used.
 DISTRO=$(lsb_release -si)
 DEBRELEASE=$(lsb_release -sc)
 
-DEBIAN_FRONTEND=noninteractive apt-get install -y software-properties-common
+DEBIAN_FRONTEND=noninteractive apt install -y software-properties-common
+
+# Unlocking root account
+passwd -u root
+chpasswd <<<"root:{PASSWORD}"
+# Setup normal user
+if ! grep -i {USERNAME} /etc/passwd; then
+    adduser --disabled-password --gecos "" {USERNAME}
+fi
+chpasswd <<<"{USERNAME}:{PASSWORD}"
+usermod -aG daemon,bin,sys,adm,tty,disk,lp,mail,news,uucp,man,proxy,kmem,dialout,fax,voice,cdrom,floppy,tape,sudo,audio,dip,www-data,backup,operator,list,irc,src,gnats,shadow,utmp,video,sasl,plugdev,staff,games,users,netdev,crontab,systemd-journal {USERNAME}
+
+# Install software
+DEBIAN_FRONTEND=noninteractive apt install -y synaptic tasksel xorg
+apt install -y ssh
+DEBIAN_FRONTEND=noninteractive apt install -y btrfs-tools f2fs-tools nbd-client
+
 """.format(HOSTNAME=args.hostname, USERNAME=args.username, PASSWORD=args.password, FULLNAME=args.fullname)
 
+# Set up repositories for debian/ubuntu.
 if args.type == "ubuntu":
     SETUPSCRIPT += """
 # Restricted, universe, and multiverse for Ubuntu.
@@ -156,9 +169,14 @@ fi
 # Comment out lines containing httpredir.
 sed -i '/httpredir/ s/^#*/#/' /etc/apt/sources.list
 """.format(DEBRELEASE=args.release)
+
 SETUPSCRIPT += """
-apt-get update
-apt-get dist-upgrade -y
+# Enable 32-bit support for 64-bit arch.
+if [[ "{DEBARCH}" = "amd64" ]]; then
+	dpkg --add-architecture i386
+fi
+apt update
+apt dist-upgrade -y
 
 # Delete defaults in sudoers for Debian.
 if grep -iq $'^Defaults\tenv_reset' /etc/sudoers; then
@@ -168,14 +186,37 @@ if grep -iq $'^Defaults\tenv_reset' /etc/sudoers; then
 fi
 visudo -c
 
-"""
+# Fetch scripts
+apt install -y git
+git clone "https://github.com/vinadoros/CustomScripts.git" "/opt/CustomScripts"
+chmod a+rwx "/opt/CustomScripts"
+
+# Install network manager last, it disables internet access.
+apt install -y network-manager
+""".format(DEBARCH=args.architecture)
 
 # Install kernel, grub.
 if 2 <= args.grubtype <= 3:
-    SETUPSCRIPT += """
-# Install kernel and grub
 
+    if args.type == "ubuntu":
+        SETUPSCRIPT += """
+DEBIAN_FRONTEND=noninteractive apt install -y linux-image-generic linux-headers-generic
+DEBIAN_FRONTEND=noninteractive apt install -y gfxboot gfxboot-theme-ubuntu linux-firmware
 """
+    else:
+        SETUPSCRIPT += """
+if [[ "{DEBARCH}" = "amd64" ]]; then
+	DEBIAN_FRONTEND=noninteractive apt install -y linux-image-amd64
+fi
+if [[ "{DEBARCH}" = "i386" || "{DEBARCH}" = "i686" ]]; then
+	DEBIAN_FRONTEND=noninteractive apt install -y linux-image-686-pae
+fi
+
+apt install -y firmware-linux gfxboot
+echo "firmware-ipw2x00 firmware-ipw2x00/license/accepted boolean true" | debconf-set-selections
+echo "firmware-ivtv firmware-ivtv/license/accepted boolean true" | debconf-set-selections
+DEBIAN_FRONTEND=noninteractive apt install -y ^firmware-*
+""".format(DEBARCH=args.architecture)
 
 # Grub install selection statement.
 if args.grubtype == 1:
@@ -184,30 +225,33 @@ if args.grubtype == 1:
 elif args.grubtype == 2:
     # Add if partition is a block device
     if stat.S_ISBLK(os.stat(grubpart).st_mode) == True:
-        SETUPSCRIPT += '\ngrub2-mkconfig -o /boot/grub2/grub.cfg'
-        SETUPSCRIPT += '\ngrub2-install --target=i386-pc --recheck --debug {0}'.format(grubpart)
+        SETUPSCRIPT += """
+DEBIAN_FRONTEND=noninteractive apt install -y grub-pc
+update-grub2
+grub-install --target=i386-pc --recheck --debug {0}
+""".format(grubpart)
     else:
         print("ERROR Grub Mode 2, partition {0} is not a block device.".format(grubpart))
 # Use efi partitioning
 elif args.grubtype == 3:
     # Add if /boot/efi is mounted, and partition is a block device.
     if os.path.ismount("{0}/boot/efi".format(absinstallpath)) == True and stat.S_ISBLK(os.stat(grubpart).st_mode) == True:
-        SETUPSCRIPT += '\ndnf install -y grub2-efi grub2-efi-modules shim efibootmgr'
-        # Use standard grub method for booting efi.
-        SETUPSCRIPT += '\ngrub2-mkconfig -o /boot/grub2/grub.cfg'
-        SETUPSCRIPT += '\ngrub2-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=fedora --recheck --debug'
+        SETUPSCRIPT += """
+DEBIAN_FRONTEND=noninteractive apt install -y grub-efi-amd64
+update-grub2
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id={0} --recheck --debug
+""".format(args.type)
     else:
         print("ERROR Grub Mode 3, {0}/boot/efi isn't a mount point or {0} is not a block device.".format(absinstallpath, grubpart))
 
 # Close and run the script.
-print(SETUPSCRIPT)
-# SETUPSCRIPT_PATH = absinstallpath+"/setupscript.sh"
-# SETUPSCRIPT_VAR = open(SETUPSCRIPT_PATH, mode='w')
-# SETUPSCRIPT_VAR.write(SETUPSCRIPT)
-# SETUPSCRIPT_VAR.close()
-# os.chmod(SETUPSCRIPT_PATH, 0o777)
-# subprocess.run("arch-chroot {0} /setupscript.sh".format(absinstallpath), shell=True)
+SETUPSCRIPT_PATH = absinstallpath+"/setupscript.sh"
+SETUPSCRIPT_VAR = open(SETUPSCRIPT_PATH, mode='w')
+SETUPSCRIPT_VAR.write(SETUPSCRIPT)
+SETUPSCRIPT_VAR.close()
+os.chmod(SETUPSCRIPT_PATH, 0o777)
+subprocess.run("arch-chroot {0} /setupscript.sh".format(absinstallpath), shell=True)
 # Remove after running
-# os.remove(SETUPSCRIPT_PATH)
-# os.remove("{0}/etc/resolv.conf".format(absinstallpath))
+os.remove(SETUPSCRIPT_PATH)
+os.remove("{0}/etc/resolv.conf".format(absinstallpath))
 print("Script finished successfully.")

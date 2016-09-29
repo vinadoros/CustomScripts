@@ -52,9 +52,11 @@ swapoff -a
 for v_partition in $(parted -s "{0}" print|awk '/^ / {{print $1}}')
 do
 	echo "Unmounting {0}$v_partition"
+    umount "{0}$v_partition"
 	umount -l "{0}$v_partition"
 	umount -f "{0}$v_partition"
 done
+sync
 """.format(devicetopartition)
 subprocess.run(UMOUNTSCRIPT, shell=True)
 

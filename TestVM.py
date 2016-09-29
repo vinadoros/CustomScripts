@@ -100,22 +100,22 @@ if args.ostype == 1:
 elif args.ostype == 2:
     vmname = "DebianTest"
     vboxosid = "Debian_64"
-    vmbootstrapscript = "BDeb_chroot.sh"
-    vmbootstrap_defopts = '-a amd64 -b 1 -p /mnt -v \\"{0}\\"'.format(args.vmpass)
+    vmbootstrapscript = "BDebian.py"
+    vmbootstrap_defopts = '-t debian -r jessie -q \\"{0}\\" /mnt'.format(args.vmpass)
     vmprovisionscript = "MDebUbu.sh"
     vmprovision_defopts = "-e 3"
 elif args.ostype == 3:
     vmname = "DebianTest"
     vboxosid = "Debian_64"
-    vmbootstrapscript = "BDeb_chroot.sh"
-    vmbootstrap_defopts = '-a amd64 -b 2 -p /mnt -v \\"{0}\\"'.format(args.vmpass)
+    vmbootstrapscript = "BDebian.py"
+    vmbootstrap_defopts = '-q \\"{0}\\" /mnt'.format(args.vmpass)
     vmprovisionscript = "MDebUbu.sh"
     vmprovision_defopts = "-e 2"
 elif args.ostype == 4:
     vmname = "UbuntuTest"
     vboxosid = "Ubuntu_64"
-    vmbootstrapscript = "BDeb_chroot.sh"
-    vmbootstrap_defopts = '-a amd64 -b 3 -p /mnt -v \\"{0}\\"'.format(args.vmpass)
+    vmbootstrapscript = "BDebian.py"
+    vmbootstrap_defopts = '-t ubuntu -r xenial -q \\"{0}\\" /mnt'.format(args.vmpass)
     vmprovisionscript = "MDebUbu.sh"
     vmprovision_defopts = "-e 3"
 elif args.ostype == 5:
