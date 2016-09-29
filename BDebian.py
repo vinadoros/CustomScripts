@@ -89,7 +89,7 @@ export PATH=$PATH:/bin:/usr/local/sbin:/usr/sbin:/sbin
 
 # Set hostname
 echo "{HOSTNAME}" > /etc/hostname
-sed -i 's/\(127.0.0.1\tlocalhost\)\(.*\)/\1 '{HOSTNAME}'/g' "/etc/hosts"
+sed -i 's/\(127.0.0.1\\tlocalhost\)\(.*\)/\\1 {HOSTNAME}/g' "/etc/hosts"
 
 # Update repos
 apt update
@@ -250,8 +250,8 @@ SETUPSCRIPT_VAR = open(SETUPSCRIPT_PATH, mode='w')
 SETUPSCRIPT_VAR.write(SETUPSCRIPT)
 SETUPSCRIPT_VAR.close()
 os.chmod(SETUPSCRIPT_PATH, 0o777)
-subprocess.run("arch-chroot {0} /setupscript.sh".format(absinstallpath), shell=True)
+# subprocess.run("arch-chroot {0} /setupscript.sh".format(absinstallpath), shell=True)
 # Remove after running
-os.remove(SETUPSCRIPT_PATH)
+# os.remove(SETUPSCRIPT_PATH)
 os.remove("{0}/etc/resolv.conf".format(absinstallpath))
 print("Script finished successfully.")

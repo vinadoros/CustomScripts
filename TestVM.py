@@ -101,16 +101,16 @@ elif args.ostype == 2:
     vmname = "DebianTest"
     vboxosid = "Debian_64"
     vmbootstrapscript = "BDebian.py"
-    vmbootstrap_defopts = '-t debian -r jessie -q \\"{0}\\" /mnt'.format(args.vmpass)
+    vmbootstrap_defopts = '-t debian -r unstable -q \\"{0}\\" /mnt'.format(args.vmpass)
     vmprovisionscript = "MDebUbu.sh"
-    vmprovision_defopts = "-e 3"
+    vmprovision_defopts = "-e 2"
 elif args.ostype == 3:
     vmname = "DebianTest"
     vboxosid = "Debian_64"
     vmbootstrapscript = "BDebian.py"
-    vmbootstrap_defopts = '-q \\"{0}\\" /mnt'.format(args.vmpass)
+    vmbootstrap_defopts = '-t debian -r jessie -q \\"{0}\\" /mnt'.format(args.vmpass)
     vmprovisionscript = "MDebUbu.sh"
-    vmprovision_defopts = "-e 2"
+    vmprovision_defopts = "-e 3"
 elif args.ostype == 4:
     vmname = "UbuntuTest"
     vboxosid = "Ubuntu_64"
