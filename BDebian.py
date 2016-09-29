@@ -78,7 +78,7 @@ genfstab -U {INSTALLPATH} > {INSTALLPATH}/etc/fstab
 subprocess.run(BOOTSTRAPSCRIPT, shell=True, check=True)
 
 # Copy resolv.conf into chroot (needed for arch-chroot)
-shutil.copy2("/etc/resolv.conf", "{0}/etc/resolv.conf".format(absinstallpath))
+# shutil.copy2("/etc/resolv.conf", "{0}/etc/resolv.conf".format(absinstallpath))
 
 # Create and run setup script.
 SETUPSCRIPT = """#!/bin/bash
@@ -250,8 +250,8 @@ SETUPSCRIPT_VAR = open(SETUPSCRIPT_PATH, mode='w')
 SETUPSCRIPT_VAR.write(SETUPSCRIPT)
 SETUPSCRIPT_VAR.close()
 os.chmod(SETUPSCRIPT_PATH, 0o777)
-# subprocess.run("arch-chroot {0} /setupscript.sh".format(absinstallpath), shell=True)
+subprocess.run("arch-chroot {0} /setupscript.sh".format(absinstallpath), shell=True)
 # Remove after running
-# os.remove(SETUPSCRIPT_PATH)
-os.remove("{0}/etc/resolv.conf".format(absinstallpath))
+os.remove(SETUPSCRIPT_PATH)
+# os.remove("{0}/etc/resolv.conf".format(absinstallpath))
 print("Script finished successfully.")
