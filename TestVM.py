@@ -28,7 +28,7 @@ else:
 # https://docs.python.org/3/library/grp.html
 USERGROUP=grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
 USERHOME=os.path.expanduser("~")
-CPUCORES=multiprocessing.cpu_count()
+CPUCORES=multiprocessing.cpu_count() if multiprocessing.cpu_count() <= 4 else 4
 
 # Ensure that certain commands exist.
 cmdcheck = ["VBoxManage", "ssh", "sshpass"]

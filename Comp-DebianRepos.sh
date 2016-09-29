@@ -71,7 +71,7 @@ fi
 if ! grep -i "deb-multimedia" /etc/apt/sources.list; then
 	add-apt-repository "deb http://www.deb-multimedia.org $DEBRELEASE main non-free"
 	apt-get update
-	apt-get install -y --force-yes deb-multimedia-keyring
+	apt-get install -y --allow-unauthenticated deb-multimedia-keyring
 	apt-get update
 fi
 
