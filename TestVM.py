@@ -270,12 +270,11 @@ if args.keep != True:
 # Detach the iso
 shutdownwait()
 time.sleep(2)
-subprocess.run('VBoxManage storageattach "{0}" --storagectl "{1}" --port 1 --device 0 --type dvddrive --medium none'.format(vmname, storagecontroller), shell=True)
+subprocess.run('VBoxManage storageattach "{0}" --storagectl "{1}" --port 1 --device 0 --type dvddrive --medium emptydrive'.format(vmname, storagecontroller), shell=True)
 
 # Start VM
 startvm(vmname)
 sshwait(args.vmuser, args.vmpass, localsshport)
 
 # Provision VM
-# print(PROVISIONCMD)
 subprocess.run(PROVISIONCMD, shell=True)
