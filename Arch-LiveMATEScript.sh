@@ -28,6 +28,9 @@ ISOFILENAME=archMATEcustom
 if [ ! -z "$1" ]; then
 	INPUTFOLDER="$(readlink -f $1)"
 fi
+if [ ! -z "$2" ]; then
+	OUTFOLDER="$(readlink -f $1)"
+fi
 
 # Set location to perform build and store ISO.
 if [ -d "$INPUTFOLDER" ]; then
@@ -36,6 +39,9 @@ if [ -d "$INPUTFOLDER" ]; then
 else
 	ARCHLIVEPATH=$PWD/archlive
 	OUTFOLDER=$PWD
+fi
+if [ ! -d "$OUTFOLDER" ]; then
+	OUTFOLDER="$(dirname $ARCHLIVEPATH)"
 fi
 
 cleanup () {

@@ -1,0 +1,157 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$script = <<SCRIPT
+#!/bin/bash
+set -x
+
+dnf install -y livecd-tools spin-kickstarts nano git
+
+# lcd script
+echo "Creating /usr/local/bin/lcd."
+cat > /usr/local/bin/lcd <<'EOLXYZ'
+#!/bin/bash
+
+KSROOTLOCATION="/vagrant"
+KSFULLLOCATION="${KSROOTLOCATION}/spin-kickstarts"
+REALKSLOCATION="/usr/share/spin-kickstarts"
+DATE=$(date +"%F")
+if [[ -d "$KSFULLLOCATION" ]]; then
+  echo "Removing existing $KSFULLLOCATION"
+  rm -rf "$KSFULLLOCATION"
+fi
+
+if [[ -d "$REALKSLOCATION" ]]; then
+  echo "Copying ks files to $KSROOTLOCATION"
+  cp -a "$REALKSLOCATION" "$KSROOTLOCATION"
+  chmod a+rwx -R "$KSFULLLOCATION"
+else
+  echo "Could not copy ks files."
+  exit 1;
+fi
+
+if [[ -d "$KSFULLLOCATION" ]]; then
+  echo "Creating live cd."
+
+  # Create custom.ks
+  cat > "$KSFULLLOCATION/custom.ks" <<'EOLABC'
+%include fedora-live-workstation.ks
+
+# Set root password.
+rootpw asdf
+
+# Repos
+repo --name="RPMFusion Free" --mirrorlist=http://mirrors.rpmfusion.org/mirrorlist?repo=free-fedora-$releasever&arch=$basearch
+repo --name="RPMFusion Free - Updates" --mirrorlist=http://mirrors.rpmfusion.org/mirrorlist?repo=free-fedora-updates-released-$releasever&arch=$basearch
+repo --name="RPMFusion Non-Free" --mirrorlist=http://mirrors.rpmfusion.org/mirrorlist?repo=nonfree-fedora-$releasever&arch=$basearch
+repo --name="RPMFusion Non-Free - Updates" --mirrorlist=http://mirrors.rpmfusion.org/mirrorlist?repo=nonfree-fedora-updates-released-$releasever&arch=$basearch
+
+%packages
+livecd-tools
+spin-kickstarts
+util-linux-user
+nano
+p7zip
+p7zip-plugins
+gparted
+blivet-gui
+gnome-terminal-nautilus
+
+# Build tools
+git
+autoconf
+
+# Virtualbox stuff
+gcc
+dkms
+kernel-devel
+
+%end
+
+%post --nochroot
+git clone "https://github.com/vinadoros/CustomScripts.git" "$INSTALL_ROOT/CustomScripts"
+git clone "https://github.com/falconindy/arch-install-scripts" "$INSTALL_ROOT/opt/arch-install-scripts"
+curl "http://download.virtualbox.org/virtualbox/5.1.6/VBoxGuestAdditions_5.1.6.iso" -o "$INSTALL_ROOT/root/vbox.iso"
+%end
+
+%post
+# Make and install arch scripts.
+bash -c "cd /opt/arch-install-scripts; make; make install"
+
+# Update CustomScripts on startup
+cat >/etc/systemd/system/updatecs.service <<EOL
+[Unit]
+Description=updatecs service
+Requires=network-online.target
+After=network.target nss-lookup.target network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/bash -c "cd /CustomScripts; git pull"
+Restart=on-failure
+RestartSec=3s
+TimeoutStopSec=7s
+
+[Install]
+WantedBy=graphical.target
+EOL
+systemctl enable updatecs.service
+
+# Add CustomScripts to path
+echo -e "# Add CustomScripts to Path\\n[ -d /CustomScripts ] && export PATH=\\$PATH:/CustomScripts" >> /etc/profile.d/cspath.sh
+
+# Install virtualbox extensions
+cd /root
+7z x vbox.iso -o./vbox
+cd ./vbox
+chmod a+rwx VBoxLinuxAdditions.run
+./VBoxLinuxAdditions.run
+cd ..
+rm -rf ./vbox*
+
+%end
+
+EOLABC
+  chmod a+rwx "$KSFULLLOCATION/custom.ks"
+
+  # Modify existing files
+  sed -i "s@favorite-apps=\\[.*@favorite-apps=\\['firefox.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.Nautilus.desktop', 'anaconda.desktop'\\]@g" "$KSFULLLOCATION/fedora-live-workstation.ks"
+  sed -i '/@libreoffice/d' "$KSFULLLOCATION/fedora-workstation-packages.ks"
+  sed -i '/@workstation-product/d' "$KSFULLLOCATION/fedora-workstation-packages.ks"
+  sed -i '/@printing/d' "$KSFULLLOCATION/fedora-workstation-packages.ks"
+  sed -i '/@multimedia/d' "$KSFULLLOCATION/fedora-workstation-packages.ks"
+  sed -i '/@printing/d' "$KSFULLLOCATION/fedora-live-base.ks"
+  sed -i '/@multimedia/d' "$KSFULLLOCATION/fedora-live-base.ks"
+  sed -i 's/--disabled=network,sshd/--disabled=network/g' "$KSFULLLOCATION/fedora-live-base.ks"
+  # Enable ssh and avahi.
+  sed -i 's/--enabled=NetworkManager,ModemManager/--enabled=NetworkManager,sshd,avahi-daemon,ModemManager/g' "$KSFULLLOCATION/fedora-live-base.ks"
+  # Disable removing root password.
+  sed -i '/passwd -d root > \\/dev\\/null/d' "$KSFULLLOCATION/fedora-live-base.ks"
+  # Disable selinux
+  sed -i 's/selinux --enforcing/selinux --permissive/g' "$KSFULLLOCATION/fedora-live-base.ks"
+  # Delete welcome program
+  sed -i '/fedora-welcome.desktop ~liveuser/d' "$KSFULLLOCATION/fedora-live-workstation.ks"
+
+  # Create the live cd.
+  cd /vagrant
+  sudo livecd-creator --verbose --config="$KSFULLLOCATION/custom.ks" --fslabel=Fedora-LiveCD-$DATE --cache=/var/cache/live
+  rm -rf "$KSFULLLOCATION"
+else
+  echo "Not creating live cd."
+fi
+
+EOLXYZ
+chmod a+rwx /usr/local/bin/lcd
+
+SCRIPT
+
+Vagrant.configure("2") do |config|
+
+    config.vm.box = "boxcutter/fedora24"
+    config.vm.hostname = "fedvm"
+    config.ssh.insert_key = true
+    config.vm.synced_folder ".", "/vagrant", :mount_options => ["dmode=777","fmode=777"]
+
+    config.vm.provision "shell", inline: $script
+
+end

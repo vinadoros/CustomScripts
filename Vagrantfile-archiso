@@ -1,0 +1,34 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$script = <<SCRIPT
+#!/bin/bash
+set -x
+
+pacman -Syu --needed --noconfirm git awk
+git clone "https://github.com/vinadoros/CustomScripts" /opt/CustomScripts
+chmod a+rwx -R /opt/CustomScripts
+
+# aiso script
+echo "Creating /usr/local/bin/aiso."
+cat > /usr/local/bin/aiso <<'EOLXYZ'
+#!/bin/bash
+cd /opt/CustomScripts
+git pull
+cd /vagrant
+/opt/CustomScripts/Arch-LiveMATEScript.sh /vagrant
+EOLXYZ
+chmod a+rwx /usr/local/bin/aiso
+
+SCRIPT
+
+Vagrant.configure("2") do |config|
+
+    config.vm.box = "kaorimatz/archlinux-x86_64"
+    config.vm.hostname = "archiso"
+    config.ssh.insert_key = true
+    config.vm.synced_folder ".", "/vagrant", :mount_options => ["dmode=777","fmode=777"]
+
+    config.vm.provision "shell", inline: $script
+
+end
