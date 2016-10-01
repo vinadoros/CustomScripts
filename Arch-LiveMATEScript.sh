@@ -244,14 +244,14 @@ mate-gtk3
 atril-gtk3
 caja-gksu-gtk3
 caja-open-terminal-gtk3
-engrampa-gtk3
+engrampa
 eom-gtk3
 galculator
 mate-applets-gtk3
 mate-power-manager-gtk3
 mate-screensaver-gtk3
 mate-system-monitor
-mate-terminal-gtk3
+mate-terminal
 mate-utils-gtk3
 pluma-gtk3
 mate-icon-theme-faenza

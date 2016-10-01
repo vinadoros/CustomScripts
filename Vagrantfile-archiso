@@ -16,7 +16,7 @@ cat > /usr/local/bin/aiso <<'EOLXYZ'
 cd /opt/CustomScripts
 git pull
 cd /vagrant
-/opt/CustomScripts/Arch-LiveMATEScript.sh /vagrant
+/opt/CustomScripts/Arch-LiveMATEScript.sh /home/vagrant /vagrant
 EOLXYZ
 chmod a+rwx /usr/local/bin/aiso
 
