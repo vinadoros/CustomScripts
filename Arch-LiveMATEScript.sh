@@ -29,7 +29,7 @@ if [ ! -z "$1" ]; then
 	INPUTFOLDER="$(readlink -f $1)"
 fi
 if [ ! -z "$2" ]; then
-	OUTFOLDER="$(readlink -f $1)"
+	OUTFOLDER="$(readlink -f $2)"
 fi
 
 # Set location to perform build and store ISO.
