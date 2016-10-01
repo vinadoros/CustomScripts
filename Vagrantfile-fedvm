@@ -1,5 +1,4 @@
-# -*- mode: ruby -*-
-# vi: set ft=ruby :
+#!/usr/bin/env ruby
 
 $script = <<SCRIPT
 #!/bin/bash
