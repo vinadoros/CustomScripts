@@ -124,8 +124,6 @@ source "$SCRIPTDIR/Comp-Bash.sh"
 
 source "$SCRIPTDIR/Comp-CSClone.sh"
 
-source "$SCRIPTDIR/Comp-BoxDAV.sh"
-
 source "$SCRIPTDIR/Comp-DisplayManagerConfig.sh"
 
 source "$SCRIPTDIR/Comp-SambaConfig.sh"
