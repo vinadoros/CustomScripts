@@ -35,10 +35,8 @@ fi
 # Set location to perform build and store ISO.
 if [ -d "$INPUTFOLDER" ]; then
 	ARCHLIVEPATH=$INPUTFOLDER/archlive
-	OUTFOLDER=$INPUTFOLDER
 else
 	ARCHLIVEPATH=$PWD/archlive
-	OUTFOLDER=$PWD
 fi
 if [ ! -d "$OUTFOLDER" ]; then
 	OUTFOLDER="$(dirname $ARCHLIVEPATH)"
