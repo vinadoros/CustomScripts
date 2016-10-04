@@ -193,8 +193,7 @@ apt install -y network-manager
 """.format(DEBARCH=args.architecture)
 
 # Init grub script
-GRUBSCRIPT="""
-#!/bin/bash
+GRUBSCRIPT="""#!/bin/bash
 
 # Debian Grub Script
 
