@@ -77,9 +77,6 @@ genfstab -U {INSTALLPATH} > {INSTALLPATH}/etc/fstab
 """.format(DEBARCH=args.architecture, DISTROCHOICE=args.release, INSTALLPATH=absinstallpath, URL=osurl)
 subprocess.run(BOOTSTRAPSCRIPT, shell=True, check=True)
 
-# Copy resolv.conf into chroot (needed for arch-chroot)
-# shutil.copy2("/etc/resolv.conf", "{0}/etc/resolv.conf".format(absinstallpath))
-
 # Create and run setup script.
 SETUPSCRIPT = """#!/bin/bash
 echo "Running Debian Setup Script"
@@ -195,16 +192,20 @@ chmod a+rwx "/opt/CustomScripts"
 apt install -y network-manager
 """.format(DEBARCH=args.architecture)
 
+# Init grub script
+GRUBSCRIPT="""
+#!/bin/bash
+"""
 # Install kernel, grub.
 if 2 <= args.grubtype <= 3:
 
     if args.type == "ubuntu":
-        SETUPSCRIPT += """
+        GRUBSCRIPT += """
 DEBIAN_FRONTEND=noninteractive apt install -y linux-image-generic linux-headers-generic
 DEBIAN_FRONTEND=noninteractive apt install -y gfxboot gfxboot-theme-ubuntu linux-firmware
 """
     else:
-        SETUPSCRIPT += """
+        GRUBSCRIPT += """
 if [[ "{DEBARCH}" = "amd64" ]]; then
 	DEBIAN_FRONTEND=noninteractive apt install -y linux-image-amd64
 fi
@@ -225,7 +226,7 @@ if args.grubtype == 1:
 elif args.grubtype == 2:
     # Add if partition is a block device
     if stat.S_ISBLK(os.stat(grubpart).st_mode) == True:
-        SETUPSCRIPT += """
+        GRUBSCRIPT += """
 DEBIAN_FRONTEND=noninteractive apt install -y grub-pc
 update-grub2
 grub-install --target=i386-pc --recheck --debug {0}
@@ -236,7 +237,7 @@ grub-install --target=i386-pc --recheck --debug {0}
 elif args.grubtype == 3:
     # Add if /boot/efi is mounted, and partition is a block device.
     if os.path.ismount("{0}/boot/efi".format(absinstallpath)) == True and stat.S_ISBLK(os.stat(grubpart).st_mode) == True:
-        SETUPSCRIPT += """
+        GRUBSCRIPT += """
 DEBIAN_FRONTEND=noninteractive apt install -y grub-efi-amd64
 update-grub2
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id={0} --recheck --debug
@@ -244,14 +245,23 @@ grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id={0} -
     else:
         print("ERROR Grub Mode 3, {0}/boot/efi isn't a mount point or {0} is not a block device.".format(absinstallpath, grubpart))
 
-# Close and run the script.
+# Close the setup script.
 SETUPSCRIPT_PATH = absinstallpath+"/setupscript.sh"
 SETUPSCRIPT_VAR = open(SETUPSCRIPT_PATH, mode='w')
 SETUPSCRIPT_VAR.write(SETUPSCRIPT)
 SETUPSCRIPT_VAR.close()
 os.chmod(SETUPSCRIPT_PATH, 0o777)
-subprocess.run("arch-chroot {0} /setupscript.sh".format(absinstallpath), shell=True)
+# Close the grub script.
+GRUBSCRIPT_PATH = absinstallpath+"/grubscript.sh"
+GRUBSCRIPT_VAR = open(GRUBSCRIPT_PATH, mode='w')
+GRUBSCRIPT_VAR.write(GRUBSCRIPT)
+GRUBSCRIPT_VAR.close()
+os.chmod(GRUBSCRIPT_PATH, 0o777)
+# Run the setup script.
+subprocess.run("systemd-nspawn -D {0} /setupscript.sh".format(absinstallpath), shell=True)
+# Run the grub script.
+subprocess.run("arch-chroot {0} /grubscript.sh".format(absinstallpath), shell=True)
 # Remove after running
 os.remove(SETUPSCRIPT_PATH)
-# os.remove("{0}/etc/resolv.conf".format(absinstallpath))
+os.remove(GRUBSCRIPT_PATH)
 print("Script finished successfully.")
