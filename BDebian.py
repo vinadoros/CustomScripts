@@ -195,6 +195,11 @@ apt install -y network-manager
 # Init grub script
 GRUBSCRIPT="""
 #!/bin/bash
+
+# Debian Grub Script
+
+# Exporting Path for chroot
+export PATH=$PATH:/bin:/usr/local/sbin:/usr/sbin:/sbin
 """
 # Install kernel, grub.
 if 2 <= args.grubtype <= 3:
