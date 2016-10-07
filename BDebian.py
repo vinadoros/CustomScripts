@@ -262,7 +262,8 @@ GRUBSCRIPT_VAR.write(GRUBSCRIPT)
 GRUBSCRIPT_VAR.close()
 os.chmod(GRUBSCRIPT_PATH, 0o777)
 # Run the setup script.
-subprocess.run("systemd-nspawn -D {0} /setupscript.sh".format(absinstallpath), shell=True)
+# subprocess.run("systemd-nspawn -D {0} /setupscript.sh".format(absinstallpath), shell=True)
+subprocess.run("arch-chroot {0} /setupscript.sh".format(absinstallpath), shell=True)
 # Run the grub script.
 subprocess.run("arch-chroot {0} /grubscript.sh".format(absinstallpath), shell=True)
 # Remove after running
