@@ -195,17 +195,14 @@ function pmi
 end
 function ins
 	echo "Installing $argv using AUR helper."
-	# sudo apacman -S --needed --ignorearch $argv
 	yaourt -ASa --needed $argv
 end
 function iny
 	echo "Installing $argv using AUR helper."
-	# sudo apacman -S --needed --noconfirm --ignorearch $argv
 	yaourt -ASa --needed --noconfirm $argv
 end
 function up
 	echo "Starting full system update using AUR helper."
-	# sudo apacman -Syu --noconfirm --ignorearch
 	yaourt -ASyua --needed --noconfirm
 end
 function rmd
@@ -222,12 +219,10 @@ function rmv
 end
 function se
 	echo "Searching for $argv using AUR helper."
-	# apacman -Ss $argv
 	yaourt -Ss "$argv"
 end
 function gitup
 	echo "Upgrading git packages from AUR."
-	# sudo apacman -S --skipcache --noconfirm --ignorearch (pacman -Qq | grep -i "\-git")
 	yaourt -ASa --noconfirm (pacman -Qq | grep -i "\-git")
 end
 EOL
@@ -241,17 +236,14 @@ function pmi
 end
 function ins
 	echo "Installing $argv using AUR helper."
-	# apacman -S --needed --ignorearch $argv
 	su $USERNAMEVAR -c "yaourt -ASa --needed $argv"
 end
 function iny
 	echo "Installing $argv using AUR helper."
-	# apacman -S --needed --noconfirm --ignorearch $argv
 	su $USERNAMEVAR -c "yaourt -ASa --needed --noconfirm $argv"
 end
 function up
 	echo "Starting full system update using AUR helper."
-	# apacman -Syu --noconfirm --ignorearch
 	su $USERNAMEVAR -c "yaourt -ASyua --needed --noconfirm"
 end
 function rmd
@@ -268,12 +260,10 @@ function rmv
 end
 function se
 	echo "Searching for $argv using AUR helper."
-	# apacman -Ss $argv
 	yaourt -Ss "$argv"
 end
 function gitup
 	echo "Upgrading git packages from AUR."
-	# apacman -S --skipcache --noconfirm --ignorearch (pacman -Qq | grep -i "\-git")
 	su $USERNAMEVAR -c 'yaourt -ASa --noconfirm (pacman -Qq | grep -i "\-git")'
 end
 EOL
