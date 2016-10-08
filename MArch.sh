@@ -118,9 +118,7 @@ source "$SCRIPTDIR/Comp-VMGeneral.sh"
 
 source "$SCRIPTDIR/Comp-sshconfig.sh"
 
-source "$SCRIPTDIR/Comp-Fish.sh"
-
-source "$SCRIPTDIR/Comp-Bash.sh"
+source "$SCRIPTDIR/Comp-BashFish.py"
 
 source "$SCRIPTDIR/Comp-CSClone.sh"
 

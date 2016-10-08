@@ -349,43 +349,43 @@ function sst
 end
 function start
 	echo "Starting systemd service $argv."
-	$SUDOCMD systemctl start $argv
-	$SUDOCMD systemctl status -l $argv
+	sudo systemctl start $argv
+	sudo systemctl status -l $argv
 end
 function stop
 	echo "Stopping systemd service $argv."
-	$SUDOCMD systemctl stop $argv
-	$SUDOCMD systemctl status -l $argv
+	sudo systemctl stop $argv
+	sudo systemctl status -l $argv
 end
 function en
 	echo "Enabling systemd service $argv."
-	$SUDOCMD systemctl enable $argv
-	$SUDOCMD systemctl status -l $argv
+	sudo systemctl enable $argv
+	sudo systemctl status -l $argv
 end
 function dis
 	echo "Disabling systemd service $argv."
-	$SUDOCMD systemctl disable $argv
-	$SUDOCMD systemctl status -l $argv
+	sudo systemctl disable $argv
+	sudo systemctl status -l $argv
 end
 function res
 	echo "Restarting systemd service $argv."
-	$SUDOCMD systemctl restart $argv
-	$SUDOCMD systemctl status -l $argv
+	sudo systemctl restart $argv
+	sudo systemctl status -l $argv
 end
 function st
 	echo "Getting status for systemd service $argv."
-	$SUDOCMD systemctl status -l $argv
+	sudo systemctl status -l $argv
 end
 function dr
 	echo "Executing systemd daemon-reload."
-	$SUDOCMD systemctl daemon-reload
+	sudo systemctl daemon-reload
 end
 
 # Set package manager functions
 if type -q yaourt
     function pmi
     	echo "Installing $argv or updating using pacman."
-    	$SUDOCMD pacman -Syu --needed $argv
+    	sudo pacman -Syu --needed $argv
     end
     function ins
     	echo "Installing $argv using AUR helper."
@@ -413,15 +413,15 @@ if type -q yaourt
     end
     function rmd
     	echo "Removing /var/lib/pacman/db.lck."
-    	$SUDOCMD rm /var/lib/pacman/db.lck
+    	sudo rm /var/lib/pacman/db.lck
     end
     function cln
     	echo "Removing (supposedly) uneeded packages."
-    	pacman -Qdtq | $SUDOCMD pacman -Rs -
+    	pacman -Qdtq | sudo pacman -Rs -
     end
     function rmv
     	echo "Removing $argv and dependancies using pacman."
-    	$SUDOCMD pacman -Rsn $argv
+    	sudo pacman -Rsn $argv
     end
     function se
     	echo "Searching for $argv using AUR helper."
@@ -440,23 +440,23 @@ else if type -q apt-get
     set -gx PATH $PATH /usr/local/sbin /usr/sbin /sbin
     function ins
     	echo "Installing $argv."
-    	$SUDOCMD apt-get install $argv
+    	sudo apt-get install $argv
     end
     function iny
     	echo "Installing $argv."
-    	$SUDOCMD apt-get install -y $argv
+    	sudo apt-get install -y $argv
     end
     function afix
     	echo "Running apt-get -f install."
-    	$SUDOCMD apt-get -f install
+    	sudo apt-get -f install
     end
     function rmv
     	echo "Removing $argv."
-    	$SUDOCMD apt-get --purge remove $argv
+    	sudo apt-get --purge remove $argv
     end
     function agu
     	echo "Updating Repos."
-    	$SUDOCMD apt-get update
+    	sudo apt-get update
     end
     function se
     	echo "Searching for $argv."
@@ -466,16 +466,16 @@ else if type -q apt-get
     end
     function cln
     	echo "Auto-removing packages."
-    	$SUDOCMD apt-get autoremove --purge
+    	sudo apt-get autoremove --purge
     end
     function up
     	echo "Updating and Dist-upgrading system."
-    	$SUDOCMD apt-get update
-    	$SUDOCMD apt-get dist-upgrade
+    	sudo apt-get update
+    	sudo apt-get dist-upgrade
     end
     function rmk
     	echo "Removing old kernels."
-    	$SUDOCMD apt-get purge (ls -tr /boot/vmlinuz-* | head -n -2 | grep -v (uname -r) | cut -d- -f2- | awk '{{print "linux-image-" $0 "\\nlinux-headers-" $0}}')
+    	sudo apt-get purge (ls -tr /boot/vmlinuz-* | head -n -2 | grep -v (uname -r) | cut -d- -f2- | awk '{{print "linux-image-" $0 "\\nlinux-headers-" $0}}')
     end
 
 else if type -q dnf; or type -q yum
@@ -487,29 +487,29 @@ else if type -q dnf; or type -q yum
 
     function ins
     	echo "Installing $argv."
-    	$SUDOCMD $PKGMGR install $argv
+    	sudo $PKGMGR install $argv
     end
     function iny
     	echo "Installing $argv."
-    	$SUDOCMD $PKGMGR install -y $argv
+    	sudo $PKGMGR install -y $argv
     end
     function rmv
     	echo "Removing $argv."
-    	$SUDOCMD $PKGMGR remove $argv
+    	sudo $PKGMGR remove $argv
     end
     function se
     	echo "Searching for $argv."
-    	$SUDOCMD $PKGMGR search $argv
+    	sudo $PKGMGR search $argv
     	echo "Searching installed packages for $argv."
     	$PKGMGR list installed | grep -i $argv
     end
     function cln
     	echo "Auto-removing packages."
-    	$SUDOCMD $PKGMGR autoremove
+    	sudo $PKGMGR autoremove
     end
     function up
     	echo "Updating system."
-    	$SUDOCMD $PKGMGR update -y
+    	sudo $PKGMGR update -y
     end
 end
 
@@ -542,6 +542,6 @@ end
         FISHSCRIPTUSER_VAR.write(FISHSCRIPT)
         FISHSCRIPTUSER_VAR.close()
         os.chmod(FISHSCRIPTUSERPATH, 0o644)
-        subprocess.run("chown -R {0}:{1} ~/.config/fish".format(USERNAMEVAR, USERGROUP), shell=True)
+        subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, os.path.dirname(FISHSCRIPTUSERPATH)), shell=True)
 
 print("Script finished successfully.")
