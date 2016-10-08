@@ -121,11 +121,13 @@ DEBRELEASE=$(lsb_release -sc)
 DEBIAN_FRONTEND=noninteractive apt install -y software-properties-common
 
 # Unlocking root account
+apt install -y passwd
 passwd -u root
 chpasswd <<<"root:{PASSWORD}"
 # Setup normal user
 if ! grep -i {USERNAME} /etc/passwd; then
     adduser --disabled-password --gecos "" {USERNAME}
+    chfn -f "{FULLNAME}" {USERNAME}
 fi
 chpasswd <<<"{USERNAME}:{PASSWORD}"
 usermod -aG daemon,bin,sys,adm,tty,disk,lp,mail,news,uucp,man,proxy,kmem,dialout,fax,voice,cdrom,floppy,tape,sudo,audio,dip,www-data,backup,operator,list,irc,src,gnats,shadow,utmp,video,sasl,plugdev,staff,games,users,netdev,crontab,systemd-journal {USERNAME}
