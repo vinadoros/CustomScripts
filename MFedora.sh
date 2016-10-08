@@ -110,7 +110,7 @@ source "$SCRIPTDIR/Comp-VMGeneral.sh"
 
 source "$SCRIPTDIR/Comp-sshconfig.sh"
 
-source "$SCRIPTDIR/Comp-BashFish.py"
+"$SCRIPTDIR/Comp-BashFish.py"
 
 source "$SCRIPTDIR/Comp-CSClone.sh"
 
