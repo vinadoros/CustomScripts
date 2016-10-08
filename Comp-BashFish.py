@@ -24,6 +24,7 @@ else:
     USERNAMEVAR=pwd.getpwuid(1000)[0]
 # https://docs.python.org/3/library/grp.html
 USERGROUP=grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
+# Note: This folder is the root home folder if this script is run as root.
 USERHOME=os.path.expanduser("~")
 
 # Ensure that certain commands exist.
@@ -34,6 +35,251 @@ for cmd in cmdcheck:
 
 ######### Bash Section #########
 
+# Generate bash script
+BASHSCRIPT="""
+# Set root and non-root cmds.
+if [ $(id -u) != "0" ]; then
+    SUDOCMD="sudo"
+    # Detect the normal user
+	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
+		export USERNAMEVAR=$SUDO_USER
+	elif [ "$USER" != "root" ]; then
+		export USERNAMEVAR=$USER
+	else
+		export USERNAMEVAR=$(id 1000 -un)
+	fi
+else
+    SUDOCMD=""
+    USERNAMEVAR="$USERNAME"
+fi
+CUSTOMSCRIPTPATH="{SCRIPTDIR}"
+export EDITOR=nano
+if [ $(uname -m) != "armv7l" ]; then
+	export XZ_OPT="-T0"
+fi
+alias la='ls -lah --color=auto'
+if timeout 3 test -d "$CUSTOMSCRIPTPATH" && ! echo $PATH | grep -iq "$CUSTOMSCRIPTPATH"; then
+	export PATH=$PATH:$CUSTOMSCRIPTPATH
+fi
+function sl () {
+	sudo bash
+}
+if [ $(id -u) != "0" ]; then
+    function pc () {
+    	EXISTPATH="$(pwd)"
+    	cd "$CUSTOMSCRIPTPATH"
+    	git fetch --all
+    	git diff
+    	git status
+    	if [ ! -z "$1" ]; then
+    		git add -A
+    		git commit -m "$1"
+    		git pull
+    		git push
+    	else
+    		echo "No commit message entered. Exiting."
+    	fi
+    	git pull
+    	cd "$EXISTPATH"
+    	unset EXISTPATH
+    }
+fi
+function start () {
+	echo "Starting systemd service $@."
+	$SUDOCMD systemctl start "$@"
+	$SUDOCMD systemctl status -l "$@"
+}
+function stop () {
+	echo "Stopping systemd service $@."
+	$SUDOCMD systemctl stop "$@"
+	$SUDOCMD systemctl status -l "$@"
+}
+function en () {
+	echo "Enabling systemd service $@."
+	$SUDOCMD systemctl enable "$@"
+	$SUDOCMD systemctl status -l "$@"
+}
+function dis () {
+	echo "Disabling systemd service $@."
+	$SUDOCMD systemctl disable "$@"
+	$SUDOCMD systemctl status -l "$@"
+}
+function res () {
+	echo "Restarting systemd service $@."
+	$SUDOCMD systemctl restart "$@"
+	$SUDOCMD systemctl status -l "$@"
+}
+function st () {
+	echo "Getting status for systemd service $@."
+	$SUDOCMD systemctl status -l "$@"
+}
+function dr () {
+	echo "Executing systemd daemon-reload."
+	$SUDOCMD systemctl daemon-reload
+}
+
+# Set package manager functions
+if type -p yaourt &> /dev/null; then
+    function pmi () {
+    	echo "Installing $@ or updating using pacman."
+    	$SUDOCMD pacman -Syu --needed $@
+    }
+    function ins () {
+    	echo "Installing $@ using AUR helper."
+        if [ $(id -u) != "0" ]; then
+            yaourt -ASa --needed $@
+        else
+            su $USERNAMEVAR -s /bin/bash -c "yaourt -ASa --needed $@"
+        fi
+    }
+    function iny () {
+    	echo "Installing $@ using AUR helper."
+        if [ $(id -u) != "0" ]; then
+            yaourt -ASa --needed --noconfirm $@
+        else
+            su $USERNAMEVAR -s /bin/bash -c "yaourt -ASa --needed --noconfirm $@"
+        fi
+    }
+    function up () {
+    	echo "Starting full system update using AUR helper."
+        if [ $(id -u) != "0" ]; then
+            yaourt -ASyua --needed --noconfirm
+        else
+            su $USERNAMEVAR -s /bin/bash -c "yaourt -ASyua --needed --noconfirm"
+        fi
+    }
+    function rmd () {
+    	echo "Removing /var/lib/pacman/db.lck."
+    	$SUDOCMD rm /var/lib/pacman/db.lck
+    }
+    function cln () {
+    	echo "Removing (supposedly) uneeded packages."
+    	pacman -Qdtq | $SUDOCMD pacman -Rs -
+    }
+    function rmv () {
+    	echo "Removing $@ and dependancies using pacman."
+    	$SUDOCMD pacman -Rsn $@
+    }
+    function se () {
+    	echo "Searching for $@ using AUR helper."
+    	yaourt -Ss "$@"
+    }
+    function gitup () {
+    	echo "Upgrading git packages from AUR."
+        if [ $(id -u) != "0" ]; then
+            yaourt -ASa --noconfirm $(pacman -Qq | grep -i "\-git")
+        else
+            su $USERNAMEVAR -s /bin/bash -c 'yaourt -ASa --noconfirm $(pacman -Qq | grep -i "\-git")'
+        fi
+    }
+elif type -p apt-get &> /dev/null; then
+    if [ -f /etc/environment ]; then
+    	PATH2=$PATH
+    	source /etc/environment
+    	export PATH=$PATH:$PATH2:/sbin:/usr/sbin:/usr/local/sbin
+    fi
+    function ins () {
+    	echo "Installing $@."
+    	$SUDOCMD apt-get install $@
+    }
+    function iny () {
+    	echo "Installing $@."
+    	$SUDOCMD apt-get install -y $@
+    }
+    function afix () {
+    	echo "Running apt-get -f install."
+    	$SUDOCMD apt-get -f install
+    }
+    function rmv () {
+    	echo "Removing $@."
+    	$SUDOCMD apt-get --purge remove $@
+    }
+    function agu () {
+    	echo "Updating Repos."
+    	$SUDOCMD apt-get update
+    }
+    function se () {
+    	echo "Searching for $@."
+    	apt-cache search $@
+    	echo "Policy for $@."
+    	apt-cache policy $@
+    }
+    function cln () {
+    	echo "Auto-removing packages."
+    	$SUDOCMD apt-get autoremove --purge
+    }
+    function up () {
+    	echo "Updating and Dist-upgrading system."
+    	$SUDOCMD apt-get update
+    	$SUDOCMD apt-get dist-upgrade
+    }
+    function rmk () {
+    	echo "Removing old kernels."
+    	$SUDOCMD apt-get purge $(ls -tr /boot/vmlinuz-* | head -n -2 | grep -v $(uname -r) | cut -d- -f2- | awk '{{print "linux-image-" $0 "\\nlinux-headers-" $0}}')
+    }
+elif type dnf &> /dev/null || type yum &> /dev/null; then
+    if type dnf &> /dev/null; then
+        PKGMGR=dnf
+    elif type yum &> /dev/null; then
+        PKGMGR=yum
+    fi
+
+    function ins () {
+    	echo "Installing $@."
+    	$SUDOCMD $PKGMGR install $@
+    }
+    function iny () {
+    	echo "Installing $@."
+    	$SUDOCMD $PKGMGR install -y $@
+    }
+    function rmv () {
+    	echo "Removing $@."
+    	$SUDOCMD $PKGMGR remove $@
+    }
+    function se () {
+    	echo "Searching for $@."
+    	$SUDOCMD $PKGMGR search "$@"
+    	echo "Searching installed packages for $@."
+    	$PKGMGR list installed | grep -i "$@"
+    }
+    function cln () {
+    	echo "Auto-removing packages."
+    	$SUDOCMD $PKGMGR autoremove
+    }
+    function up () {
+    	echo "Updating system."
+    	$SUDOCMD $PKGMGR update -y
+    }
+fi
+"""
+
+# Set bash script
+BASHSCRIPTPATH=USERHOME+"/.bashrc"
+if os.geteuid() == 0:
+    BASHSCRIPTUSERPATH="/home/{0}/.bashrc".format(USERNAMEVAR)
+
+# Remove existing bash scripts and copy skeleton.
+if os.path.isfile(BASHSCRIPTPATH):
+    os.remove(BASHSCRIPTPATH)
+if os.geteuid() == 0:
+    if os.path.isfile(BASHSCRIPTUSERPATH):
+        os.remove(BASHSCRIPTUSERPATH)
+if os.path.isfile("/etc/skel/.bashrc"):
+    shutil.copy("/etc/skel/.bashrc", BASHSCRIPTPATH)
+    if os.geteuid() == 0:
+        shutil.copy("/etc/skel/.bashrc", BASHSCRIPTUSERPATH)
+
+# Install bash script
+BASHSCRIPT_VAR = open(BASHSCRIPTPATH, mode='a')
+BASHSCRIPT_VAR.write(BASHSCRIPT)
+BASHSCRIPT_VAR.close()
+os.chmod(BASHSCRIPTPATH, 0o644)
+if os.geteuid() == 0:
+    BASHSCRIPTUSER_VAR = open(BASHSCRIPTUSERPATH, mode='a')
+    BASHSCRIPTUSER_VAR.write(BASHSCRIPT)
+    BASHSCRIPTUSER_VAR.close()
+    os.chmod(BASHSCRIPTUSERPATH, 0o644)
+    subprocess.run("chown {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, BASHSCRIPTUSERPATH), shell=True)
 
 ######### Fish Section #########
 # Check if fish exists
@@ -234,9 +480,9 @@ else if type -q apt-get
 
 else if type -q dnf; or type -q yum
     if type -q dnf
-        PKGMGR=dnf
+        set PKGMGR dnf
     else if type -q yum
-        PKGMGR=yum
+        set PKGMGR yum
     end
 
     function ins
@@ -270,26 +516,32 @@ end
 """.format(SCRIPTDIR=SCRIPTDIR)
 
     # Set fish script
+    FISHSCRIPTPATH=USERHOME+"/.config/fish/config.fish"
     if os.geteuid() == 0:
-        FISHSCRIPTPATH="/root/.config/fish/config.fish"
-        FISHSCRIPTUSERPATH=USERHOME+"/.config/fish/config.fish"
-    else:
-        FISHSCRIPTPATH=USERHOME+"/.config/fish/config.fish"
+        FISHSCRIPTUSERPATH="/home/{0}/.config/fish/config.fish".format(USERNAMEVAR)
+
+    # Create path if it doesn't existing
+    os.makedirs(os.path.dirname(FISHSCRIPTPATH),exist_ok=True)
+    if os.geteuid() == 0:
+        os.makedirs(os.path.dirname(FISHSCRIPTUSERPATH),exist_ok=True)
 
     # Remove existing fish scripts.
-    os.remove(FISHSCRIPTPATH)
+    if os.path.isfile(FISHSCRIPTPATH):
+        os.remove(FISHSCRIPTPATH)
     if os.geteuid() == 0:
-        os.remove(FISHSCRIPTUSERPATH)
+        if os.path.isfile(FISHSCRIPTUSERPATH):
+            os.remove(FISHSCRIPTUSERPATH)
 
     # Install fish script
     FISHSCRIPT_VAR = open(FISHSCRIPTPATH, mode='w')
     FISHSCRIPT_VAR.write(FISHSCRIPT)
     FISHSCRIPT_VAR.close()
-    os.chmod(FISHSCRIPTPATH, 0o777)
+    os.chmod(FISHSCRIPTPATH, 0o644)
     if os.geteuid() == 0:
         FISHSCRIPTUSER_VAR = open(FISHSCRIPTUSERPATH, mode='w')
         FISHSCRIPTUSER_VAR.write(FISHSCRIPT)
         FISHSCRIPTUSER_VAR.close()
-        os.chmod(FISHSCRIPTUSERPATH, 0o777)
+        os.chmod(FISHSCRIPTUSERPATH, 0o644)
+        subprocess.run("chown -R {0}:{1} ~/.config/fish".format(USERNAMEVAR, USERGROUP), shell=True)
 
 print("Script finished successfully.")
