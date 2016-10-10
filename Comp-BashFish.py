@@ -37,11 +37,6 @@ for cmd in cmdcheck:
 
 # Generate bash script
 BASHSCRIPT="""
-# Source environment and profile if ssh.
-if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
-    [ -f /etc/environment ] && source /etc/environment
-    [ -f /etc/profile ] && source /etc/profile
-fi
 # Set root and non-root cmds.
 if [ $(id -u) != "0" ]; then
     SUDOCMD="sudo"
