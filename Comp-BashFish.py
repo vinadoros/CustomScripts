@@ -251,7 +251,7 @@ elif type dnf &> /dev/null || type yum &> /dev/null; then
     	$SUDOCMD $PKGMGR update -y
     }
 fi
-"""
+""".format(SCRIPTDIR=SCRIPTDIR)
 
 # Set bash script
 BASHSCRIPTPATH=USERHOME+"/.bashrc"
