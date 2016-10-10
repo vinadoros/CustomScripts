@@ -52,7 +52,7 @@ else
     SUDOCMD=""
     USERNAMEVAR="$USERNAME"
 fi
-CUSTOMSCRIPTPATH="{SCRIPTDIR}"
+CUSTOMSCRIPTPATH="%s"
 export EDITOR=nano
 if [ $(uname -m) != "armv7l" ]; then
 	export XZ_OPT="-T0"
@@ -251,7 +251,9 @@ elif type dnf &> /dev/null || type yum &> /dev/null; then
     	$SUDOCMD $PKGMGR update -y
     }
 fi
-""".format(SCRIPTDIR=SCRIPTDIR)
+""" % SCRIPTDIR
+# C-style printf string formatting was used to avoid collision with curly braces above.
+# https://docs.python.org/3/library/stdtypes.html#old-string-formatting
 
 # Set bash script
 BASHSCRIPTPATH=USERHOME+"/.bashrc"
