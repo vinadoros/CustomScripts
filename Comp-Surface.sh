@@ -46,7 +46,7 @@ if [ ! -d /etc/X11/xorg.conf.d/ ]; then
 	chmod a+r /etc/X11/xorg.conf.d/
 fi
 # This is to enable volume up and down buttons in xorg.
-bash -c "cat >>/etc/X11/xorg.conf.d/50-surface.conf" <<'EOL'
+bash -c "cat >/etc/X11/xorg.conf.d/50-surface.conf" <<'EOL'
 Section "InputClass"
         Identifier "MICROSOFT SAM"
         MatchDevicePath "/dev/input/event*"
@@ -141,3 +141,20 @@ Exec=xscreensaver -no-splash
 Terminal=false
 Type=Application
 EOL
+
+# Disable USB wakeup from suspend
+# https://bbs.archlinux.org/viewtopic.php?pid=1575617#p1575617
+bash -c "cat >/etc/systemd/system/usbwake.service" <<'EOL'
+[Unit]
+Description=Disable USB wakeup triggers in /proc/acpi/wakeup
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "echo EHC1 > /proc/acpi/wakeup; echo EHC2 > /proc/acpi/wakeup; echo XHC > /proc/acpi/wakeup"
+ExecStop=/bin/sh -c "echo EHC1 > /proc/acpi/wakeup; echo EHC2 > /proc/acpi/wakeup; echo XHC > /proc/acpi/wakeup"
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOL
+systemctl enable usbwake
