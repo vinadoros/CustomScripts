@@ -49,6 +49,7 @@ parser.add_argument("-x", "--livesshpass", help="Live SSH Password", default="as
 parser.add_argument("-y", "--vmuser", help="VM Username", default="user")
 parser.add_argument("-z", "--vmpass", help="VM Password", default="asdf")
 parser.add_argument("-k", "--keep", help="Keep (do not delete) VM, and re-run desktop script.", action="store_true")
+parser.add_argument("-q", "--qemu", help="Use QEMU/KVM instead of VirtualBox.", action="store_true")
 parser.add_argument("--memory", help="Memory for VM", default="2048")
 parser.add_argument("--efi", help="Use EFI", action="store_true")
 parser.add_argument("--vmbootstrap", help="Override bootstrap options.")
@@ -143,8 +144,11 @@ if args.driveopts is not None:
 print("Drive Options:", zslimopts)
 
 # Variables less likely to change.
-fullpathtovdi=vmpath+"/"+vmname+"/"+vmname+".vdi"
-print("Path to VDI: {0}".format(fullpathtovdi))
+if args.qemu is True:
+    fullpathtovdi=vmpath+"/"+vmname+".qcow2"
+else:
+    fullpathtovdi=vmpath+"/"+vmname+"/"+vmname+".vdi"
+print("Path to Image: {0}".format(fullpathtovdi))
 vdisize="32768"
 storagecontroller="SATA Controller"
 localsshport=64321
@@ -193,8 +197,7 @@ def shutdownwait():
 ### Scripts ###
 
 # Compose DELETESCRIPT
-DELETESCRIPT="""
-#!/bin/bash
+DELETESCRIPT="""#!/bin/bash
 VBoxManage storageattach "{0}" --storagectl "{1}" --port 0 --device 0 --type hdd --medium none
 VBoxManage closemedium "{2}" --delete
 if VBoxManage list vms | grep -i "{0}"; then
@@ -202,10 +205,13 @@ if VBoxManage list vms | grep -i "{0}"; then
 fi
 """.format(vmname, storagecontroller, fullpathtovdi)
 
-# Compose CREATESCRIPT
-CREATESCRIPT="""
-#!/bin/bash
+DELETESCRIPT_KVM="""#!/bin/bash
+virsh --connect qemu:///system destroy {0}
+virsh --connect qemu:///system undefine {0}
+""".format(vmname)
 
+# Compose CREATESCRIPT
+CREATESCRIPT="""#!/bin/bash
 # Create the new VM
 VBoxManage createvm --name "{vmname}" --register
 VBoxManage modifyvm "{vmname}" --ostype "{vboxosid}" --ioapic on --rtcuseutc on --pae off  --firmware {vboxefiselect}
@@ -223,8 +229,11 @@ VBoxManage modifyvm "{vmname}" --boot1 dvd --boot2 disk
 # Network settings
 VBoxManage modifyvm "{vmname}" --nic1 nat --nictype1 82540EM --cableconnected1 on
 VBoxManage modifyvm "{vmname}" --natpf1 "ssh,tcp,127.0.0.1,{sshport},,22"
-
 """.format(vmname=vmname, vboxosid=vboxosid, memory=args.memory, cpus=CPUCORES, fullpathtovdi=fullpathtovdi, vdisize=vdisize, isopath=isopath, storagecontroller=storagecontroller, sshport=localsshport, vboxefiselect=vboxefiselect)
+CREATESCRIPT_KVM="""#!/bin/bash
+qemu-img create -f qcow2 -o compat=1.1,lazy_refcounts=on {fullpathtovdi} {vdisize}M
+virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtovdi} --graphics spice --vcpu={cpus} --ram={memory} --cdrom={isopath}  --network bridge=virbr0 --os-variant=debian8 --noautoconsole --video=virtio
+""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtovdi=fullpathtovdi, vdisize=vdisize, isopath=isopath, sshport=localsshport)
 
 # Compose BOOTSTRAPCMD
 BOOTSTRAPCMD="""
@@ -246,35 +255,70 @@ ssh 127.0.0.1 -p {sshport} -l root "reboot"
 
 ### Begin Code ###
 
-# Run this if we are destroying (not keeping) the VM.
-if args.keep != True:
-    # Delete old vm.
-    if os.path.isfile(fullpathtovdi):
-        print("\nDeleting old VM.")
-        # print(DELETESCRIPT)
-        subprocess.run(DELETESCRIPT, shell=True)
+# Virtualbox code
+if args.qemu is True:
+    # Run this if we are destroying (not keeping) the VM.
+    if args.keep != True:
+        # Delete old vm.
+        if os.path.isfile(fullpathtovdi):
+            print("\nDeleting old VM.")
+            # print(DELETESCRIPT)
+            subprocess.run(DELETESCRIPT_KVM, shell=True)
 
-    # Create new VM.
-    print("\nCreating VM.")
-    # print(CREATESCRIPT)
-    subprocess.run(CREATESCRIPT, shell=True)
+        # Create new VM.
+        print("\nCreating VM.")
+        # print(CREATESCRIPT)
+        subprocess.run(CREATESCRIPT_KVM, shell=True)
+
+        # Get VM IP
+
+    #     # Start VM
+    #     startvm(vmname)
+    #     sshwait(args.livesshuser, args.livesshpass, localsshport)
+    #
+    #     # Bootstrap VM
+    #     print(BOOTSTRAPCMD)
+    #     subprocess.run(BOOTSTRAPCMD, shell=True)
+    #
+    # # Detach the iso
+    # shutdownwait()
+    # time.sleep(2)
+    # subprocess.run('VBoxManage storageattach "{0}" --storagectl "{1}" --port 1 --device 0 --type dvddrive --medium emptydrive'.format(vmname, storagecontroller), shell=True)
+    #
+    # # Start VM
+    # startvm(vmname)
+    # sshwait(args.vmuser, args.vmpass, localsshport)
+
+else:
+    # Run this if we are destroying (not keeping) the VM.
+    if args.keep != True:
+        # Delete old vm.
+        if os.path.isfile(fullpathtovdi):
+            print("\nDeleting old VM.")
+            # print(DELETESCRIPT)
+            subprocess.run(DELETESCRIPT, shell=True)
+
+        # Create new VM.
+        print("\nCreating VM.")
+        # print(CREATESCRIPT)
+        subprocess.run(CREATESCRIPT, shell=True)
+
+        # Start VM
+        startvm(vmname)
+        sshwait(args.livesshuser, args.livesshpass, localsshport)
+
+        # Bootstrap VM
+        print(BOOTSTRAPCMD)
+        subprocess.run(BOOTSTRAPCMD, shell=True)
+
+    # Detach the iso
+    shutdownwait()
+    time.sleep(2)
+    subprocess.run('VBoxManage storageattach "{0}" --storagectl "{1}" --port 1 --device 0 --type dvddrive --medium emptydrive'.format(vmname, storagecontroller), shell=True)
 
     # Start VM
     startvm(vmname)
-    sshwait(args.livesshuser, args.livesshpass, localsshport)
+    sshwait(args.vmuser, args.vmpass, localsshport)
 
-    # Bootstrap VM
-    print(BOOTSTRAPCMD)
-    subprocess.run(BOOTSTRAPCMD, shell=True)
-
-# Detach the iso
-shutdownwait()
-time.sleep(2)
-subprocess.run('VBoxManage storageattach "{0}" --storagectl "{1}" --port 1 --device 0 --type dvddrive --medium emptydrive'.format(vmname, storagecontroller), shell=True)
-
-# Start VM
-startvm(vmname)
-sshwait(args.vmuser, args.vmpass, localsshport)
-
-# Provision VM
-subprocess.run(PROVISIONCMD, shell=True)
+    # Provision VM
+    subprocess.run(PROVISIONCMD, shell=True)

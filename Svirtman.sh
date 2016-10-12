@@ -16,12 +16,12 @@ fi
 while true; do
     read -p "1: Install/enable virt-manager. 2: Remove virt-mananger. Enter 0 to do nothing. (0/1/2)" QU
     case $QU in
-    
-    [0]* ) 
+
+    [0]* )
     echo "You asked to do nothing."
 	break;;
-    
-    [1]* ) 
+
+    [1]* )
     echo "You asked to install virt-manager."
 	sudo pacman -Syu --needed virt-manager ebtables dnsmasq qemu bridge-utils
 	sudo sed -i 's/#user = \"root\"/user = \"'$USERNAMEVAR'\"/g' /etc/libvirt/qemu.conf
@@ -34,9 +34,18 @@ while true; do
 	sudo systemctl enable virtlogd
 	sudo systemctl start virtlogd
 	sudo gpasswd -a $USERNAMEVAR kvm
+	# https://ask.fedoraproject.org/en/question/45805/how-to-use-virt-manager-as-a-non-root-user/
+sudo bash -c "cat >/etc/polkit-1/rules.d/80-libvirt.rules" <<'EOL'
+polkit.addRule(function(action, subject) {
+  if (action.id == "org.libvirt.unix.manage" && subject.local && subject.active && subject.isInGroup("wheel")) {
+      return polkit.Result.YES;
+  }
+});
+EOL
+
 	break;;
-	
-	[2]* ) 
+
+	[2]* )
 	echo "You asked to remove virt-manager."
 	sudo systemctl disable libvirtd
 	sudo systemctl stop libvirtd
@@ -44,8 +53,9 @@ while true; do
 	sudo systemctl stop virtlogd
 	sudo pacman -Rsn virt-manager ebtables dnsmasq qemu bridge-utils
 	sudo pacman -Syu --needed gnu-netcat
+	sudo rm -f /etc/polkit-1/rules.d/80-libvirt.rules
 	break;;
-	
+
 	* ) echo "Please input 0, 1 or 2.";;
     esac
 done
