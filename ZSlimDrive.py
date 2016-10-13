@@ -23,11 +23,11 @@ parser.add_argument("-k", "--keep", help='Keep existing partitions (do not forma
 args = parser.parse_args()
 print("Filesystem:",args.filesystem)
 print("User-specified Block Device (if any):",args.blockdevice)
-if args.blockdevice != None and stat.S_ISBLK(os.stat(args.blockdevice).st_mode) == True:
+if args.blockdevice is not None and os.path.exists(args.blockdevice) is True and stat.S_ISBLK(os.stat(args.blockdevice).st_mode) is True:
     devicetopartition = args.blockdevice
-elif stat.S_ISBLK(os.stat("/dev/sda").st_mode) == True:
+elif os.path.exists("/dev/sda") is True and stat.S_ISBLK(os.stat("/dev/sda").st_mode) is True:
     devicetopartition = "/dev/sda"
-elif stat.S_ISBLK(os.stat("/dev/vda").st_mode) == True:
+elif os.path.exists("/dev/vda") is True and stat.S_ISBLK(os.stat("/dev/vda").st_mode) is True:
     devicetopartition = "/dev/vda"
 else:
     sys.exit("\nError, no block device detected. Please specify one.")

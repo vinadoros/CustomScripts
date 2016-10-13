@@ -3,6 +3,7 @@
 # Python includes.
 import argparse
 import grp
+import ipaddress
 import multiprocessing
 import os
 import pwd
@@ -98,6 +99,7 @@ if args.ostype == 1:
     vmbootstrap_defopts = '-p /mnt -v \\"{0}\\"'.format(args.vmpass)
     vmprovisionscript = "MArch.sh"
     vmprovision_defopts = "-e 3 -m 3"
+    kvm_variant = "fedora24"
 elif args.ostype == 2:
     vmname = "DebianTest"
     vboxosid = "Debian_64"
@@ -105,6 +107,7 @@ elif args.ostype == 2:
     vmbootstrap_defopts = '-t debian -r unstable -q \\"{0}\\" /mnt'.format(args.vmpass)
     vmprovisionscript = "MDebUbu.sh"
     vmprovision_defopts = "-e 2"
+    kvm_variant = "debian8"
 elif args.ostype == 3:
     vmname = "DebianTest"
     vboxosid = "Debian_64"
@@ -112,6 +115,7 @@ elif args.ostype == 3:
     vmbootstrap_defopts = '-t debian -r jessie -q \\"{0}\\" /mnt'.format(args.vmpass)
     vmprovisionscript = "MDebUbu.sh"
     vmprovision_defopts = "-e 3"
+    kvm_variant = "debian8"
 elif args.ostype == 4:
     vmname = "UbuntuTest"
     vboxosid = "Ubuntu_64"
@@ -119,6 +123,7 @@ elif args.ostype == 4:
     vmbootstrap_defopts = '-t ubuntu -r xenial -q \\"{0}\\" /mnt'.format(args.vmpass)
     vmprovisionscript = "MDebUbu.sh"
     vmprovision_defopts = "-e 3"
+    kvm_variant = "ubuntu16.04"
 elif args.ostype == 5:
     vmname = "FedoraTest"
     vboxosid = "Fedora_64"
@@ -126,6 +131,7 @@ elif args.ostype == 5:
     vmbootstrap_defopts = '-q \\"{0}\\" /mnt'.format(args.vmpass)
     vmprovisionscript = "MFedora.sh"
     vmprovision_defopts = " "
+    kvm_variant = "fedora24"
 # Override bootstrap opts if provided.
 if args.vmbootstrap is None:
     vmbootstrap_opts = vmbootstrap_defopts
@@ -146,12 +152,15 @@ print("Drive Options:", zslimopts)
 # Variables less likely to change.
 if args.qemu is True:
     fullpathtovdi=vmpath+"/"+vmname+".qcow2"
+    sship = None
+    localsshport=22
 else:
     fullpathtovdi=vmpath+"/"+vmname+"/"+vmname+".vdi"
+    sship = "127.0.0.1"
+    localsshport=64321
 print("Path to Image: {0}".format(fullpathtovdi))
 vdisize="32768"
 storagecontroller="SATA Controller"
-localsshport=64321
 
 if not os.path.isdir(vmpath) or not os.path.isfile(isopath):
     sys.exit("\nError, ensure {0} is a folder, and {1} is a file.".format(vmpath, isopath))
@@ -161,8 +170,12 @@ if args.noprompt == False:
 
 ### Functions ###
 def startvm(VMNAME):
-    checkvmcmd = 'VBoxManage list runningvms | grep -i "{0}"'.format(VMNAME)
-    startvmcmd = 'VBoxManage startvm "{0}"'.format(VMNAME)
+    if args.qemu is True:
+        checkvmcmd = 'virsh --connect qemu:///system -q list | grep -i "{0}"'.format(vmname)
+        startvmcmd = "virsh --connect qemu:///system start {vmname}".format(vmname=vmname)
+    else:
+        checkvmcmd = 'VBoxManage list runningvms | grep -i "{0}"'.format(VMNAME)
+        startvmcmd = 'VBoxManage startvm "{0}"'.format(VMNAME)
     subprocess.run(startvmcmd, shell=True)
     time.sleep(2)
     status = subprocess.run(checkvmcmd, shell=True)
@@ -171,10 +184,11 @@ def startvm(VMNAME):
         subprocess.run(startvmcmd, shell=True)
     return
 
-def sshwait(SSHUSER, SSHPASS, SSHPORT):
-    print("Waiting for VM to boot.")
-    time.sleep(15)
-    sshwaitcmd = 'sshpass -p "{1}" ssh -q "{0}"@127.0.0.1 -p {2} "echo Connected"'.format(SSHUSER, SSHPASS, SSHPORT)
+def sshwait(SSHIP, SSHUSER, SSHPASS, SSHPORT):
+    if args.qemu is False:
+        print("Waiting for VM to boot.")
+        time.sleep(15)
+    sshwaitcmd = 'sshpass -p "{SSHPASS}" ssh -q "{SSHUSER}"@{SSHIP} -p {SSHPORT} "echo Connected"'.format(SSHIP=SSHIP, SSHUSER=SSHUSER, SSHPASS=SSHPASS, SSHPORT=SSHPORT)
     status = subprocess.run(sshwaitcmd, shell=True)
     while status.returncode is not 0:
         print("SSH status was {0}, waiting.".format(status.returncode))
@@ -185,13 +199,60 @@ def sshwait(SSHUSER, SSHPASS, SSHPORT):
 def shutdownwait():
     print("Waiting for shutdown...")
     time.sleep(3)
-    shutdownwaitcmd = 'VBoxManage list runningvms | grep -i "{0}"'.format(vmname)
+    if args.qemu is True:
+        shutdownwaitcmd = 'virsh --connect qemu:///system -q list | grep -i "{0}"'.format(vmname)
+    else:
+        shutdownwaitcmd = 'VBoxManage list runningvms | grep -i "{0}"'.format(vmname)
     status = subprocess.run(shutdownwaitcmd, shell=True)
     # If a vm was detected (status was 0), wait for the vm to disappear.
     while status.returncode is 0:
         print("Shutdown wait status was {0}, waiting.".format(status.returncode))
         time.sleep(10)
         status = subprocess.run(shutdownwaitcmd, shell=True)
+    return
+
+def kvm_getip(VMNAME):
+    print("Getting KVM IP address...")
+    kvmipcmd="virsh --connect qemu:///system -q domifaddr {0} | awk '{{ print $4 }}'".format(VMNAME)
+    ip = None
+    while ip is None:
+        # Get the ip from the command.
+        ip_cmd = subprocess.run(kvmipcmd, shell=True, stdout=subprocess.PIPE, universal_newlines=True)
+        # Strip the newlines.
+        ip = format(ip_cmd.stdout.strip())
+        # Keep only the IP, remove the subnet mask.
+        ip = ip.split("/", 1)[0]
+        # Check to see if it is a valid IP address.
+        try:
+           ipaddress.ip_address(ip)
+           print('{0} is a correct IP address.'.format(ip))
+        except:
+           print('Address/Netmask is invalid: {0}'.format(ip))
+           ip = None
+        time.sleep(3)
+    return ip
+
+def vm_bootstrap():
+    # Compose BOOTSTRAPCMD
+    BOOTSTRAPCMD="""#!/bin/bash
+sshpass -p "{sshpassword}" ssh {sship} -p {sshport} -l {sshuser} "cd /CustomScripts/; git pull"
+sshpass -p "{sshpassword}" ssh {sship} -p {sshport} -l {sshuser} "/CustomScripts/ZSlimDrive.py -n {zslimopts}"
+sshpass -p "{sshpassword}" ssh {sship} -p {sshport} -l {sshuser} "/CustomScripts/{vmbootstrapscript} -n -c {vmname} -u {username} -f \\"{fullname}\\" -g {grubnumber} {vmbootstrap_opts}"
+sshpass -p "{sshpassword}" ssh {sship} -p {sshport} -l {sshuser} "mkdir -p /mnt/root/.ssh/; echo '{sshkey}' >> /mnt/root/.ssh/authorized_keys"
+sshpass -p "{sshpassword}" ssh {sship} -p {sshport} -l {sshuser} "poweroff"
+    """.format(sship=sship, sshpassword=args.livesshpass, sshuser=args.livesshuser, sshport=localsshport, vmname=vmname, username=args.vmuser, fullname=args.fullname, grubnumber=grubnumber, vmbootstrapscript=vmbootstrapscript, vmbootstrap_opts=vmbootstrap_opts, zslimopts=zslimopts, sshkey=rootsshkey)
+    subprocess.run(BOOTSTRAPCMD, shell=True)
+    return
+
+def vm_provision():
+    # Compose PROVISIONCMD
+    PROVISIONCMD="""
+    #!/bin/bash
+    ssh {sship} -p {sshport} -l root "cd /opt/CustomScripts/; git pull"
+    ssh {sship} -p {sshport} -l root "/opt/CustomScripts/{vmprovisionscript} -n {vmprovision_opts} -s {password}"
+    ssh {sship} -p {sshport} -l root "reboot"
+    """.format(sship=sship, sshport=localsshport, password=args.vmpass, vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts)
+    subprocess.run(PROVISIONCMD, shell=True)
     return
 
 ### Scripts ###
@@ -211,7 +272,7 @@ virsh --connect qemu:///system undefine {0}
 """.format(vmname)
 
 # Compose CREATESCRIPT
-CREATESCRIPT="""#!/bin/bash
+CREATESCRIPT_VBOX="""#!/bin/bash
 # Create the new VM
 VBoxManage createvm --name "{vmname}" --register
 VBoxManage modifyvm "{vmname}" --ostype "{vboxosid}" --ioapic on --rtcuseutc on --pae off  --firmware {vboxefiselect}
@@ -232,26 +293,8 @@ VBoxManage modifyvm "{vmname}" --natpf1 "ssh,tcp,127.0.0.1,{sshport},,22"
 """.format(vmname=vmname, vboxosid=vboxosid, memory=args.memory, cpus=CPUCORES, fullpathtovdi=fullpathtovdi, vdisize=vdisize, isopath=isopath, storagecontroller=storagecontroller, sshport=localsshport, vboxefiselect=vboxefiselect)
 CREATESCRIPT_KVM="""#!/bin/bash
 qemu-img create -f qcow2 -o compat=1.1,lazy_refcounts=on {fullpathtovdi} {vdisize}M
-virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtovdi} --graphics spice --vcpu={cpus} --ram={memory} --cdrom={isopath}  --network bridge=virbr0 --os-variant=debian8 --noautoconsole --video=virtio
-""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtovdi=fullpathtovdi, vdisize=vdisize, isopath=isopath, sshport=localsshport)
-
-# Compose BOOTSTRAPCMD
-BOOTSTRAPCMD="""
-#!/bin/bash
-sshpass -p "{sshpassword}" ssh 127.0.0.1 -p {sshport} -l {sshuser} "cd /CustomScripts/; git pull"
-sshpass -p "{sshpassword}" ssh 127.0.0.1 -p {sshport} -l {sshuser} "/CustomScripts/ZSlimDrive.py -n {zslimopts}"
-sshpass -p "{sshpassword}" ssh 127.0.0.1 -p {sshport} -l {sshuser} "/CustomScripts/{vmbootstrapscript} -n -c {vmname} -u {username} -f \\"{fullname}\\" -g {grubnumber} {vmbootstrap_opts}"
-sshpass -p "{sshpassword}" ssh 127.0.0.1 -p {sshport} -l {sshuser} "mkdir -p /mnt/root/.ssh/; echo '{sshkey}' >> /mnt/root/.ssh/authorized_keys"
-sshpass -p "{sshpassword}" ssh 127.0.0.1 -p {sshport} -l {sshuser} "poweroff"
-""".format(sshpassword=args.livesshpass, sshuser=args.livesshuser, sshport=localsshport, vmname=vmname, username=args.vmuser, fullname=args.fullname, grubnumber=grubnumber, vmbootstrapscript=vmbootstrapscript, vmbootstrap_opts=vmbootstrap_opts, zslimopts=zslimopts, sshkey=rootsshkey)
-
-# Compose PROVISIONCMD
-PROVISIONCMD="""
-#!/bin/bash
-ssh 127.0.0.1 -p {sshport} -l root "cd /opt/CustomScripts/; git pull"
-ssh 127.0.0.1 -p {sshport} -l root "/opt/CustomScripts/{vmprovisionscript} -n {vmprovision_opts} -s {password}"
-ssh 127.0.0.1 -p {sshport} -l root "reboot"
-""".format(sshport=localsshport, password=args.vmpass, vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts)
+virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtovdi},bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --cdrom={isopath}  --network bridge=virbr0,model=virtio --network network=vnet5,model=virtio --os-type=linux --os-variant={kvm_variant} --noautoconsole --video=virtio
+""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtovdi=fullpathtovdi, vdisize=vdisize, isopath=isopath, sshport=localsshport, kvm_variant=kvm_variant)
 
 ### Begin Code ###
 
@@ -262,32 +305,37 @@ if args.qemu is True:
         # Delete old vm.
         if os.path.isfile(fullpathtovdi):
             print("\nDeleting old VM.")
-            # print(DELETESCRIPT)
             subprocess.run(DELETESCRIPT_KVM, shell=True)
+            os.remove(fullpathtovdi)
 
         # Create new VM.
         print("\nCreating VM.")
-        # print(CREATESCRIPT)
         subprocess.run(CREATESCRIPT_KVM, shell=True)
 
         # Get VM IP
+        sship = kvm_getip(vmname)
+        sshwait(sship, args.livesshuser, args.livesshpass, localsshport)
 
-    #     # Start VM
-    #     startvm(vmname)
-    #     sshwait(args.livesshuser, args.livesshpass, localsshport)
-    #
-    #     # Bootstrap VM
-    #     print(BOOTSTRAPCMD)
-    #     subprocess.run(BOOTSTRAPCMD, shell=True)
-    #
+        # Bootstrap VM
+        vm_bootstrap()
+
+        # Shutdown VM
+        subprocess.run("virsh --connect qemu:///system shutdown {vmname}".format(vmname=vmname), shell=True)
+        shutdownwait()
+
     # # Detach the iso
-    # shutdownwait()
     # time.sleep(2)
     # subprocess.run('VBoxManage storageattach "{0}" --storagectl "{1}" --port 1 --device 0 --type dvddrive --medium emptydrive'.format(vmname, storagecontroller), shell=True)
-    #
-    # # Start VM
-    # startvm(vmname)
-    # sshwait(args.vmuser, args.vmpass, localsshport)
+
+    # Start VM
+    startvm()
+
+    # Get VM IP
+    sship = kvm_getip(vmname)
+    sshwait(sship, args.livesshuser, args.livesshpass, localsshport)
+
+    # Provision VM
+    vm_provision()
 
 else:
     # Run this if we are destroying (not keeping) the VM.
@@ -301,15 +349,14 @@ else:
         # Create new VM.
         print("\nCreating VM.")
         # print(CREATESCRIPT)
-        subprocess.run(CREATESCRIPT, shell=True)
+        subprocess.run(CREATESCRIPT_VBOX, shell=True)
 
         # Start VM
         startvm(vmname)
-        sshwait(args.livesshuser, args.livesshpass, localsshport)
+        sshwait(sship, args.livesshuser, args.livesshpass, localsshport)
 
         # Bootstrap VM
-        print(BOOTSTRAPCMD)
-        subprocess.run(BOOTSTRAPCMD, shell=True)
+        vm_bootstrap()
 
     # Detach the iso
     shutdownwait()
@@ -318,7 +365,7 @@ else:
 
     # Start VM
     startvm(vmname)
-    sshwait(args.vmuser, args.vmpass, localsshport)
+    sshwait(sship, args.vmuser, args.vmpass, localsshport)
 
     # Provision VM
     subprocess.run(PROVISIONCMD, shell=True)
