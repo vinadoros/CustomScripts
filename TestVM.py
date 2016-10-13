@@ -151,15 +151,16 @@ print("Drive Options:", zslimopts)
 
 # Variables less likely to change.
 if args.qemu is True:
-    fullpathtovdi=vmpath+"/"+vmname+".qcow2"
+    fullpathtoimg=vmpath+"/"+vmname+".qcow2"
     sship = None
     localsshport=22
 else:
-    fullpathtovdi=vmpath+"/"+vmname+"/"+vmname+".vdi"
+    fullpathtoimg=vmpath+"/"+vmname+"/"+vmname+".vdi"
     sship = "127.0.0.1"
     localsshport=64321
-print("Path to Image: {0}".format(fullpathtovdi))
-vdisize="32768"
+print("Path to Image: {0}".format(fullpathtoimg))
+nameofvnet = "private"
+imgsize="32768"
 storagecontroller="SATA Controller"
 
 if not os.path.isdir(vmpath) or not os.path.isfile(isopath):
@@ -171,8 +172,8 @@ if args.noprompt == False:
 ### Functions ###
 def startvm(VMNAME):
     if args.qemu is True:
-        checkvmcmd = 'virsh --connect qemu:///system -q list | grep -i "{0}"'.format(vmname)
-        startvmcmd = "virsh --connect qemu:///system start {vmname}".format(vmname=vmname)
+        checkvmcmd = 'virsh --connect qemu:///system -q list | grep -i "{0}"'.format(VMNAME)
+        startvmcmd = "virsh --connect qemu:///system start {0}".format(VMNAME)
     else:
         checkvmcmd = 'VBoxManage list runningvms | grep -i "{0}"'.format(VMNAME)
         startvmcmd = 'VBoxManage startvm "{0}"'.format(VMNAME)
@@ -209,6 +210,43 @@ def shutdownwait():
         print("Shutdown wait status was {0}, waiting.".format(status.returncode))
         time.sleep(10)
         status = subprocess.run(shutdownwaitcmd, shell=True)
+    return
+
+def kvm_createvnet():
+    # Create network config.
+    pathtovnet = vmpath+"/vnet.xml"
+    VNET_XML="""<network>
+    <name>{0}</name>
+    <bridge name="vnet9" />
+    <forward mode="nat"/>
+    <ip address="172.16.0.1" netmask="255.255.255.0">
+        <dhcp>
+            <range start="172.16.0.2" end="172.16.0.254"/>
+        </dhcp>
+    </ip>
+    <ip family="ipv6" address="2001:db8:ca2:3::1" prefix="64" >
+      <dhcp>
+        <range start="2001:db8:ca2:3:1::10" end="2001:db8:ca2:3:1::ff" />
+      </dhcp>
+    </ip>
+</network>""".format(nameofvnet)
+    # Write the network config.
+    f = open(pathtovnet,"w")
+    f.write(VNET_XML)
+    f.close()
+
+    checkvnet = "virsh --connect qemu:///system net-list --all | grep -i {0}".format(nameofvnet)
+    createvnet = """#!/bin/bash
+    virsh --connect qemu:///system net-define {0}
+    virsh --connect qemu:///system net-autostart {1}
+    virsh --connect qemu:///system net-start {1}
+    """.format(pathtovnet, nameofvnet)
+    # Check to see if the network already exists.
+    status = subprocess.run(checkvnet, shell=True)
+    # If the network is not detected, add it.
+    if status.returncode is not 0:
+        print("Creating network {0}.".format(nameofvnet))
+        subprocess.run(createvnet, shell=True)
     return
 
 def kvm_getip(VMNAME):
@@ -264,7 +302,7 @@ VBoxManage closemedium "{2}" --delete
 if VBoxManage list vms | grep -i "{0}"; then
   VBoxManage unregistervm "{0}" --delete
 fi
-""".format(vmname, storagecontroller, fullpathtovdi)
+""".format(vmname, storagecontroller, fullpathtoimg)
 
 DELETESCRIPT_KVM="""#!/bin/bash
 virsh --connect qemu:///system destroy {0}
@@ -282,31 +320,35 @@ VBoxManage modifyvm "{vmname}" --mouse usbtablet
 VBoxManage modifyvm "{vmname}" --cpus "{cpus}"
 VBoxManage modifyvm "{vmname}" --clipboard bidirectional --draganddrop bidirectional --usbehci on
 # Storage settings
-VBoxManage createhd --filename "{fullpathtovdi}" --size "{vdisize}"
+VBoxManage createhd --filename "{fullpathtoimg}" --size "{imgsize}"
 VBoxManage storagectl "{vmname}" --name "{storagecontroller}" --add sata --portcount 4
-VBoxManage storageattach "{vmname}" --storagectl "{storagecontroller}" --port 0 --device 0 --type hdd --medium "{fullpathtovdi}"
+VBoxManage storageattach "{vmname}" --storagectl "{storagecontroller}" --port 0 --device 0 --type hdd --medium "{fullpathtoimg}"
 VBoxManage storageattach "{vmname}" --storagectl "{storagecontroller}" --port 1 --device 0 --type dvddrive --medium "{isopath}"
 VBoxManage modifyvm "{vmname}" --boot1 dvd --boot2 disk
 # Network settings
 VBoxManage modifyvm "{vmname}" --nic1 nat --nictype1 82540EM --cableconnected1 on
 VBoxManage modifyvm "{vmname}" --natpf1 "ssh,tcp,127.0.0.1,{sshport},,22"
-""".format(vmname=vmname, vboxosid=vboxosid, memory=args.memory, cpus=CPUCORES, fullpathtovdi=fullpathtovdi, vdisize=vdisize, isopath=isopath, storagecontroller=storagecontroller, sshport=localsshport, vboxefiselect=vboxefiselect)
+""".format(vmname=vmname, vboxosid=vboxosid, memory=args.memory, cpus=CPUCORES, fullpathtoimg=fullpathtoimg, imgsize=imgsize, isopath=isopath, storagecontroller=storagecontroller, sshport=localsshport, vboxefiselect=vboxefiselect)
 CREATESCRIPT_KVM="""#!/bin/bash
-qemu-img create -f qcow2 -o compat=1.1,lazy_refcounts=on {fullpathtovdi} {vdisize}M
-virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtovdi},bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --cdrom={isopath}  --network bridge=virbr0,model=virtio --network network=vnet5,model=virtio --os-type=linux --os-variant={kvm_variant} --noautoconsole --video=virtio
-""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtovdi=fullpathtovdi, vdisize=vdisize, isopath=isopath, sshport=localsshport, kvm_variant=kvm_variant)
+qemu-img create -f qcow2 -o compat=1.1,lazy_refcounts=on {fullpathtoimg} {imgsize}M
+virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg},bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --cdrom={isopath}  --network bridge=virbr0,model=virtio --network network={nameofvnet},model=virtio --os-type=linux --os-variant={kvm_variant} --noautoconsole --video=virtio
+""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=fullpathtoimg, imgsize=imgsize, isopath=isopath, sshport=localsshport, kvm_variant=kvm_variant, nameofvnet=nameofvnet)
 
 ### Begin Code ###
 
 # Virtualbox code
 if args.qemu is True:
+
+    # Create KVM network config.
+    kvm_createvnet()
+
     # Run this if we are destroying (not keeping) the VM.
     if args.keep != True:
         # Delete old vm.
-        if os.path.isfile(fullpathtovdi):
+        if os.path.isfile(fullpathtoimg):
             print("\nDeleting old VM.")
             subprocess.run(DELETESCRIPT_KVM, shell=True)
-            os.remove(fullpathtovdi)
+            os.remove(fullpathtoimg)
 
         # Create new VM.
         print("\nCreating VM.")
@@ -323,12 +365,8 @@ if args.qemu is True:
         subprocess.run("virsh --connect qemu:///system shutdown {vmname}".format(vmname=vmname), shell=True)
         shutdownwait()
 
-    # # Detach the iso
-    # time.sleep(2)
-    # subprocess.run('VBoxManage storageattach "{0}" --storagectl "{1}" --port 1 --device 0 --type dvddrive --medium emptydrive'.format(vmname, storagecontroller), shell=True)
-
     # Start VM
-    startvm()
+    startvm(vmname)
 
     # Get VM IP
     sship = kvm_getip(vmname)
@@ -341,7 +379,7 @@ else:
     # Run this if we are destroying (not keeping) the VM.
     if args.keep != True:
         # Delete old vm.
-        if os.path.isfile(fullpathtovdi):
+        if os.path.isfile(fullpathtoimg):
             print("\nDeleting old VM.")
             # print(DELETESCRIPT)
             subprocess.run(DELETESCRIPT, shell=True)
@@ -368,4 +406,4 @@ else:
     sshwait(sship, args.vmuser, args.vmpass, localsshport)
 
     # Provision VM
-    subprocess.run(PROVISIONCMD, shell=True)
+    vm_provision()
