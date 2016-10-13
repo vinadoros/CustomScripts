@@ -120,7 +120,7 @@ elif args.ostype == 4:
     vmname = "UbuntuTest"
     vboxosid = "Ubuntu_64"
     vmbootstrapscript = "BDebian.py"
-    vmbootstrap_defopts = '-t ubuntu -r xenial -q \\"{0}\\" /mnt'.format(args.vmpass)
+    vmbootstrap_defopts = '-t ubuntu -r yakkety -q \\"{0}\\" /mnt'.format(args.vmpass)
     vmprovisionscript = "MDebUbu.sh"
     vmprovision_defopts = "-e 3"
     kvm_variant = "ubuntu16.04"
