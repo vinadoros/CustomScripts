@@ -526,6 +526,7 @@ end
     os.makedirs(os.path.dirname(FISHSCRIPTPATH),exist_ok=True)
     if os.geteuid() == 0:
         os.makedirs(os.path.dirname(FISHSCRIPTUSERPATH),exist_ok=True)
+        subprocess.run("chown -R {0}:{1} /home/{0}/.config".format(USERNAMEVAR, USERGROUP), shell=True)
 
     # Remove existing fish scripts.
     if os.path.isfile(FISHSCRIPTPATH):
