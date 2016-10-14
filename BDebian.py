@@ -136,10 +136,6 @@ usermod -aG daemon,bin,sys,adm,tty,disk,lp,mail,news,uucp,man,proxy,kmem,dialout
 DEBIAN_FRONTEND=noninteractive apt install -y synaptic tasksel xorg
 apt install -y network-manager
 apt install -y ssh
-DEBIAN_FRONTEND=noninteractive apt install -y btrfs-tools f2fs-tools nbd-client
-# Fix for nbd-client: https://bugs.launchpad.net/ubuntu/+source/nbd/+bug/1487679
-systemctl disable NetworkManager-wait-online
-
 """.format(HOSTNAME=args.hostname, USERNAME=args.username, PASSWORD=args.password, FULLNAME=args.fullname)
 
 # Set up repositories for debian/ubuntu.
@@ -179,6 +175,11 @@ if [[ "{DEBARCH}" = "amd64" ]]; then
 fi
 apt update
 apt dist-upgrade -y
+
+# Install fs tools.
+DEBIAN_FRONTEND=noninteractive apt install -y btrfs-tools f2fs-tools nbd-client
+# Fix for nbd-client: https://bugs.launchpad.net/ubuntu/+source/nbd/+bug/1487679
+systemctl disable NetworkManager-wait-online
 
 # Delete defaults in sudoers for Debian.
 if grep -iq $'^Defaults\tenv_reset' /etc/sudoers; then
