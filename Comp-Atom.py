@@ -24,3 +24,5 @@ print("Home Folder is:",USERHOME)
 subprocess.call("apm install autocomplete-python", shell=True)
 # Git plugins
 subprocess.call("apm install git-plus git-time-machine", shell=True)
+# Sublime column editing
+subprocess.call("apm install sublime-style-column-selection", shell=True)
