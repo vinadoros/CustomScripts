@@ -215,6 +215,7 @@ ipw2200-fw
 zd1211-firmware
 virtualbox-guest-modules-arch
 virtualbox-guest-utils
+spice-vdagent
 
 # Desktop stuff
 lxdm
@@ -297,6 +298,7 @@ EOL
 systemctl enable vboxservice
 systemctl enable vmtoolsd
 systemctl enable vmware-vmblock-fuse.service
+systemctl enable spice-vdagentd
 
 systemctl disable multi-user.target
 
