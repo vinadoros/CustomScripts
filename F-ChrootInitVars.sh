@@ -5,9 +5,6 @@ echo "Executing F-ChrootInitVars.sh."
 # Private variable file.
 PRIVATEVARS="/usr/local/bin/privateconfig.sh"
 
-# Halt on any error.
-set -e
-
 MACHINEARCH=$(uname -m)
 
 # Enable installing to guest. Set to 0 if physical machine.

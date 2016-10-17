@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Halt on any error.
-set -e
-
 ###############################################################################
 ##################        Initial Setup and Variables      ####################
 ###############################################################################
@@ -94,7 +91,6 @@ if [ ! -f /etc/localtime ]; then
 fi
 
 # Delete existing user 1000 if exists.
-set +eu
 USER1000="$(id -un 1000)"
 if [[ ! -z "$USER1000" && "$USER1000" != "$USERNAMEVAR" ]]; then
 	echo "Deleting existing user $USER1000"
@@ -167,10 +163,8 @@ chmod a+rwx ${INSTALLPATH}/setupscript.sh
 cp -f /usr/bin/qemu-arm-static ${INSTALLPATH}/usr/bin
 update-binfmts --enable
 
-set +e
 # Run script in chroot
 ${SNCHROOTCMD} /setupscript.sh
-set -e
 
 # Delete script when done.
 rm "${SETUPSCRIPT}"
