@@ -118,9 +118,7 @@ if [ -z "$SETPASS" ]; then
 fi
 
 # Grub and linux install section
-set +e
 DEVPART=$(sh -c df -m | grep " \+${INSTALLPATH}$" | grep -Eo '/dev/[a-z]d[a-z]')
-set -e
 
 [ -z "$SETGRUB" ] && SETGRUB="0"
 while [[ "${SETGRUB}" -le "0" || "${SETGRUB}" -gt "4" ]]; do
