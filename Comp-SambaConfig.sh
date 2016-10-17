@@ -80,7 +80,6 @@ sambaconfigadd () {
 
 [${FLDBASE}]
 	force user = $USERNAMEVAR
-	user = $USERNAMEVAR
 	write list = $USERNAMEVAR
 	writeable = yes
 	force group = $USERGROUP
@@ -100,7 +99,6 @@ if ! grep -iq "\[root\]" /etc/samba/smb.conf; then
 
 [root]
 	force user = $USERNAMEVAR
-	user = $USERNAMEVAR
 	write list = $USERNAMEVAR
 	writeable = yes
 	force group = $USERGROUP
@@ -117,7 +115,6 @@ if [ -d $USERHOME ] && ! grep -iq "\[Home\]" /etc/samba/smb.conf; then
 
 [Home]
 	force user = $USERNAMEVAR
-	user = $USERNAMEVAR
 	write list = $USERNAMEVAR
 	writeable = yes
 	force group = $USERGROUP
