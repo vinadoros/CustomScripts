@@ -62,7 +62,7 @@ source "$SCRIPTDIR/Comp-ArchCron.sh"
 
 source "$SCRIPTDIR/Comp-sshconfig.sh"
 
-source "$SCRIPTDIR/Comp-BashFish.py"
+$SCRIPTDIR/Comp-BashFish.py
 
 source "$SCRIPTDIR/Comp-CSClone.sh"
 
