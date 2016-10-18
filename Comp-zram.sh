@@ -100,21 +100,4 @@ EOLXYZ
 	systemctl daemon-reload
 	systemctl enable "$(basename ${ZRAMSERVICE})"
 
-	# Swap file setup
-	SWAPFILE="/var/swap"
-	if [ ! -f "$SWAPFILE" ] && ! swapon | grep -i [s/v]d[a-z][0-9]; then
-		if ! grep -q "$SWAPFILE" /etc/fstab && ! grep -i "/ " /etc/fstab | grep -iq "btrfs"; then
-			echo "Creating $SWAPFILE."
-			fallocate -l 1GiB "$SWAPFILE"
-			chmod 600 "$SWAPFILE"
-			mkswap "$SWAPFILE"
-			if [ ! -z "$(tail -1 /etc/fstab)" ]; then echo "" >> /etc/fstab ; fi
-			echo -e "$SWAPFILE\tnone\tswap\tdefaults\t0\t0" >> /etc/fstab
-		elif ! grep -q "$SWAPFILE" /etc/fstab && grep -i "/ " /etc/fstab | grep -iq "btrfs"; then
-			echo "Not creating swap file, rootfs is btrfs."
-		fi
-	else
-		echo "Swap detected on $(swapon | grep -i [s/v]d[a-z][0-9]), not creating."
-	fi
-
 fi

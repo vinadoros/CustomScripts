@@ -83,29 +83,6 @@ if [ -d /var/log/journal ]; then
 	chattr -R +C /var/log/journal/
 fi
 
-# SSH copy key script
-SSHKEYSCRIPT=/usr/local/bin/sscp
-echo "Creating $SSHKEYSCRIPT"
-bash -c "cat >$SSHKEYSCRIPT" <<'EOL'
-#!/bin/bash
-
-if [ -z "$@" ]; then
-	echo "Enter a valid ssh host."
-	exit 1;
-fi
-
-set -eu
-
-if [ ! -f ~/.ssh/id_rsa.pub ]; then
-	ssh-keygen -t rsa -b 4096 -C "$(whoami)@$(hostname)"
-fi
-
-cat ~/.ssh/id_rsa.pub | ssh "$@" "mkdir -p ~/.ssh; cat >> ~/.ssh/authorized_keys; chmod 600 ~/.ssh/authorized_keys"
-echo "Script completed successfully."
-EOL
-chmod a+rwx "$SSHKEYSCRIPT"
-
-
 # Anacron configuration
 if [ -f /etc/anacrontab ]; then
 	sed -i 's/RANDOM_DELAY=.*$/RANDOM_DELAY=0/g' /etc/anacrontab
