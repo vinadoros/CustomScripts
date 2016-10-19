@@ -103,11 +103,11 @@ echo "Executing \$0"
 su $USERNAMEVAR -s /bin/bash <<'EOL'
 
 if [ -d $USERHOME/.cache/thumbnails ]; then
-	SIZEVAR="\$(du -s $USERHOME/.cache/thumbnails | awk '{ print \$1 }')"
+	SIZEVAR="\$(du -sm $USERHOME/.cache/thumbnails | awk '{ print \$1 }')"
 	echo "Size is \$SIZEVAR"
-	if [[ \$SIZEVAR -ge 100000 ]]; then
+	if [[ \$SIZEVAR -ge 100 ]]; then
 		echo "Removing thumbnails."
-		rm -rf $USERHOME/.cache/thumbnails
+		rm -rf $USERHOME/.cache/thumbnails/*
 	else
 		echo "Not Removing thumbnails."
 	fi
@@ -122,10 +122,16 @@ fi
 if [ "${MACHINEARCH}" != "armv7l" ]; then
 	echo "Install x86 specific tweaks."
 
-	# Edit grub timeout
+	# Edit grub settings
 	if [ -f /etc/default/grub ]; then
 		sed -i 's/GRUB_TIMEOUT=.*$/GRUB_TIMEOUT=1/g' /etc/default/grub
 		sed -i 's/GRUB_HIDDEN_TIMEOUT=.*$/GRUB_HIDDEN_TIMEOUT=1/g' /etc/default/grub
+		# Add elevator I/O scheduler
+		# https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/5/html/Tuning_and_Optimizing_Red_Hat_Enterprise_Linux_for_Oracle_9i_and_10g_Databases/sect-Oracle_9i_and_10g_Tuning_Guide-Kernel_Boot_Parameters-The_IO_Scheduler.html
+		if ! grep -qi "elevator=deadline" /etc/default/grub; then
+			echo "Adding elevator as io scheduler in /etc/default/grub."
+			sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"/GRUB_CMDLINE_LINUX_DEFAULT="\1 elevator=deadline"/g' /etc/default/grub
+		fi
 		grub_update
 	fi
 
