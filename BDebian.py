@@ -266,9 +266,13 @@ GRUBSCRIPT_VAR = open(GRUBSCRIPT_PATH, mode='w')
 GRUBSCRIPT_VAR.write(GRUBSCRIPT)
 GRUBSCRIPT_VAR.close()
 os.chmod(GRUBSCRIPT_PATH, 0o777)
+# Remove resolv.conf before chroot
+if os.path.exists("{0}/etc/resolv.conf".format(absinstallpath)):
+    os.remove("{0}/etc/resolv.conf".format(absinstallpath))
 # Run the setup script.
-# subprocess.run("systemd-nspawn -D {0} /setupscript.sh".format(absinstallpath), shell=True)
-subprocess.run("arch-chroot {0} /setupscript.sh".format(absinstallpath), shell=True)
+subprocess.run("systemd-nspawn -D {0} /setupscript.sh".format(absinstallpath), shell=True)
+# Copy resolv.conf into chroot (needed for arch-chroot)
+shutil.copy2("/etc/resolv.conf", "{0}/etc/resolv.conf".format(absinstallpath))
 # Run the grub script.
 subprocess.run("arch-chroot {0} /grubscript.sh".format(absinstallpath), shell=True)
 # Remove after running

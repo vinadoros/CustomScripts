@@ -217,7 +217,7 @@ def kvm_createvnet():
     pathtovnet = vmpath+"/vnet.xml"
     VNET_XML="""<network>
     <name>{0}</name>
-    <bridge name="vnet9" />
+    <bridge name="prv9" />
     <forward mode="nat"/>
     <ip address="172.16.0.1" netmask="255.255.255.0">
         <dhcp>
