@@ -33,6 +33,7 @@ sudo gsettings set org.gtk.Settings.FileChooser show-hidden true
 gsettings set org.gnome.nautilus.preferences sort-directories-first true
 gsettings set org.gnome.nautilus.preferences executable-text-activation ask
 gsettings set org.gnome.nautilus.preferences click-policy double
+gsettings set org.gnome.nautilus.preferences automatic-decompression false
 gsettings set org.gnome.nautilus.list-view use-tree-view true
 gsettings set org.gnome.nautilus.list-view default-zoom-level small
 gsettings set org.gnome.nautilus.icon-view default-zoom-level small
@@ -41,8 +42,6 @@ gsettings set org.gnome.nautilus.icon-view captions "['size', 'none', 'none']"
 gsettings set org.gnome.desktop.peripherals.touchpad scroll-method edge-scrolling
 gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click true
 gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll false
-#~ gsettings set org.gnome.settings-daemon.plugins.power critical-battery-action nothing
-#~ gsettings set org.gnome.settings-daemon.plugins.power button-power shutdown
 gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 3600
 gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type nothing
 gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 1800
@@ -68,8 +67,6 @@ gsettings set org.gnome.desktop.background show-desktop-icons true
 gsettings set org.gnome.desktop.datetime automatic-timezone true
 gsettings set org.gnome.desktop.interface clock-format 12h
 gsettings set org.gnome.desktop.interface clock-show-date true
-gsettings set org.gnome.desktop.interface gtk-theme Adwaita
-gsettings set org.gnome.desktop.wm.preferences theme Adwaita
 gsettings set org.gnome.desktop.interface icon-theme Numix-Circle
 gsettings set org.gnome.desktop.thumbnail-cache maximum-size 100
 gsettings set org.gnome.desktop.thumbnail-cache maximum-age 90
