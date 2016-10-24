@@ -261,6 +261,7 @@ case $SETDE in
 		dist_install gnome-shell-extensions-gpaste gnome-shell-extension-top-icons-plus gnome-shell-extension-mediaplayer
 		dist_install gdm3
 		dist_install gnome-packagekit network-manager-gnome
+		$SCRIPTDIR/DExtGnome.sh -d -v
 	fi
 
     break;;
