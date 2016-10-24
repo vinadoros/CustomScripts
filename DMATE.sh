@@ -64,6 +64,7 @@ gsettings set org.mate.screensaver mode blank-only
 gsettings set org.mate.font-rendering antialiasing grayscale
 gsettings set org.mate.font-rendering hinting slight
 gsettings set org.mate.peripherals-mouse middle-button-enabled true
+dconf write /org/mate/terminal/profiles/default/scrollback-unlimited true
 dconf write /org/mate/panel/objects/clock/prefs/format "'12-hour'"
 dconf write /org/mate/panel/objects/clock/position "0"
 dconf write /org/mate/panel/objects/clock/panel-right-stick "true"
