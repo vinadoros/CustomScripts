@@ -267,11 +267,6 @@ EOLXYZ
 
 sudo bash -c "cat >>$ARCHLIVEPATH/airootfs/root/customize_airootfs.sh" <<'EOLXYZ'
 
-savespace(){
-	localepurge
-	yes | pacman -Scc
-}
-
 if [ $(uname -m) = "x86_64" ]; then
 	if ! grep -Fq "multilib" /etc/pacman.conf; then
 		cat >>/etc/pacman.conf <<'EOL'
@@ -342,6 +337,45 @@ systemctl enable updatecs.service
 
 # --- END Update CustomScripts on startup ---
 
+# Run MATE Settings script on desktop startup.
+cat >"/etc/xdg/autostart/matesettings.desktop" <<"EOL"
+[Desktop Entry]
+Name=MATE Settings Script
+Exec=/CustomScripts/DMATE.sh
+Terminal=false
+Type=Application
+EOL
+
+# Autoset resolution
+cat >"/etc/xdg/autostart/ra.desktop" <<"EOL"
+[Desktop Entry]
+Name=Autoresize Resolution
+Exec=/usr/local/bin/ra.sh
+Terminal=false
+Type=Application
+EOL
+cat >"/usr/local/bin/ra.sh" <<'EOL'
+#!/bin/bash
+while true; do
+	sleep 5
+	if [ -z $DISPLAY ]; then
+		echo "Display variable not set. Exiting."
+		exit 1;
+	fi
+	xhost +localhost
+	# Detect the display output from xrandr.
+	RADISPLAYS=$(xrandr --listmonitors | awk '{print $4}')
+	while true; do
+		sleep 1
+		# Loop through every detected display and autoset them.
+		for disp in ${RADISPLAYS[@]}; do
+			xrandr --output $disp --auto
+		done
+	done
+done
+EOL
+chmod a+rwx /usr/local/bin/ra.sh
+
 # Add CustomScripts to path
 if ! grep "$SCRIPTBASENAME" /root/.zshrc; then
 	cat >>/root/.zshrc <<EOLZSH
@@ -351,8 +385,6 @@ if [ -d $SCRIPTBASENAME ]; then
 fi
 EOLZSH
 fi
-
-#savespace
 
 EOLXYZ
 
