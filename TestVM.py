@@ -95,8 +95,8 @@ else:
 if args.ostype == 1:
     vmname = "ArchTest"
     vboxosid = "ArchLinux_64"
-    vmbootstrapscript = "BArchChroot.sh"
-    vmbootstrap_defopts = '-p /mnt -v \\"{0}\\"'.format(args.vmpass)
+    vmbootstrapscript = "BArch.py"
+    vmbootstrap_defopts = ' '
     vmprovisionscript = "MArch.sh"
     vmprovision_defopts = "-e 3 -m 3"
     kvm_variant = "fedora24"
@@ -104,7 +104,7 @@ elif args.ostype == 2:
     vmname = "DebianTest"
     vboxosid = "Debian_64"
     vmbootstrapscript = "BDebian.py"
-    vmbootstrap_defopts = '-t debian -r unstable -q \\"{0}\\" /mnt'.format(args.vmpass)
+    vmbootstrap_defopts = '-t debian -r unstable'
     vmprovisionscript = "MDebUbu.sh"
     vmprovision_defopts = "-e 2"
     kvm_variant = "debian8"
@@ -112,7 +112,7 @@ elif args.ostype == 3:
     vmname = "DebianTest"
     vboxosid = "Debian_64"
     vmbootstrapscript = "BDebian.py"
-    vmbootstrap_defopts = '-t debian -r jessie -q \\"{0}\\" /mnt'.format(args.vmpass)
+    vmbootstrap_defopts = '-t debian -r jessie'
     vmprovisionscript = "MDebUbu.sh"
     vmprovision_defopts = "-e 3"
     kvm_variant = "debian8"
@@ -120,7 +120,7 @@ elif args.ostype == 4:
     vmname = "UbuntuTest"
     vboxosid = "Ubuntu_64"
     vmbootstrapscript = "BDebian.py"
-    vmbootstrap_defopts = '-t ubuntu -r yakkety -q \\"{0}\\" /mnt'.format(args.vmpass)
+    vmbootstrap_defopts = '-t ubuntu -r xenial'
     vmprovisionscript = "MDebUbu.sh"
     vmprovision_defopts = "-e 3"
     kvm_variant = "ubuntu16.04"
@@ -128,7 +128,7 @@ elif args.ostype == 5:
     vmname = "FedoraTest"
     vboxosid = "Fedora_64"
     vmbootstrapscript = "BFedora.py"
-    vmbootstrap_defopts = '-q \\"{0}\\" /mnt'.format(args.vmpass)
+    vmbootstrap_defopts = ' '
     vmprovisionscript = "MFedora.sh"
     vmprovision_defopts = " "
     kvm_variant = "fedora24"
@@ -275,10 +275,10 @@ def vm_bootstrap():
     BOOTSTRAPCMD="""#!/bin/bash
 sshpass -p "{sshpassword}" ssh {sship} -p {sshport} -l {sshuser} "cd /CustomScripts/; git pull"
 sshpass -p "{sshpassword}" ssh {sship} -p {sshport} -l {sshuser} "/CustomScripts/ZSlimDrive.py -n {zslimopts}"
-sshpass -p "{sshpassword}" ssh {sship} -p {sshport} -l {sshuser} "/CustomScripts/{vmbootstrapscript} -n -c {vmname} -u {username} -f \\"{fullname}\\" -g {grubnumber} {vmbootstrap_opts}"
+sshpass -p "{sshpassword}" ssh {sship} -p {sshport} -l {sshuser} "/CustomScripts/{vmbootstrapscript} -n -c {vmname} -u {username} -f \\"{fullname}\\" -g {grubnumber} -q \\"{password}\\" {vmbootstrap_opts} /mnt"
 sshpass -p "{sshpassword}" ssh {sship} -p {sshport} -l {sshuser} "mkdir -p /mnt/root/.ssh/; echo '{sshkey}' >> /mnt/root/.ssh/authorized_keys"
 sshpass -p "{sshpassword}" ssh {sship} -p {sshport} -l {sshuser} "poweroff"
-    """.format(sship=sship, sshpassword=args.livesshpass, sshuser=args.livesshuser, sshport=localsshport, vmname=vmname, username=args.vmuser, fullname=args.fullname, grubnumber=grubnumber, vmbootstrapscript=vmbootstrapscript, vmbootstrap_opts=vmbootstrap_opts, zslimopts=zslimopts, sshkey=rootsshkey)
+    """.format(sship=sship, sshpassword=args.livesshpass, sshuser=args.livesshuser, sshport=localsshport, vmname=vmname, username=args.vmuser, password=args.vmpass, fullname=args.fullname, grubnumber=grubnumber, vmbootstrapscript=vmbootstrapscript, vmbootstrap_opts=vmbootstrap_opts, zslimopts=zslimopts, sshkey=rootsshkey)
     subprocess.run(BOOTSTRAPCMD, shell=True)
     return
 
