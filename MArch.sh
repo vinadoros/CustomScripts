@@ -102,7 +102,7 @@ if [[ ! -d $USERHOME/.config/autostart/ ]]; then
 	chown -R $USERNAMEVAR:$USERGROUP $USERHOME/.config
 fi
 
-source "$SCRIPTDIR/Comp-ArchAUR.sh"
+"$SCRIPTDIR/Comp-ArchAUR.py"
 
 source "$SCRIPTDIR/Comp-ArchSoftware.sh"
 
