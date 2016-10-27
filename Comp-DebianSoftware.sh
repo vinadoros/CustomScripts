@@ -124,8 +124,7 @@ APTLOG=/tmp/aptlog
 sudo apt-get update 2> $APTLOG
 if [ -f $APTLOG ]
 then
-	for key in $(grep "NO_PUBKEY" $APTLOG |sed "s/.*NO_PUBKEY //")
-			do
+	for key in $(grep "NO_PUBKEY" $APTLOG |sed "s/.*NO_PUBKEY //"); do
 			echo -e "\nProcessing key: $key"
 			sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $key
 			sudo apt-get update
@@ -147,8 +146,14 @@ fi
 
 #Variables
 PPA="$1"
+OS="$(lsb_release -si)"
 
-add-apt-repository -y "$PPA"
+if [ $OS = "Ubuntu" ]; then
+	add-apt-repository -y "$PPA"
+else
+	ppa_name=$(echo "$PPA" | cut -d":" -f2 -s)
+	add-apt-repository -y "deb http://ppa.launchpad.net/$ppa_name/ubuntu yakkety main"
+fi
 apt-get update
 keymissing
 EOL
@@ -261,7 +266,7 @@ case $SETDE in
 		dist_install gnome-shell-extensions-gpaste gnome-shell-extension-top-icons-plus gnome-shell-extension-mediaplayer
 		dist_install gdm3
 		dist_install gnome-packagekit network-manager-gnome
-		$SCRIPTDIR/DExtGnome.sh -d -v
+		su $USERNAMEVAR -s /bin/bash -c "$SCRIPTDIR/DExtGnome.sh -d -v"
 	fi
 
     break;;

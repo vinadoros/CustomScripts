@@ -2,6 +2,19 @@
 
 set -e
 
+# Set user folders if they don't exist.
+if [ -z $USERNAMEVAR ]; then
+	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
+		export USERNAMEVAR="$SUDO_USER"
+	elif [ "$USER" != "root" ]; then
+		export USERNAMEVAR="$USER"
+	else
+		export USERNAMEVAR="$(id 1000 -un)"
+	fi
+	USERGROUP="$(id 1000 -gn)"
+	USERHOME="/home/$USERNAMEVAR"
+fi
+
 if type -p pacman &> /dev/null; then
 	echo "Not installing packages."
 elif type -p apt-get &> /dev/null; then
@@ -10,11 +23,15 @@ elif type -p dnf &> /dev/null; then
 	sudo dnf install -y gnome-common intltool glib2-devel zip unzip
 fi
 
-TEMPFOLDER=./tempfolder
+# Ensure we are in the user's home folder
+cd $USERHOME
+
+export TEMPFOLDER=./tempfolder
 [ -d "$TEMPFOLDER" ] && rm -rf "$TEMPFOLDER"
 
 function dashtodock {
 	# Dash to dock
+	pwd
 	git clone https://github.com/micheleg/dash-to-dock.git "$TEMPFOLDER"
 	cd "$TEMPFOLDER"
 	make
@@ -74,16 +91,20 @@ do
 			usage
 			;;
 		d)
-			dashtodock
+			export -f dashtodock
+			[ "$(id -u)" = "0" ] && su $USERNAMEVAR -s /bin/bash -c dashtodock || dashtodock
 			;;
 		m)
-			mediaplayer
+			export -f mediaplayer
+			[ "$(id -u)" = "0" ] && su $USERNAMEVAR -s /bin/bash -c mediaplayer || mediaplayer
 			;;
 		v)
-			volumemixer
+			export -f volumemixer
+			[ "$(id -u)" = "0" ] && su $USERNAMEVAR -s /bin/bash -c volumemixer || volumemixer
 			;;
 		t)
-			topiconsplus
+			export -f topiconsplus
+			[ "$(id -u)" = "0" ] && su $USERNAMEVAR -s /bin/bash -c topiconsplus || topiconsplus
 			;;
 		\?)
 			echo "Invalid option: -$OPTARG" 1>&2

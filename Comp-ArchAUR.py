@@ -60,7 +60,7 @@ def aurbuild(package_name):
     subprocess.run("""
     chmod a+rwx -R {0}
     cd {0}
-    su {2} -s /bin/bash 'makepkg --noconfirm -A -s'
+    su {2} -s /bin/bash -c 'makepkg --noconfirm -A -s'
     pacman -U --noconfirm ./{1}-*.pkg.tar.xz
 """.format(AURFOLDER, package_name, USERNAMEVAR), shell=True)
 
@@ -116,27 +116,42 @@ su {0} -s /bin/bash <<'EOL'
 EOL
 """.format(USERNAMEVAR), shell=True)
 
-# # Ensure base and base-devel are present.
-# subprocess.run("pacman -Syu --needed --noconfirm base base-devel", shell=True)
-# # Build Yaourt
-# aurbuild("package-query")
-# aurbuild("yaourt")
+# Ensure base and base-devel are present.
+subprocess.run("pacman -Syu --needed --noconfirm base base-devel", shell=True)
+# Build Yaourt
+aurbuild("package-query")
+aurbuild("yaourt")
 
+# Yaourt config
+# URL: https://www.archlinux.fr/man/yaourtrc.5.html
+# Place all built packages in pacman cache folder.
+with open('/etc/yaourtrc') as yaourtrc_file:
+    yaourtrc_lines = yaourtrc_file.read()
+if not "\nEXPORT=2" in yaourtrc_lines:
+    print("Adding EXPORT=2 to yaourtrc file.")
+    with open('/etc/yaourtrc', 'a') as yaourtrc_writefile:
+        yaourtrc_writefile.write("\nEXPORT=2")
 
-# # Install bauerbill
-# subprocess.run("su {0} -s /bin/bash 'gpg --recv-keys 1D1F0DC78F173680; yaourt -Syua --needed --noconfirm bauerbill'".format(USERNAMEVAR))
-if os.path.isfile("/etc/powerpill/powerpill.json.bak"):
-    os.remove("/etc/powerpill/powerpill.json")
-    shutil.move("/etc/powerpill/powerpill.json.bak", "/etc/powerpill/powerpill.json")
-
+# Install powerpill
+subprocess.run("su {0} -s /bin/bash -c 'gpg --recv-keys 1D1F0DC78F173680; yaourt -Syua --needed --noconfirm powerpill'".format(USERNAMEVAR), shell=True)
+# Restore original powerpill configuration if it exists.
+# if os.path.isfile("/etc/powerpill/powerpill.json.bak"):
+#     os.remove("/etc/powerpill/powerpill.json")
+#     shutil.move("/etc/powerpill/powerpill.json.bak", "/etc/powerpill/powerpill.json")
 # Read the existing powerpill json.
-powerpill_json = open('/etc/powerpill/powerpill.json')
-powerpill_data = json.load(powerpill_json)
+with open('/etc/powerpill/powerpill.json') as powerpill_json:
+    powerpill_data = json.load(powerpill_json)
 # Add flags to powerpill config.
 if not "--quiet" in powerpill_data["aria2"]["args"]:
     powerpill_data["aria2"]["args"].append("--quiet")
-powerpill_json.close()
+# Backup the existing powerpill configuration.
+# shutil.move("/etc/powerpill/powerpill.json", "/etc/powerpill/powerpill.json.bak")
 # Write the new powerpill json file.
-shutil.move("/etc/powerpill/powerpill.json", "/etc/powerpill/powerpill.json.bak")
 with open('/etc/powerpill/powerpill.json', 'w') as powerpill_json_wr:
     json.dump(powerpill_data, powerpill_json_wr, indent=2)
+
+# Configure yaourt to use powerpill for pacman operations
+if not '\nPACMAN="powerpill"' in yaourtrc_lines:
+    print('Adding PACMAN="powerpill" to yaourtrc file.')
+    with open('/etc/yaourtrc', 'a') as yaourtrc_writefile:
+        yaourtrc_writefile.write('\nPACMAN="powerpill"')
