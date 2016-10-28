@@ -100,9 +100,9 @@ dpkg-reconfigure -f noninteractive tzdata
 
 # Install locales
 apt install -y locales
-locale-gen --purge en_US en_US.UTF-8
 sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
 echo 'LANG="en_US.UTF-8"'>/etc/default/locale
+locale-gen --purge en_US en_US.UTF-8
 dpkg-reconfigure --frontend=noninteractive locales
 update-locale
 # Locale fix for gnome-terminal.

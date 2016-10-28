@@ -60,9 +60,9 @@ echo "Running Arch Setup Script"
 
 # Install locales
 export LANG=en_US.UTF-8
-locale-gen
 echo "LANG=en_US.UTF-8" > "/etc/locale.conf"
 sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' "/etc/locale.gen"
+locale-gen
 
 # Set hostname
 sed -i 's/\(127.0.0.1\\tlocalhost.localdomain\\tlocalhost\)\(.*\)/\\1 '{HOSTNAME}'/g' "/etc/hosts"
