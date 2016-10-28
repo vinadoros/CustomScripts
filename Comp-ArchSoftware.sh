@@ -152,7 +152,8 @@ case $SETDE in
 	echo "Installing GNOME."
 	dist_install gnome file-roller cdrkit lrzip unace unrar gedit gnome-clocks seahorse gufw gnome-tweak-tool gnome-logs dconf-editor gpaste
 	# Install gnome shell extensions and misc apps
-	dist_install gnome-shell-extension-dash-to-dock-git gnome-shell-extension-mediaplayer-git
+	dist_install gnome-shell-extension-dash-to-dock-git
+	# dist_install gnome-shell-extension-mediaplayer-git
 	dist_install gnome-shell-extension-volume-mixer-git gnome-shell-extension-topicons-plus-git
 
 	# XScreensaver
