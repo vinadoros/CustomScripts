@@ -347,73 +347,75 @@ virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg
 
 ### Begin Code ###
 
-# Virtualbox code
-if args.vmtype is 1:
-    # Run this if we are destroying (not keeping) the VM.
-    if args.keep != True:
-        # Delete old vm.
-        if os.path.isfile(fullpathtoimg):
-            print("\nDeleting old VM.")
-            # print(DELETESCRIPT)
-            subprocess.run(DELETESCRIPT, shell=True)
+# Non Packer Code
+if args.packer is False:
+    # Virtualbox code
+    if args.vmtype is 1:
+        # Run this if we are destroying (not keeping) the VM.
+        if args.keep != True:
+            # Delete old vm.
+            if os.path.isfile(fullpathtoimg):
+                print("\nDeleting old VM.")
+                # print(DELETESCRIPT)
+                subprocess.run(DELETESCRIPT, shell=True)
 
-        # Create new VM.
-        print("\nCreating VM.")
-        # print(CREATESCRIPT)
-        subprocess.run(CREATESCRIPT_VBOX, shell=True)
+            # Create new VM.
+            print("\nCreating VM.")
+            # print(CREATESCRIPT)
+            subprocess.run(CREATESCRIPT_VBOX, shell=True)
+
+            # Start VM
+            startvm(vmname)
+            sshwait(sship, args.livesshuser, args.livesshpass, localsshport)
+
+            # Bootstrap VM
+            vm_bootstrap()
+
+        # Detach the iso
+        shutdownwait()
+        time.sleep(2)
+        subprocess.run('VBoxManage storageattach "{0}" --storagectl "{1}" --port 1 --device 0 --type dvddrive --medium emptydrive'.format(vmname, storagecontroller), shell=True)
 
         # Start VM
         startvm(vmname)
-        sshwait(sship, args.livesshuser, args.livesshpass, localsshport)
+        sshwait(sship, args.vmuser, args.vmpass, localsshport)
 
-        # Bootstrap VM
-        vm_bootstrap()
+        # Provision VM
+        vm_provision()
+    elif args.vmtype is 2:
 
-    # Detach the iso
-    shutdownwait()
-    time.sleep(2)
-    subprocess.run('VBoxManage storageattach "{0}" --storagectl "{1}" --port 1 --device 0 --type dvddrive --medium emptydrive'.format(vmname, storagecontroller), shell=True)
+        # Create KVM network config.
+        kvm_createvnet()
 
-    # Start VM
-    startvm(vmname)
-    sshwait(sship, args.vmuser, args.vmpass, localsshport)
+        # Run this if we are destroying (not keeping) the VM.
+        if args.keep != True:
+            # Delete old vm.
+            if os.path.isfile(fullpathtoimg):
+                print("\nDeleting old VM.")
+                subprocess.run(DELETESCRIPT_KVM, shell=True)
+                os.remove(fullpathtoimg)
 
-    # Provision VM
-    vm_provision()
-elif args.vmtype is 2:
+            # Create new VM.
+            print("\nCreating VM.")
+            subprocess.run(CREATESCRIPT_KVM, shell=True)
 
-    # Create KVM network config.
-    kvm_createvnet()
+            # Get VM IP
+            sship = kvm_getip(vmname)
+            sshwait(sship, args.livesshuser, args.livesshpass, localsshport)
 
-    # Run this if we are destroying (not keeping) the VM.
-    if args.keep != True:
-        # Delete old vm.
-        if os.path.isfile(fullpathtoimg):
-            print("\nDeleting old VM.")
-            subprocess.run(DELETESCRIPT_KVM, shell=True)
-            os.remove(fullpathtoimg)
+            # Bootstrap VM
+            vm_bootstrap()
 
-        # Create new VM.
-        print("\nCreating VM.")
-        subprocess.run(CREATESCRIPT_KVM, shell=True)
+            # Shutdown VM
+            subprocess.run("virsh --connect qemu:///system shutdown {vmname}".format(vmname=vmname), shell=True)
+            shutdownwait()
+
+        # Start VM
+        startvm(vmname)
 
         # Get VM IP
         sship = kvm_getip(vmname)
         sshwait(sship, args.livesshuser, args.livesshpass, localsshport)
 
-        # Bootstrap VM
-        vm_bootstrap()
-
-        # Shutdown VM
-        subprocess.run("virsh --connect qemu:///system shutdown {vmname}".format(vmname=vmname), shell=True)
-        shutdownwait()
-
-    # Start VM
-    startvm(vmname)
-
-    # Get VM IP
-    sship = kvm_getip(vmname)
-    sshwait(sship, args.livesshuser, args.livesshpass, localsshport)
-
-    # Provision VM
-    vm_provision()
+        # Provision VM
+        vm_provision()
