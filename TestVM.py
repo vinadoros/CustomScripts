@@ -40,7 +40,9 @@ for cmd in cmdcheck:
 # Get arguments
 parser = argparse.ArgumentParser(description='Create and run a Test VM.')
 parser.add_argument("-n", "--noprompt",help='Do not prompt to continue.', action="store_true")
+parser.add_argument("-t", "--vmtype", type=int, help="Virtual Machine type (1=Virtualbox, 2=libvirt, 3=VMWare)", default="1")
 parser.add_argument("-a", "--ostype", type=int, help="OS type (1=Arch, 2=Debian Unstable, 3=Debian Stable, 4=Ubuntu, 5=Fedora)", default="1")
+parser.add_argument("-u", "--packer", help="Use packer to generate VM", action="store_true")
 parser.add_argument("-f", "--fullname", help="Full Name", default="User Name")
 parser.add_argument("-i", "--iso", help="Path to live cd", required=True)
 parser.add_argument("-p", "--vmpath", help="Path of Virtual Machine folders", required=True)
@@ -50,7 +52,6 @@ parser.add_argument("-x", "--livesshpass", help="Live SSH Password", default="as
 parser.add_argument("-y", "--vmuser", help="VM Username", default="user")
 parser.add_argument("-z", "--vmpass", help="VM Password", default="asdf")
 parser.add_argument("-k", "--keep", help="Keep (do not delete) VM, and re-run desktop script.", action="store_true")
-parser.add_argument("-q", "--qemu", help="Use QEMU/KVM instead of VirtualBox.", action="store_true")
 parser.add_argument("--memory", help="Memory for VM", default="2048")
 parser.add_argument("--efi", help="Use EFI", action="store_true")
 parser.add_argument("--vmbootstrap", help="Override bootstrap options.")
@@ -91,9 +92,17 @@ else:
     zslimopts = " "
     vboxefiselect = "bios"
 
+# Determine VM hypervisor
+if args.vmtype == 1:
+    hvname = "vbox"
+elif args.vmtype == 2:
+    hvname = "kvm"
+elif args.vmtype == 3:
+    hvname = "vmware"
+
 # Determine VM Name
 if args.ostype == 1:
-    vmname = "ArchTest"
+    vmname = "ArchTest-{0}".format(hvname)
     vboxosid = "ArchLinux_64"
     vmbootstrapscript = "BArch.py"
     vmbootstrap_defopts = ' '
@@ -101,7 +110,7 @@ if args.ostype == 1:
     vmprovision_defopts = "-e 3 -m 3"
     kvm_variant = "fedora24"
 elif args.ostype == 2:
-    vmname = "DebianTest"
+    vmname = "DebianTest-{0}".format(hvname)
     vboxosid = "Debian_64"
     vmbootstrapscript = "BDebian.py"
     vmbootstrap_defopts = '-t debian -r unstable'
@@ -109,7 +118,7 @@ elif args.ostype == 2:
     vmprovision_defopts = "-e 2"
     kvm_variant = "debian8"
 elif args.ostype == 3:
-    vmname = "DebianTest"
+    vmname = "DebianTest-{0}".format(hvname)
     vboxosid = "Debian_64"
     vmbootstrapscript = "BDebian.py"
     vmbootstrap_defopts = '-t debian -r jessie'
@@ -117,7 +126,7 @@ elif args.ostype == 3:
     vmprovision_defopts = "-e 3"
     kvm_variant = "debian8"
 elif args.ostype == 4:
-    vmname = "UbuntuTest"
+    vmname = "UbuntuTest-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
     vmbootstrapscript = "BDebian.py"
     vmbootstrap_defopts = '-t ubuntu -r xenial'
@@ -125,7 +134,7 @@ elif args.ostype == 4:
     vmprovision_defopts = "-e 3"
     kvm_variant = "ubuntu16.04"
 elif args.ostype == 5:
-    vmname = "FedoraTest"
+    vmname = "FedoraTest-{0}".format(hvname)
     vboxosid = "Fedora_64"
     vmbootstrapscript = "BFedora.py"
     vmbootstrap_defopts = ' '
@@ -150,14 +159,15 @@ if args.driveopts is not None:
 print("Drive Options:", zslimopts)
 
 # Variables less likely to change.
-if args.qemu is True:
-    fullpathtoimg=vmpath+"/"+vmname+".qcow2"
-    sship = None
-    localsshport=22
-else:
+if args.vmtype is 1:
     fullpathtoimg=vmpath+"/"+vmname+"/"+vmname+".vdi"
     sship = "127.0.0.1"
     localsshport=64321
+elif args.vmtype is 2:
+    fullpathtoimg=vmpath+"/"+vmname+".qcow2"
+    sship = None
+    localsshport=22
+
 print("Path to Image: {0}".format(fullpathtoimg))
 nameofvnet = "private"
 imgsize="32768"
@@ -171,12 +181,13 @@ if args.noprompt == False:
 
 ### Functions ###
 def startvm(VMNAME):
-    if args.qemu is True:
-        checkvmcmd = 'virsh --connect qemu:///system -q list | grep -i "{0}"'.format(VMNAME)
-        startvmcmd = "virsh --connect qemu:///system start {0}".format(VMNAME)
-    else:
+    if args.vmtype is 1:
         checkvmcmd = 'VBoxManage list runningvms | grep -i "{0}"'.format(VMNAME)
         startvmcmd = 'VBoxManage startvm "{0}"'.format(VMNAME)
+    if args.vmtype is 2:
+        checkvmcmd = 'virsh --connect qemu:///system -q list | grep -i "{0}"'.format(VMNAME)
+        startvmcmd = "virsh --connect qemu:///system start {0}".format(VMNAME)
+
     subprocess.run(startvmcmd, shell=True)
     time.sleep(2)
     status = subprocess.run(checkvmcmd, shell=True)
@@ -186,7 +197,7 @@ def startvm(VMNAME):
     return
 
 def sshwait(SSHIP, SSHUSER, SSHPASS, SSHPORT):
-    if args.qemu is False:
+    if args.vmtype is 1:
         print("Waiting for VM to boot.")
         time.sleep(15)
     sshwaitcmd = 'sshpass -p "{SSHPASS}" ssh -q "{SSHUSER}"@{SSHIP} -p {SSHPORT} "echo Connected"'.format(SSHIP=SSHIP, SSHUSER=SSHUSER, SSHPASS=SSHPASS, SSHPORT=SSHPORT)
@@ -200,10 +211,10 @@ def sshwait(SSHIP, SSHUSER, SSHPASS, SSHPORT):
 def shutdownwait():
     print("Waiting for shutdown...")
     time.sleep(3)
-    if args.qemu is True:
-        shutdownwaitcmd = 'virsh --connect qemu:///system -q list | grep -i "{0}"'.format(vmname)
-    else:
+    if args.vmtype is 1:
         shutdownwaitcmd = 'VBoxManage list runningvms | grep -i "{0}"'.format(vmname)
+    elif args.vmtype is 2:
+        shutdownwaitcmd = 'virsh --connect qemu:///system -q list | grep -i "{0}"'.format(vmname)
     status = subprocess.run(shutdownwaitcmd, shell=True)
     # If a vm was detected (status was 0), wait for the vm to disappear.
     while status.returncode is 0:
@@ -337,7 +348,39 @@ virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg
 ### Begin Code ###
 
 # Virtualbox code
-if args.qemu is True:
+if args.vmtype is 1:
+    # Run this if we are destroying (not keeping) the VM.
+    if args.keep != True:
+        # Delete old vm.
+        if os.path.isfile(fullpathtoimg):
+            print("\nDeleting old VM.")
+            # print(DELETESCRIPT)
+            subprocess.run(DELETESCRIPT, shell=True)
+
+        # Create new VM.
+        print("\nCreating VM.")
+        # print(CREATESCRIPT)
+        subprocess.run(CREATESCRIPT_VBOX, shell=True)
+
+        # Start VM
+        startvm(vmname)
+        sshwait(sship, args.livesshuser, args.livesshpass, localsshport)
+
+        # Bootstrap VM
+        vm_bootstrap()
+
+    # Detach the iso
+    shutdownwait()
+    time.sleep(2)
+    subprocess.run('VBoxManage storageattach "{0}" --storagectl "{1}" --port 1 --device 0 --type dvddrive --medium emptydrive'.format(vmname, storagecontroller), shell=True)
+
+    # Start VM
+    startvm(vmname)
+    sshwait(sship, args.vmuser, args.vmpass, localsshport)
+
+    # Provision VM
+    vm_provision()
+elif args.vmtype is 2:
 
     # Create KVM network config.
     kvm_createvnet()
@@ -371,39 +414,6 @@ if args.qemu is True:
     # Get VM IP
     sship = kvm_getip(vmname)
     sshwait(sship, args.livesshuser, args.livesshpass, localsshport)
-
-    # Provision VM
-    vm_provision()
-
-else:
-    # Run this if we are destroying (not keeping) the VM.
-    if args.keep != True:
-        # Delete old vm.
-        if os.path.isfile(fullpathtoimg):
-            print("\nDeleting old VM.")
-            # print(DELETESCRIPT)
-            subprocess.run(DELETESCRIPT, shell=True)
-
-        # Create new VM.
-        print("\nCreating VM.")
-        # print(CREATESCRIPT)
-        subprocess.run(CREATESCRIPT_VBOX, shell=True)
-
-        # Start VM
-        startvm(vmname)
-        sshwait(sship, args.livesshuser, args.livesshpass, localsshport)
-
-        # Bootstrap VM
-        vm_bootstrap()
-
-    # Detach the iso
-    shutdownwait()
-    time.sleep(2)
-    subprocess.run('VBoxManage storageattach "{0}" --storagectl "{1}" --port 1 --device 0 --type dvddrive --medium emptydrive'.format(vmname, storagecontroller), shell=True)
-
-    # Start VM
-    startvm(vmname)
-    sshwait(sship, args.vmuser, args.vmpass, localsshport)
 
     # Provision VM
     vm_provision()
