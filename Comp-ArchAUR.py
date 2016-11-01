@@ -132,26 +132,34 @@ if not "\nEXPORT=2" in yaourtrc_lines:
     with open('/etc/yaourtrc', 'a') as yaourtrc_writefile:
         yaourtrc_writefile.write("\nEXPORT=2")
 
-# # Install powerpill
-# subprocess.run("su {0} -s /bin/bash -c 'gpg --recv-keys 1D1F0DC78F173680; yaourt -Syua --needed --noconfirm powerpill'".format(USERNAMEVAR), shell=True)
-# # Restore original powerpill configuration if it exists.
-# # if os.path.isfile("/etc/powerpill/powerpill.json.bak"):
-# #     os.remove("/etc/powerpill/powerpill.json")
-# #     shutil.move("/etc/powerpill/powerpill.json.bak", "/etc/powerpill/powerpill.json")
-# # Read the existing powerpill json.
-# with open('/etc/powerpill/powerpill.json') as powerpill_json:
-#     powerpill_data = json.load(powerpill_json)
-# # Add flags to powerpill config.
-# if not "--quiet" in powerpill_data["aria2"]["args"]:
-#     powerpill_data["aria2"]["args"].append("--quiet")
-# # Backup the existing powerpill configuration.
-# # shutil.move("/etc/powerpill/powerpill.json", "/etc/powerpill/powerpill.json.bak")
-# # Write the new powerpill json file.
-# with open('/etc/powerpill/powerpill.json', 'w') as powerpill_json_wr:
-#     json.dump(powerpill_data, powerpill_json_wr, indent=2)
-#
-# # Configure yaourt to use powerpill for pacman operations
-# if not '\nPACMAN="powerpill"' in yaourtrc_lines:
-#     print('Adding PACMAN="powerpill" to yaourtrc file.')
-#     with open('/etc/yaourtrc', 'a') as yaourtrc_writefile:
-#         yaourtrc_writefile.write('\nPACMAN="powerpill"')
+# # Install aria2
+# subprocess.run("pacman -Syu --needed --noconfirm aria2", shell=True)
+# # Change signature level for aria2 errors.
+# # https://bbs.archlinux.org/viewtopic.php?pid=1254940#p1254940
+# pacmanconf_path = "/etc/pacman.conf"
+# import fileinput
+# # Read the pacman.conf file.
+# with open(pacmanconf_path) as pacmanconf_file:
+#     pacmanconf_lines = pacmanconf_file.read()
+# # This code will search for the following items, and if the SigLevel
+# # statement is not found, it will add it.
+# sig_array = ['[core]','[extra]','[community]','[multilib]']
+# for sigcheck in sig_array:
+#     # Search through the config for the SigLevel
+#     if sigcheck in pacmanconf_lines and not sigcheck+"\nSigLevel = PackageRequired" in pacmanconf_lines:
+#         # Perform the find and replace in the file.
+#         for line in fileinput.input(pacmanconf_path, inplace=1):
+#             # Make end='' to not output additional newlines.
+#             print(line, end='')
+#             # If the line starts with the search string, insert the additional line.
+#             if line.startswith(sigcheck):
+#                 print('SigLevel = PackageRequired')
+# # Search through the config for the aria2 command
+# if not "XferCommand = /usr/bin/aria2c" in pacmanconf_lines:
+#     # Perform the find and replace in the file.
+#     for line in fileinput.input(pacmanconf_path, inplace=1):
+#         # Make end='' to not output additional newlines.
+#         print(line, end='')
+#         # If the line starts with the search string, insert the additional line.
+#         if line.startswith("HoldPkg"):
+#             print('XferCommand = /usr/bin/aria2c --allow-overwrite=true --continue=true --file-allocation=none --log-level=error --max-tries=2 --max-connection-per-server=2 --max-file-not-found=5 --min-split-size=5M --no-conf --remote-time=true --summary-interval=60 --timeout=5 --dir=/ --out %o %u')
