@@ -4,6 +4,8 @@
 import argparse
 import grp
 import ipaddress
+import hashlib
+import json
 import multiprocessing
 import os
 import pwd
@@ -141,6 +143,12 @@ elif args.ostype == 5:
     vmprovisionscript = "MFedora.sh"
     vmprovision_defopts = " "
     kvm_variant = "fedora24"
+elif args.ostype == 50:
+    vmname = "Windows10-{0}".format(hvname)
+    vboxosid = "Windows10_64"
+    vmbootstrap_defopts = ' '
+    vmprovision_defopts = ' '
+    kvm_variant = ' '
 # Override bootstrap opts if provided.
 if args.vmbootstrap is None:
     vmbootstrap_opts = vmbootstrap_defopts
@@ -170,7 +178,7 @@ elif args.vmtype is 2:
 
 print("Path to Image: {0}".format(fullpathtoimg))
 nameofvnet = "private"
-imgsize="32768"
+imgsize="65536"
 storagecontroller="SATA Controller"
 
 if not os.path.isdir(vmpath) or not os.path.isfile(isopath):
@@ -422,35 +430,71 @@ if args.packer is False:
 
 # Packer code
 if args.packer is True:
+    # Create temporary folder for packer
+    packer_temp_folder = vmpath+"/packertemp"
+    if os.path.isdir(packer_temp_folder):
+        print("\nDeleting old VM.")
+        shutil.rmtree(packer_temp_folder)
+    os.mkdir(packer_temp_folder)
+    os.chdir(packer_temp_folder)
+
+    # Get hash for iso.
+    print("Generating Checksum of {0}".format(isopath))
+    # md5 = hashlib.md5()
+    # with open(isopath, 'rb') as f:
+    #     for chunk in iter(lambda: f.read(128 * md5.block_size), b''):
+    #         md5.update(chunk)
+    md5 = subprocess.run("md5sum {0} | awk -F' ' '{{ print $1 }}'".format(isopath), shell=True, stdout=subprocess.PIPE, universal_newlines=True)
+
     # Create Packer json configuration
     # Packer Builder Configuration
     data = {}
     data['builders']=['']
     data['builders'][0]={}
-    data['builders'][0]["type"] = "qemu"
-    data['builders'][0]["format"] = "qcow2"
-    data['builders'][0]["accelerator"] = "kvm"
-    data['builders'][0]["iso_url"] = "http://ftp.usf.edu/pub/centos/7/isos/x86_64/CentOS-7-x86_64-NetInstall-1511.iso"
-    data['builders'][0]["iso_checksum"] = "99d305fa40ec9e28ef8450c3bcc45f85"
+    if args.vmtype is 1:
+        data['builders'][0]["type"] = "virtualbox-iso"
+        data['builders'][0]["guest_os_type"] = "{0}".format(vboxosid)
+        data['builders'][0]["shutdown_command"] = "echo 'packer' | sudo -S shutdown -P now"
+        data['builders'][0]["vm_name"] = "{0}".format(vmname)
+    elif args.vmtype is 2:
+        data['builders'][0]["type"] = "qemu"
+        data['builders'][0]["accelerator"] = "kvm"
+        data['builders'][0]["shutdown_command"] = "shutdown -P now"
+        data['builders'][0]["vm_name"] = "{0}.qcow2".format(vmname)
+    elif args.vmtype is 3:
+        data['builders'][0]["type"] = "vmware-iso"
+        data['builders'][0]["shutdown_command"] = "shutdown -P now"
+        data['builders'][0]["vm_name"] = "{0}".format(vmname)
+        data['builders'][0]["vmdk_name"] = "{0}".format(vmname)
+    data['builders'][0]["iso_url"] = "file:///"+isopath
+    data['builders'][0]["iso_checksum"] = "{0}".format(md5.stdout.strip())
     data['builders'][0]["iso_checksum_type"] = "md5"
     data['builders'][0]["output_directory"] = "{0}".format(vmname)
-    data['builders'][0]["disk_size"] = "40000"
-    data['builders'][0]["http_directory"] = "httpdir"
-    data['builders'][0]["ssh_username"] = "root"
-    data['builders'][0]["ssh_password"] = "asdf"
-    data['builders'][0]["ssh_wait_timeout"] = "30m"
-    data['builders'][0]["vm_name"] = "{0}.qcow2".format(vmname)
+    data['builders'][0]["disk_size"] = "{0}".format(imgsize)
     data['builders'][0]["boot_wait"] = "5s"
-    data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos7-ks.cfg<enter><wait>"]
+    data['builders'][0]["ssh_username"] = "{0}".format(args.vmuser)
+    data['builders'][0]["ssh_password"] = "{0}".format(args.vmpass)
     # Packer Provisioning Configuration
     data['provisioners']=['']
     data['provisioners'][0]={}
-    data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; ls -lah /"
+    if 0 <= args.ostype <= 49:
+        data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos7-ks.cfg<enter><wait>"]
+        data['provisioners'][0]["type"] = "shell"
+        data['provisioners'][0]["inline"] = "git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; ls -lah /"
+    if 50 <= args.ostype <= 69:
+        data['provisioners'][0]["type"] = "powershell"
+        data['provisioners'][0]["inline"] = "dir"
+        data['builders'][0]["floppy_files"] = ["autounattend.xml"]
+
     # Write packer json file.
-    with open(vmpath+'test.json', 'w') as test_json_wr:
+    with open(packer_temp_folder+'/test.json', 'w') as test_json_wr:
         json.dump(data, test_json_wr, indent=2)
 
-    # Create unattend script
+    # Copy unattend script
+    shutil.copy2("/mnt/RaidStorage/VMs/autounattend.xml", packer_temp_folder+"/autounattend.xml")
 
     # Call packer.
+    subprocess.run("packer build test.json", shell=True)
+
+    # Remove temp folder
+    os.chdir(vmpath)
