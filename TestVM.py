@@ -419,3 +419,38 @@ if args.packer is False:
 
         # Provision VM
         vm_provision()
+
+# Packer code
+if args.packer is True:
+    # Create Packer json configuration
+    # Packer Builder Configuration
+    data = {}
+    data['builders']=['']
+    data['builders'][0]={}
+    data['builders'][0]["type"] = "qemu"
+    data['builders'][0]["format"] = "qcow2"
+    data['builders'][0]["accelerator"] = "kvm"
+    data['builders'][0]["iso_url"] = "http://ftp.usf.edu/pub/centos/7/isos/x86_64/CentOS-7-x86_64-NetInstall-1511.iso"
+    data['builders'][0]["iso_checksum"] = "99d305fa40ec9e28ef8450c3bcc45f85"
+    data['builders'][0]["iso_checksum_type"] = "md5"
+    data['builders'][0]["output_directory"] = "{0}".format(vmname)
+    data['builders'][0]["disk_size"] = "40000"
+    data['builders'][0]["http_directory"] = "httpdir"
+    data['builders'][0]["ssh_username"] = "root"
+    data['builders'][0]["ssh_password"] = "asdf"
+    data['builders'][0]["ssh_wait_timeout"] = "30m"
+    data['builders'][0]["vm_name"] = "{0}.qcow2".format(vmname)
+    data['builders'][0]["boot_wait"] = "5s"
+    data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos7-ks.cfg<enter><wait>"]
+    # Packer Provisioning Configuration
+    data['provisioners']=['']
+    data['provisioners'][0]={}
+    data['provisioners'][0]["type"] = "shell"
+    data['provisioners'][0]["inline"] = "git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; ls -lah /"
+    # Write packer json file.
+    with open(vmpath+'test.json', 'w') as test_json_wr:
+        json.dump(data, test_json_wr, indent=2)
+
+    # Create unattend script
+
+    # Call packer.
