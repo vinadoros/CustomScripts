@@ -456,11 +456,18 @@ if args.packer is True:
         data['builders'][0]["guest_os_type"] = "{0}".format(vboxosid)
         data['builders'][0]["shutdown_command"] = "echo 'packer' | sudo -S shutdown -P now"
         data['builders'][0]["vm_name"] = "{0}".format(vmname)
+        # data['builders'][0]["vboxmanage"]=["modifyvm", "{{.Name}}", "--memory", "{0}".format(args.memory)]
+        # data['builders'][0]["vboxmanage"]=["modifyvm", "{{.Name}}", "--vram", "40"]
+        data['builders'][0]["vboxmanage"] = ['','']
+        data['builders'][0]["vboxmanage"][0]= ["modifyvm", "{{.Name}}", "--memory", "{0}".format(args.memory)]
+        data['builders'][0]["vboxmanage"][1]= ["modifyvm", "{{.Name}}", "--vram", "40"]
     elif args.vmtype is 2:
         data['builders'][0]["type"] = "qemu"
         data['builders'][0]["accelerator"] = "kvm"
         data['builders'][0]["shutdown_command"] = "shutdown -P now"
         data['builders'][0]["vm_name"] = "{0}.qcow2".format(vmname)
+        data['builders'][0]["qemuargs"]=['']
+        data['builders'][0]["qemuargs"][0]= ["-m", "{0}M".format(args.memory)]
     elif args.vmtype is 3:
         data['builders'][0]["type"] = "vmware-iso"
         data['builders'][0]["shutdown_command"] = "shutdown -P now"
