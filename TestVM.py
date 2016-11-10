@@ -16,6 +16,9 @@ import time
 
 print("Running {0}".format(__file__))
 
+# Folder of this script
+SCRIPTDIR=sys.path[0]
+
 # Exit if root.
 if os.geteuid() == 0:
     sys.exit("\nError: Please run this script as a normal (non root) user.\n")
@@ -175,6 +178,10 @@ elif args.vmtype is 2:
     fullpathtoimg=vmpath+"/"+vmname+".qcow2"
     sship = None
     localsshport=22
+if args.vmtype is 3:
+    fullpathtoimg=vmpath+"/"+vmname+"/"+vmname+".vmdk"
+    sship = "127.0.0.1"
+    localsshport=64321
 
 print("Path to Image: {0}".format(fullpathtoimg))
 nameofvnet = "private"
@@ -438,12 +445,12 @@ if args.packer is True:
     os.mkdir(packer_temp_folder)
     os.chdir(packer_temp_folder)
 
+    # Copy unattend script folder
+    if os.path.isdir(SCRIPTDIR+"/unattend"):
+        shutil.copytree(SCRIPTDIR+"/unattend", packer_temp_folder+"/unattend")
+
     # Get hash for iso.
     print("Generating Checksum of {0}".format(isopath))
-    # md5 = hashlib.md5()
-    # with open(isopath, 'rb') as f:
-    #     for chunk in iter(lambda: f.read(128 * md5.block_size), b''):
-    #         md5.update(chunk)
     md5 = subprocess.run("md5sum {0} | awk -F' ' '{{ print $1 }}'".format(isopath), shell=True, stdout=subprocess.PIPE, universal_newlines=True)
 
     # Create Packer json configuration
@@ -456,11 +463,9 @@ if args.packer is True:
         data['builders'][0]["guest_os_type"] = "{0}".format(vboxosid)
         data['builders'][0]["shutdown_command"] = "echo 'packer' | sudo -S shutdown -P now"
         data['builders'][0]["vm_name"] = "{0}".format(vmname)
-        # data['builders'][0]["vboxmanage"]=["modifyvm", "{{.Name}}", "--memory", "{0}".format(args.memory)]
-        # data['builders'][0]["vboxmanage"]=["modifyvm", "{{.Name}}", "--vram", "40"]
-        data['builders'][0]["vboxmanage"] = ['','']
+        data['builders'][0]["vboxmanage"] = ['']
         data['builders'][0]["vboxmanage"][0]= ["modifyvm", "{{.Name}}", "--memory", "{0}".format(args.memory)]
-        data['builders'][0]["vboxmanage"][1]= ["modifyvm", "{{.Name}}", "--vram", "40"]
+        data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--vram", "40"])
     elif args.vmtype is 2:
         data['builders'][0]["type"] = "qemu"
         data['builders'][0]["accelerator"] = "kvm"
@@ -473,7 +478,8 @@ if args.packer is True:
         data['builders'][0]["shutdown_command"] = "shutdown -P now"
         data['builders'][0]["vm_name"] = "{0}".format(vmname)
         data['builders'][0]["vmdk_name"] = "{0}".format(vmname)
-    data['builders'][0]["iso_url"] = "file:///"+isopath
+        data['builders'][0]["vmx_data"] = { "memsize": "{0}".format(args.memory) }
+    data['builders'][0]["iso_url"] = "file://"+isopath
     data['builders'][0]["iso_checksum"] = "{0}".format(md5.stdout.strip())
     data['builders'][0]["iso_checksum_type"] = "md5"
     data['builders'][0]["output_directory"] = "{0}".format(vmname)
@@ -481,6 +487,10 @@ if args.packer is True:
     data['builders'][0]["boot_wait"] = "5s"
     data['builders'][0]["ssh_username"] = "{0}".format(args.vmuser)
     data['builders'][0]["ssh_password"] = "{0}".format(args.vmpass)
+    data['builders'][0]["ssh_wait_timeout"] = "90m"
+    data['builders'][0]["winrm_timeout"] = "90m"
+    data['builders'][0]["winrm_username"] = "{0}".format("vagrant")
+    data['builders'][0]["winrm_password"] = "{0}".format("vagrant")
     # Packer Provisioning Configuration
     data['provisioners']=['']
     data['provisioners'][0]={}
@@ -491,14 +501,25 @@ if args.packer is True:
     if 50 <= args.ostype <= 69:
         data['provisioners'][0]["type"] = "powershell"
         data['provisioners'][0]["inline"] = "dir"
-        data['builders'][0]["floppy_files"] = ["autounattend.xml"]
+        data['builders'][0]["communicator"] = "winrm"
+        data['builders'][0]["floppy_files"] = ["unattend/autounattend.xml",
+        "unattend/windows/floppy/00-run-all-scripts.cmd",
+        "unattend/windows/floppy/01-install-wget.cmd",
+        "unattend/windows/floppy/_download.cmd",
+        "unattend/windows/floppy/_packer_config.cmd",
+        "unattend/windows/floppy/disablewinupdate.bat",
+        "unattend/windows/floppy/fixnetwork.ps1",
+        "unattend/windows/floppy/install-winrm.cmd",
+        "unattend/windows/floppy/passwordchange.bat",
+        "unattend/windows/floppy/powerconfig.bat",
+        "unattend/windows/floppy/update.bat",
+        "unattend/windows/floppy/zz-start-sshd.cmd"]
+        data['builders'][0]["boot_command"] = ["<wait5> <enter> <wait10> <wait10> <wait10> <wait10> <leftAltOn> <wait> <tab> <wait> <tab> <leftAltOff> <wait> <tab> <wait> <return> <wait>"]
+        subprocess.run("git clone https://github.com/boxcutter/windows {0}".format(packer_temp_folder+"/unattend/windows"), shell=True)
 
     # Write packer json file.
     with open(packer_temp_folder+'/test.json', 'w') as test_json_wr:
         json.dump(data, test_json_wr, indent=2)
-
-    # Copy unattend script
-    shutil.copy2("/mnt/RaidStorage/VMs/autounattend.xml", packer_temp_folder+"/autounattend.xml")
 
     # Call packer.
     subprocess.run("packer build test.json", shell=True)
