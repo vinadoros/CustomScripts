@@ -251,10 +251,17 @@ dist_install pamac-aur
 # Install utils for cron
 dist_install run-parts
 
+# Font packages
+dist_install ttf-dejavu ttf-liberation ttf-ubuntu-font-family noto-fonts
+bash <<EOF
+cd /etc/fonts/conf.d
+ln -s ../conf.avail/10-sub-pixel-rgb.conf
+ln -s ../conf.avail/11-lcdfilter-default.conf
+EOF
+
 # For x86_64 only
 if [ "${MACHINEARCH}" = "x86_64" ]; then
 	echo "x86_64 Software for Arch."
-
 fi
 
 # For x86_64 and i686 only
