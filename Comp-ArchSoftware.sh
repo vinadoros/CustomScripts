@@ -41,9 +41,6 @@ fi
 # Set machine architecture
 [ -z "$MACHINEARCH" ] && MACHINEARCH=$(uname -m)
 
-# Enable error halting.
-set -eu
-
 if [ "$(id -u)" != "0" ]; then
 	echo "Not running with root. Please run the script with su privledges."
 	exit 1;
