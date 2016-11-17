@@ -48,7 +48,6 @@ fi
 if [ $VBOXGUEST = 1 ]; then
 	dist_install virtualbox-guest-modules-arch
 	dist_install virtualbox-guest-utils
-	modprobe -a vboxguest vboxsf vboxvideo
 
 	# Add the user to the vboxsf group, so that the shared folders can be accessed.
 	gpasswd -a $USERNAMEVAR vboxsf
