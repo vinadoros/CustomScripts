@@ -47,7 +47,6 @@ parser = argparse.ArgumentParser(description='Create and run a Test VM.')
 parser.add_argument("-n", "--noprompt",help='Do not prompt to continue.', action="store_true")
 parser.add_argument("-t", "--vmtype", type=int, help="Virtual Machine type (1=Virtualbox, 2=libvirt, 3=VMWare)", default="1")
 parser.add_argument("-a", "--ostype", type=int, help="OS type (1=Arch, 2=Debian Unstable, 3=Debian Stable, 4=Ubuntu, 5=Fedora)", default="1")
-parser.add_argument("-u", "--packer", help="Use packer to generate VM", action="store_true")
 parser.add_argument("-f", "--fullname", help="Full Name", default="User Name")
 parser.add_argument("-i", "--iso", help="Path to live cd", required=True)
 parser.add_argument("-p", "--vmpath", help="Path of Virtual Machine folders", required=True)
@@ -362,167 +361,73 @@ virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg
 
 ### Begin Code ###
 
-# Non Packer Code
-if args.packer is False:
-    # Virtualbox code
-    if args.vmtype is 1:
-        # Run this if we are destroying (not keeping) the VM.
-        if args.keep != True:
-            # Delete old vm.
-            if os.path.isfile(fullpathtoimg):
-                print("\nDeleting old VM.")
-                # print(DELETESCRIPT)
-                subprocess.run(DELETESCRIPT, shell=True)
+# Virtualbox code
+if args.vmtype is 1:
+    # Run this if we are destroying (not keeping) the VM.
+    if args.keep != True:
+        # Delete old vm.
+        if os.path.isfile(fullpathtoimg):
+            print("\nDeleting old VM.")
+            # print(DELETESCRIPT)
+            subprocess.run(DELETESCRIPT, shell=True)
 
-            # Create new VM.
-            print("\nCreating VM.")
-            # print(CREATESCRIPT)
-            subprocess.run(CREATESCRIPT_VBOX, shell=True)
-
-            # Start VM
-            startvm(vmname)
-            sshwait(sship, args.livesshuser, args.livesshpass, localsshport)
-
-            # Bootstrap VM
-            vm_bootstrap()
-
-        # Detach the iso
-        shutdownwait()
-        time.sleep(2)
-        subprocess.run('VBoxManage storageattach "{0}" --storagectl "{1}" --port 1 --device 0 --type dvddrive --medium emptydrive'.format(vmname, storagecontroller), shell=True)
+        # Create new VM.
+        print("\nCreating VM.")
+        # print(CREATESCRIPT)
+        subprocess.run(CREATESCRIPT_VBOX, shell=True)
 
         # Start VM
         startvm(vmname)
-        sshwait(sship, args.vmuser, args.vmpass, localsshport)
+        sshwait(sship, args.livesshuser, args.livesshpass, localsshport)
 
-        # Provision VM
-        vm_provision()
-    elif args.vmtype is 2:
+        # Bootstrap VM
+        vm_bootstrap()
 
-        # Create KVM network config.
-        kvm_createvnet()
+    # Detach the iso
+    shutdownwait()
+    time.sleep(2)
+    subprocess.run('VBoxManage storageattach "{0}" --storagectl "{1}" --port 1 --device 0 --type dvddrive --medium emptydrive'.format(vmname, storagecontroller), shell=True)
 
-        # Run this if we are destroying (not keeping) the VM.
-        if args.keep != True:
-            # Delete old vm.
-            if os.path.isfile(fullpathtoimg):
-                print("\nDeleting old VM.")
-                subprocess.run(DELETESCRIPT_KVM, shell=True)
-                os.remove(fullpathtoimg)
+    # Start VM
+    startvm(vmname)
+    sshwait(sship, args.vmuser, args.vmpass, localsshport)
 
-            # Create new VM.
-            print("\nCreating VM.")
-            subprocess.run(CREATESCRIPT_KVM, shell=True)
+    # Provision VM
+    vm_provision()
+elif args.vmtype is 2:
 
-            # Get VM IP
-            sship = kvm_getip(vmname)
-            sshwait(sship, args.livesshuser, args.livesshpass, localsshport)
+    # Create KVM network config.
+    kvm_createvnet()
 
-            # Bootstrap VM
-            vm_bootstrap()
+    # Run this if we are destroying (not keeping) the VM.
+    if args.keep != True:
+        # Delete old vm.
+        if os.path.isfile(fullpathtoimg):
+            print("\nDeleting old VM.")
+            subprocess.run(DELETESCRIPT_KVM, shell=True)
+            os.remove(fullpathtoimg)
 
-            # Shutdown VM
-            subprocess.run("virsh --connect qemu:///system shutdown {vmname}".format(vmname=vmname), shell=True)
-            shutdownwait()
-
-        # Start VM
-        startvm(vmname)
+        # Create new VM.
+        print("\nCreating VM.")
+        subprocess.run(CREATESCRIPT_KVM, shell=True)
 
         # Get VM IP
         sship = kvm_getip(vmname)
         sshwait(sship, args.livesshuser, args.livesshpass, localsshport)
 
-        # Provision VM
-        vm_provision()
+        # Bootstrap VM
+        vm_bootstrap()
 
-# Packer code
-if args.packer is True:
-    # Create temporary folder for packer
-    packer_temp_folder = vmpath+"/packertemp"
-    if os.path.isdir(packer_temp_folder):
-        print("\nDeleting old VM.")
-        shutil.rmtree(packer_temp_folder)
-    os.mkdir(packer_temp_folder)
-    os.chdir(packer_temp_folder)
+        # Shutdown VM
+        subprocess.run("virsh --connect qemu:///system shutdown {vmname}".format(vmname=vmname), shell=True)
+        shutdownwait()
 
-    # Copy unattend script folder
-    if os.path.isdir(SCRIPTDIR+"/unattend"):
-        shutil.copytree(SCRIPTDIR+"/unattend", packer_temp_folder+"/unattend")
+    # Start VM
+    startvm(vmname)
 
-    # Get hash for iso.
-    print("Generating Checksum of {0}".format(isopath))
-    md5 = subprocess.run("md5sum {0} | awk -F' ' '{{ print $1 }}'".format(isopath), shell=True, stdout=subprocess.PIPE, universal_newlines=True)
+    # Get VM IP
+    sship = kvm_getip(vmname)
+    sshwait(sship, args.livesshuser, args.livesshpass, localsshport)
 
-    # Create Packer json configuration
-    # Packer Builder Configuration
-    data = {}
-    data['builders']=['']
-    data['builders'][0]={}
-    if args.vmtype is 1:
-        data['builders'][0]["type"] = "virtualbox-iso"
-        data['builders'][0]["guest_os_type"] = "{0}".format(vboxosid)
-        data['builders'][0]["shutdown_command"] = "echo 'packer' | sudo -S shutdown -P now"
-        data['builders'][0]["vm_name"] = "{0}".format(vmname)
-        data['builders'][0]["vboxmanage"] = ['']
-        data['builders'][0]["vboxmanage"][0]= ["modifyvm", "{{.Name}}", "--memory", "{0}".format(args.memory)]
-        data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--vram", "40"])
-    elif args.vmtype is 2:
-        data['builders'][0]["type"] = "qemu"
-        data['builders'][0]["accelerator"] = "kvm"
-        data['builders'][0]["shutdown_command"] = "shutdown -P now"
-        data['builders'][0]["vm_name"] = "{0}.qcow2".format(vmname)
-        data['builders'][0]["qemuargs"]=['']
-        data['builders'][0]["qemuargs"][0]= ["-m", "{0}M".format(args.memory)]
-    elif args.vmtype is 3:
-        data['builders'][0]["type"] = "vmware-iso"
-        data['builders'][0]["shutdown_command"] = "shutdown -P now"
-        data['builders'][0]["vm_name"] = "{0}".format(vmname)
-        data['builders'][0]["vmdk_name"] = "{0}".format(vmname)
-        data['builders'][0]["vmx_data"] = { "memsize": "{0}".format(args.memory) }
-    data['builders'][0]["iso_url"] = "file://"+isopath
-    data['builders'][0]["iso_checksum"] = "{0}".format(md5.stdout.strip())
-    data['builders'][0]["iso_checksum_type"] = "md5"
-    data['builders'][0]["output_directory"] = "{0}".format(vmname)
-    data['builders'][0]["disk_size"] = "{0}".format(imgsize)
-    data['builders'][0]["boot_wait"] = "5s"
-    data['builders'][0]["ssh_username"] = "{0}".format(args.vmuser)
-    data['builders'][0]["ssh_password"] = "{0}".format(args.vmpass)
-    data['builders'][0]["ssh_wait_timeout"] = "90m"
-    data['builders'][0]["winrm_timeout"] = "90m"
-    data['builders'][0]["winrm_username"] = "{0}".format("vagrant")
-    data['builders'][0]["winrm_password"] = "{0}".format("vagrant")
-    # Packer Provisioning Configuration
-    data['provisioners']=['']
-    data['provisioners'][0]={}
-    if 0 <= args.ostype <= 49:
-        data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos7-ks.cfg<enter><wait>"]
-        data['provisioners'][0]["type"] = "shell"
-        data['provisioners'][0]["inline"] = "git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; ls -lah /"
-    if 50 <= args.ostype <= 69:
-        data['provisioners'][0]["type"] = "powershell"
-        data['provisioners'][0]["inline"] = "dir"
-        data['builders'][0]["communicator"] = "winrm"
-        data['builders'][0]["floppy_files"] = ["unattend/autounattend.xml",
-        "unattend/windows/floppy/00-run-all-scripts.cmd",
-        "unattend/windows/floppy/01-install-wget.cmd",
-        "unattend/windows/floppy/_download.cmd",
-        "unattend/windows/floppy/_packer_config.cmd",
-        "unattend/windows/floppy/disablewinupdate.bat",
-        "unattend/windows/floppy/fixnetwork.ps1",
-        "unattend/windows/floppy/install-winrm.cmd",
-        "unattend/windows/floppy/passwordchange.bat",
-        "unattend/windows/floppy/powerconfig.bat",
-        "unattend/windows/floppy/update.bat",
-        "unattend/windows/floppy/zz-start-sshd.cmd"]
-        data['builders'][0]["boot_command"] = ["<wait5> <enter> <wait10> <wait10> <wait10> <wait10> <leftAltOn> <wait> <tab> <wait> <tab> <leftAltOff> <wait> <tab> <wait> <return> <wait>"]
-        subprocess.run("git clone https://github.com/boxcutter/windows {0}".format(packer_temp_folder+"/unattend/windows"), shell=True)
-
-    # Write packer json file.
-    with open(packer_temp_folder+'/test.json', 'w') as test_json_wr:
-        json.dump(data, test_json_wr, indent=2)
-
-    # Call packer.
-    subprocess.run("packer build test.json", shell=True)
-
-    # Remove temp folder
-    os.chdir(vmpath)
+    # Provision VM
+    vm_provision()
