@@ -48,19 +48,17 @@ fi
 if [ $VBOXGUEST = 1 ]; then
 	dist_install virtualbox-guest-modules-arch
 	dist_install virtualbox-guest-utils
-
 	# Add the user to the vboxsf group, so that the shared folders can be accessed.
 	gpasswd -a $USERNAMEVAR vboxsf
-
 	systemctl enable vboxservice
-	systemctl start vboxservice
 fi
 
 # Install qemu/kvm guest utils.
 if [ $QEMUGUEST = 1 ]; then
 	dist_install spice-vdagent
-	dist_install xf86-video-qxl
 	systemctl enable spice-vdagentd
+	dist_install qemu-guest-agent
+	systemctl enable qemu-ga
 fi
 
 # Install VMWare guest utils

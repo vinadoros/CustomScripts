@@ -23,7 +23,7 @@ if [ -z $USERNAMEVAR ]; then
 	USERHOME=/home/$USERNAMEVAR
 fi
 
-[ -z $VBOXGUEST ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1 
+[ -z $VBOXGUEST ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1
 [ -z $VBOXGUEST ] && ! grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=0
 [ -z $QEMUGUEST ] && grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=1
 [ -z $QEMUGUEST ] && ! grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=0
@@ -44,20 +44,19 @@ fi
 # Install virtualbox guest utils
 if [ $VBOXGUEST = 1 ]; then
 	apt-get install -y virtualbox-guest-utils virtualbox-guest-dkms dkms
-	
+
 	# Add the user to the vboxsf group, so that the shared folders can be accessed.
 	gpasswd -a $USERNAMEVAR vboxsf
-	
+
 fi
 
 # Install qemu/kvm guest utils.
 if [ $QEMUGUEST = 1 ]; then
-	apt-get install -y spice-vdagent xserver-xorg-video-qxl
-	
+	apt-get install -y spice-vdagent qemu-guest-agent
+
 fi
 
 # Install VMWare guest utils
 if [ $VMWGUEST = 1 ]; then
 	apt-get install -y open-vm-tools open-vm-tools-dkms
 fi
-
