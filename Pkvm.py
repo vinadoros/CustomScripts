@@ -81,22 +81,23 @@ if args.ostype == 1:
     vmname = "Packer-CentosTest-{0}".format(hvname)
     vboxosid = "Fedora_64"
     vmprovisionscript = "MFedora.sh"
-    vmprovision_defopts = " "
+    vmprovision_defopts = "-n -s {0}".format(args.vmpass)
     kvm_variant = "fedora24"
     isourl = "http://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1511.iso"
 elif args.ostype == 2:
     vmname = "Packer-FedoraTest-{0}".format(hvname)
     vboxosid = "Fedora_64"
     vmprovisionscript = "MFedora.sh"
-    vmprovision_defopts = " "
+    vmprovision_defopts = "-n -s {0}".format(args.vmpass)
     kvm_variant = "fedora24"
-    isourl = "https://mirrors.kernel.org/fedora/releases/24/Server/x86_64/iso/Fedora-Server-dvd-x86_64-24-1.2.iso"
+    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/25/Server/x86_64/iso/Fedora-Server-dvd-x86_64-25-1.3.iso"
 if args.ostype == 10:
     vmname = "Packer-UbuntuTest-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
     vmprovisionscript = "MDebUbu.sh"
-    vmprovision_defopts = "-e 3"
+    vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
     kvm_variant = "ubuntu16.04"
+    isourl = "http://releases.ubuntu.com/16.10/ubuntu-16.10-server-amd64.iso"
 elif args.ostype == 50:
     vmname = "Packer-Windows10-{0}".format(hvname)
     vboxosid = "Windows10_64"
@@ -105,6 +106,13 @@ elif args.ostype == 51:
     vmname = "Packer-WindowsServer2016-{0}".format(hvname)
     vboxosid = "Windows10_64"
     isourl = None
+
+# Override provision opts if provided.
+if args.vmprovision is None:
+    vmprovision_opts = vmprovision_defopts
+else:
+    vmprovision_opts = args.vmprovision
+print("VM Provision Options:", vmprovision_opts)
 
 print("VM Name is {0}".format(vmname))
 
@@ -146,7 +154,7 @@ else:
     sys.exit("\nError, ensure iso {0} exists.".format(isopath))
 
 # Create temporary folder for packer
-packer_temp_folder = vmpath+"/packertemp"
+packer_temp_folder = vmpath+"/packertemp"+vmname
 if os.path.isdir(packer_temp_folder):
     print("\nDeleting old VM.")
     shutil.rmtree(packer_temp_folder)
@@ -173,7 +181,7 @@ if args.vmtype is 1:
     data['builders'][0]["vboxmanage"] = ['']
     data['builders'][0]["vboxmanage"][0]= ["modifyvm", "{{.Name}}", "--memory", "{0}".format(args.memory)]
     data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--vram", "40"])
-    data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--cpus", CPUCORES])
+    data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--cpus", "{0}".format(CPUCORES)])
 elif args.vmtype is 2:
     data['builders'][0]["type"] = "qemu"
     data['builders'][0]["accelerator"] = "kvm"
@@ -186,7 +194,7 @@ elif args.vmtype is 3:
     data['builders'][0]["type"] = "vmware-iso"
     data['builders'][0]["vm_name"] = "{0}".format(vmname)
     data['builders'][0]["vmdk_name"] = "{0}".format(vmname)
-    data['builders'][0]["vmx_data"] = { "memsize": "{0}".format(args.memory) }
+    data['builders'][0]["vmx_data"] = { "memsize": "{0}".format(args.memory), "numvcpus": "{0}".format(CPUCORES), "cpuid.coresPerSocket": "{0}".format(CPUCORES) }
 data['builders'][0]["shutdown_command"] = "shutdown -P now"
 data['builders'][0]["iso_url"] = "file://"+isopath
 data['builders'][0]["iso_checksum"] = "{0}".format(md5.stdout.strip())
@@ -211,7 +219,11 @@ if args.ostype is 1:
 if args.ostype is 2:
     data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/fedora.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "dnf update -y; dnf install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts;"
+    data['provisioners'][0]["inline"] = "dnf update -y; dnf install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts;/opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
+if args.ostype is 10:
+    data['builders'][0]["boot_command"] = ["<enter><wait><f6><wait><esc><home>url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu.cfg hostname=ubuntu locale=en_US keyboard-configuration/modelcode=SKIP <enter>"]
+    data['provisioners'][0]["type"] = "shell"
+    data['provisioners'][0]["inline"] = "apt install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
 if 50 <= args.ostype <= 69:
     data['provisioners'][0]["type"] = "powershell"
     data['provisioners'][0]["inline"] = "dir"
@@ -228,7 +240,7 @@ if 50 <= args.ostype <= 69:
     "unattend/windows/floppy/powerconfig.bat",
     "unattend/windows/floppy/update.bat",
     "unattend/windows/floppy/zz-start-sshd.cmd"]
-    data['builders'][0]["boot_command"] = ["<wait5> <enter> <wait10> <wait10> <wait10> <wait10> <leftAltOn> <wait> <tab> <wait> <tab> <leftAltOff> <wait> <tab> <wait> <return> <wait>"]
+    data['builders'][0]["boot_command"] = ["<wait5> <enter> <wait>"]
     subprocess.run("git clone https://github.com/boxcutter/windows {0}".format(packer_temp_folder+"/unattend/windows"), shell=True)
 
 # Write packer json file.
@@ -240,10 +252,12 @@ subprocess.run("packer build file.json", shell=True)
 
 # Remove temp folder
 os.chdir(vmpath)
-packer_temp_folder = vmpath+"/packertemp"
 output_folder = packer_temp_folder+"/"+vmname
 # Copy output to VM folder.
 if os.path.isdir(output_folder):
+    # Remove previous folder, if it exists.
+    if os.path.isdir(vmpath+"/"+vmname):
+        shutil.rmtree(vmpath+"/"+vmname)
     print("\nCopying {0} to {1}.".format(output_folder, vmpath))
     shutil.copytree(output_folder, vmpath+"/"+vmname)
 print("Removing {0}".format(packer_temp_folder))
