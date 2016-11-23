@@ -503,7 +503,7 @@ else if type -q dnf; or type -q yum
     	echo "Searching for $argv."
     	sudo $PKGMGR search $argv
     	echo "Searching installed packages for $argv."
-    	$PKGMGR list installed | grep -i $argv
+    	sudo $PKGMGR list installed | grep -i $argv
     end
     function cln
     	echo "Auto-removing packages."
