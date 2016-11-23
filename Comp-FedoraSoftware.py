@@ -49,10 +49,11 @@ subprocess.run(REPOSCRIPT, shell=True)
 
 # Install Fedora Software
 SOFTWARESCRIPT="""
-#!/bin/bash
-
 # Install cli tools
-dnf install -y fish tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils util-linux-user
+dnf install -y fish nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils xdg-user-dirs util-linux-user
+
+# Install GUI packages
+dnf install -y @fonts @base-x @networkmanager-submodules avahi
 
 # Management tools
 dnf install -y yumex-dnf gparted
@@ -73,9 +74,17 @@ dnf install -y cups-pdf
 
 # Wine
 dnf install -y wine playonlinux
+"""
+subprocess.run(SOFTWARESCRIPT, shell=True)
 
-# Desktop Specific code
+# Install Desktop Software
+if args.desktop is 1:
+    DESKTOPSCRIPT="""
+# Gnome
+dnf install -y @workstation-product @gnome-desktop
+# Some Gnome Extensions
 dnf install -y gnome-terminal-nautilus gnome-tweak-tool dconf-editor
 dnf install -y gnome-shell-extension-gpaste
 """
-subprocess.run(SOFTWARESCRIPT, shell=True)
+
+subprocess.run(DESKTOPSCRIPT, shell=True)

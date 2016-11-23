@@ -88,7 +88,7 @@ elif args.ostype == 2:
     vmname = "Packer-FedoraTest-{0}".format(hvname)
     vboxosid = "Fedora_64"
     vmprovisionscript = "MFedora.sh"
-    vmprovision_defopts = "-n -s {0}".format(args.vmpass)
+    vmprovision_defopts = "-n -e 1 -s {0}".format(args.vmpass)
     kvm_variant = "fedora24"
     isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/25/Server/x86_64/iso/Fedora-Server-dvd-x86_64-25-1.3.iso"
 if args.ostype == 10:
@@ -165,6 +165,10 @@ os.chdir(packer_temp_folder)
 if os.path.isdir(SCRIPTDIR+"/unattend"):
     tempunattendfolder=packer_temp_folder+"/unattend"
     shutil.copytree(SCRIPTDIR+"/unattend", tempunattendfolder)
+    # Set usernames and passwords
+    subprocess.run("find {0} -type f -print0 | xargs -0 sed -i '' -e 's/INSERTUSERHERE/{1}/g'".format(tempunattendfolder, args.vmuser), shell=True)
+    subprocess.run("find {0} -type f -print0 | xargs -0 sed -i '' -e 's/INSERTPASSWORDHERE/{1}/g'".format(tempunattendfolder, args.vmpass), shell=True)
+    subprocess.run("find {0} -type f -print0 | xargs -0 sed -i '' -e 's/INSERTFULLNAMEHERE/{1}/g'".format(tempunattendfolder, args.fullname), shell=True)
 
 # Get hash for iso.
 print("Generating Checksum of {0}".format(isopath))
@@ -218,9 +222,6 @@ if args.ostype is 1:
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts;"
 if args.ostype is 2:
-    # Set usernames and passwords
-    subprocess.run("sed -i 's/INSERTUSERHERE/{1}/g' {0}/fedora.cfg".format(tempunattendfolder, vmuser), shell=True)
-    subprocess.run("sed -i 's/INSERTPASSWORDHERE/{1}/g' {0}/fedora.cfg".format(tempunattendfolder, vmpass), shell=True)
     data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/fedora.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "dnf update -y; dnf install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts;/opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)

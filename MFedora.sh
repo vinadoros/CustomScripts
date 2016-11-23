@@ -68,28 +68,6 @@ done
 
 source "$SCRIPTDIR/Comp-InitVars.sh"
 
-# # Install a desktop environment. 0=do nothing, 1=KDE, 2=cinnamon, 3=GNOME, 4=xfce, 5=MATE
-# if [ -z "$SETDE" ]; then
-# 	read -p "Enter a number to install a desktop environment (0=do nothing/default option, 1=KDE, 2=cinnamon, 3=GNOME, 4=xfce, 5=MATE):" SETDE
-# fi
-# SETDE=${SETDE//[^a-zA-Z0-9_]/}
-# if [ -z "$SETDE" ]; then
-# 	echo "No input found. Defaulting to 0."
-# 	SETDE=0
-# fi
-# echo "Desktop Environment is $SETDE"
-#
-# # Change/Setup display manager. 0=do nothing, 1=SDDM, 2=LightDM gtk, 3=GDM, 4=LightDM kde
-# if [ -z "$SETDM" ]; then
-# 	read -p "Enter a number to install a display manager (0=do nothing/default option, 1=SDDM, 2=LightDM gtk, 3=GDM, 4=LightDM kde):" SETDM
-# fi
-# SETDM=${SETDM//[^a-zA-Z0-9_]/}
-# if [ -z "$SETDM" ]; then
-# 	echo "No input found. Defaulting to 0."
-# 	SETDM=0
-# fi
-# echo "Display Manager is $SETDM"
-#
 if [[ $NOPROMPT != 1 ]]; then
 	read -p "Press any key to continue."
 fi
@@ -102,7 +80,7 @@ if [[ ! -d $USERHOME/.config/autostart/ ]]; then
 	chown -R $USERNAMEVAR:$USERGROUP $USERHOME/.config
 fi
 
-$SCRIPTDIR/Comp-FedoraSoftware.py
+$SCRIPTDIR/Comp-FedoraSoftware.py -e $SETDE
 
 source "$SCRIPTDIR/Comp-sdtimers.sh"
 
