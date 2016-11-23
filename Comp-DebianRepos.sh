@@ -41,13 +41,14 @@ fi
 
 # Install Repos.
 
+# Install add-apt-repository command
+apt-get update
+apt-get install -y software-properties-common apt-transport-https dirmngr
+
 # Update the system
 apt-get update
 apt-get upgrade -y
 apt-get dist-upgrade -y
-
-# Install add-apt-repository command
-apt-get install -y software-properties-common apt-transport-https dirmngr
 
 # Main, contrib and non-free for normal distro
 add-apt-repository main
