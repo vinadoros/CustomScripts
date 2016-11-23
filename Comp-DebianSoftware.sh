@@ -180,7 +180,7 @@ if ! grep -iq "$FISHPATH" /etc/shells; then
 fi
 
 # For general desktop
-dist_install synaptic gdebi gparted xdg-utils leafpad
+dist_install synaptic gdebi gparted xdg-utils leafpad nano
 dist_install gnome-disk-utility btrfs-tools f2fs-tools
 DEBIAN_FRONTEND=noninteractive apt-get install -y nbd-client
 
