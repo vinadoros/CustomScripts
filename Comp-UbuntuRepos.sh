@@ -50,13 +50,14 @@ fi
 
 # Install Repos.
 
+# Install add-apt-repository command
+apt-get update
+apt-get install -y software-properties-common apt-transport-https
+
 # Update the system
 apt-get update
 apt-get upgrade -y
 apt-get dist-upgrade -y
-
-# Install add-apt-repository command
-apt-get install -y software-properties-common
 
 # Main, Restricted, universe, and multiverse for Ubuntu.
 add-apt-repository main

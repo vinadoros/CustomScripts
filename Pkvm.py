@@ -163,7 +163,8 @@ os.chdir(packer_temp_folder)
 
 # Copy unattend script folder
 if os.path.isdir(SCRIPTDIR+"/unattend"):
-    shutil.copytree(SCRIPTDIR+"/unattend", packer_temp_folder+"/unattend")
+    tempunattendfolder=packer_temp_folder+"/unattend"
+    shutil.copytree(SCRIPTDIR+"/unattend", tempunattendfolder)
 
 # Get hash for iso.
 print("Generating Checksum of {0}".format(isopath))
@@ -217,6 +218,9 @@ if args.ostype is 1:
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts;"
 if args.ostype is 2:
+    # Set usernames and passwords
+    subprocess.run("sed -i 's/INSERTUSERHERE/{1}/g' {0}/fedora.cfg".format(tempunattendfolder, vmuser), shell=True)
+    subprocess.run("sed -i 's/INSERTPASSWORDHERE/{1}/g' {0}/fedora.cfg".format(tempunattendfolder, vmpass), shell=True)
     data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/fedora.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "dnf update -y; dnf install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts;/opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
