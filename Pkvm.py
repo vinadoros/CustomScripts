@@ -166,9 +166,9 @@ if os.path.isdir(SCRIPTDIR+"/unattend"):
     tempunattendfolder=packer_temp_folder+"/unattend"
     shutil.copytree(SCRIPTDIR+"/unattend", tempunattendfolder)
     # Set usernames and passwords
-    subprocess.run("find {0} -type f -print0 | xargs -0 sed -i '' -e 's/INSERTUSERHERE/{1}/g'".format(tempunattendfolder, args.vmuser), shell=True)
-    subprocess.run("find {0} -type f -print0 | xargs -0 sed -i '' -e 's/INSERTPASSWORDHERE/{1}/g'".format(tempunattendfolder, args.vmpass), shell=True)
-    subprocess.run("find {0} -type f -print0 | xargs -0 sed -i '' -e 's/INSERTFULLNAMEHERE/{1}/g'".format(tempunattendfolder, args.fullname), shell=True)
+    subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's/INSERTUSERHERE/{1}/g'".format(tempunattendfolder, args.vmuser), shell=True)
+    subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's/INSERTPASSWORDHERE/{1}/g'".format(tempunattendfolder, args.vmpass), shell=True)
+    subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's/INSERTFULLNAMEHERE/{1}/g'".format(tempunattendfolder, args.fullname), shell=True)
 
 # Get hash for iso.
 print("Generating Checksum of {0}".format(isopath))

@@ -80,7 +80,7 @@ if [[ ! -d $USERHOME/.config/autostart/ ]]; then
 	chown -R $USERNAMEVAR:$USERGROUP $USERHOME/.config
 fi
 
-$SCRIPTDIR/Comp-FedoraSoftware.py -e $SETDE
+$SCRIPTDIR/Comp-FedoraSoftware.py -d $SETDE
 
 source "$SCRIPTDIR/Comp-sdtimers.sh"
 
