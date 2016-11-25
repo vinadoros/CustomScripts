@@ -87,4 +87,7 @@ dnf install -y gnome-terminal-nautilus gnome-tweak-tool dconf-editor
 dnf install -y gnome-shell-extension-gpaste
 """
 
+DESKTOPSCRIPT+="""
+systemctl set-default graphical.target
+"""
 subprocess.run(DESKTOPSCRIPT, shell=True)
