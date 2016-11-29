@@ -92,12 +92,19 @@ elif args.ostype == 2:
     kvm_variant = "fedora24"
     isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/25/Server/x86_64/iso/Fedora-Server-dvd-x86_64-25-1.3.iso"
 if args.ostype == 10:
-    vmname = "Packer-UbuntuTest-{0}".format(hvname)
+    vmname = "Packer-UbuntuTest1610-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
     vmprovisionscript = "MDebUbu.sh"
     vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
     kvm_variant = "ubuntu16.04"
     isourl = "http://releases.ubuntu.com/16.10/ubuntu-16.10-server-amd64.iso"
+if args.ostype == 11:
+    vmname = "Packer-UbuntuTest1604-{0}".format(hvname)
+    vboxosid = "Ubuntu_64"
+    vmprovisionscript = "MDebUbu.sh"
+    vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
+    kvm_variant = "ubuntu16.04"
+    isourl = "http://releases.ubuntu.com/16.04/ubuntu-16.04.1-server-amd64.iso"
 elif args.ostype == 50:
     vmname = "Packer-Windows10-{0}".format(hvname)
     vboxosid = "Windows10_64"
@@ -190,6 +197,8 @@ if args.vmtype is 1:
 elif args.vmtype is 2:
     data['builders'][0]["type"] = "qemu"
     data['builders'][0]["accelerator"] = "kvm"
+    data['builders'][0]["disk_interface"] = "virtio"
+    data['builders'][0]["net_device"] = "virtio-net"
     data['builders'][0]["vm_name"] = "{0}.qcow2".format(vmname)
     data['builders'][0]["qemuargs"]=['']
     data['builders'][0]["qemuargs"][0]= ["-m", "{0}M".format(args.memory)]
@@ -225,7 +234,7 @@ if args.ostype is 2:
     data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/fedora.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "dnf update -y; dnf install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts;/opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
-if args.ostype is 10:
+if 10 <= args.ostype <= 11:
     data['builders'][0]["boot_command"] = ["<enter><wait><f6><wait><esc><home>url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu.cfg hostname=ubuntu locale=en_US keyboard-configuration/modelcode=SKIP <enter>"]
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "apt install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
@@ -263,8 +272,26 @@ if os.path.isdir(output_folder):
     # Remove previous folder, if it exists.
     if os.path.isdir(vmpath+"/"+vmname):
         shutil.rmtree(vmpath+"/"+vmname)
+    # Remove previous file for kvm.
+    if args.vmtype is 2 and os.path.isfile(vmpath+"/"+vmname+".qcow2"):
+        os.remove(vmpath+"/"+vmname+".qcow2")
     print("\nCopying {0} to {1}.".format(output_folder, vmpath))
-    shutil.copytree(output_folder, vmpath+"/"+vmname)
+    if args.vmtype is not 2:
+        shutil.copytree(output_folder, vmpath+"/"+vmname)
+    # Copy the qcow2 file, and remove the folder entirely for kvm.
+    if args.vmtype is 2 and os.path.isfile(output_folder+"/"+vmname+".qcow2"):
+        shutil.copy2(output_folder+"/"+vmname+".qcow2", vmpath+"/"+vmname+".qcow2")
 print("Removing {0}".format(packer_temp_folder))
 shutil.rmtree(packer_temp_folder)
 print("VM successfully output to {0}".format(vmpath+"/"+vmname))
+
+# Attach VM to libvirt
+if args.vmtype is 2:
+    CREATESCRIPT_KVM="""#!/bin/bash
+    if virsh --connect qemu:///system -q list --all | grep -i "{vmname}"; then
+        virsh --connect qemu:///system destroy {vmname}
+        virsh --connect qemu:///system undefine {vmname}
+    fi
+    virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg}.qcow2,bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model=virtio --os-type=linux --os-variant={kvm_variant} --import --noautoconsole --video=qxl --channel unix,target_type=virtio,name=org.qemu.guest_agent.0
+    """.format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=vmpath+"/"+vmname, imgsize=args.imgsize, kvm_variant=kvm_variant)
+    subprocess.run(CREATESCRIPT_KVM, shell=True)
