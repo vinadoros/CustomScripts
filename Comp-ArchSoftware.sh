@@ -410,9 +410,4 @@ elif [ "${MACHINEARCH}" = "armv7l" ]; then
 	# Reinstall iputils to fix ping
 	pacman -S --noconfirm iputils
 
-	# Watchdog
-	dist_install watchdog
-	systemctl enable watchdog
-	echo "bcm2708_wdog" > /etc/modules-load.d/bcm2708_wdog.conf
-
 fi
