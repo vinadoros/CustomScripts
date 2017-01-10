@@ -36,6 +36,29 @@ USERHOME=os.path.expanduser("~")
 print("Username is:",USERNAMEVAR)
 print("Group Name is:",USERGROUP)
 
+# Get VM State
+# Detect QEMU
+with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
+    DATA=VAR.read().replace('\n', '')
+    if "QEMU" in DATA:
+        QEMUGUEST=True
+    else:
+        QEMUGUEST=False
+# Detect Virtualbox
+with open('/sys/devices/virtual/dmi/id/product_name', 'r') as VAR:
+    DATA=VAR.read().replace('\n', '')
+    if "VirtualBox" in DATA:
+        VBOXGUEST=True
+    else:
+     	VBOXGUEST=False
+# Detect VMWare
+with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
+    DATA=VAR.read().replace('\n', '')
+    if "VMware" in DATA:
+        VMWGUEST=True
+    else:
+     	VMWGUEST=False
+
 # Set up Fedora Repos
 REPOSCRIPT="""
 #!/bin/bash
@@ -74,6 +97,20 @@ dnf install -y cups-pdf
 
 # Wine
 dnf install -y wine playonlinux
+"""
+# Install software for VMs
+if QEMUGUEST is True:
+    SOFTWARESCRIPT+="""
+# Guest Agent
+dnf install -y spice-vdagent qemu-guest-agent
+"""
+if VBOXGUEST is True:
+    SOFTWARESCRIPT+="""
+"""
+if VMWGUEST is True:
+    SOFTWARESCRIPT+="""
+# VM tools
+dnf install -y open-vm-tools open-vm-tools-desktop
 """
 subprocess.run(SOFTWARESCRIPT, shell=True)
 
