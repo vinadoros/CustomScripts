@@ -86,6 +86,13 @@ dnf install -y @workstation-product @gnome-desktop
 dnf install -y gnome-terminal-nautilus gnome-tweak-tool dconf-editor
 dnf install -y gnome-shell-extension-gpaste
 """
+elif args.desktop is 3:
+    DESKTOPSCRIPT="""
+# MATE
+dnf install -y @mate-desktop @mate-applications
+# Applications
+dnf install -y dconf-editor
+"""
 
 DESKTOPSCRIPT+="""
 systemctl set-default graphical.target

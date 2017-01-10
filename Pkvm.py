@@ -83,12 +83,12 @@ if args.ostype == 1:
     vmprovisionscript = "MFedora.sh"
     vmprovision_defopts = "-n -s {0}".format(args.vmpass)
     kvm_variant = "fedora24"
-    isourl = "http://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1511.iso"
+    isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1611.iso"
 elif args.ostype == 2:
     vmname = "Packer-FedoraTest-{0}".format(hvname)
     vboxosid = "Fedora_64"
     vmprovisionscript = "MFedora.sh"
-    vmprovision_defopts = "-n -e 1 -s {0}".format(args.vmpass)
+    vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
     kvm_variant = "fedora24"
     isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/25/Server/x86_64/iso/Fedora-Server-dvd-x86_64-25-1.3.iso"
 if args.ostype == 10:
