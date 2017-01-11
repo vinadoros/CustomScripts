@@ -95,7 +95,11 @@ fi
 
 # Terminator configuration
 if type terminator; then
-	TERMCONFIG="$USERHOME/.config/terminator"
+	TERMCONFIG="$USERHOME/.config/terminator/config"
+	TERMCONFIGDIR="$(dirname $TERMCONFIG)"
+	if [ ! -d "$TERMCONFIGDIR" ]; then
+		mkdir -p "$TERMCONFIGDIR"
+	fi
 	if [ ! -f "$TERMCONFIG" ]; then
 		bash -c "cat >>$TERMCONFIG" <<'EOL'
 [profiles]
@@ -105,7 +109,7 @@ if type terminator; then
     use_system_font = False
     use_theme_colors = True
 EOL
-		chown $USERNAMEVAR:$USERGROUP "$TERMCONFIG"
+		chown $USERNAMEVAR:$USERGROUP -R "$TERMCONFIGDIR"
 	fi
 fi
 
