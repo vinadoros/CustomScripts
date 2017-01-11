@@ -58,5 +58,5 @@ fi
 
 # Install VMWare guest utils
 if [ $VMWGUEST = 1 ]; then
-	apt-get install -y open-vm-tools open-vm-tools-dkms
+	apt-get install -y open-vm-tools open-vm-tools-dkms open-vm-tools-desktop
 fi
