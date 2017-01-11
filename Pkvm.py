@@ -46,7 +46,8 @@ for cmd in cmdcheck:
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Create a VM using packer.')
-parser.add_argument("-n", "--noprompt",help='Do not prompt to continue.', action="store_true")
+parser.add_argument("-m", "--noprompt",help='Do not prompt to continue.', action="store_true")
+parser.add_argument("-n", "--vmname",help="Name of Virtual Machine")
 parser.add_argument("-t", "--vmtype", type=int, help="Virtual Machine type (1=Virtualbox, 2=libvirt, 3=VMWare)", default="1")
 parser.add_argument("-a", "--ostype", type=int, help="OS type (1=Ubuntu, 2=Fedora, 3=opensuse)", default="1")
 parser.add_argument("-f", "--fullname", help="Full Name", default="User Name")
@@ -121,6 +122,9 @@ else:
     vmprovision_opts = args.vmprovision
 print("VM Provision Options:", vmprovision_opts)
 
+# Override VM Name if provided
+if args.vmname is not None:
+    vmname = args.vmname
 print("VM Name is {0}".format(vmname))
 
 if args.noprompt == False:
