@@ -94,7 +94,7 @@ if [ -f /etc/anacrontab ]; then
 fi
 
 # Terminator configuration
-if type -q terminator; then
+if type terminator; then
 	TERMCONFIG="$USERHOME/.config/terminator"
 	if [ ! -f "$TERMCONFIG" ]; then
 		bash -c "cat >>$TERMCONFIG" <<'EOL'
