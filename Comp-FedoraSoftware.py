@@ -97,6 +97,9 @@ dnf install -y cups-pdf
 
 # Wine
 dnf install -y wine playonlinux
+
+# terminator
+dnf install -y terminator
 """
 # Install software for VMs
 if QEMUGUEST is True:

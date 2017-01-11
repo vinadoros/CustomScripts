@@ -49,29 +49,6 @@ if [ "$DEBRELEASE" != "jessie" ]; then
 	set -eu
 fi
 
-function debequivs () {
-	if [ -z "$1" ]; then
-		echo "No parameter passed."
-		return 1;
-	else
-		EQUIVPACKAGE="$1"
-	fi
-
-	dist_install equivs
-	if ! dpkg -l | grep -i "$EQUIVPACKAGE"; then
-		echo "Creating and installing dummy package $EQUIVPACKAGE."
-		bash -c "cat >/var/tmp/$EQUIVPACKAGE" <<EOL
-Package: $EQUIVPACKAGE
-Version: 999.0
-Priority: optional
-EOL
-		cd /var/tmp
-		equivs-build "$EQUIVPACKAGE"
-		dpkg -i ./"$EQUIVPACKAGE"*.deb
-		rm ./"$EQUIVPACKAGE"*
-	fi
-}
-
 if [ "$(id -u)" != "0" ]; then
 	echo "Not running with root. Please run the script with su privledges."
 	exit 1;
@@ -222,6 +199,9 @@ dist_install firefox
 # Utils
 dist_install iotop
 
+# Terminator
+dist_install terminator
+
 # Cron
 dist_install cron anacron
 systemctl disable cron
@@ -255,9 +235,6 @@ case $SETDE in
 	if [ "$OS" = "Ubuntu" ]; then
 		echo ""
 	elif [ "$OS" = "Debian" ]; then
-		debequivs "iceweasel"
-		debequivs "gnome-user-share"
-
 		# Locale fix for gnome-terminal.
 		localectl set-locale LANG="en_US.UTF-8"
 
@@ -275,16 +252,16 @@ case $SETDE in
     # MATE
     echo "MATE stuff."
 
-	if [ "$OS" = "Ubuntu" ]; then
-		dist_install ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop
-		dist_install ubuntu-mate-lightdm-theme
-	elif [ "$OS" = "Debian" ]; then
-		dist_install mate-desktop-environment caja-open-terminal caja-gksu caja-share dconf-editor gnome-keyring mate-sensors-applet mozo
-		dist_install lightdm accountsservice
-		dist_install gnome-packagekit pk-update-icon network-manager-gnome
-	fi
+		if [ "$OS" = "Ubuntu" ]; then
+			dist_install ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop
+			dist_install ubuntu-mate-lightdm-theme
+		elif [ "$OS" = "Debian" ]; then
+			dist_install mate-desktop-environment caja-open-terminal caja-gksu caja-share dconf-editor gnome-keyring mate-sensors-applet mozo
+			dist_install lightdm accountsservice
+			dist_install gnome-packagekit pk-update-icon network-manager-gnome
+		fi
 
-	dist_install dconf-cli
+		dist_install dconf-cli
 
     break;;
 
@@ -293,14 +270,36 @@ case $SETDE in
 esac
 
 
-
 # PPA software
 if [ "$DEBRELEASE" != "jessie" ]; then
 	ppa ppa:numix/ppa
 	dist_install numix-icon-theme-circle
 fi
 
+###############################################################################
+##########################        Guest Section      ##########################
+###############################################################################
+# Install virtualbox guest utils
+if [ $VBOXGUEST = 1 ]; then
+	apt-get install -y virtualbox-guest-utils virtualbox-guest-dkms dkms
 
+	# Add the user to the vboxsf group, so that the shared folders can be accessed.
+	gpasswd -a $USERNAMEVAR vboxsf
+
+fi
+# Install qemu/kvm guest utils.
+if [ $QEMUGUEST = 1 ]; then
+	apt-get install -y spice-vdagent qemu-guest-agent
+
+fi
+# Install VMWare guest utils
+if [ $VMWGUEST = 1 ]; then
+	apt-get install -y open-vm-tools open-vm-tools-dkms open-vm-tools-desktop
+fi
+
+###############################################################################
+##################        Architecture Specific Section     ###################
+###############################################################################
 if [ "${MACHINEARCH}" != "armv7l" ]; then
 	echo "Install x86 specific software."
 

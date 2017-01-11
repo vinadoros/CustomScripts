@@ -353,9 +353,8 @@ EOL
 
 	fi
 
-	# MS and other Fonts
-	# dist_install ttf-ms-fonts ttf-vista-fonts
-	# dist_install noto-fonts ttf-liberation
+	# terminator
+	dist_install terminator
 
 	# Install browsers
 	dist_install chromium

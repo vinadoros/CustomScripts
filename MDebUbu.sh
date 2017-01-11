@@ -126,8 +126,6 @@ source "$SCRIPTDIR/Comp-SambaConfig.sh"
 
 #source "$SCRIPTDIR/Comp-DebVBoxHost.sh"
 
-source "$SCRIPTDIR/Comp-DebVMGuest.sh"
-
 source "$SCRIPTDIR/Comp-VMGeneral.sh"
 
 source "$SCRIPTDIR/Comp-xdgdirs.sh"
