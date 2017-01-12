@@ -81,6 +81,7 @@ elif args.vmtype == 3:
 if args.ostype == 1:
     vmname = "Packer-CentosTest-{0}".format(hvname)
     vboxosid = "Fedora_64"
+    vmwareid = "fedora-64"
     vmprovisionscript = "MFedora.sh"
     vmprovision_defopts = "-n -s {0}".format(args.vmpass)
     kvm_variant = "fedora24"
@@ -88,6 +89,7 @@ if args.ostype == 1:
 elif args.ostype == 2:
     vmname = "Packer-FedoraTest-{0}".format(hvname)
     vboxosid = "Fedora_64"
+    vmwareid = "fedora-64"
     vmprovisionscript = "MFedora.sh"
     vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
     kvm_variant = "fedora24"
@@ -95,6 +97,7 @@ elif args.ostype == 2:
 if args.ostype == 10:
     vmname = "Packer-UbuntuTest1610-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
+    vmwareid = "ubuntu-64"
     vmprovisionscript = "MDebUbu.sh"
     vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
     kvm_variant = "ubuntu16.04"
@@ -102,6 +105,7 @@ if args.ostype == 10:
 if args.ostype == 11:
     vmname = "Packer-UbuntuTest1604-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
+    vmwareid = "ubuntu-64"
     vmprovisionscript = "MDebUbu.sh"
     vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
     kvm_variant = "ubuntu16.04"
@@ -109,10 +113,12 @@ if args.ostype == 11:
 elif args.ostype == 50:
     vmname = "Packer-Windows10-{0}".format(hvname)
     vboxosid = "Windows10_64"
+    vmwareid = "windows10-64"
     isourl = None
 elif args.ostype == 51:
     vmname = "Packer-WindowsServer2016-{0}".format(hvname)
     vboxosid = "Windows10_64"
+    vmwareid = "windows10-64"
     isourl = None
 
 # Override provision opts if provided.
@@ -212,7 +218,8 @@ elif args.vmtype is 3:
     data['builders'][0]["type"] = "vmware-iso"
     data['builders'][0]["vm_name"] = "{0}".format(vmname)
     data['builders'][0]["vmdk_name"] = "{0}".format(vmname)
-    data['builders'][0]["vmx_data"] = { "memsize": "{0}".format(args.memory), "numvcpus": "{0}".format(CPUCORES), "cpuid.coresPerSocket": "{0}".format(CPUCORES) }
+    data['builders'][0]["vmx_data"] = { "virtualhw.version": "12", "memsize": "{0}".format(args.memory), "numvcpus": "{0}".format(CPUCORES), "cpuid.coresPerSocket": "{0}".format(CPUCORES), "guestos": "{0}".format(vmwareid), "usb.present": "TRUE" }
+    data['builders'][0]["vmx_data_post"] = { "sharedFolder0.present": "TRUE", "sharedFolder0.enabled": "TRUE", "sharedFolder0.readAccess": "TRUE", "sharedFolder0.writeAccess": "TRUE", "sharedFolder0.hostPath": "/", "sharedFolder0.guestName": "root", "sharedFolder0.expiration": "never", "sharedFolder.maxNum": "1" }
 data['builders'][0]["shutdown_command"] = "shutdown -P now"
 data['builders'][0]["iso_url"] = "file://"+isopath
 data['builders'][0]["iso_checksum"] = "{0}".format(md5.stdout.strip())
