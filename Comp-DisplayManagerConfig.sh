@@ -147,6 +147,8 @@ if [ -f /etc/lightdm/lightdm.conf ]; then
 	# Add startup scripts to session
 	sed -i "s@display-setup-script=.*@display-setup-script=$LDSTART@g" /etc/lightdm/lightdm.conf
 	sed -i "s@session-setup-script=.*@session-setup-script=$LDSTOP@g" /etc/lightdm/lightdm.conf
+elif [[ ! -f /etc/lightdm/lightdm.conf && -d /etc/lightdm/lightdm.conf.d/ ]]; then
+	echo -e "[SeatDefaults]\ndisplay-setup-script=$LDSTART\nsession-setup-script=$LDSTOP" > /etc/lightdm/lightdm.conf.d/11-startup.conf
 fi
 
 ###############################################################################
@@ -232,13 +234,13 @@ if [[ $(type -P gdm) || $(type -P gdm3) ]]; then
 
 	# Start xvnc and synergy
 	multilinereplace "/usr/share/gdm/greeter/autostart/gdm_start.desktop" <<EOL
-	[Desktop Entry]
-	Type=Application
-	Name=GDM Startup
-	X-GNOME-Autostart-enabled=true
-	X-GNOME-AutoRestart=true
-	Exec=${LDSTART}
-	NoDisplay=true
+[Desktop Entry]
+Type=Application
+Name=GDM Startup
+X-GNOME-Autostart-enabled=true
+X-GNOME-AutoRestart=true
+Exec=${LDSTART}
+NoDisplay=true
 EOL
 
 	# Stop apps after login
