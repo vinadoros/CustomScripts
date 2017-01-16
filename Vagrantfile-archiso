@@ -13,6 +13,7 @@ chown vagrant:vagrant -R /opt/CustomScripts
 echo "Creating /usr/local/bin/aiso."
 cat > /usr/local/bin/aiso <<'EOLXYZ'
 #!/bin/bash
+sudo pacman -Syyu --noconfirm
 cd /opt/CustomScripts
 git pull
 cd /vagrant

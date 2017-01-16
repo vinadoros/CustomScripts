@@ -81,6 +81,7 @@ if args.halt == True or args.destroy == True:
 if args.donotstart == False:
     # Bring the box up and ssh in.
     print("Running vagrant up.")
+    subprocess.run("vagrant box update", shell=True)
     subprocess.run("vagrant up", shell=True)
 
     # Provision the VM.
