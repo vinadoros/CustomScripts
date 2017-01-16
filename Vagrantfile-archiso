@@ -4,7 +4,8 @@ $script = <<SCRIPT
 #!/bin/bash
 set -x
 
-pacman -Syu --needed --noconfirm git awk
+pacman -Syyu --noconfirm
+pacman -S --needed --noconfirm git awk
 git clone "https://github.com/vinadoros/CustomScripts" /opt/CustomScripts
 chown vagrant:vagrant -R /opt/CustomScripts
 
