@@ -106,6 +106,7 @@ if type terminator; then
   [[default]]
     font = Liberation Mono 11
     scrollback_infinite = True
+		scroll_on_output = False
     use_system_font = False
     use_theme_colors = True
 EOL
