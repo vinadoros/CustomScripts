@@ -37,7 +37,7 @@ while true; do
 	# https://ask.fedoraproject.org/en/question/45805/how-to-use-virt-manager-as-a-non-root-user/
 sudo bash -c "cat >/etc/polkit-1/rules.d/80-libvirt.rules" <<'EOL'
 polkit.addRule(function(action, subject) {
-  if (action.id == "org.libvirt.unix.manage" && subject.local && subject.active && subject.isInGroup("wheel")) {
+  if (action.id == "org.libvirt.unix.manage" && subject.active && subject.isInGroup("wheel")) {
       return polkit.Result.YES;
   }
 });
