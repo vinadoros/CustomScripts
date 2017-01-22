@@ -74,7 +74,7 @@ EOLXYZ
 		read -p "Enter a path to store lxc VM (i.e. \"/mnt/RaidStorage/VMs\"): " LXCVMPATH
 	done
 	echo "VM path is $LXCVMPATH"
-	echo "lxc.lxcpath = $LXCVMPATH" | sudo tee -a /etc/lxc/lxc.conf
+	echo "lxc.lxcpath = $LXCVMPATH" > /etc/lxc/lxc.conf
 
 	break;;
 
