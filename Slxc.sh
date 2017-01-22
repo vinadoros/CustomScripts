@@ -69,6 +69,13 @@ lxc.mount.entry = /dev/video0 dev/video0 none bind,optional,create=file
 #lxc.hook.pre-start=${LXC_ROOTFS_PATH}/../script.sh
 EOLXYZ
 
+	# Set lxc path
+	while [ ! -d "${LXCVMPATH}" ]; do
+		read -p "Enter a path to store lxc VM (i.e. \"/mnt/RaidStorage/VMs\"): " LXCVMPATH
+	done
+	echo "VM path is $LXCVMPATH"
+	echo "lxc.lxcpath = $LXCVMPATH" | sudo tee -a /etc/lxc/lxc.conf
+
 	break;;
 
 	[2]* )
