@@ -33,6 +33,12 @@ for cmd in cmdcheck:
     if not shutil.which(cmd):
         sys.exit("\nError, ensure command {0} is installed.".format(cmd))
 
+# Demote to normal user.
+# https://stackoverflow.com/questions/1770209/run-child-processes-as-different-user-from-a-long-running-process/6037494#6037494
+def demote(user_uid, user_gid):
+  os.setgid(user_gid)
+  os.setuid(user_uid)
+
 ######### Bash Section #########
 
 # Generate bash script
@@ -546,5 +552,25 @@ end
         FISHSCRIPTUSER_VAR.close()
         os.chmod(FISHSCRIPTUSERPATH, 0o644)
         subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, os.path.dirname(FISHSCRIPTUSERPATH)), shell=True)
+
+    # Install fish utilities and plugins (WIP, need to get status of omf command first)
+    if os.geteuid() == 0:
+        pw_record = pwd.getpwnam(USERNAMEVAR)
+        env = os.environ.copy()
+        env['HOME']  = pw_record.pw_dir
+        env['LOGNAME']  = pw_record.pw_name
+        env['USER']  = pw_record.pw_name
+        cmd = """
+        # Install oh-my-fish
+        if "fish -c omf"; then
+            omf update
+        else
+            curl -L http://get.oh-my.fish | fish
+        fi
+        # Install bobthefish theme
+
+        """
+        #process = subprocess.Popen(cmd, preexec_fn=demote(pw_record.pw_uid, pw_record.pw_gid), env=env, shell=True)
+
 
 print("Script finished successfully.")
