@@ -62,7 +62,7 @@ if args.noprompt == False:
 
 # Bootstrap the chroot environment.
 BOOTSTRAPSCRIPT = ""
-if args.architecture is "armhf":
+if args.architecture == "armhf":
     # ARM specific init here.
     BOOTSTRAPSCRIPT += """
 debootstrap --foreign --no-check-gpg --include=ca-certificates --arch {DEBARCH} {DISTROCHOICE} {INSTALLPATH} {URL}
