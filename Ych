@@ -234,7 +234,7 @@ prechroot () {
 	fi
 
 	if [ -d "$INPUTVAR" ]; then
-		CHPATH="$INPUTVAR"
+		CHPATH="$(readlink -f $INPUTVAR)"
 	fi
 
 	if [ -z "$CHPATH" ]; then
