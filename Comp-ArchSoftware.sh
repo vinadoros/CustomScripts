@@ -264,7 +264,7 @@ if [ "${MACHINEARCH}" != "armv7l" ]; then
 		echo "Out ${USERHOME}/Desktop" | tee -a /etc/cups/cups-pdf.conf
 	fi
 	# Set up a virtual printer named cups-pdf, set the resolution and page size.
-	until lpadmin -p cups-pdf -v cups-pdf:/ -E -P /usr/share/cups/model/CUPS-PDF.ppd
+	until lpadmin -p cups-pdf -v cups-pdf:/ -E -P /usr/share/cups/model/CUPS-PDF_opt.ppd
 		do echo "Try again in 2 seconds."
 		sleep 2
 	done
