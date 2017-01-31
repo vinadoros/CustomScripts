@@ -126,7 +126,7 @@ pacman -S --needed --noconfirm openbox
 usermod -aG lp,network,video,audio,storage,scanner,power,disk,sys,games,optical,avahi,uucp,systemd-journal {USERNAME}
 
 # Python
-pacman -S --needed --nconfirm python
+pacman -S --needed --noconfirm python
 
 # Custom Scripts
 pacman -S --needed --noconfirm git
