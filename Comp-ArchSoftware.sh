@@ -82,25 +82,11 @@ case $SETDM in
 	echo "Setting up SDDM."
 	dist_install sddm
 	systemctl enable -f sddm
-	if [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 ]]; then
-		if [ ! -f /etc/sddm.conf ]; then
-			touch /etc/sddm.conf
-		fi
-		if ! grep -iq "Autologin" /etc/sddm.conf; then
-			echo "Setting up Autologin."
-			bash -c "cat >/etc/sddm.conf" <<EOL
-
-[Autologin]
-User=$USERNAMEVAR
-Session=plasma.desktop
-EOL
-		fi
-	fi
 	;;
 
 [2]* )
 	echo "Setting up lightdm with GTK greeter."
-	dist_install lightdm lightdm-gtk-greeter
+	dist_install lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings
 	systemctl enable -f lightdm
 	sed -i 's/greeter-session=.*$/greeter-session=lightdm-gtk-greeter/g' /etc/lightdm/lightdm.conf
 	;;
@@ -127,7 +113,7 @@ esac
 ######################        Desktop Environments      #######################
 ###############################################################################
 
-# Case for SETDE variable. 0=do nothing, 1=KDE, 2=cinnamon
+# Case for SETDE variable.
 case $SETDE in
 [1]* )
 	# Install KDE
@@ -186,8 +172,13 @@ Categories=GTK;GNOME;Application;Utility;
 X-GNOME-Autostart-enabled=false
 EOFXYZ
 	chown $USERNAMEVAR:$USERGROUP "$USERHOME/.config/autostart/clipit.desktop"
-
 	;;
+
+[6]* )
+		# Install lxqt
+		echo "Installing lxqt."
+		dist_install lxqt breeze-icons xscreensaver libpulse libstatgrab libsysstat lm_sensors
+		;;
 
 * ) echo "Not changing desktop environment."
 	;;
