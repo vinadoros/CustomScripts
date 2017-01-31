@@ -112,7 +112,7 @@ if args.ostype == 1:
     vmbootstrap_defopts = ' '
     vmprovisionscript = "MArch.sh"
     vmprovision_defopts = "-e 3 -m 3"
-    kvm_variant = "fedora24"
+    kvm_variant = "fedora22"
 elif args.ostype == 2:
     vmname = "DebianTest-{0}".format(hvname)
     vboxosid = "Debian_64"
@@ -144,7 +144,7 @@ elif args.ostype == 5:
     vmbootstrap_defopts = ' '
     vmprovisionscript = "MFedora.sh"
     vmprovision_defopts = " "
-    kvm_variant = "fedora24"
+    kvm_variant = "fedora22"
 elif args.ostype == 50:
     vmname = "Windows10-{0}".format(hvname)
     vboxosid = "Windows10_64"
