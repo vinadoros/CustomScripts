@@ -120,8 +120,8 @@ case $SETDE in
 	echo "Installing KDE."
 	dist_install plasma-meta
 	# KDE Software
-	dist_install kate kdebase-dolphin konsole
-	dist_install kwrite kdegraphics-okular ebook-tools ark unzip zip p7zip unrar
+	dist_install kate dolphin konsole
+	dist_install kwrite okular ebook-tools ark unzip zip p7zip unrar
 	;;
 
 [2]* )
@@ -177,7 +177,7 @@ EOFXYZ
 [6]* )
 		# Install lxqt
 		echo "Installing lxqt."
-		dist_install lxqt breeze-icons xscreensaver libpulse libstatgrab libsysstat lm_sensors
+		dist_install lxqt breeze-icons oxygen-icons xscreensaver libpulse libstatgrab libsysstat lm_sensors
 		;;
 
 * ) echo "Not changing desktop environment."
