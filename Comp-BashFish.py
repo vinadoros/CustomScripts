@@ -557,6 +557,7 @@ end
     fish_testcmd = 'fish -c "omf update"'
     fish_installplugins = """
     # Install oh-my-fish
+    cd ~
     curl -L http://get.oh-my.fish > install
     fish install --noninteractive
     rm ./install
