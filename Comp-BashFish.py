@@ -557,10 +557,12 @@ end
     fish_testcmd = 'fish -c "omf update"'
     fish_installplugins = """
     # Install oh-my-fish
-    cd $HOME
-    curl -L http://get.oh-my.fish > install
-    fish install --noninteractive
-    rm ./install
+    cd /tmp
+    git clone https://github.com/oh-my-fish/oh-my-fish
+    cd oh-my-fish
+    bin/install --offline --noninteractive
+    cd /tmp
+    rm -rf oh-my-fish
     # Install bobthefish theme
     fish -c "omf install bobthefish"
     """
