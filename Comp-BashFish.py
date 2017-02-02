@@ -553,24 +553,29 @@ end
         os.chmod(FISHSCRIPTUSERPATH, 0o644)
         subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, os.path.dirname(FISHSCRIPTUSERPATH)), shell=True)
 
-    # Install fish utilities and plugins (WIP, need to get status of omf command first)
+    # Install fish utilities and plugins
+    fish_testcmd = 'fish -c "omf update"'
+    fish_installplugins = """
+    # Install oh-my-fish
+    curl -L http://get.oh-my.fish > install
+    fish install --noninteractive
+    rm ./install
+    # Install bobthefish theme
+    fish -c "omf install bobthefish"
+    """
+    status = subprocess.run(fish_testcmd, shell=True)
+    if status.returncode is not 0:
+        print("Installing omf.")
+        subprocess.run(fish_installplugins, shell=True)
     if os.geteuid() == 0:
         pw_record = pwd.getpwnam(USERNAMEVAR)
         env = os.environ.copy()
         env['HOME']  = pw_record.pw_dir
         env['LOGNAME']  = pw_record.pw_name
         env['USER']  = pw_record.pw_name
-        cmd = """
-        # Install oh-my-fish
-        if "fish -c omf"; then
-            omf update
-        else
-            curl -L http://get.oh-my.fish | fish
-        fi
-        # Install bobthefish theme
-
-        """
-        #process = subprocess.Popen(cmd, preexec_fn=demote(pw_record.pw_uid, pw_record.pw_gid), env=env, shell=True)
-
+        status = subprocess.run('su {0} -s {1} -c "omf update"'.format(USERNAMEVAR, shutil.which("fish")), shell=True)
+        if status.returncode is not 0:
+            print("Installing omf for {0}.".format(USERNAMEVAR))
+            process = subprocess.Popen(fish_installplugins, preexec_fn=demote(pw_record.pw_uid, pw_record.pw_gid), env=env, shell=True)
 
 print("Script finished successfully.")
