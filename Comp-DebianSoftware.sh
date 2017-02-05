@@ -150,6 +150,9 @@ visudo -c
 dist_install ssh tmux
 
 # Install fish
+if [ "$OS" = "Ubuntu" ]; then
+	ppa ppa:fish-shell/release-2
+fi
 dist_install fish
 FISHPATH=$(which fish)
 if ! grep -iq "$FISHPATH" /etc/shells; then
@@ -306,24 +309,6 @@ if [ "${MACHINEARCH}" != "armv7l" ]; then
 	# TLP
 	dist_install tlp smartmontools ethtool
 
-<<COMMENT2
-	# Liquorix repo
-	if ! grep -iq "liquorix.net" /etc/apt/sources.list; then
-		echo "Installing liquorix kernel."
-		add-apt-repository "deb http://liquorix.net/debian sid main past"
-		apt-get update
-		apt-get install -y --force-yes liquorix-keyring
-		apt-get update
-		# Install kernels.
-		[ "${MACHINEARCH}" = "x86_64" ] && dist_install linux-image-liquorix-amd64 linux-headers-liquorix-amd64
-		[ "${MACHINEARCH}" = "i686" ] && dist_install linux-image-liquorix-686-pae linux-headers-liquorix-686-pae
-		# Remove stock kernels if installed.
-		dpkg-query -l | grep -iq "linux-image-amd64" && apt-get --purge remove -y linux-image-amd64
-		dpkg-query -l | grep -iq "linux-image-686-pae" && apt-get --purge remove -y linux-image-686-pae
-		dpkg-query -l | grep -iq "linux-headers-generic" && apt-get --purge remove -y linux-headers-generic
-	fi
-COMMENT2
-
 elif [ "${MACHINEARCH}" = "armv7l" ]; then
 	echo "Install arm specific software."
 
@@ -340,11 +325,6 @@ elif [ "${MACHINEARCH}" = "armv7l" ]; then
 
 		# Linux firmware
 		dist_install linux-firmware
-
-		# NTP Fix
-		if type -P ntpd &> /dev/null; then
-			dist_install ntpdate
-		fi
 
 	elif [ "$OS" = "Debian" ]; then
 
