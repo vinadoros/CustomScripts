@@ -161,7 +161,7 @@ fi
 
 # For general desktop
 dist_install synaptic gdebi gparted xdg-utils leafpad nano
-dist_install gnome-disk-utility btrfs-tools f2fs-tools
+dist_install gnome-disk-utility btrfs-tools f2fs-tools dmraid
 DEBIAN_FRONTEND=noninteractive apt-get install -y nbd-client
 
 # Timezone stuff

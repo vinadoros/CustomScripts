@@ -557,6 +557,9 @@ end
     fish_testcmd = 'fish -c "omf update"'
     fish_installplugins = """
     # Install oh-my-fish
+    if [ "$(id -u)" = "0" ]; then
+    	HOME=/root
+    fi
     cd /tmp
     git clone https://github.com/oh-my-fish/oh-my-fish
     cd oh-my-fish
@@ -569,7 +572,7 @@ end
     status = subprocess.run(fish_testcmd, shell=True)
     if status.returncode is not 0:
         print("Installing omf.")
-        subprocess.run(fish_installplugins, shell=True)
+        process = subprocess.run(fish_installplugins, shell=True)
     if os.geteuid() == 0:
         pw_record = pwd.getpwnam(USERNAMEVAR)
         env = os.environ.copy()

@@ -74,6 +74,15 @@ done
 
 source "$SCRIPTDIR/Comp-InitVars.sh"
 
+# Unlock root account first
+ROOTACCTSTATUS=$(passwd -S root | awk '{print $2}')
+if [ $ROOTACCTSTATUS != "P" ]; then
+	echo "Please set the root password."
+	passwd root
+	echo "Please rerun this script now that the root account is unlocked."
+	exit 0
+fi
+
 # Set debian or ubuntu
 if [ -z "$OS" ]; then
 	OS = "$(lsb_release -si)"
