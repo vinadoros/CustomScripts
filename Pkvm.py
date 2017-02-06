@@ -111,7 +111,7 @@ if args.ostype == 11:
     kvm_variant = "ubuntu16.04"
     isourl = "http://releases.ubuntu.com/16.04/ubuntu-16.04.1-server-amd64.iso"
 if args.ostype == 20:
-    vmname = "Packer-UbuntuTest1604-{0}".format(hvname)
+    vmname = "Packer-OpenSuseTW-{0}".format(hvname)
     vboxosid = "OpenSUSE_64"
     vmwareid = "ubuntu-64"
     vmprovisionscript = "MDebUbu.sh"
@@ -258,7 +258,7 @@ if 10 <= args.ostype <= 11:
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "apt install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
 if 20 <= args.ostype <= 21:
-    data['builders'][0]["boot_command"] = ["<enter><wait><f6><wait><esc><home>url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu.cfg hostname=ubuntu locale=en_US keyboard-configuration/modelcode=SKIP <enter>"]
+    data['builders'][0]["boot_command"] = ["<wait><down><wait><f4><wait><esc><wait>autoyast2=http://{{ .HTTPIP }}:{{ .HTTPPort }}/opensuse.cfg <enter>"]
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "zypper install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts"
 if 50 <= args.ostype <= 69:
