@@ -110,6 +110,14 @@ if args.ostype == 11:
     vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
     kvm_variant = "ubuntu16.04"
     isourl = "http://releases.ubuntu.com/16.04/ubuntu-16.04.1-server-amd64.iso"
+if args.ostype == 20:
+    vmname = "Packer-UbuntuTest1604-{0}".format(hvname)
+    vboxosid = "OpenSUSE_64"
+    vmwareid = "ubuntu-64"
+    vmprovisionscript = "MDebUbu.sh"
+    vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
+    kvm_variant = "opensusetumbleweed"
+    isourl = "http://download.opensuse.org/tumbleweed/iso/openSUSE-Tumbleweed-NET-x86_64-Current.iso"
 elif args.ostype == 50:
     vmname = "Packer-Windows10-{0}".format(hvname)
     vboxosid = "Windows10_64"
@@ -249,6 +257,10 @@ if 10 <= args.ostype <= 11:
     data['builders'][0]["boot_command"] = ["<enter><wait><f6><wait><esc><home>url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu.cfg hostname=ubuntu locale=en_US keyboard-configuration/modelcode=SKIP <enter>"]
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "apt install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
+if 20 <= args.ostype <= 21:
+    data['builders'][0]["boot_command"] = ["<enter><wait><f6><wait><esc><home>url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu.cfg hostname=ubuntu locale=en_US keyboard-configuration/modelcode=SKIP <enter>"]
+    data['provisioners'][0]["type"] = "shell"
+    data['provisioners'][0]["inline"] = "zypper install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts"
 if 50 <= args.ostype <= 69:
     data['provisioners'][0]["type"] = "powershell"
     data['provisioners'][0]["inline"] = "dir"
