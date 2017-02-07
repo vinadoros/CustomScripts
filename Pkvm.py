@@ -117,7 +117,7 @@ if args.ostype == 20:
     vmprovisionscript = "MDebUbu.sh"
     vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
     kvm_variant = "opensusetumbleweed"
-    isourl = "http://download.opensuse.org/tumbleweed/iso/openSUSE-Tumbleweed-NET-x86_64-Current.iso"
+    isourl = "http://download.opensuse.org/tumbleweed/iso/openSUSE-Tumbleweed-DVD-x86_64-Current.iso"
 elif args.ostype == 50:
     vmname = "Packer-Windows10-{0}".format(hvname)
     vboxosid = "Windows10_64"
@@ -194,6 +194,7 @@ if os.path.isdir(SCRIPTDIR+"/unattend"):
     subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's/INSERTUSERHERE/{1}/g'".format(tempunattendfolder, args.vmuser), shell=True)
     subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's/INSERTPASSWORDHERE/{1}/g'".format(tempunattendfolder, args.vmpass), shell=True)
     subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's/INSERTFULLNAMEHERE/{1}/g'".format(tempunattendfolder, args.fullname), shell=True)
+    subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's/INSERTHOSTNAMENAMEHERE/{1}/g'".format(tempunattendfolder, vmname), shell=True)
 
 # Get hash for iso.
 print("Generating Checksum of {0}".format(isopath))
