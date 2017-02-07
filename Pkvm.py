@@ -115,7 +115,7 @@ if args.ostype == 20:
     vboxosid = "OpenSUSE_64"
     vmwareid = "ubuntu-64"
     vmprovisionscript = "Mopensuse.sh"
-    vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
+    vmprovision_defopts = "-n -e 1 -s {0}".format(args.vmpass)
     kvm_variant = "opensusetumbleweed"
     isourl = "http://download.opensuse.org/tumbleweed/iso/openSUSE-Tumbleweed-DVD-x86_64-Current.iso"
 elif args.ostype == 50:
@@ -261,7 +261,7 @@ if 10 <= args.ostype <= 11:
 if 20 <= args.ostype <= 21:
     data['builders'][0]["boot_command"] = ["<wait><down><wait><f4><wait><esc><wait>autoyast2=http://{{ .HTTPIP }}:{{ .HTTPPort }}/opensuse.cfg textmode=1<enter>"]
     data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "zypper rr 2; zypper ar -f http://download.opensuse.org/tumbleweed/repo/oss/ "Main Repository (OSS)"; zypper ar -f http://download.opensuse.org/update/tumbleweed/ "Main Update Repository"; zypper install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
+    data['provisioners'][0]["inline"] = 'zypper rr 2; zypper ar -f http://download.opensuse.org/tumbleweed/repo/oss/ "Main Repository (OSS)"; zypper ar -f http://download.opensuse.org/update/tumbleweed/ "Main Update Repository"; zypper install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}'.format(vmprovisionscript, vmprovision_opts)
 if 50 <= args.ostype <= 69:
     data['provisioners'][0]["type"] = "powershell"
     data['provisioners'][0]["inline"] = "dir"
