@@ -84,7 +84,7 @@ if args.ostype == 1:
     vmwareid = "fedora-64"
     vmprovisionscript = "MFedora.sh"
     vmprovision_defopts = "-n -s {0}".format(args.vmpass)
-    kvm_variant = "fedora24"
+    kvm_variant = "fedora22"
     isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1611.iso"
 elif args.ostype == 2:
     vmname = "Packer-FedoraTest-{0}".format(hvname)
@@ -92,7 +92,7 @@ elif args.ostype == 2:
     vmwareid = "fedora-64"
     vmprovisionscript = "MFedora.sh"
     vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
-    kvm_variant = "fedora24"
+    kvm_variant = "fedora22"
     isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/25/Server/x86_64/iso/Fedora-Server-dvd-x86_64-25-1.3.iso"
 if args.ostype == 10:
     vmname = "Packer-UbuntuTest1610-{0}".format(hvname)
@@ -259,7 +259,7 @@ if 10 <= args.ostype <= 11:
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "apt install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
 if 20 <= args.ostype <= 21:
-    data['builders'][0]["boot_command"] = ["<wait><down><wait><f4><wait><esc><wait>autoyast2=http://{{ .HTTPIP }}:{{ .HTTPPort }}/opensuse.cfg <enter>"]
+    data['builders'][0]["boot_command"] = ["<wait><down><wait><f4><wait><esc><wait>autoyast2=http://{{ .HTTPIP }}:{{ .HTTPPort }}/opensuse.cfg textmode=1<enter>"]
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "zypper install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts"
 if 50 <= args.ostype <= 69:
