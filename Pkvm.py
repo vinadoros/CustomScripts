@@ -114,7 +114,7 @@ if args.ostype == 20:
     vmname = "Packer-OpenSuseTW-{0}".format(hvname)
     vboxosid = "OpenSUSE_64"
     vmwareid = "ubuntu-64"
-    vmprovisionscript = "MDebUbu.sh"
+    vmprovisionscript = "Mopensuse.sh"
     vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
     kvm_variant = "opensusetumbleweed"
     isourl = "http://download.opensuse.org/tumbleweed/iso/openSUSE-Tumbleweed-DVD-x86_64-Current.iso"
@@ -253,7 +253,7 @@ if args.ostype is 1:
 if args.ostype is 2:
     data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/fedora.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "dnf update -y; dnf install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts;/opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
+    data['provisioners'][0]["inline"] = "dnf update -y; dnf install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
 if 10 <= args.ostype <= 11:
     data['builders'][0]["boot_command"] = ["<enter><wait><f6><wait><esc><home>url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu.cfg hostname=ubuntu locale=en_US keyboard-configuration/modelcode=SKIP <enter>"]
     data['provisioners'][0]["type"] = "shell"
@@ -261,7 +261,7 @@ if 10 <= args.ostype <= 11:
 if 20 <= args.ostype <= 21:
     data['builders'][0]["boot_command"] = ["<wait><down><wait><f4><wait><esc><wait>autoyast2=http://{{ .HTTPIP }}:{{ .HTTPPort }}/opensuse.cfg textmode=1<enter>"]
     data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "zypper install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts"
+    data['provisioners'][0]["inline"] = "zypper install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
 if 50 <= args.ostype <= 69:
     data['provisioners'][0]["type"] = "powershell"
     data['provisioners'][0]["inline"] = "dir"
