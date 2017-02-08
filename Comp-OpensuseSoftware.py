@@ -105,7 +105,7 @@ zypper install -y cups-pdf
 zypper install -y wine wine-32bit
 
 # Multimedia
-zypper install -y pavucontrol paprefs vlc smplayer
+zypper install -l -y pavucontrol paprefs vlc smplayer gstreamer-fluendo-mp3
 
 # terminator
 zypper install -y terminator
@@ -134,8 +134,8 @@ subprocess.run(SOFTWARESCRIPT, shell=True)
 if args.desktop is 1:
     DESKTOPSCRIPT="""
 # Gnome
-zypper install -y -t pattern gnome_admin gnome_basis gnome_basis_opt gnome_imaging gnome_utilities gnome_laptop gnome_yast sw_management_gnome
-zypper install -y eog gnome-extension-terminal dconf-editor
+zypper install -l -y -t pattern gnome_admin gnome_basis gnome_basis_opt gnome_imaging gnome_utilities gnome_laptop gnome_yast sw_management_gnome
+zypper install -l -y eog dconf-editor caribou evince gnome-disk-utility gnome-logs gnome-system-monitor nautilus-evince mousetweaks
 zypper install -y gdm
 zypper install -y gnome-shell-extension-gpaste
 # Change display manager to gdm
@@ -144,9 +144,9 @@ sed -i 's/DISPLAYMANAGER=.*$/DISPLAYMANAGER="gdm"/g' /etc/sysconfig/displaymanag
 elif args.desktop is 3:
     DESKTOPSCRIPT="""
 # MATE
-zypper install -y -t pattern mate_basis mate_admin mate_laptop mate_utilities
+zypper install -l -y -t pattern mate_basis mate_admin mate_utilities
 # Applications
-zypper install -y dconf-editor
+zypper install -l -y dconf-editor atril eom mate-search-tool mate-system-monitor caja-extension-open-terminal caja-extension-atril caja-extension-gksu mate-tweak
 # Display Manager
 zypper install -y lightdm lightdm-gtk-greeter
 # Change display manager to lightdm

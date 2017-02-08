@@ -22,8 +22,8 @@ print("Running {0}".format(__file__))
 SCRIPTDIR=sys.path[0]
 
 # Exit if root.
-# if os.geteuid() == 0:
-#     sys.exit("\nError: Please run this script as a normal (non root) user.\n")
+if os.geteuid() == 0:
+    sys.exit("\nError: Please run this script as a normal (non root) user.\n")
 
 # Get non-root user information.
 if os.getenv("SUDO_USER") != None and os.getenv("SUDO_USER") != "root":
@@ -49,7 +49,7 @@ parser = argparse.ArgumentParser(description='Create a VM using packer.')
 parser.add_argument("-m", "--noprompt",help='Do not prompt to continue.', action="store_true")
 parser.add_argument("-n", "--vmname",help="Name of Virtual Machine")
 parser.add_argument("-t", "--vmtype", type=int, help="Virtual Machine type (1=Virtualbox, 2=libvirt, 3=VMWare)", default="1")
-parser.add_argument("-a", "--ostype", type=int, help="OS type (1=Ubuntu, 2=Fedora, 3=opensuse)", default="1")
+parser.add_argument("-a", "--ostype", type=int, help="OS type", default="1")
 parser.add_argument("-f", "--fullname", help="Full Name", default="User Name")
 parser.add_argument("-i", "--iso", help="Path to live cd")
 parser.add_argument("-s", "--imgsize", type=int, help="Size of image", default=65536)
@@ -57,7 +57,7 @@ parser.add_argument("-p", "--vmpath", help="Path of Packer output", required=Tru
 parser.add_argument("-y", "--vmuser", help="VM Username", default="user")
 parser.add_argument("-z", "--vmpass", help="VM Password", default="asdf")
 parser.add_argument("--memory", help="Memory for VM", default="2048")
-parser.add_argument("--vmprovision", help="Override provision options.")
+parser.add_argument("--vmprovision", help="""Override provision options. Enclose options in double backslashes and quotes. Example: \\\\"-n -e 3\\\\" """)
 
 # Save arguments.
 args = parser.parse_args()
