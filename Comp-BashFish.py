@@ -484,7 +484,6 @@ else if type -q zypper;
     end
     function se
     	echo "Searching for $argv."
-    	sudo zypper list installed | grep -i $argv
         sudo zypper search $argv
         sudo zypper info $argv
     end
