@@ -178,6 +178,31 @@ if type -p yaourt &> /dev/null; then
             su $USERNAMEVAR -s /bin/bash -c 'yaourt -ASa --noconfirm $(pacman -Qq | grep -i "\-git")'
         fi
     }
+elif type zypper &> /dev/null; then
+    function ins () {
+    	echo "Installing $@."
+    	$SUDOCMD zypper install $@
+    }
+    function iny () {
+    	echo "Installing $@."
+    	$SUDOCMD zypper install -y $@
+    }
+    function rmv () {
+    	echo "Removing $@."
+    	$SUDOCMD zypper remove -u $@
+    }
+    function se () {
+    	echo "Searching for $@."
+    	$SUDOCMD zypper search "$@"
+    	$SUDOCMD zypper info "$@"
+    }
+    function cln () {
+    	echo "No clean yet."
+    }
+    function up () {
+    	echo "Updating system."
+    	$SUDOCMD zypper dup
+    }
 elif type -p apt-get &> /dev/null; then
     if [ -f /etc/environment ]; then
     	PATH2=$PATH
@@ -442,6 +467,33 @@ if type -q yaourt
         else
             su $USERNAMEVAR -c 'yaourt -ASa --noconfirm (pacman -Qq | grep -i "\-git")'
         end
+    end
+
+else if type -q zypper;
+    function ins
+    	echo "Installing $argv."
+    	sudo zypper install $argv
+    end
+    function iny
+    	echo "Installing $argv."
+    	sudo zypper install -y $argv
+    end
+    function rmv
+    	echo "Removing $argv."
+    	sudo zypper remove -u $argv
+    end
+    function se
+    	echo "Searching for $argv."
+    	sudo zypper list installed | grep -i $argv
+        sudo zypper search $argv
+        sudo zypper info $argv
+    end
+    function cln
+    	echo "No clean yet."
+    end
+    function up
+    	echo "Updating system."
+    	sudo zypper dup
     end
 
 else if type -q apt-get
