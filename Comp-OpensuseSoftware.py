@@ -63,7 +63,13 @@ with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
 REPOSCRIPT="""#!/bin/bash
 
 # Packman
+zypper ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/packman/suse/openSUSE_Tumbleweed/ packman
 
+# Adobe Flash
+# https://en.opensuse.org/Adobe_Flash_Player
+zypper ar --check --refresh http://linuxdownload.adobe.com/linux/x86_64/ adobe
+zypper in -y adobe-release-x86_64
+rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-adobe-linux
 
 """
 subprocess.run(REPOSCRIPT, shell=True)
@@ -78,6 +84,8 @@ zypper install -y gparted
 
 # Install browsers
 zypper install -y chromium MozillaFirefox freshplayerplugin
+# Adobe Flash
+zypper in -y flash-plugin
 
 # Samba
 zypper install -y samba samba-client samba-winbind
@@ -92,6 +100,9 @@ zypper install -y cups-pdf
 
 # Wine
 zypper install -y wine wine-32bit
+
+# Multimedia
+zypper install -y pavucontrol paprefs vlc smplayer
 
 # terminator
 zypper install -y terminator
@@ -116,10 +127,10 @@ subprocess.run(SOFTWARESCRIPT, shell=True)
 if args.desktop is 1:
     DESKTOPSCRIPT="""
 # Gnome
-zypper install -y -t pattern gnome gnome_admin gnome_utilities gnome_yast sw_management_gnome
+zypper install -y -t pattern gnome_admin gnome_basis gnome_basis_opt gnome_imaging gnome_utilities gnome_laptop gnome_yast eog sw_management_gnome
 zypper install -y gdm
 # Some Gnome Extensions
-zypper install -y gnome-extension-terminal gnome-tweak-tool dconf-editor
+zypper install -y gnome-extension-terminal dconf-editor
 zypper install -y gnome-shell-extension-gpaste
 """
 elif args.desktop is 3:
