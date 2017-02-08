@@ -25,7 +25,14 @@ fi
 
 
 # Install Zswap if no systemd-swap
-SYSTEMDPATH="$(readlink -f "/lib/systemd")"
+if [ -d /lib/systemd/system ]; then
+	SYSTEMDPATH="$(readlink -f "/lib/systemd")"
+elif [ -d /usr/lib/systemd/system ]; then
+	SYSTEMDPATH="$(readlink -f "/usr/lib/systemd")"
+else
+	echo "Couldn't find systemd service folder. Exiting."
+	exit 1;
+fi
 ZRAMSCRIPT="/usr/local/bin/zramscript"
 ZRAMSERVICE="${SYSTEMDPATH}/system/zram.service"
 if [[ ! -f /etc/systemd-swap.conf ]]; then
