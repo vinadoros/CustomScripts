@@ -31,11 +31,11 @@ while true; do
 			sudo systemctl start virtlogd
 			sudo gpasswd -a $USERNAMEVAR kvm
 		elif type zypper; then
-			# Insert code here
+			echo "none"
 		elif type apt-get; then
 			sudo apt-get install -y virt-manager qemu-kvm ssh-askpass
 		elif type dnf; then
-			# Insert code here
+			echo "none"
 		fi
 		sudo sed -i 's/#user = \"root\"/user = \"'$USERNAMEVAR'\"/g' /etc/libvirt/qemu.conf
 		#sudo sed -i 's/group=.*/group=\"users\"/g' /etc/libvirt/qemu.conf
@@ -64,11 +64,11 @@ EOL
 		sudo pacman -Rsn virt-manager ebtables dnsmasq qemu bridge-utils
 		sudo pacman -Syu --needed gnu-netcat
 	elif type zypper; then
-		# Insert code here
+		echo "none"
 	elif type apt-get; then
 		sudo apt-get --purge remove virt-manager qemu-kvm
 	elif type dnf; then
-		# Insert code here
+		echo "none"
 	fi
 	sudo rm -f /etc/polkit-1/rules.d/80-libvirt.rules
 	break;;
