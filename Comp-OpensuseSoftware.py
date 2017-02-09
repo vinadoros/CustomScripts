@@ -83,7 +83,7 @@ SOFTWARESCRIPT="""
 zypper install -y fish nano tmux iotop rsync p7zip zip unzip xdg-utils xdg-user-dirs
 
 # Management tools
-zypper install -y gparted
+zypper install -y gparted leafpad
 
 # Install browsers
 zypper install -y chromium MozillaFirefox freshplayerplugin
@@ -102,13 +102,14 @@ timedatectl set-ntp 1
 zypper install -y cups-pdf
 
 # Wine
-zypper install -y wine wine-32bit
+zypper install -y wine wine-32bit PlayOnLinux
 
 # Multimedia
-zypper install -l -y pavucontrol paprefs vlc smplayer gstreamer-fluendo-mp3
+zypper install -l -y pavucontrol paprefs vlc smplayer gstreamer-fluendo-mp3 audacious
 
 # terminator
-zypper install -y terminator
+# TODO: Need to add this as dependancy for terminator
+zypper install -y typelib-1_0-Vte-2.91 terminator
 
 # Change to NetworkManager
 systemctl disable wicked
