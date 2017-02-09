@@ -316,6 +316,6 @@ if args.vmtype is 2:
         virsh --connect qemu:///system destroy {vmname}
         virsh --connect qemu:///system undefine {vmname}
     fi
-    virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg}.qcow2,bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model=virtio --os-type=linux --os-variant={kvm_variant} --import --noautoconsole --video=qxl --channel unix,target_type=virtio,name=org.qemu.guest_agent.0
+    virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg}.qcow2,bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model=virtio --filesystem source=/,target=root,mode=mapped --os-type=linux --os-variant={kvm_variant} --import --noautoconsole --video=qxl --channel unix,target_type=virtio,name=org.qemu.guest_agent.0
     """.format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=vmpath+"/"+vmname, imgsize=args.imgsize, kvm_variant=kvm_variant)
     subprocess.run(CREATESCRIPT_KVM, shell=True)

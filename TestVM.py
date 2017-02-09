@@ -360,7 +360,7 @@ VBoxManage modifyvm "{vmname}" --natpf1 "ssh,tcp,127.0.0.1,{sshport},,22"
 # Enable qemu guest agent: https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Virtualization_Deployment_and_Administration_Guide/chap-QEMU_Guest_Agent.html
 CREATESCRIPT_KVM="""#!/bin/bash
 qemu-img create -f qcow2 -o compat=1.1,lazy_refcounts=on {fullpathtoimg} {imgsize}M
-virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg},bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --cdrom={isopath}  --network bridge=virbr0,model=virtio --network network={nameofvnet},model=virtio --os-type=linux --os-variant={kvm_variant} --noautoconsole --video=virtio --channel unix,target_type=virtio,name=org.qemu.guest_agent.0
+virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg},bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --cdrom={isopath}  --network bridge=virbr0,model=virtio --network network={nameofvnet},model=virtio --filesystem source=/,target=root,mode=mapped --os-type=linux --os-variant={kvm_variant} --noautoconsole --video=virtio --channel unix,target_type=virtio,name=org.qemu.guest_agent.0
 """.format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=fullpathtoimg, imgsize=imgsize, isopath=isopath, sshport=localsshport, kvm_variant=kvm_variant, nameofvnet=nameofvnet)
 
 ### Begin Code ###

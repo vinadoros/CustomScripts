@@ -115,8 +115,6 @@ EOL
 		if [ "$blank" != '' ]; then
 			echo "" | sudo tee -a /etc/fstab
 		fi
-		mkdir -m 777 -p /media/sf_Storage
-		echo "Storage /media/sf_Storage 9p rw,defaults,trans=virtio,version=9p2000.L,noauto,x-systemd.automount 0 0" | sudo tee -a /etc/fstab
 		mkdir -m 777 -p /media/sf_root
 		echo "root /media/sf_root 9p rw,defaults,trans=virtio,version=9p2000.L,noauto,x-systemd.automount 0 0" | sudo tee -a /etc/fstab
 	fi
