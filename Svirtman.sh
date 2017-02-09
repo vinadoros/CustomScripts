@@ -34,6 +34,7 @@ while true; do
 			echo "none"
 		elif type apt-get; then
 			sudo apt-get install -y virt-manager qemu-kvm ssh-askpass
+			sudo gpasswd -a $USERNAMEVAR libvirtd
 		elif type dnf; then
 			echo "none"
 		fi
@@ -56,11 +57,11 @@ EOL
 
 	[2]* )
 	echo "You asked to remove virt-manager."
-	sudo systemctl disable libvirtd
-	sudo systemctl stop libvirtd
-	sudo systemctl disable virtlogd
-	sudo systemctl stop virtlogd
 	if type pacman; then
+		sudo systemctl disable libvirtd
+		sudo systemctl stop libvirtd
+		sudo systemctl disable virtlogd
+		sudo systemctl stop virtlogd
 		sudo pacman -Rsn virt-manager ebtables dnsmasq qemu bridge-utils
 		sudo pacman -Syu --needed gnu-netcat
 	elif type zypper; then
