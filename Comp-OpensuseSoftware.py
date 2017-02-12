@@ -132,8 +132,9 @@ zypper install -y open-vm-tools open-vm-tools-desktop
 subprocess.run(SOFTWARESCRIPT, shell=True)
 
 # Install Desktop Software
+DESKTOPSCRIPT=""""""
 if args.desktop is 1:
-    DESKTOPSCRIPT="""
+    DESKTOPSCRIPT+="""
 # Gnome
 zypper install -l -y -t pattern gnome_admin gnome_basis gnome_basis_opt gnome_imaging gnome_utilities gnome_laptop gnome_yast sw_management_gnome
 zypper install -l -y eog dconf-editor caribou evince gnome-disk-utility gnome-logs gnome-system-monitor nautilus-evince mousetweaks
@@ -143,7 +144,7 @@ zypper install -y gnome-shell-extension-gpaste
 sed -i 's/DISPLAYMANAGER=.*$/DISPLAYMANAGER="gdm"/g' /etc/sysconfig/displaymanager
 """
 elif args.desktop is 3:
-    DESKTOPSCRIPT="""
+    DESKTOPSCRIPT+="""
 # MATE
 zypper install -l -y -t pattern mate_basis mate_admin mate_utilities
 # Applications
