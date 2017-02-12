@@ -146,6 +146,12 @@ if [ "${MACHINEARCH}" != "armv7l" ]; then
 
 	# Edit grub settings
 	if [ -f /etc/default/grub ]; then
+		# Uncomment
+		sed -i '/^#GRUB_TIMEOUT=.*/s/^#//g' /etc/default/grub
+		# Comment
+		sed -i '/GRUB_HIDDEN_TIMEOUT/ s/^#*/#/' /etc/default/grub
+		sed -i '/GRUB_HIDDEN_TIMEOUT_QUIET/ s/^#*/#/' /etc/default/grub
+		# Change timeout
 		sed -i 's/GRUB_TIMEOUT=.*$/GRUB_TIMEOUT=1/g' /etc/default/grub
 		sed -i 's/GRUB_HIDDEN_TIMEOUT=.*$/GRUB_HIDDEN_TIMEOUT=1/g' /etc/default/grub
 		# Add elevator I/O scheduler
