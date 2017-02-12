@@ -159,10 +159,10 @@ DESKTOPSCRIPT+="""
 systemctl set-default graphical.target
 
 # Delete defaults in sudoers.
-if grep -iq $'^Defaults\tsecure_path' /etc/sudoers; then
-    sed -e 's/^Defaults\tenv_reset$/Defaults\t!env_reset/g' -i /etc/sudoers
-	sed -i $'/^Defaults\tmail_badpass/ s/^#*/#/' /etc/sudoers
-	sed -i $'/^Defaults\tsecure_path/ s/^#*/#/' /etc/sudoers
+if grep -iq $'^Defaults secure_path' /etc/sudoers; then
+    sed -e 's/^Defaults env_reset$/Defaults !env_reset/g' -i /etc/sudoers
+	sed -i $'/^Defaults mail_badpass/ s/^#*/#/' /etc/sudoers
+	sed -i $'/^Defaults secure_path/ s/^#*/#/' /etc/sudoers
 fi
 visudo -c
 """
