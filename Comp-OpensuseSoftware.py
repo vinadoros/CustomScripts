@@ -108,8 +108,11 @@ zypper install -y wine wine-32bit PlayOnLinux
 zypper install -l -y pavucontrol paprefs vlc smplayer gstreamer-fluendo-mp3 audacious
 
 # terminator
-# TODO: Need to add this as dependancy for terminator
 zypper install -y typelib-1_0-Vte-2.91 terminator
+
+# VNC and synergy
+zypper install -y xorg-x11-Xvnc tigervnc synergy qsynergy
+cp /usr/share/applications/qsynergy.desktop /etc/xdg/autostart/
 
 # Change to NetworkManager
 systemctl disable wicked
