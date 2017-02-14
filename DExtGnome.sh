@@ -18,7 +18,7 @@ fi
 if type -p pacman &> /dev/null; then
 	echo "Not installing packages."
 elif type -p zypper &> /dev/null; then
-	sudo zypper install -y git gnome-common intltool glib2-devel zip unzip
+	sudo zypper install -y git gnome-common intltool glib2-devel zip unzip gcc make
 elif type -p apt-get &> /dev/null; then
 	sudo apt-get install -y git build-essential zip gnome-common libglib2.0-dev
 elif type -p dnf &> /dev/null; then

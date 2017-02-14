@@ -142,7 +142,7 @@ if args.desktop is 1:
 zypper install -l -y -t pattern gnome_admin gnome_basis gnome_basis_opt gnome_imaging gnome_utilities gnome_laptop gnome_yast sw_management_gnome
 zypper install -l -y eog dconf-editor caribou evince gnome-disk-utility gnome-logs gnome-system-monitor nautilus-evince mousetweaks
 zypper install -y gdm
-zypper install -y gnome-shell-extension-gpaste
+zypper install -y gnome-shell-extension-gpaste gnome-shell-classic
 # Change display manager to gdm
 sed -i 's/DISPLAYMANAGER=.*$/DISPLAYMANAGER="gdm"/g' /etc/sysconfig/displaymanager
 """
