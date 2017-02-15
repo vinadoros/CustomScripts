@@ -62,6 +62,13 @@ with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
 # Set up OpenSUSE Repos
 REPOSCRIPT="""#!/bin/bash
 
+# Remove existing CD repo
+source /etc/os-release
+rm /etc/zypp/repos.d/openSUSE-$VERSION_ID*.repo
+# Add tumbleweed online repos
+zypper ar -f http://download.opensuse.org/tumbleweed/repo/oss/ "Main Repository (OSS)"
+zypper ar -f http://download.opensuse.org/update/tumbleweed/ "Main Update Repository"
+
 # Packman
 zypper ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/packman/suse/openSUSE_Tumbleweed/ packman
 
@@ -70,6 +77,9 @@ zypper ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/packman/suse/openSUSE_
 zypper ar --check --refresh http://linuxdownload.adobe.com/linux/x86_64/ adobe
 rpm -ivh http://linuxdownload.adobe.com/adobe-release/adobe-release-x86_64-1.0-1.noarch.rpm
 rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-adobe-linux
+
+# Numix repo
+zypper ar -f http://download.opensuse.org/repositories/home:/kkirill/openSUSE_Factory/ "kkirill's Home Project"
 
 # Import all gpg keys
 zypper --non-interactive --gpg-auto-import-keys refresh
@@ -109,6 +119,9 @@ zypper install -l -y pavucontrol paprefs vlc smplayer gstreamer-fluendo-mp3 auda
 
 # terminator
 zypper install -y typelib-1_0-Vte-2.91 terminator
+
+# Numix Circle icon theme
+zypper install -y numix-icon-theme-circle
 
 # VNC and synergy
 zypper install -y xorg-x11-Xvnc tigervnc synergy qsynergy
