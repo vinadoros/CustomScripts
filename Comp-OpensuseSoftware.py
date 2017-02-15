@@ -64,7 +64,9 @@ REPOSCRIPT="""#!/bin/bash
 
 # Remove existing CD repo
 source /etc/os-release
-rm /etc/zypp/repos.d/openSUSE-$VERSION_ID*.repo
+if ls /etc/zypp/repos.d/openSUSE-$VERSION_ID*.repo; then
+    rm /etc/zypp/repos.d/openSUSE-$VERSION_ID*.repo
+fi
 # Add tumbleweed online repos
 zypper ar -f http://download.opensuse.org/tumbleweed/repo/oss/ "Main Repository (OSS)"
 zypper ar -f http://download.opensuse.org/update/tumbleweed/ "Main Update Repository"
