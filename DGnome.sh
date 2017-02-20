@@ -43,14 +43,10 @@ gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type not
 gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 1800
 gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type nothing
 gsettings set org.gnome.desktop.screensaver lock-enabled false
-#This code was to change the idle time depending on the display manager (lightdm vs gdm). Right now it does nothing, but I have left it here for future use.
-if ls -l /etc/systemd/system/display-manager.service | grep -iq gdm; then
-	gsettings set org.gnome.desktop.session idle-delay 300
+if [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 ]]; then
+	gsettings set org.gnome.desktop.session idle-delay 0
 else
 	gsettings set org.gnome.desktop.session idle-delay 300
-fi
-if [ $VBOXGUEST = 1 ]; then
-	gsettings set org.gnome.desktop.session idle-delay 0
 fi
 gsettings set org.gnome.settings-daemon.plugins.xsettings antialiasing grayscale
 gsettings set org.gnome.settings-daemon.plugins.xsettings hinting slight
