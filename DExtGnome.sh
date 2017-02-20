@@ -15,15 +15,17 @@ if [ -z $USERNAMEVAR ]; then
 	USERHOME="/home/$USERNAMEVAR"
 fi
 
-if type -p pacman &> /dev/null; then
-	echo "Not installing packages."
-elif type -p zypper &> /dev/null; then
-	sudo zypper install -y git gnome-common intltool glib2-devel zip unzip gcc make
-elif type -p apt-get &> /dev/null; then
-	sudo apt-get install -y git build-essential zip gnome-common libglib2.0-dev
-elif type -p dnf &> /dev/null; then
-	sudo dnf install -y gnome-common intltool glib2-devel zip unzip
-fi
+function installdeps {
+	if type -p pacman &> /dev/null; then
+		echo "Not installing packages."
+	elif type -p zypper &> /dev/null; then
+		sudo zypper install -y git gnome-common intltool glib2-devel zip unzip gcc make
+	elif type -p apt-get &> /dev/null; then
+		sudo apt-get install -y git build-essential zip gnome-common libglib2.0-dev
+	elif type -p dnf &> /dev/null; then
+		sudo dnf install -y gnome-common intltool glib2-devel zip unzip
+	fi
+}
 
 # Ensure we are in the user's home folder
 cd $USERHOME
@@ -93,18 +95,22 @@ do
 			usage
 			;;
 		d)
+			installdeps
 			export -f dashtodock
 			[ "$(id -u)" = "0" ] && su $USERNAMEVAR -s /bin/bash -c dashtodock || dashtodock
 			;;
 		m)
+			installdeps
 			export -f mediaplayer
 			[ "$(id -u)" = "0" ] && su $USERNAMEVAR -s /bin/bash -c mediaplayer || mediaplayer
 			;;
 		v)
+			installdeps
 			export -f volumemixer
 			[ "$(id -u)" = "0" ] && su $USERNAMEVAR -s /bin/bash -c volumemixer || volumemixer
 			;;
 		t)
+			installdeps
 			export -f topiconsplus
 			[ "$(id -u)" = "0" ] && su $USERNAMEVAR -s /bin/bash -c topiconsplus || topiconsplus
 			;;
