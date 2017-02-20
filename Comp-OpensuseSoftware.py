@@ -127,6 +127,9 @@ zypper install -y typelib-1_0-Vte-2.91 terminator
 # Numix Circle icon theme
 zypper install -y numix-icon-theme-circle
 
+# Fonts
+zypper in -yl noto-sans-fonts ubuntu-fonts liberation-fonts
+
 # VNC and synergy
 zypper install -y xorg-x11-Xvnc tigervnc synergy qsynergy
 cp /usr/share/applications/qsynergy.desktop /etc/xdg/autostart/

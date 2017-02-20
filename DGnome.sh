@@ -84,6 +84,11 @@ dconf write /org/gnome/shell/extensions/dash-to-dock/intellihide-mode "'ALL_WIND
 dconf write /org/gnome/shell/extensions/window-list/show-on-all-monitors "true"
 # Set gnome-terminal scrollback
 dconf write /org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/scrollback-unlimited true
+# Set Fonts
+gsettings set org.gnome.desktop.interface document-font-name 'Noto Sans 11'
+gsettings set org.gnome.desktop.interface font-name 'Ubuntu 11'
+gsettings set org.gnome.desktop.interface monospace-font-name 'Liberation Mono 11'
+gsettings set org.gnome.desktop.wm.preferences titlebar-font 'Ubuntu Bold 11'
 
 #This section enabled the custom keybindings, and creates the required turnoffscreen script.
 gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/']"
