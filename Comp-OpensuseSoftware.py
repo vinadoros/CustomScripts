@@ -106,6 +106,8 @@ zypper in -y flash-plugin flash-player-ppapi
 zypper install -y samba samba-client samba-winbind
 
 # NTP configuration
+rpm -q ntp && zypper remove -yu ntp
+[ -f /etc/ntp.conf.rpmsave ] && rm /etc/ntp.conf.rpmsave
 systemctl enable systemd-timesyncd
 timedatectl set-local-rtc false
 timedatectl set-ntp 1
