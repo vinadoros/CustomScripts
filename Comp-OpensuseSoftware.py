@@ -131,6 +131,17 @@ zypper install -y numix-icon-theme-circle
 zypper install -y xorg-x11-Xvnc tigervnc synergy qsynergy
 cp /usr/share/applications/qsynergy.desktop /etc/xdg/autostart/
 
+# run-parts and cron
+zypper in -yl perl cron
+[ -d /tmp/run-parts ] && rm -rf /tmp/run-parts
+git clone https://github.com/wolfbox/run-parts /tmp/run-parts
+cd /tmp/run-parts
+make
+mkdir -p /usr/local/share/man/man1
+make install
+[ -d /tmp/run-parts ] && rm -rf /tmp/run-parts
+systemctl disable cron
+
 # Change to NetworkManager
 systemctl disable wicked
 systemctl enable NetworkManager

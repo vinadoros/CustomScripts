@@ -82,7 +82,7 @@ fi
 
 $SCRIPTDIR/Comp-OpensuseSoftware.py -d $SETDE
 
-#source "$SCRIPTDIR/Comp-sdtimers.sh"
+source "$SCRIPTDIR/Comp-sdtimers.sh"
 
 source "$SCRIPTDIR/Comp-VMGeneral.sh"
 

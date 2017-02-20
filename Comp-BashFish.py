@@ -201,7 +201,7 @@ elif type zypper &> /dev/null; then
     }
     function up () {
     	echo "Updating system."
-    	$SUDOCMD zypper dup
+    	$SUDOCMD zypper up -yl
     }
 elif type -p apt-get &> /dev/null; then
     if [ -f /etc/environment ]; then
