@@ -132,7 +132,7 @@ zypper install -y xorg-x11-Xvnc tigervnc synergy qsynergy
 cp /usr/share/applications/qsynergy.desktop /etc/xdg/autostart/
 
 # run-parts and cron
-zypper in -yl perl cron
+zypper in -yl perl cron make
 [ -d /tmp/run-parts ] && rm -rf /tmp/run-parts
 git clone https://github.com/wolfbox/run-parts /tmp/run-parts
 cd /tmp/run-parts
