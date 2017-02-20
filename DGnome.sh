@@ -1,13 +1,12 @@
 #!/bin/bash
 
 # Detect virtualbox.
-if grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name"; then
-	VBOXGUEST=1
-	echo "Virtualbox Detected"
-else
-	VBOXGUEST=0
-	echo "Physical Machine Detected"
-fi
+[ -z $VBOXGUEST ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1
+[ -z $VBOXGUEST ] && ! grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=0
+[ -z $QEMUGUEST ] && grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=1
+[ -z $QEMUGUEST ] && ! grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=0
+[ -z $VMWGUEST ] && grep -iq "VMware" "/sys/devices/virtual/dmi/id/product_name" && VMWGUEST=1
+[ -z $VMWGUEST ] && ! grep -iq "VMware" "/sys/devices/virtual/dmi/id/product_name" && VMWGUEST=0
 
 #This sets all of the settings in Gnome Shell
 if [[ $(type -p atom) ]]; then
@@ -20,18 +19,13 @@ fi
 xdg-mime default org.gnome.gedit.desktop text/plain
 xdg-mime default org.gnome.Nautilus.desktop inode/directory
 gsettings set org.gnome.gedit.preferences.editor create-backup-copy false
-sudo gsettings set org.gnome.gedit.preferences.editor create-backup-copy false
 gsettings set org.gnome.gedit.preferences.editor display-line-numbers true
-sudo gsettings set org.gnome.gedit.preferences.editor display-line-numbers true
 gsettings set org.gnome.gedit.preferences.editor highlight-current-line true
 gsettings set org.gnome.gedit.preferences.editor bracket-matching true
 gsettings set org.gnome.gedit.preferences.editor auto-indent true
 gsettings set org.gnome.gedit.preferences.editor tabs-size 4
-sudo gsettings set org.gnome.gedit.preferences.editor tabs-size 4
 gsettings set org.gtk.Settings.FileChooser show-hidden true
-sudo gsettings set org.gtk.Settings.FileChooser show-hidden true
 gsettings set org.gtk.Settings.FileChooser sort-directories-first true
-sudo gsettings set org.gtk.Settings.FileChooser sort-directories-first true
 gsettings set org.gnome.nautilus.preferences sort-directories-first true
 gsettings set org.gnome.nautilus.preferences executable-text-activation ask
 gsettings set org.gnome.nautilus.preferences click-policy double
