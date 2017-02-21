@@ -5,6 +5,7 @@ import argparse
 import grp
 import os
 import pwd
+import shutil
 import subprocess
 import sys
 
