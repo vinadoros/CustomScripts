@@ -84,6 +84,9 @@ rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-adobe-linux
 # Numix repo
 zypper ar -f http://download.opensuse.org/repositories/home:/kkirill/openSUSE_Factory/ "kkirill's Home Project"
 
+# Terminix repo
+zypper ar -f http://download.opensuse.org/repositories/devel:/languages:/D/openSUSE_Tumbleweed/ "devel:languages:D"
+
 # Import all gpg keys
 zypper --non-interactive --gpg-auto-import-keys refresh
 
@@ -122,7 +125,9 @@ zypper install -y wine wine-32bit PlayOnLinux
 zypper install -l -y pavucontrol paprefs vlc smplayer gstreamer-fluendo-mp3 audacious
 
 # terminator
-zypper install -y typelib-1_0-Vte-2.91 terminator
+# zypper install -y typelib-1_0-Vte-2.91 terminator
+# Terminix
+zypper install -y terminix
 
 # Numix Circle icon theme
 zypper install -y numix-icon-theme-circle
