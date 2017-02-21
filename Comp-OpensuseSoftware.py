@@ -131,7 +131,6 @@ zypper in -yl noto-sans-fonts ubuntu-fonts liberation-fonts
 
 # VNC and synergy
 zypper install -y xorg-x11-Xvnc tigervnc synergy qsynergy
-cp /usr/share/applications/qsynergy.desktop /etc/xdg/autostart/
 
 # run-parts and cron
 zypper in -yl perl cron make
@@ -200,3 +199,9 @@ fi
 visudo -c
 """
 subprocess.run(DESKTOPSCRIPT, shell=True)
+
+
+# Run only on real machine
+if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
+    # Copy synergy to global startup folder
+    shutil.copy2("/usr/share/applications/qsynergy.desktop", "/etc/xdg/autostart/qsynergy.desktop")
