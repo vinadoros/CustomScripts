@@ -93,28 +93,6 @@ if [ -f /etc/anacrontab ]; then
 	sed -i '/^MAILTO=.*/s/^/#/g' /etc/anacrontab
 fi
 
-# Terminator configuration
-if type terminator; then
-	TERMCONFIG="$USERHOME/.config/terminator/config"
-	TERMCONFIGDIR="$(dirname $TERMCONFIG)"
-	if [ ! -d "$TERMCONFIGDIR" ]; then
-		mkdir -p "$TERMCONFIGDIR"
-	fi
-	if [ ! -f "$TERMCONFIG" ]; then
-		bash -c "cat >>$TERMCONFIG" <<'EOL'
-[profiles]
-  [[default]]
-    font = Liberation Mono 11
-    scrollback_infinite = True
-		scroll_on_output = False
-    use_system_font = False
-    use_theme_colors = True
-EOL
-		chown $USERNAMEVAR:$USERGROUP -R "$TERMCONFIGDIR"
-	fi
-fi
-
-
 # Some personal cron scripts
 # Cleanup thumbnails cron script.
 if [ -d "/etc/cron.weekly" ]; then
