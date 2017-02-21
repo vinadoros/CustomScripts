@@ -201,7 +201,7 @@ elif type zypper &> /dev/null; then
     }
     function up () {
     	echo "Updating system."
-    	$SUDOCMD zypper up -yl
+    	$SUDOCMD zypper up -yl --no-recommends
     }
 elif type -p apt-get &> /dev/null; then
     if [ -f /etc/environment ]; then
@@ -492,7 +492,7 @@ else if type -q zypper;
     end
     function up
     	echo "Updating system."
-    	sudo zypper up -yl
+    	sudo zypper up -yl --no-recommends
     end
 
 else if type -q apt-get
