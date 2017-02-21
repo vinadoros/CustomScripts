@@ -183,9 +183,13 @@ elif type zypper &> /dev/null; then
     	echo "Installing $@."
     	$SUDOCMD zypper install $@
     }
+    function inr () {
+        echo "Installing $@."
+        $SUDOCMD zypper install --no-recommends $@
+    }
     function iny () {
     	echo "Installing $@."
-    	$SUDOCMD zypper install -y $@
+    	$SUDOCMD zypper install -yl $@
     }
     function rmv () {
     	echo "Removing $@."
@@ -474,9 +478,13 @@ else if type -q zypper;
     	echo "Installing $argv."
     	sudo zypper install $argv
     end
+    function inr
+        echo "Installing $argv."
+        sudo zypper install --no-recommends $argv
+    end
     function iny
     	echo "Installing $argv."
-    	sudo zypper install -y $argv
+    	sudo zypper install -yl $argv
     end
     function rmv
     	echo "Removing $argv."
