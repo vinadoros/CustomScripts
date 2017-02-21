@@ -492,7 +492,7 @@ else if type -q zypper;
     end
     function up
     	echo "Updating system."
-    	sudo zypper dup
+    	sudo zypper up -yl
     end
 
 else if type -q apt-get
