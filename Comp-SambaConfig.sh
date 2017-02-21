@@ -129,9 +129,9 @@ sambaconfigadd "/mnt"
 
 
 # Modify nsswitch.conf
-if [ -f /etc/nsswitch.conf ]; then
-    echo "Changing nsswitch.conf."
-	sed -i 's/^hosts: .*$/hosts: files mdns_minimal [NOTFOUND=return] resolve [!UNAVAIL=return] dns wins myhostname/g' /etc/nsswitch.conf
+if [ -f /etc/nsswitch.conf ] && ! grep -iq "^hosts:.*mdns_minimal" /etc/nsswitch.conf; then
+	echo "Adding mdns_minimal to nsswitch.conf."
+	sed -i '/^hosts:/ s=files=files mdns_minimal=' /etc/nsswitch.conf
 fi
 
 if [ -f /etc/avahi/avahi-daemon.conf ]; then
