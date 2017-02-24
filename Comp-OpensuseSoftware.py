@@ -181,6 +181,14 @@ zypper install -y gnome-shell-extension-gpaste gnome-shell-classic
 # Change display manager to gdm
 sed -i 's/DISPLAYMANAGER=.*$/DISPLAYMANAGER="gdm"/g' /etc/sysconfig/displaymanager
 """
+elif args.desktop is 2:
+    DESKTOPSCRIPT+="""
+# KDE
+zypper install -l -y -t pattern kde kde_plasma
+zypper install -l -y sddm
+# Change display manager to sddm
+sed -i 's/DISPLAYMANAGER=.*$/DISPLAYMANAGER="sddm"/g' /etc/sysconfig/displaymanager
+"""
 elif args.desktop is 3:
     DESKTOPSCRIPT+="""
 # MATE
