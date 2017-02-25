@@ -69,10 +69,10 @@ if ls /etc/zypp/repos.d/openSUSE-$VERSION_ID*.repo; then
     rm /etc/zypp/repos.d/openSUSE-$VERSION_ID*.repo
 fi
 # Add tumbleweed online repos
-zypper ar -f http://download.opensuse.org/tumbleweed/repo/oss/ "Main Repository (OSS)"
-zypper ar -f http://download.opensuse.org/update/tumbleweed/ "Main Update Repository"
+zypper ar -f http://download.opensuse.org/tumbleweed/repo/oss/ "openSUSE-Tumbleweed-Oss"
+zypper ar -f http://download.opensuse.org/update/tumbleweed/ "openSUSE-Tumbleweed-Update"
 # Add non-oss tumbleweed repo
-zypper ar -f http://download.opensuse.org/tumbleweed/repo/non-oss/ "openSUSE-Addon-NonOss"
+zypper ar -f http://download.opensuse.org/tumbleweed/repo/non-oss/ "openSUSE-Tumbleweed-Non-Oss"
 
 # Packman
 zypper ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/packman/suse/openSUSE_Tumbleweed/ packman
@@ -124,7 +124,7 @@ zypper install -y cups-pdf
 zypper install -y wine wine-32bit PlayOnLinux
 
 # Multimedia
-zypper install -l -y pavucontrol paprefs vlc smplayer gstreamer-fluendo-mp3 audacious
+zypper install -l -y pavucontrol paprefs smplayer gstreamer-fluendo-mp3 audacious
 
 # terminator
 # zypper install -y typelib-1_0-Vte-2.91 terminator

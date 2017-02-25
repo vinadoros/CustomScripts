@@ -45,7 +45,7 @@ do
 			;;
 	esac
 done
-	
+
 if [ $REMOVETIMERS = 0 ]; then
 	echo "Creating timers."
 elif [ $REMOVETIMERS = 1 ]; then
@@ -64,34 +64,36 @@ safermfld () {
 	else
 		RMFLD="$1"
 	fi
-	
-	if [[ -z $(ls "$RMFLD") ]]; then 
+
+	if [[ -z $(ls "$RMFLD") ]]; then
 		echo "Removing $RMFLD"
 		rm -rf "$RMFLD"
-	else 
+	else
 		echo "$RMFLD is not empty. Not removing."
 		ls -la "$RMFLD"
 	fi
 }
 
 createsdtimer () {
-	
+
 	if [ -z "$1" ]; then
 		echo "No parameter passed."
 		return 1;
 	else
 		TIMERNAME="$1"
 	fi
-	
+
 	if [ -z "$2" ]; then
 		echo "No parameter passed."
 		return 1;
 	else
 		CALENDARVAR="$1"
 	fi
-	
+
 	SDTIMER="$HEADNAME-$TIMERNAME.timer"
 	SDSERVICE="$HEADNAME-$TIMERNAME.service"
+  # Ensure path has /usr/local/bin
+  PATH=$PATH:/usr/local/bin
 	RUNPARTSBIN="$(which run-parts)"
 
 	echo "Creating $SDPATH/$SDSERVICE"
@@ -128,20 +130,20 @@ EOL
 }
 
 deletesdtimer () {
-	
+
 	if [ -z "$1" ]; then
 		echo "No parameter passed."
 		return 1;
 	else
 		TIMERNAME="$1"
 	fi
-	
+
 	SDTIMER="$HEADNAME-$TIMERNAME.timer"
 	SDSERVICE="$HEADNAME-$TIMERNAME.service"
-	
+
 	systemctl stop "$SDTIMER"
 	systemctl disable "$SDTIMER"
-	
+
 	rm -rf "$SDPATH/$SDTIMER" "$SDPATH/$SDSERVICE"
 	safermfld "/etc/cron.$TIMERNAME"
 }
