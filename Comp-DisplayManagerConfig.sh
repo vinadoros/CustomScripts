@@ -243,7 +243,9 @@ Exec=${LDSTART}
 NoDisplay=true
 EOL
 
-	# Stop apps after login
-	grepadd "$LDSTOP" "$GDMETCPATH/PreSession/Default"
+	# Stop apps after login. Add this right after script declaration.
+	if ! grep "^$LDSTOP" "$GDMETCPATH/PreSession/Default"; then
+		sed -i "/#\!\/bin\/sh/a $LDSTOP" "$GDMETCPATH/PreSession/Default"
+	fi
 
 fi
