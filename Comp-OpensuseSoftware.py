@@ -71,6 +71,8 @@ fi
 # Add tumbleweed online repos
 zypper ar -f http://download.opensuse.org/tumbleweed/repo/oss/ "Main Repository (OSS)"
 zypper ar -f http://download.opensuse.org/update/tumbleweed/ "Main Update Repository"
+# Add non-oss tumbleweed repo
+zypper ar -f http://download.opensuse.org/tumbleweed/repo/non-oss/ "openSUSE-Addon-NonOss"
 
 # Packman
 zypper ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/packman/suse/openSUSE_Tumbleweed/ packman
