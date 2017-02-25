@@ -140,6 +140,8 @@ zypper install -l -y libreoffice
 
 # Multimedia
 zypper install -l -y pavucontrol paprefs smplayer gstreamer-fluendo-mp3 audacious
+# Fix issue with paprefs. Need to file bug at some point...
+ln -sf /usr/lib64/pulse-10.0 /usr/lib64/pulse-9.0
 
 # terminator
 # zypper install -y typelib-1_0-Vte-2.91 terminator
