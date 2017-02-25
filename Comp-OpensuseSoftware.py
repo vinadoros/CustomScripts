@@ -69,10 +69,10 @@ if ls /etc/zypp/repos.d/openSUSE-$VERSION_ID*.repo; then
     rm /etc/zypp/repos.d/openSUSE-$VERSION_ID*.repo
 fi
 # Add tumbleweed online repos
-zypper ar -f http://download.opensuse.org/tumbleweed/repo/oss/ -n "openSUSE-Tumbleweed-Oss" repo-oss
-zypper ar -f http://download.opensuse.org/update/tumbleweed/ -n "openSUSE-Tumbleweed-Update" repo-update
+zypper ar -f http://download.opensuse.org/tumbleweed/repo/oss/ repo-oss
+zypper ar -f http://download.opensuse.org/update/tumbleweed/ repo-update
 # Add non-oss tumbleweed repo
-zypper ar -f http://download.opensuse.org/tumbleweed/repo/non-oss/ -n "openSUSE-Tumbleweed-Non-Oss" repo-non-oss
+zypper ar -f http://download.opensuse.org/tumbleweed/repo/non-oss/ repo-non-oss
 
 # Packman
 zypper ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/packman/suse/openSUSE_Tumbleweed/ packman
