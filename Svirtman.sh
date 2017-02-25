@@ -32,6 +32,8 @@ while true; do
 			sudo gpasswd -a $USERNAMEVAR kvm
 		elif type zypper; then
 			sudo zypper in -l -y virt-manager libvirt
+			sudo systemctl enable libvirtd
+			sudo systemctl start libvirtd
 		elif type apt-get; then
 			sudo apt-get install -y virt-manager qemu-kvm ssh-askpass
 			sudo gpasswd -a $USERNAMEVAR libvirtd
@@ -65,6 +67,8 @@ EOL
 		sudo pacman -Rsn virt-manager ebtables dnsmasq qemu bridge-utils
 		sudo pacman -Syu --needed gnu-netcat
 	elif type zypper; then
+		sudo systemctl disable libvirtd
+		sudo systemctl stop libvirtd
 		sudo zypper rm -u virt-manager libvirt
 	elif type apt-get; then
 		sudo apt-get --purge remove virt-manager qemu-kvm

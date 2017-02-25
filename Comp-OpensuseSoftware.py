@@ -69,10 +69,10 @@ if ls /etc/zypp/repos.d/openSUSE-$VERSION_ID*.repo; then
     rm /etc/zypp/repos.d/openSUSE-$VERSION_ID*.repo
 fi
 # Add tumbleweed online repos
-zypper ar -f http://download.opensuse.org/tumbleweed/repo/oss/ "openSUSE-Tumbleweed-Oss"
-zypper ar -f http://download.opensuse.org/update/tumbleweed/ "openSUSE-Tumbleweed-Update"
+zypper ar -f http://download.opensuse.org/tumbleweed/repo/oss/ -n "openSUSE-Tumbleweed-Oss" repo-oss
+zypper ar -f http://download.opensuse.org/update/tumbleweed/ -n "openSUSE-Tumbleweed-Update" repo-update
 # Add non-oss tumbleweed repo
-zypper ar -f http://download.opensuse.org/tumbleweed/repo/non-oss/ "openSUSE-Tumbleweed-Non-Oss"
+zypper ar -f http://download.opensuse.org/tumbleweed/repo/non-oss/ -n "openSUSE-Tumbleweed-Non-Oss" repo-non-oss
 
 # Packman
 zypper ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/packman/suse/openSUSE_Tumbleweed/ packman
@@ -97,6 +97,17 @@ subprocess.run(REPOSCRIPT, shell=True)
 
 # Install Fedora Software
 SOFTWARESCRIPT="""
+# Add normal user to all reasonable groups
+LISTOFGROUPS="$(cut -d: -f1 /etc/group)"
+LISTOFGROUPS=${LISTOFGROUPS//root}
+LISTOFGROUPS=${LISTOFGROUPS//users}
+LISTOFGROUPS=${LISTOFGROUPS//nobody}
+LISTOFGROUPS=${LISTOFGROUPS//nogroup}
+echo "Groups to Add: $LISTOFGROUPS"
+for grp in $LISTOFGROUPS; do
+    usermod -aG $grp {0}
+done
+
 # Install cli tools
 zypper install -y fish nano tmux iotop rsync p7zip zip unzip xdg-utils xdg-user-dirs
 
@@ -110,6 +121,7 @@ zypper in -y flash-plugin flash-player-ppapi
 
 # Samba
 zypper install -y samba samba-client samba-winbind
+systemctl enable smb nmb winbind
 
 # NTP configuration
 systemctl disable ntpd
@@ -154,7 +166,7 @@ systemctl disable cron
 # Change to NetworkManager
 systemctl disable wicked
 systemctl enable NetworkManager
-"""
+""".format(USERNAMEVAR)
 # Install software for VMs
 if QEMUGUEST is True:
     SOFTWARESCRIPT+="""
