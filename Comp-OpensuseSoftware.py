@@ -135,6 +135,9 @@ zypper install -y cups-pdf
 # Wine
 zypper install -y wine wine-32bit PlayOnLinux
 
+# Libreoffice
+zypper install -l -y libreoffice
+
 # Multimedia
 zypper install -l -y pavucontrol paprefs smplayer gstreamer-fluendo-mp3 audacious
 
