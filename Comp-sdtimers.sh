@@ -92,8 +92,6 @@ createsdtimer () {
 
 	SDTIMER="$HEADNAME-$TIMERNAME.timer"
 	SDSERVICE="$HEADNAME-$TIMERNAME.service"
-  # Ensure path has /usr/local/bin
-  PATH=$PATH:/usr/local/bin
 	RUNPARTSBIN="$(which run-parts)"
 
 	echo "Creating $SDPATH/$SDSERVICE"

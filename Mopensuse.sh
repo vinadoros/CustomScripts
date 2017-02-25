@@ -18,6 +18,9 @@ echo "Executing ${SCRNAME}."
 
 source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
 
+# Ensure path has some essentials
+PATH=$PATH:/usr/local/bin:/sbin:/usr/sbin
+
 ###############################################################################
 #########################        Compose Script      ##########################
 ###############################################################################
