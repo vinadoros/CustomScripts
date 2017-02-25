@@ -99,11 +99,11 @@ subprocess.run(REPOSCRIPT, shell=True)
 SOFTWARESCRIPT="""
 # Add normal user to all reasonable groups
 LISTOFGROUPS="$(cut -d: -f1 /etc/group)"
-LISTOFGROUPS=${LISTOFGROUPS//root}
-LISTOFGROUPS=${LISTOFGROUPS//users}
-LISTOFGROUPS=${LISTOFGROUPS//nobody}
-LISTOFGROUPS=${LISTOFGROUPS//nogroup}
-echo "Groups to Add: $LISTOFGROUPS"
+LISTOFGROUPS=${{LISTOFGROUPS//root}}
+LISTOFGROUPS=${{LISTOFGROUPS//users}}
+LISTOFGROUPS=${{LISTOFGROUPS//nobody}}
+LISTOFGROUPS=${{LISTOFGROUPS//nogroup}}
+echo Groups to Add: $LISTOFGROUPS
 for grp in $LISTOFGROUPS; do
     usermod -aG $grp {0}
 done
