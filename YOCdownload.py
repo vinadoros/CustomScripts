@@ -67,6 +67,8 @@ def ocremix_geturls(mixnumber):
 
 # Download the mix.
 def ocremix_download(url):
+    # Remove invalid characters from url
+    url = url.replace("\\", "")
 
     # Get the filename from the URL.
     ocfileinfo = urllib.parse.urlparse(url)
