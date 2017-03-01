@@ -121,7 +121,7 @@ zypper in -y flash-plugin flash-player-ppapi
 
 # Samba
 zypper install -y samba samba-client samba-winbind
-systemctl enable smb nmb winbind
+systemctl enable smb
 
 # NTP configuration
 systemctl disable ntpd
