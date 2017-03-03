@@ -120,7 +120,7 @@ zypper install -y chromium MozillaFirefox freshplayerplugin
 zypper in -y flash-plugin flash-player-ppapi
 
 # Samba
-zypper install -y samba samba-client samba-winbind
+zypper install -y samba samba-client
 systemctl enable smb
 
 # NTP configuration
@@ -233,6 +233,19 @@ visudo -c
 """
 subprocess.run(DESKTOPSCRIPT, shell=True)
 
+# Edit sudoers to add zypper.
+if os.path.isdir('/etc/sudoers.d'):
+    CUSTOMSUDOERSPATH="/etc/sudoers.d/pkmgt"
+    print("Writing {0}".format(CUSTOMSUDOERSPATH))
+    with open(CUSTOMSUDOERSPATH, 'w') as sudoers_writefile:
+        sudoers_writefile.write("""%wheel ALL=(ALL) ALL
+{0} ALL=(ALL) NOPASSWD: {1}
+""".format(USERNAMEVAR, shutil.which("zypper")))
+    os.chmod(CUSTOMSUDOERSPATH, 0o440)
+    status = subprocess.run('visudo -c', shell=True)
+    if status.returncode is not 0:
+        print("Visudo status not 0, removing sudoers file.")
+        os.remove(CUSTOMSUDOERSPATH)
 
 # Run only on real machine
 if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
