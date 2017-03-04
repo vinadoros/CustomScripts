@@ -203,6 +203,9 @@ sed -i 's/DISPLAYMANAGER=.*$/DISPLAYMANAGER="gdm"/g' /etc/sysconfig/displaymanag
 elif args.desktop is 2:
     DESKTOPSCRIPT+="""
 # KDE
+if rpm -iq patterns-openSUSE-x11_yast; then
+    zypper remove -y patterns-openSUSE-x11_yast
+fi
 zypper install -l -y -t pattern kde kde_plasma
 zypper install -l -y sddm
 # Change display manager to sddm
@@ -251,3 +254,16 @@ if os.path.isdir('/etc/sudoers.d'):
 if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
     # Copy synergy to global startup folder
     shutil.copy2("/usr/share/applications/qsynergy.desktop", "/etc/xdg/autostart/qsynergy.desktop")
+
+# Add to cron
+ZYPPERCRONSCRIPT="/etc/cron.daily/updclnscript"
+if os.path.isdir('/etc/cron.daily'):
+    print("Writing {0}".format(ZYPPERCRONSCRIPT))
+    with open(ZYPPERCRONSCRIPT, 'w') as zyppercron_writefile:
+        zyppercron_writefile.write("""#!/bin/bash
+# Update the system
+# zypper up -yl --no-recommends
+# Clean kernels
+purge-kernels
+""")
+    os.chmod(ZYPPERCRONSCRIPT, 0o777)
