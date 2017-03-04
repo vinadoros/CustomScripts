@@ -22,9 +22,9 @@ if [ -z $USERNAMEVAR ]; then
 	else
 		export USERNAMEVAR=$(id 1000 -un)
 	fi
-	USERGROUP=$(id 1000 -gn)
-	USERHOME=/home/$USERNAMEVAR
 fi
+USERGROUP=$(id 1000 -gn)
+USERHOME=/home/$USERNAMEVAR
 
 # Install tigervnc
 dist_install tigervnc autocutsel
@@ -61,11 +61,15 @@ fi
 if [ ! -f $USERHOME/.vnc/xstartup ]; then
 	echo "Creating $USERHOME/.vnc/xstartup."
 	bash -c "cat >>$USERHOME/.vnc/xstartup" <<'EOL'
-#!/bin/sh
+#!/bin/bash
 unset SESSION_MANAGER
 unset DBUS_SESSION_BUS_ADDRESS
-# Execute this session. Edit if MATE is not present on system.
-exec mate-session
+# Execute this session. Add more sessions as necessary to autoselect.
+if type mate-session; then
+	exec mate-session
+elif type gnome-session; then
+	exec gnome-session
+fi
 EOL
 	chmod 777 $USERHOME/.vnc/xstartup
 fi
