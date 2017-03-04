@@ -2,6 +2,7 @@
 
 # Python includes.
 import argparse
+from datetime import datetime, timedelta
 import grp
 import os
 import platform
@@ -263,6 +264,16 @@ ATOMRPMFILE="/tmp/atom.x86_64.rpm"
 ATOMRPMURL="https://atom.io/download/rpm"
 # The atom rpm is only available for x86_64.
 if MACHINEARCH == "x86_64":
+    # If the existing file is older than a day, delete it.
+    if os.path.isfile(ATOMRPMFILE):
+        # Get the time one day ago.
+        one_day_ago = datetime.now() - timedelta(days=1)
+        # Get the file modified time.
+        filetime = datetime.fromtimestamp(os.path.getmtime(ATOMRPMFILE))
+        # If the file is older than a day old, delete it.
+        if filetime < one_day_ago:
+            print("{0} is more than one day old. Deleting.".format(ATOMRPMFILE))
+            os.remove(ATOMRPMFILE)
     # Download the file if it isn't in /tmp.
     if not os.path.isfile(ATOMRPMFILE):
         print("Downloading",ATOMRPMURL,"to",ATOMRPMFILE)
