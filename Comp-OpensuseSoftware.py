@@ -109,18 +109,18 @@ for grp in $LISTOFGROUPS; do
 done
 
 # Install cli tools
-zypper install -y fish nano tmux iotop rsync p7zip zip unzip xdg-utils xdg-user-dirs
+zypper in -yl fish nano tmux iotop rsync p7zip zip unzip xdg-utils xdg-user-dirs
 
 # Management tools
-zypper install -y gparted leafpad
+zypper in -yl gparted leafpad
 
 # Install browsers
-zypper install -y chromium MozillaFirefox freshplayerplugin
+zypper in -yl chromium MozillaFirefox freshplayerplugin
 # Adobe Flash
-zypper in -y flash-plugin flash-player-ppapi
+zypper in -yl flash-plugin flash-player-ppapi
 
 # Samba
-zypper install -y samba samba-client
+zypper in -yl samba samba-client
 systemctl enable smb
 
 # NTP configuration
@@ -130,32 +130,32 @@ timedatectl set-local-rtc false
 timedatectl set-ntp 1
 
 # Cups
-zypper install -y cups-pdf
+zypper in -yl cups-pdf
 
 # Wine
-zypper install -y wine wine-32bit PlayOnLinux
+zypper in -yl wine wine-32bit PlayOnLinux
 
 # Libreoffice
-zypper install -l -y libreoffice
+zypper in -yl libreoffice
 
 # Multimedia
-zypper install -l -y pavucontrol paprefs smplayer gstreamer-fluendo-mp3 audacious
+zypper in -yl pavucontrol paprefs smplayer gstreamer-fluendo-mp3 audacious
 # Fix issue with paprefs. Need to file bug at some point...
 ln -sf /usr/lib64/pulse-10.0 /usr/lib64/pulse-9.0
 
 # terminator
-# zypper install -y typelib-1_0-Vte-2.91 terminator
+# zypper in -yl typelib-1_0-Vte-2.91 terminator
 # Terminix
-zypper install -y terminix
+zypper in -yl terminix
 
 # Numix Circle icon theme
-zypper install -y numix-icon-theme-circle
+zypper in -yl numix-icon-theme-circle
 
 # Fonts
 zypper in -yl noto-sans-fonts ubuntu-fonts liberation-fonts
 
 # VNC and synergy
-zypper install -y xorg-x11-Xvnc tigervnc synergy qsynergy
+zypper in -yl xorg-x11-Xvnc tigervnc synergy qsynergy
 
 # run-parts and cron
 zypper in -yl perl cron make
@@ -176,7 +176,7 @@ systemctl enable NetworkManager
 if QEMUGUEST is True:
     SOFTWARESCRIPT+="""
 # Guest Agent
-zypper install -y spice-vdagent qemu-guest-agent
+zypper in -yl spice-vdagent qemu-guest-agent
 """
 if VBOXGUEST is True:
     SOFTWARESCRIPT+="""
@@ -184,7 +184,7 @@ if VBOXGUEST is True:
 if VMWGUEST is True:
     SOFTWARESCRIPT+="""
 # VM tools
-zypper install -y open-vm-tools open-vm-tools-desktop
+zypper in -yl open-vm-tools open-vm-tools-desktop
 """
 subprocess.run(SOFTWARESCRIPT, shell=True)
 
@@ -193,33 +193,34 @@ DESKTOPSCRIPT=""""""
 if args.desktop is 1:
     DESKTOPSCRIPT+="""
 # Gnome
-zypper install -l -y -t pattern gnome_admin gnome_basis gnome_basis_opt gnome_imaging gnome_utilities gnome_laptop gnome_yast sw_management_gnome
-zypper install -l -y eog gedit gedit-plugins dconf-editor caribou evince gnome-disk-utility gnome-logs gnome-system-monitor nautilus-evince mousetweaks
-zypper install -y gdm
-zypper install -y gnome-shell-extension-gpaste gnome-shell-classic
+zypper in -yl -t pattern gnome_admin gnome_basis gnome_basis_opt gnome_imaging gnome_utilities gnome_laptop gnome_yast sw_management_gnome
+zypper in -yl eog gedit gedit-plugins dconf-editor caribou evince gnome-disk-utility gnome-logs gnome-system-monitor nautilus-evince mousetweaks
+zypper in -yl gnome-shell-extension-gpaste gnome-shell-classic
 # Change display manager to gdm
+zypper in -yl gdm
 sed -i 's/DISPLAYMANAGER=.*$/DISPLAYMANAGER="gdm"/g' /etc/sysconfig/displaymanager
 """
 elif args.desktop is 2:
     DESKTOPSCRIPT+="""
 # KDE
 if rpm -iq patterns-openSUSE-x11_yast; then
-    zypper remove -y patterns-openSUSE-x11_yast
+    zypper rm -y patterns-openSUSE-x11_yast
 fi
-zypper install -l -y -t pattern kde kde_plasma
-zypper install -l -y sddm
+zypper in -yl -t pattern kde kde_plasma
+# Systray fixes, http://blog.martin-graesslin.com/blog/2014/06/where-are-my-systray-icons/
+zypper in -yl libappindicator1 libappindicator3-1 sni-qt sni-qt-32bit
 # Change display manager to sddm
+zypper in -yl sddm
 sed -i 's/DISPLAYMANAGER=.*$/DISPLAYMANAGER="sddm"/g' /etc/sysconfig/displaymanager
 """
 elif args.desktop is 3:
     DESKTOPSCRIPT+="""
 # MATE
-zypper install -l -y -t pattern mate_basis mate_admin mate_utilities
+zypper in -yl -t pattern mate_basis mate_admin mate_utilities
 # Applications
-zypper install -l -y dconf-editor atril eom mate-search-tool mate-system-monitor caja-extension-open-terminal caja-extension-atril caja-extension-gksu mate-tweak
-# Display Manager
-zypper install -y lightdm lightdm-gtk-greeter
+zypper in -yl dconf-editor atril eom mate-search-tool mate-system-monitor caja-extension-open-terminal caja-extension-atril caja-extension-gksu mate-tweak
 # Change display manager to lightdm
+zypper in -yl lightdm lightdm-gtk-greeter
 sed -i 's/DISPLAYMANAGER=.*$/DISPLAYMANAGER="lightdm"/g' /etc/sysconfig/displaymanager
 """
 
