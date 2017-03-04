@@ -166,6 +166,9 @@ dist_install () {
 	elif type -p pacman &> /dev/null; then
 		echo "Installing $INSTALLPKGS using pacman."
 		$SUDOCMD pacman -Syu --needed --noconfirm $INSTALLPKGS
+	elif type -p zypper &> /dev/null; then
+		echo "Installing $INSTALLPKGS using zypper."
+		$SUDOCMD zypper in -yl $INSTALLPKGS
 	elif type -p apt-get &> /dev/null; then
 		echo "Installing $INSTALLPKGS using apt-get."
 		$SUDOCMD apt-get install -y $INSTALLPKGS
