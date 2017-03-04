@@ -4,10 +4,12 @@
 import argparse
 import grp
 import os
+import platform
 import pwd
 import shutil
 import subprocess
 import sys
+import urllib.request
 
 print("Running {0}".format(__file__))
 
@@ -34,6 +36,7 @@ else:
 # https://docs.python.org/3/library/grp.html
 USERGROUP=grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
 USERHOME=os.path.expanduser("~")
+MACHINEARCH = platform.machine()
 print("Username is:",USERNAMEVAR)
 print("Group Name is:",USERGROUP)
 
@@ -254,6 +257,29 @@ if os.path.isdir('/etc/sudoers.d'):
 if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
     # Copy synergy to global startup folder
     shutil.copy2("/usr/share/applications/qsynergy.desktop", "/etc/xdg/autostart/qsynergy.desktop")
+
+# Install Atom
+ATOMRPMFILE="/tmp/atom.x86_64.rpm"
+ATOMRPMURL="https://atom.io/download/rpm"
+# The atom rpm is only available for x86_64.
+if MACHINEARCH == "x86_64":
+    # Download the file if it isn't in /tmp.
+    if not os.path.isfile(ATOMRPMFILE):
+        print("Downloading",ATOMRPMURL,"to",ATOMRPMFILE)
+        urllib.request.urlretrieve(ATOMRPMURL, ATOMRPMFILE)
+    # Install it with zypper.
+    subprocess.run("zypper in -ly {0}".format(ATOMRPMFILE), shell=True)
+
+# Configure Fonts
+FONTSCRIPT="""
+sed -i 's/^VERBOSITY=.*$/VERBOSITY="1"/g' /etc/sysconfig/fonts-config
+sed -i 's/^FORCE_HINTSTYLE=.*$/FORCE_HINTSTYLE="hintfull"/g' /etc/sysconfig/fonts-config
+sed -i 's/^USE_LCDFILTER=.*$/USE_LCDFILTER="lcddefault"/g' /etc/sysconfig/fonts-config
+sed -i 's/^USE_RGBA=.*$/USE_RGBA="rgb"/g' /etc/sysconfig/fonts-config
+# Execute Changes
+/usr/sbin/fonts-config
+"""
+subprocess.run(FONTSCRIPT, shell=True)
 
 # Add to cron
 ZYPPERCRONSCRIPT="/etc/cron.daily/updclnscript"
