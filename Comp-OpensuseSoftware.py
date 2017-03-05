@@ -88,7 +88,7 @@ rpm -ivh http://linuxdownload.adobe.com/adobe-release/adobe-release-x86_64-1.0-1
 rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-adobe-linux
 
 # Numix repo
-zypper ar -f http://download.opensuse.org/repositories/home:/kkirill/openSUSE_Factory/ "kkirill's Home Project"
+zypper ar -f http://download.opensuse.org/repositories/home:/kkirill/openSUSE_Factory/ "kkirill-home"
 
 # Terminix repo
 zypper ar -f http://download.opensuse.org/repositories/devel:/languages:/D/openSUSE_Tumbleweed/ "devel:languages:D"

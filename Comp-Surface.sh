@@ -22,9 +22,9 @@ if [ -z $USERNAMEVAR ]; then
 	else
 		export USERNAMEVAR="$(id 1000 -un)"
 	fi
-	USERGROUP="$(id 1000 -gn)"
-	USERHOME="/home/$USERNAMEVAR"
 fi
+USERGROUP="$(id 1000 -gn)"
+USERHOME="/home/$USERNAMEVAR"
 
 # Enable error halting.
 set -eu
@@ -35,7 +35,14 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # Setup surface apps
-dist_install iio-sensor-proxy onboard
+dist_install iio-sensor-proxy
+if type yaourt; then
+	dist_install onboard
+# elif type zypper; then
+# 	zypper ar -f http://download.opensuse.org/repositories/home:/AndnoVember:/test/openSUSE_Factory/ AndnoVember-test
+# 	zypper --non-interactive --gpg-auto-import-keys refresh
+# 	zypper in -yl onboard
+fi
 
 # Autostarts
 cp /usr/share/applications/onboard.desktop $USERHOME/.config/autostart/
