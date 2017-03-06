@@ -34,13 +34,13 @@ while true; do
 			sudo zypper in -l -y virt-manager libvirt
 			sudo systemctl enable libvirtd
 			sudo systemctl start libvirtd
-			sudo virsh net-autostart default
 		elif type apt-get; then
 			sudo apt-get install -y virt-manager qemu-kvm ssh-askpass
 			sudo gpasswd -a $USERNAMEVAR libvirtd
 		elif type dnf; then
 			echo "none"
 		fi
+		sudo virsh net-autostart default
 		sudo sed -i 's/#user = \"root\"/user = \"'$USERNAMEVAR'\"/g' /etc/libvirt/qemu.conf
 		#sudo sed -i 's/group=.*/group=\"users\"/g' /etc/libvirt/qemu.conf
 		sudo sed -i 's/#save_image_format = \"raw\"/save_image_format = \"xz"/g' /etc/libvirt/qemu.conf
@@ -60,6 +60,7 @@ EOL
 
 	[2]* )
 	echo "You asked to remove virt-manager."
+	sudo virsh net-autostart default --disable
 	if type pacman; then
 		sudo systemctl disable libvirtd
 		sudo systemctl stop libvirtd
@@ -68,7 +69,6 @@ EOL
 		sudo pacman -Rsn virt-manager ebtables dnsmasq qemu bridge-utils
 		sudo pacman -Syu --needed gnu-netcat
 	elif type zypper; then
-		sudo virsh net-autostart default --disable
 		sudo systemctl disable libvirtd
 		sudo systemctl stop libvirtd
 		sudo zypper rm -u virt-manager libvirt
