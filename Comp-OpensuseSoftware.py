@@ -143,7 +143,9 @@ zypper in -yl wine wine-32bit PlayOnLinux
 zypper in -yl libreoffice
 
 # Multimedia
-zypper in -yl pavucontrol paprefs smplayer gstreamer-fluendo-mp3 audacious
+zypper in -yl libva-vdpau-driver vaapi-intel-driver vaapi-tools libgstvdpau libvdpau_va_gl1
+zypper in --from packman -yl audacious vlc ffmpeg youtube-dl
+zypper in -yl pavucontrol paprefs smplayer gstreamer-fluendo-mp3
 # Fix issue with paprefs. Need to file bug at some point...
 ln -sf /usr/lib64/pulse-10.0 /usr/lib64/pulse-9.0
 
