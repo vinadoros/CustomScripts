@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+
+$script = <<SCRIPT
+#!/bin/bash -x
+sudo dpkg --add-architecture i386
+sudo apt-get update
+# sudo apt-get upgrade -y
+
+# Install required programs
+sudo apt-get install -y live-build
+
+sudo bash -c "cat >/usr/local/bin/bld" <<'EOLXYZ'
+#!/bin/bash -x
+MOUNTEDFOLDER="/build"
+# Fix shared folder mount
+# if mount | grep "$MOUNTEDFOLDER" | grep nodev; then
+#   sudo mount -o remount,defaults,dev $MOUNTEDFOLDER
+# fi
+# Change to mounted folder
+cd $MOUNTEDFOLDER
+if [ -d $MOUNTEDFOLDER/livebuild ]; then
+  sudo rm -rf $MOUNTEDFOLDER/livebuild
+fi
+sudo mkdir -p $MOUNTEDFOLDER/livebuild
+cd $MOUNTEDFOLDER/livebuild
+ls -la; pwd
+EOLXYZ
+sudo chmod a+rwx /usr/local/bin/bld
+
+SCRIPT
+
+# ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+
+Vagrant.configure("2") do |config|
+    config.vm.provider "virtualbox" do |vb, config|
+      vb.memory = "4096"
+      config.vm.synced_folder ".", "/vagrant", type: "virtualbox"
+    end
+    config.vm.provider :libvirt do |libvirt, config|
+      libvirt.memory = "4096"
+      libvirt.cpus = "4"
+      config.vm.synced_folder ".", "/vagrant", type: "nfs", mount_options: ['vers=4, nfsvers=4']
+    end
+    config.vm.box = "debian/jessie64"
+    config.vm.hostname = "debisovm"
+    config.ssh.insert_key = true
+    config.vm.provision "shell", inline: $script
+end

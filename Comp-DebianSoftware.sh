@@ -9,10 +9,6 @@ echo "Executing ${SCRNAME}."
 
 set +eu
 
-# URL for omxplayer deb file.
-# http://omxplayer.sconde.net/
-OMXURL="http://omxplayer.sconde.net/builds/omxplayer_0.3.7~git20160713~66f9076_armhf.deb"
-
 # Add general functions if they don't exist.
 type -t grepadd >> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
 
@@ -210,16 +206,6 @@ dist_install cron anacron
 systemctl disable cron
 systemctl disable anacron
 
-# Apt updating sources
-APTUPDTSCR="/etc/apt/apt.conf.d/99custom"
-echo "Creating $APTUPDTSCR"
-bash -c "cat >$APTUPDTSCR" <<'EOL'
-APT::Periodic::Enable "1";
-APT::Periodic::AutocleanInterval "1";
-APT::Periodic::Unattended-Upgrade "1";
-EOL
-
-
 ###############################################################################
 ######################        Desktop Environments      #######################
 ###############################################################################
@@ -308,54 +294,5 @@ if [ "${MACHINEARCH}" != "armv7l" ]; then
 
 	# TLP
 	dist_install tlp smartmontools ethtool
-
-elif [ "${MACHINEARCH}" = "armv7l" ]; then
-	echo "Install arm specific software."
-
-	# Install omxplayer
-	if ! dpkg-query -l | grep -iq "omxplayer"; then
-		dist_install xclip youtube-dl
-		wget -P ~/ "${OMXURL}"
-		gdebi -n ~/omxplayer*.deb
-		rm ~/omxplayer*.deb
-	fi
-
-
-	if [ "$OS" = "Ubuntu" ]; then
-
-		# Linux firmware
-		dist_install linux-firmware
-
-	elif [ "$OS" = "Debian" ]; then
-
-		# Linux Firmware
-		dist_install firmware-linux
-
-		# Iceweasel
-		dist_install iceweasel
-
-		# Midori
-		dist_install midori
-
-	fi
-
-	# Rpi watchdog
-	dist_install watchdog
-	#~ sed -i 's/watchdog_module=.*$/watchdog_module="bcm2708_wdog"/g' /etc/default/watchdog
-	bash -c "cat >/lib/systemd/system/wdt_bcm.service" <<'EOL'
-[Unit]
-Description=Watchdog Daemon
-
-[Service]
-Type=forking
-PIDFile=/run/watchdog.pid
-ExecStart=/usr/sbin/watchdog
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
-EOL
-	systemctl enable wdt_bcm.service
-	echo "bcm2708_wdog" > /etc/modules-load.d/bcm2708_wdog.conf
 
 fi
