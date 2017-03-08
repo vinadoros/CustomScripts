@@ -190,6 +190,9 @@ dist_install alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pulseaudi
 # Media Playback
 dist_install vlc audacious ffmpeg
 
+# Fonts
+dist_install fonts-powerline fonts-noto
+
 # Browsers
 [ "$OS" = "Debian" ] && dist_install chromium
 [ "$OS" = "Ubuntu" ] && dist_install chromium-browser
