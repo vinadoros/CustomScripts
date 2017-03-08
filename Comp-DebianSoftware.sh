@@ -186,7 +186,7 @@ timedatectl set-ntp 1
 dist_install avahi-daemon avahi-discover libnss-mdns
 
 # Cups-pdf
-dist_install cups-pdf
+dist_install printer-driver-cups-pdf
 
 # Audio
 dist_install alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pulseaudio-module-bluetooth
