@@ -331,6 +331,8 @@ if shutil.which('fish'):
 
     # Generate fish script.
     FISHSCRIPT="""
+# Set bobthefish options
+set -g theme_display_user yes
 # Set root and non-root cmds.
 if [ (id -u) != "0" ]
     set SUDOCMD "sudo"
