@@ -201,8 +201,9 @@ dist_install firefox
 # Utils
 dist_install iotop
 
-# Terminator
-dist_install terminator
+# Terminals
+# dist_install terminator
+dist_install terminix
 
 # Cron
 dist_install cron anacron
