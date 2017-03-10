@@ -315,11 +315,10 @@ else:
     subprocess.run("cd /opt/bash-it; git pull", shell=True)
 subprocess.run("chmod a+rwx -R /opt/bash-it", shell=True)
 subprocess.run("/opt/bash-it/install.sh --silent", shell=True)
-subprocess.run("""sed -i "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" $HOME/.bashrc""", shell=True)
+subprocess.run("""sed -i "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTPATH), shell=True)
 if os.geteuid() == 0:
-    print("Installing bash-it for {0}.".format(USERNAMEVAR))
     subprocess.run('su {0} -s {1} -c "/opt/bash-it/install.sh --silent"'.format(USERNAMEVAR, shutil.which("bash")), shell=True)
-    subprocess.run("""sed -i "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" /home/{0}/.bashrc""".format(USERNAMEVAR), shell=True)
+    subprocess.run("""sed -i "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTUSERPATH), shell=True)
 
 # Install bash script
 BASHSCRIPT_VAR = open(BASHSCRIPTPATH, mode='a')
