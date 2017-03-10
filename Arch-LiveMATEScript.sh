@@ -50,10 +50,6 @@ cleanup () {
 		sudo umount -l $ARCHLIVEPATH/work/x86_64/airootfs
 		sudo rm -rf "$ARCHLIVEPATH"
 	fi
-	if [ -d "${REPOFOLDER}" ]; then
-		echo "Removing $REPOFOLDER"
-		sudo rm -rf "${REPOFOLDER}"
-	fi
 }
 
 trap cleanup SIGHUP SIGINT SIGTERM
@@ -66,61 +62,6 @@ if [[ $FREESPACE -lt 32212254720 ]]; then
 	cleanup
 	exit 0;
 fi
-
-# Repo variables
-
-# Folder to build pacakges in.
-BUILDFOLDER=/var/tmp
-
-# Folder to store repo in.
-REPONAME=localrepo
-REPOFOLDER=/var/tmp/${REPONAME}
-
-# Repo Functions
-
-# Function for AUR build.
-aur_build(){
-
-	if [ -z "$1" ]; then
-		echo "No paramter passed. Returning."
-		return 0;
-	else
-		AURPKG="$1"
-	fi
-
-	if [ -f "/var/cache/pacman/pkg/${AURPKG}"* ]; then
-		sudo rm "/var/cache/pacman/pkg/${AURPKG}"*
-	fi
-	cd $BUILDFOLDER
-	wget https://aur.archlinux.org/cgit/aur.git/snapshot/${AURPKG}.tar.gz
-	tar zxvf ${AURPKG}.tar.gz
-	sudo chmod a+rwx -R ${AURPKG}
-	cd ${AURPKG}
-	makepkg --noconfirm -c -f
-	mv ${AURPKG}-*.pkg.tar.xz ../
-	cd ..
-	rm -rf ${AURPKG}/
-	rm ${AURPKG}.tar.gz
-}
-
-# Function for building the repo
-build_repo(){
-	echo "Building Local Repository at ${REPOFOLDER}."
-	if stat --printf='' ${BUILDFOLDER}/*-x86_64.pkg.tar.xz 2>/dev/null; then
-		sudo mv ${BUILDFOLDER}/*-x86_64.pkg.tar.xz ${REPOFOLDER}/x86_64
-	fi
-	if stat --printf='' ${BUILDFOLDER}/*-i686.pkg.tar.xz 2>/dev/null; then
-		sudo mv ${BUILDFOLDER}/*-i686.pkg.tar.xz ${REPOFOLDER}/i686
-	fi
-	if stat --printf='' ${BUILDFOLDER}/*-any.pkg.tar.xz 2>/dev/null; then
-		sudo mv ${BUILDFOLDER}/*-any.pkg.tar.xz ${REPOFOLDER}/x86_64
-		sudo cp ${REPOFOLDER}/x86_64/*-any.pkg.tar.xz ${REPOFOLDER}/i686/
-	fi
-	repo-add ${REPOFOLDER}/x86_64/${REPONAME}.db.tar.gz ${REPOFOLDER}/x86_64/*.pkg.tar.xz
-	repo-add ${REPOFOLDER}/i686/${REPONAME}.db.tar.gz ${REPOFOLDER}/i686/*.pkg.tar.xz
-	#~ sudo chmod a+rwx -R ${REPOFOLDER}
-	#~ sudo chown 1000:100 -R ${REPOFOLDER}
-}
 
 # Install archiso if folders are missing.
 if [ ! -d /usr/share/archiso/configs/releng/ ]; then
@@ -140,10 +81,6 @@ cp -r /usr/share/archiso/configs/releng/ $ARCHLIVEPATH
 # 	sed -i '/APPEND/ s|$| copytoram=y |' $ARCHLIVEPATH/syslinux/archiso_sys64.cfg
 # fi
 
-# Edit build.sh to umount dev (this is a fix for dkms running inside the chroot)
-# sed -i '/run_once make_packages_efi/iumount -Rdl ${work_dir}/i686/airootfs || true' "$ARCHLIVEPATH"/build.sh
-# sed -i '/run_once make_packages_efi/iumount -Rdl ${work_dir}/x86_64/airootfs || true' "$ARCHLIVEPATH"/build.sh
-
 # Copy script folder to iso root
 #~ cp -r "$SCRIPTDIR" "$ARCHLIVEPATH/airootfs/"
 git clone "https://github.com/vinadoros/CustomScripts.git" "$ARCHLIVEPATH/airootfs/CustomScripts"
@@ -154,34 +91,6 @@ SCRIPTBASENAME="CustomScripts"
 if ! grep -iq "^TIMEOUT" "$ARCHLIVEPATH/syslinux/archiso_sys_both_inc.cfg"; then
 	echo "TIMEOUT 30" >> "$ARCHLIVEPATH/syslinux/archiso_sys_both_inc.cfg"
 	echo "TOTALTIMEOUT 600" >> "$ARCHLIVEPATH/syslinux/archiso_sys_both_inc.cfg"
-fi
-
-# Prepare AUR packages for local repo.
-if [ ! -d ${REPOFOLDER} ]; then
-	echo "Creating ${REPOFOLDER}."
-	mkdir -p ${REPOFOLDER}
-	echo "Creating ${REPOFOLDER}/i686."
-	mkdir -p ${REPOFOLDER}/i686
-	echo "Creating ${REPOFOLDER}/x86_64."
-	mkdir -p ${REPOFOLDER}/x86_64
-	chmod a+rwx -R ${REPOFOLDER}
-fi
-
-# Build software from AUR
-# aur_build "debootstrap"
-
-# Build the local repo.
-# build_repo
-
-# Add local created repo if it exists to pacman.conf for live disk.
-if [[ -d ${REPOFOLDER} && -f ${REPOFOLDER}/i686/localrepo.db ]] && ! grep -ixq "\[${REPONAME}\]" $ARCHLIVEPATH/pacman.conf; then
-	echo "Adding ${REPONAME} to $ARCHLIVEPATH/pacman.conf."
-	bash -c "cat >>${ARCHLIVEPATH}/pacman.conf" <<EOL
-[${REPONAME}]
-SigLevel = Optional TrustAll
-Server = file://${REPOFOLDER}/\$arch
-
-EOL
 fi
 
 sudo sh -c "cat >>$ARCHLIVEPATH/packages.both" <<'EOL'
@@ -395,10 +304,6 @@ sudo bash <<EOF
 if [ -d "$ARCHLIVEPATH" ]; then
 	echo "Removing $ARCHLIVEPATH"
 	rm -rf "$ARCHLIVEPATH"
-fi
-if [ -d "${REPOFOLDER}" ]; then
-	echo "Removing $REPOFOLDER"
-	rm -rf "${REPOFOLDER}"
 fi
 chown $USERNAMEVAR:$USERGROUP "$OUTFOLDER/$ISOFILENAME"*
 chmod a+rwx "$OUTFOLDER/$ISOFILENAME"*
