@@ -309,16 +309,18 @@ if os.path.isfile("/etc/skel/.bashrc"):
         shutil.chown(BASHSCRIPTUSERPATH, USERNAMEVAR, USERGROUP)
 
 # Install bash-it before modifying bashrc (which automatically deletes bashrc)
-if not os.path.isdir("/opt/bash-it"):
-    subprocess.run("git clone https://github.com/Bash-it/bash-it /opt/bash-it", shell=True)
-else:
-    subprocess.run("cd /opt/bash-it; git pull", shell=True)
-subprocess.run("chmod a+rwx -R /opt/bash-it", shell=True)
-subprocess.run("/opt/bash-it/install.sh --silent", shell=True)
-subprocess.run("""sed -i "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTPATH), shell=True)
-if os.geteuid() == 0:
-    subprocess.run('su {0} -s {1} -c "/opt/bash-it/install.sh --silent"'.format(USERNAMEVAR, shutil.which("bash")), shell=True)
-    subprocess.run("""sed -i "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTUSERPATH), shell=True)
+# Only do it if the current user can write to opt
+if os.access("/opt", os.W_OK):
+    if not os.path.isdir("/opt/bash-it"):
+        subprocess.run("git clone https://github.com/Bash-it/bash-it /opt/bash-it", shell=True)
+    else:
+        subprocess.run("cd /opt/bash-it; git pull", shell=True)
+    subprocess.run("chmod a+rwx -R /opt/bash-it", shell=True)
+    subprocess.run("/opt/bash-it/install.sh --silent", shell=True)
+    subprocess.run("""sed -i "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTPATH), shell=True)
+    if os.geteuid() == 0:
+        subprocess.run('su {0} -s {1} -c "/opt/bash-it/install.sh --silent"'.format(USERNAMEVAR, shutil.which("bash")), shell=True)
+        subprocess.run("""sed -i "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTUSERPATH), shell=True)
 
 # Install bash script
 BASHSCRIPT_VAR = open(BASHSCRIPTPATH, mode='a')
