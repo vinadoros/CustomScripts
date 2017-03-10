@@ -316,6 +316,7 @@ if os.access("/opt", os.W_OK):
     else:
         subprocess.run("cd /opt/bash-it; git pull", shell=True)
     subprocess.run("chmod a+rwx -R /opt/bash-it", shell=True)
+if os.path.isdir("/opt/bash-it"):
     subprocess.run("/opt/bash-it/install.sh --silent", shell=True)
     subprocess.run("""sed -i "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTPATH), shell=True)
     if os.geteuid() == 0:
