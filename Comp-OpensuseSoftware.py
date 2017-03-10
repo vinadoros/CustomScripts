@@ -202,6 +202,8 @@ if args.desktop is 1:
 zypper in -yl -t pattern gnome_admin gnome_basis gnome_basis_opt gnome_imaging gnome_utilities gnome_laptop gnome_yast sw_management_gnome
 zypper in -yl eog gedit gedit-plugins dconf-editor caribou evince gnome-disk-utility gnome-logs gnome-system-monitor nautilus-evince mousetweaks
 zypper in -yl gnome-shell-extension-gpaste gnome-shell-classic
+# Remove packagekit/gnome-software-service
+[ -f /etc/xdg/autostart/gnome-software-service.desktop ] && rm -f /etc/xdg/autostart/gnome-software-service.desktop
 # Change display manager to gdm
 zypper in -yl gdm
 sed -i 's/DISPLAYMANAGER=.*$/DISPLAYMANAGER="gdm"/g' /etc/sysconfig/displaymanager
