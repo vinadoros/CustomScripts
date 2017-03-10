@@ -54,6 +54,14 @@ gparted
 EOL
 	# Add repositories
 	echo "deb http://ftp.us.debian.org/debian unstable main contrib non-free" | tee config/archives/your-repository.list.binary | tee config/archives/your-repository.list.chroot
+	# Modify bootloader settings
+	mkdir -p binary/isolinux
+	cat > binary/isolinux/isolinux.cfg <<'EOL'
+include menu.cfg
+default vesamenu.c32
+prompt 0
+timeout 10
+EOL
 	# Build the image
 	#sudo lb build
 fi
