@@ -46,11 +46,43 @@ if [ -d $WORKINGFOLDER ]; then
 	# Add packages
 	cat > config/package-lists/custom.list.chroot<<'EOL'
 # Desktop utils
-task-mate-desktop
-firefox
+mate-desktop-environment
+network-manager-gnome
+caja-open-terminal
+caja-gksu
+dconf-editor
+gnome-keyring
+dconf-cli
+leafpad
+midori
+# CLI Utilities
+sudo
+ssh
+tmux
+nano
+curl
+rsync
+less
+iotop
+git
 # Recovery and Backup utils
 clonezilla
 gparted
+gnome-disk-utility
+btrfs-tools
+f2fs-tools
+xfsprogs
+dmraid
+mdadm
+# VM Utilities
+dkms
+spice-vdagent
+qemu-guest-agent
+open-vm-tools
+open-vm-tools-dkms
+open-vm-tools-desktop
+virtualbox-guest-utils
+virtualbox-guest-dkms
 EOL
 	# Add repositories
 	echo "deb http://ftp.us.debian.org/debian unstable main contrib non-free" | tee config/archives/your-repository.list.binary | tee config/archives/your-repository.list.chroot
