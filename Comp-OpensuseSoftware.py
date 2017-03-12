@@ -87,6 +87,9 @@ zypper ar --check --refresh http://linuxdownload.adobe.com/linux/x86_64/ adobe
 rpm -ivh http://linuxdownload.adobe.com/adobe-release/adobe-release-x86_64-1.0-1.noarch.rpm
 rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-adobe-linux
 
+# Vinadoros repo
+zypper ar -f http://download.opensuse.org/repositories/home:/vinadoros/openSUSE_Tumbleweed/ vinadoros-home
+
 # Numix repo
 zypper ar -f http://download.opensuse.org/repositories/home:/lbssousa:/numix/openSUSE_Tumbleweed/ "lbssousa-numix"
 
