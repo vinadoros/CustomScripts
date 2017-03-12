@@ -84,6 +84,7 @@ if args.ostype == 1:
     vmwareid = "fedora-64"
     vmprovisionscript = "MFedora.sh"
     vmprovision_defopts = "-n -s {0}".format(args.vmpass)
+    kvm_os = "linux"
     kvm_variant = "fedora22"
     isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1611.iso"
 elif args.ostype == 2:
@@ -92,6 +93,7 @@ elif args.ostype == 2:
     vmwareid = "fedora-64"
     vmprovisionscript = "MFedora.sh"
     vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
+    kvm_os = "linux"
     kvm_variant = "fedora22"
     isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/25/Server/x86_64/iso/Fedora-Server-dvd-x86_64-25-1.3.iso"
 if args.ostype == 10:
@@ -100,6 +102,7 @@ if args.ostype == 10:
     vmwareid = "ubuntu-64"
     vmprovisionscript = "MDebUbu.sh"
     vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
+    kvm_os = "linux"
     kvm_variant = "ubuntu16.04"
     isourl = "http://releases.ubuntu.com/16.10/ubuntu-16.10-server-amd64.iso"
 if args.ostype == 11:
@@ -108,6 +111,7 @@ if args.ostype == 11:
     vmwareid = "ubuntu-64"
     vmprovisionscript = "MDebUbu.sh"
     vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
+    kvm_os = "linux"
     kvm_variant = "ubuntu16.04"
     isourl = "http://releases.ubuntu.com/16.04/ubuntu-16.04.1-server-amd64.iso"
 if args.ostype == 20:
@@ -116,17 +120,24 @@ if args.ostype == 20:
     vmwareid = "ubuntu-64"
     vmprovisionscript = "Mopensuse.sh"
     vmprovision_defopts = "-n -e 1 -s {0}".format(args.vmpass)
+    kvm_os = "linux"
     kvm_variant = "opensusetumbleweed"
     isourl = "http://download.opensuse.org/tumbleweed/iso/openSUSE-Tumbleweed-DVD-x86_64-Current.iso"
 elif args.ostype == 50:
     vmname = "Packer-Windows10-{0}".format(hvname)
     vboxosid = "Windows10_64"
     vmwareid = "windows10-64"
+    kvm_os = "windows"
+    kvm_variant = "win10"
+    vmprovision_defopts = " "
     isourl = None
 elif args.ostype == 51:
-    vmname = "Packer-WindowsServer2016-{0}".format(hvname)
-    vboxosid = "Windows10_64"
-    vmwareid = "windows10-64"
+    vmname = "Packer-Windows7-{0}".format(hvname)
+    vboxosid = "Windows7_64"
+    vmwareid = "windows7-64"
+    kvm_os = "windows"
+    kvm_variant = "win7"
+    vmprovision_defopts = " "
     isourl = None
 
 # Override provision opts if provided.
@@ -316,8 +327,8 @@ if args.vmtype is 2:
         virsh --connect qemu:///system destroy {vmname}
         virsh --connect qemu:///system undefine {vmname}
     fi
-    virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg}.qcow2,bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model=virtio --filesystem source=/,target=root,mode=mapped --os-type=linux --os-variant={kvm_variant} --import --noautoconsole --video=qxl --channel unix,target_type=virtio,name=org.qemu.guest_agent.0
-    """.format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=vmpath+"/"+vmname, imgsize=args.imgsize, kvm_variant=kvm_variant)
+    virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg}.qcow2,bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model=virtio --filesystem source=/,target=root,mode=mapped --os-type={kvm_os} --os-variant={kvm_variant} --import --noautoconsole --video=qxl --channel unix,target_type=virtio,name=org.qemu.guest_agent.0
+    """.format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=vmpath+"/"+vmname, imgsize=args.imgsize, kvm_os=kvm_os, kvm_variant=kvm_variant)
     try:
        subprocess.run(CREATESCRIPT_KVM, shell=True)
     except:
