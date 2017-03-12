@@ -36,13 +36,7 @@ fi
 
 # Setup surface apps
 dist_install iio-sensor-proxy
-if type yaourt; then
-	dist_install onboard
-# elif type zypper; then
-# 	zypper ar -f http://download.opensuse.org/repositories/home:/AndnoVember:/test/openSUSE_Factory/ AndnoVember-test
-# 	zypper --non-interactive --gpg-auto-import-keys refresh
-# 	zypper in -yl onboard
-fi
+dist_install onboard
 
 # Autostarts
 cp /usr/share/applications/onboard.desktop $USERHOME/.config/autostart/
