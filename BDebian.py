@@ -50,7 +50,7 @@ if args.type == "ubuntu" and args.architecture == "armhf":
 elif args.type == "ubuntu":
     osurl = "http://archive.ubuntu.com/ubuntu/"
 else:
-    osurl = ""
+    osurl = "http://ftp.us.debian.org/debian/"
 print("URL to use:", osurl)
 
 # Exit if not root.
