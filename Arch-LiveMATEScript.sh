@@ -76,9 +76,8 @@ fi
 cp -r /usr/share/archiso/configs/releng/ $ARCHLIVEPATH
 
 # Enable copytoram, but only for 64bit machiens.
-# if ! grep -Fq "copytoram" $ARCHLIVEPATH/syslinux/archiso_sys64.cfg; then
-# 	sed -i '/APPEND/ s|$| copytoram=y |' $ARCHLIVEPATH/syslinux/archiso_sys32.cfg
-# 	sed -i '/APPEND/ s|$| copytoram=y |' $ARCHLIVEPATH/syslinux/archiso_sys64.cfg
+# if ! grep -Fq "copytoram" $ARCHLIVEPATH/syslinux/archiso.cfg; then
+# 	sed -i '/APPEND/ s|$| copytoram=y |' $ARCHLIVEPATH/syslinux/archiso.cfg
 # fi
 
 # Copy script folder to iso root
@@ -88,9 +87,9 @@ git clone "https://github.com/vinadoros/CustomScripts.git" "$ARCHLIVEPATH/airoot
 SCRIPTBASENAME="CustomScripts"
 
 # Set syslinux timeout
-if ! grep -iq "^TIMEOUT" "$ARCHLIVEPATH/syslinux/archiso_sys_both_inc.cfg"; then
-	echo "TIMEOUT 30" >> "$ARCHLIVEPATH/syslinux/archiso_sys_both_inc.cfg"
-	echo "TOTALTIMEOUT 600" >> "$ARCHLIVEPATH/syslinux/archiso_sys_both_inc.cfg"
+if ! grep -iq "^TIMEOUT" "$ARCHLIVEPATH/syslinux/archiso_sys.cfg"; then
+	echo "TIMEOUT 30" >> "$ARCHLIVEPATH/syslinux/archiso_sys.cfg"
+	echo "TOTALTIMEOUT 600" >> "$ARCHLIVEPATH/syslinux/archiso_sys.cfg"
 fi
 
 sudo sh -c "cat >>$ARCHLIVEPATH/packages.both" <<'EOL'
@@ -218,6 +217,7 @@ echo "root:asdf" | chpasswd
 # Enable avahi and ssh
 systemctl enable sshd
 systemctl enable avahi-daemon
+echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
 # Set computer to not sleep on lid close
 if ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf; then
