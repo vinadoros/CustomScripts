@@ -306,13 +306,12 @@ purge-kernels
 
 # Add normal user to all reasonable groups
 GROUPSCRIPT="""
+# Get all groups
 LISTOFGROUPS="$(cut -d: -f1 /etc/group)"
-LISTOFGROUPS=${{LISTOFGROUPS//root}}
-LISTOFGROUPS=${{LISTOFGROUPS//users}}
-LISTOFGROUPS=${{LISTOFGROUPS//nobody}}
-LISTOFGROUPS=${{LISTOFGROUPS//nogroup}}
-echo Groups to Add: $LISTOFGROUPS
-for grp in $LISTOFGROUPS; do
+# Remove some groups
+CUTGROUPS=$(sed -e "/^users/d; /^root/d; /^nobody/d; /^nogroup/d" <<< $LISTOFGROUPS)
+echo Groups to Add: $CUTGROUPS
+for grp in $CUTGROUPS; do
     usermod -aG $grp {0}
 done
 """.format(USERNAMEVAR)
