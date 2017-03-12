@@ -99,19 +99,8 @@ zypper --non-interactive --gpg-auto-import-keys refresh
 """
 subprocess.run(REPOSCRIPT, shell=True)
 
-# Install Fedora Software
+# Install Software
 SOFTWARESCRIPT="""
-# Add normal user to all reasonable groups
-LISTOFGROUPS="$(cut -d: -f1 /etc/group)"
-LISTOFGROUPS=${{LISTOFGROUPS//root}}
-LISTOFGROUPS=${{LISTOFGROUPS//users}}
-LISTOFGROUPS=${{LISTOFGROUPS//nobody}}
-LISTOFGROUPS=${{LISTOFGROUPS//nogroup}}
-echo Groups to Add: $LISTOFGROUPS
-for grp in $LISTOFGROUPS; do
-    usermod -aG $grp {0}
-done
-
 # Install cli tools
 zypper in -yl fish nano tmux iotop rsync p7zip zip unzip xdg-utils xdg-user-dirs
 
@@ -263,6 +252,8 @@ if os.path.isdir('/etc/sudoers.d'):
 if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
     # Copy synergy to global startup folder
     shutil.copy2("/usr/share/applications/qsynergy.desktop", "/etc/xdg/autostart/qsynergy.desktop")
+    # Install virtualbox
+    subprocess.run("zypper in -yl virtualbox", shell=True)
 
 # Install Atom
 ATOMRPMFILE="/tmp/atom.x86_64.rpm"
@@ -309,3 +300,17 @@ if os.path.isdir('/etc/cron.daily'):
 purge-kernels
 """)
     os.chmod(ZYPPERCRONSCRIPT, 0o777)
+
+# Add normal user to all reasonable groups
+GROUPSCRIPT="""
+LISTOFGROUPS="$(cut -d: -f1 /etc/group)"
+LISTOFGROUPS=${{LISTOFGROUPS//root}}
+LISTOFGROUPS=${{LISTOFGROUPS//users}}
+LISTOFGROUPS=${{LISTOFGROUPS//nobody}}
+LISTOFGROUPS=${{LISTOFGROUPS//nogroup}}
+echo Groups to Add: $LISTOFGROUPS
+for grp in $LISTOFGROUPS; do
+    usermod -aG $grp {0}
+done
+""".format(USERNAMEVAR)
+subprocess.run(GROUPSCRIPT, shell=True)
