@@ -85,6 +85,9 @@ gnome-keyring
 dconf-cli
 leafpad
 midori
+gvfs
+avahi-daemon
+avahi-discover
 # CLI Utilities
 sudo
 ssh
@@ -98,12 +101,15 @@ git
 # Recovery and Backup utils
 clonezilla
 gparted
+fsarchiver
 gnome-disk-utility
 btrfs-tools
 f2fs-tools
 xfsprogs
 dmraid
 mdadm
+chntpw
+debootstrap
 # VM Utilities
 dkms
 spice-vdagent
@@ -145,7 +151,8 @@ subprocess.run("sed -i 's/^timeout .*/timeout 10/g' {0}".format(buildfolder+"/co
 CHROOTSCRIPT="""#!/bin/bash
 set -ex
 # Set root password
-echo "root:asdf" | chpasswd
+passwd -u root
+chpasswd <<<"root:asdf"
 
 # Set timezone
 
@@ -165,7 +172,7 @@ After=network.target nss-lookup.target network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/bash -c "cd /CustomScripts; git pull"
+ExecStart=/bin/bash -c "cd /CustomScripts; git pull"
 Restart=on-failure
 RestartSec=3s
 TimeoutStopSec=7s
@@ -215,6 +222,34 @@ while true; do
 done
 EOL
 chmod a+rwx /usr/local/bin/ra.sh
+
+# Set computer to not sleep on lid close
+if ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf; then
+	echo 'HandleLidSwitch=lock' >> /etc/systemd/logind.conf
+fi
+
+# Add CustomScripts to path
+if ! grep "$SCRIPTBASENAME" /root/.bashrc; then
+	cat >>/root/.bashrc <<EOLBASH
+
+if [ -d $SCRIPTBASENAME ]; then
+	export PATH=\$PATH:$SCRIPTBASENAME
+fi
+EOLBASH
+fi
+# Get normal user
+USERNAMEVAR="$(id 1000 -un)"
+USERGROUP="$(id 1000 -gn)"
+USERHOME="/home/$USERNAMEVAR"
+# Add customscripts to normal user path
+if ! grep "$SCRIPTBASENAME" $USERHOME/.bashrc; then
+	cat >>$USERHOME/.bashrc <<EOL
+
+if [ -d $SCRIPTBASENAME ]; then
+	export PATH=\$PATH:$SCRIPTBASENAME:/sbin:/usr/sbin
+fi
+EOL
+fi
 
 """
 chroothookfolder=buildfolder+"/config/hooks/normal"
