@@ -236,6 +236,6 @@ subprocess.run("chown {0}:{1} -R {2}".format(USERNAMEVAR, USERGROUP, buildfolder
 for filename in glob.iglob(buildfolder+"/*.hybrid.iso"):
     print("Detected: "+filename)
     # Make the iso world rwx
-    shutil.chmod(filename, 0o777)
+    os.chmod(filename, 0o777)
     # Move the iso to the output folder
     subprocess.run("rsync -aP {0} {1}; sync".format(filename, outfolder+"/"), shell=True)
