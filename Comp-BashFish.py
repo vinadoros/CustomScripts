@@ -26,6 +26,8 @@ else:
 USERGROUP=grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
 # Note: This folder is the root home folder if this script is run as root.
 USERHOME=os.path.expanduser("~")
+# This folder is the above detected user's home folder if this script is run as root.
+USERVARHOME=os.path.expanduser("~{0}".format(USERNAMEVAR))
 
 # Ensure that certain commands exist.
 cmdcheck = ["chsh"]
@@ -293,7 +295,7 @@ fi
 # Set bash script
 BASHSCRIPTPATH=USERHOME+"/.bashrc"
 if os.geteuid() == 0:
-    BASHSCRIPTUSERPATH="/home/{0}/.bashrc".format(USERNAMEVAR)
+    BASHSCRIPTUSERPATH="{0}/.bashrc".format(USERVARHOME)
 
 # Remove existing bash scripts and copy skeleton.
 if os.path.isfile(BASHSCRIPTPATH):
@@ -604,13 +606,13 @@ end
     # Set fish script
     FISHSCRIPTPATH=USERHOME+"/.config/fish/config.fish"
     if os.geteuid() == 0:
-        FISHSCRIPTUSERPATH="/home/{0}/.config/fish/config.fish".format(USERNAMEVAR)
+        FISHSCRIPTUSERPATH="{0}/.config/fish/config.fish".format(USERVARHOME)
 
     # Create path if it doesn't existing
     os.makedirs(os.path.dirname(FISHSCRIPTPATH),exist_ok=True)
     if os.geteuid() == 0:
         os.makedirs(os.path.dirname(FISHSCRIPTUSERPATH),exist_ok=True)
-        subprocess.run("chown -R {0}:{1} /home/{0}/.config".format(USERNAMEVAR, USERGROUP), shell=True)
+        subprocess.run("chown -R {0}:{1} {2}/.config".format(USERNAMEVAR, USERGROUP, USERVARHOME), shell=True)
 
     # Remove existing fish scripts.
     if os.path.isfile(FISHSCRIPTPATH):

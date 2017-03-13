@@ -32,7 +32,7 @@ else:
     USERNAMEVAR=pwd.getpwuid(1000)[0]
 # https://docs.python.org/3/library/grp.html
 USERGROUP=grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
-USERHOME=os.path.expanduser("~")
+USERHOME=os.path.expanduser("~{0}".format(USERNAMEVAR))
 print("Username is:",USERNAMEVAR)
 print("Group Name is:",USERGROUP)
 
