@@ -229,6 +229,7 @@ if ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf; then
 fi
 
 # Add CustomScripts to path
+SCRIPTBASENAME="/CustomScripts"
 if ! grep "$SCRIPTBASENAME" /root/.bashrc; then
 	cat >>/root/.bashrc <<EOLBASH
 
@@ -237,19 +238,19 @@ if [ -d $SCRIPTBASENAME ]; then
 fi
 EOLBASH
 fi
-# Get normal user
-USERNAMEVAR="$(id 1000 -un)"
-USERGROUP="$(id 1000 -gn)"
-USERHOME="/home/$USERNAMEVAR"
-# Add customscripts to normal user path
-if ! grep "$SCRIPTBASENAME" $USERHOME/.bashrc; then
-	cat >>$USERHOME/.bashrc <<EOL
-
-if [ -d $SCRIPTBASENAME ]; then
-	export PATH=\$PATH:$SCRIPTBASENAME:/sbin:/usr/sbin
-fi
-EOL
-fi
+# # Get normal user
+# USERNAMEVAR="$(id 1000 -un)"
+# USERGROUP="$(id 1000 -gn)"
+# USERHOME="/home/$USERNAMEVAR"
+# # Add customscripts to normal user path
+# if ! grep "$SCRIPTBASENAME" $USERHOME/.bashrc; then
+# 	cat >>$USERHOME/.bashrc <<EOL
+#
+# if [ -d $SCRIPTBASENAME ]; then
+# 	export PATH=\$PATH:$SCRIPTBASENAME:/sbin:/usr/sbin
+# fi
+# EOL
+# fi
 
 """
 chroothookfolder=buildfolder+"/config/hooks/normal"
