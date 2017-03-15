@@ -19,10 +19,10 @@ if not os.geteuid() == 0:
     sys.exit("\nError: Please run this script as root.\n")
 
 # Ensure that certain commands exist.
-cmdcheck = ["lb", "debootstrap", "syslinux"]
+cmdcheck = ["lb", "debootstrap", "syslinux", "rsync", "time"]
 for cmd in cmdcheck:
     if not shutil.which(cmd):
-        subprocess.run("apt-get update; apt-get install -y live-build syslinux isolinux xorriso dctrl-tools rsync", shell=True)
+        subprocess.run("apt-get update; apt-get install -y live-build syslinux isolinux xorriso dctrl-tools rsync time", shell=True)
     if not shutil.which(cmd):
         sys.exit("\nError, ensure command {0} is installed.".format(cmd))
 
@@ -64,7 +64,7 @@ if args.noprompt == False:
 os.makedirs(buildfolder, 0o777, exist_ok=True)
 
 # Configure and clean the live build
-subprocess.run("cd {0}; lb config; lb clean".format(buildfolder), shell=True)
+subprocess.run('cd {0}; lb clean; lb config --bootappend-live "boot=live components timezone=America/New_York"'.format(buildfolder), shell=True)
 
 # Copy over autoconfig
 if os.path.isdir(buildfolder+"/auto"):
@@ -98,6 +98,8 @@ rsync
 less
 iotop
 git
+# Provides the mkpasswd utility
+whois
 # Recovery and Backup utils
 clonezilla
 gparted
@@ -151,13 +153,12 @@ subprocess.run("sed -i 's/^timeout .*/timeout 10/g' {0}".format(buildfolder+"/co
 CHROOTSCRIPT="""#!/bin/bash
 set -ex
 # Set root password
-passwd -u root
-chpasswd <<<"root:asdf"
-
-# Set timezone
+# passwd -u root
+# echo "root:asdf" | chpasswd
 
 # Modify ssh config
 echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+sed -i '/PasswordAuthentication/d' /etc/ssh/sshd_config
 
 # Install CustomScripts
 git clone "https://github.com/vinadoros/CustomScripts.git" "/CustomScripts"
@@ -228,6 +229,26 @@ if ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf; then
 	echo 'HandleLidSwitch=lock' >> /etc/systemd/logind.conf
 fi
 
+# Edit live-config scripts
+# Generate passwords
+# https://serverfault.com/questions/330069/how-to-create-an-sha-512-hashed-password-for-shadow
+ROOTPASSWORD=$(echo "asdf" | mkpasswd -m sha-512 -s)
+USERPASSWORD=$(echo "asdf" | mkpasswd -m sha-512 -s)
+sed -i "s@root-password-crypted string.*@root-password-crypted string \\"$ROOTPASSWORD\\"@g" /lib/live/config/0030-user-setup
+sed -i "s@user-password-crypted string.*@user-password-crypted string \\"$USERPASSWORD\\"@g" /lib/live/config/0030-user-setup
+
+"""
+chroothookfolder=buildfolder+"/config/hooks/normal"
+chroothookfile=chroothookfolder+"/custom.hook.chroot"
+os.makedirs(chroothookfolder, 0o777, exist_ok=True)
+print("Writing {0}".format(chroothookfile))
+with open(chroothookfile, 'w') as chroothookfile_write:
+    chroothookfile_write.write(CHROOTSCRIPT)
+
+# Boot-time hooks
+BOOTHOOKSCRIPT="""#!/bin/bash
+echo "live-config: 2000-usercustomization"
+
 # Add CustomScripts to path
 SCRIPTBASENAME="/CustomScripts"
 if ! grep "$SCRIPTBASENAME" /root/.bashrc; then
@@ -238,30 +259,24 @@ if [ -d $SCRIPTBASENAME ]; then
 fi
 EOLBASH
 fi
-# # Get normal user
-# USERNAMEVAR="$(id 1000 -un)"
-# USERGROUP="$(id 1000 -gn)"
-# USERHOME="/home/$USERNAMEVAR"
-# # Add customscripts to normal user path
-# if ! grep "$SCRIPTBASENAME" $USERHOME/.bashrc; then
-# 	cat >>$USERHOME/.bashrc <<EOL
-#
-# if [ -d $SCRIPTBASENAME ]; then
-# 	export PATH=\$PATH:$SCRIPTBASENAME:/sbin:/usr/sbin
-# fi
-# EOL
-# fi
+if ! grep "$SCRIPTBASENAME" /home/user/.bashrc; then
+	cat >>/home/user/.bashrc <<EOLBASH
 
+if [ -d $SCRIPTBASENAME ]; then
+	export PATH=\$PATH:$SCRIPTBASENAME:/sbin:/usr/sbin
+fi
+EOLBASH
+fi
 """
-chroothookfolder=buildfolder+"/config/hooks/normal"
-chroothookfile=chroothookfolder+"/custom.hook.chroot"
-os.makedirs(chroothookfolder, 0o777, exist_ok=True)
-print("Writing {0}".format(chroothookfile))
-with open(chroothookfile, 'w') as chroothookfile_write:
-    chroothookfile_write.write(CHROOTSCRIPT)
+boothookfolder=buildfolder+"/config/includes.chroot/lib/live/config"
+boothookfile=boothookfolder+"/2000-usercustomization"
+os.makedirs(boothookfolder, 0o777, exist_ok=True)
+print("Writing {0}".format(boothookfile))
+with open(boothookfile, 'w') as boothookfile_write:
+    boothookfile_write.write(BOOTHOOKSCRIPT)
 
 # Build the live build
-subprocess.run("cd {0}; lb build".format(buildfolder), shell=True)
+subprocess.run("cd {0}; time lb build".format(buildfolder), shell=True)
 
 # Make normal user owner of build folder.
 subprocess.run("chown {0}:{1} -R {2}".format(USERNAMEVAR, USERGROUP, buildfolder), shell=True)
@@ -274,4 +289,4 @@ for filename in glob.iglob(buildfolder+"/*.hybrid.iso"):
     # Make the iso world rwx
     os.chmod(filename, 0o777)
     # Move the iso to the output folder
-    subprocess.run("rsync -aP {0} {1}; sync".format(filename, outfolder+"/"), shell=True)
+    subprocess.run("cd {2}; rsync -aP {0} {1}; sync".format(filename, outfolder+"/", buildfolder), shell=True)

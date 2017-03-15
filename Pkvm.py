@@ -67,6 +67,7 @@ vmpath = os.path.abspath(args.vmpath)
 print("Path to Packer output is {0}".format(vmpath))
 print("OS Type is {0}".format(args.ostype))
 print("VM Memory is {0}".format(args.memory))
+print("VM Hard Disk size is {0}".format(args.imgsize))
 print("VM User is {0}".format(args.vmuser))
 
 # Determine VM hypervisor
