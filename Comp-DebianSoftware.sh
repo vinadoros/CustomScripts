@@ -203,7 +203,7 @@ dist_install iotop
 
 # Terminals
 # dist_install terminator
-dist_install terminix
+# dist_install terminix
 
 # Cron
 dist_install cron anacron
