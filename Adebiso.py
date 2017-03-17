@@ -150,11 +150,7 @@ shutil.copytree("/usr/share/live/build/bootloaders/isolinux", buildfolder+"/conf
 subprocess.run("sed -i 's/^timeout .*/timeout 10/g' {0}".format(buildfolder+"/config/bootloaders/isolinux/isolinux.cfg"), shell=True)
 
 # Add chroot script
-CHROOTSCRIPT="""#!/bin/bash
-set -ex
-# Set root password
-# passwd -u root
-# echo "root:asdf" | chpasswd
+CHROOTSCRIPT="""#!/bin/bash -x
 
 # Modify ssh config
 echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
@@ -229,14 +225,6 @@ if ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf; then
 	echo 'HandleLidSwitch=lock' >> /etc/systemd/logind.conf
 fi
 
-# Edit live-config scripts
-# Generate passwords
-# https://serverfault.com/questions/330069/how-to-create-an-sha-512-hashed-password-for-shadow
-ROOTPASSWORD=$(echo "asdf" | mkpasswd -m sha-512 -s)
-USERPASSWORD=$(echo "asdf" | mkpasswd -m sha-512 -s)
-sed -i "s@root-password-crypted string.*@root-password-crypted string \\"$ROOTPASSWORD\\"@g" /lib/live/config/0030-user-setup
-sed -i "s@user-password-crypted string.*@user-password-crypted string \\"$USERPASSWORD\\"@g" /lib/live/config/0030-user-setup
-
 """
 chroothookfolder=buildfolder+"/config/hooks/normal"
 chroothookfile=chroothookfolder+"/custom.hook.chroot"
@@ -246,8 +234,12 @@ with open(chroothookfile, 'w') as chroothookfile_write:
     chroothookfile_write.write(CHROOTSCRIPT)
 
 # Boot-time hooks
-BOOTHOOKSCRIPT="""#!/bin/bash
+BOOTHOOKSCRIPT="""#!/bin/bash -x
 echo "live-config: 2000-usercustomization"
+
+# Set root password
+passwd -u root
+echo "root:asdf" | chpasswd
 
 # Add CustomScripts to path
 SCRIPTBASENAME="/CustomScripts"
@@ -274,6 +266,7 @@ os.makedirs(boothookfolder, 0o777, exist_ok=True)
 print("Writing {0}".format(boothookfile))
 with open(boothookfile, 'w') as boothookfile_write:
     boothookfile_write.write(BOOTHOOKSCRIPT)
+os.chmod(boothookfile, 0o755)
 
 # Build the live build
 subprocess.run("cd {0}; time lb build".format(buildfolder), shell=True)
