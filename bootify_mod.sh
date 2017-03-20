@@ -59,26 +59,35 @@ function get_iso_label()
 
 function remove_working_folders()
 {
-	sync
-	sleep 1
-	
+	# sync
+	# sleep 1
+
 	#If iso and working folders are found, remove them.
 	#Check if working folders are mounted. Unmount them if so.
 	if [ -d "${ISOFOLDER}" ]; then
 		echo "Removing ${ISOFOLDER}"
 		mount | grep -q "${ISOFOLDER}" && ( umount "${ISOFOLDER}" || umount -l "${ISOFOLDER}" )
-		rm -r "${ISOFOLDER}"
+		# Check if files exist in the folder. If there are none, delete the folder.
+		if [[ -z $(ls "${ISOFOLDER}") ]]; then
+			echo "Removing $ISOFOLDER"
+			rm -r "${ISOFOLDER}"
+		else
+			echo "$ISOFOLDER is not empty. Not removing."
+			ls -la "$ISOFOLDER"
+		fi
 	fi
 	if [ -d "${WORKINGFOLDER}" ]; then
 		echo "Removing ${WORKINGFOLDER}"
 		mount | grep -q "${WORKINGFOLDER}" && ( umount "${WORKINGFOLDER}" || umount -l "${WORKINGFOLDER}" )
-		rm -r "${WORKINGFOLDER}"
+		# Check if files exist in the folder. If there are none, delete the folder.
+		if [[ -z $(ls "${WORKINGFOLDER}") ]]; then
+			echo "Removing $WORKINGFOLDER"
+			rm -r "${WORKINGFOLDER}"
+		else
+			echo "$WORKINGFOLDER is not empty. Not removing."
+			ls -la "$WORKINGFOLDER"
+		fi
 	fi
-	#~ if [ -d "${WORKINGBOOTFOLDER}" ]; then
-		#~ echo "Removing ${WORKINGBOOTFOLDER}"
-		#~ mount | grep -q "${WORKINGBOOTFOLDER}" && ( umount "${WORKINGBOOTFOLDER}" || umount -l "${WORKINGBOOTFOLDER}" )
-		#~ rm -r "${WORKINGBOOTFOLDER}"
-	#~ fi
 }
 
 
@@ -86,7 +95,7 @@ function create_working_folders()
 {
 	# Check if folders exist. If they do, remove them.
 	[[ -d "${ISOFOLDER}" || -d "${WORKINGFOLDER}" ]] && remove_working_folders
-	
+
 	mkdir -p "${ISOFOLDER}"
 	mkdir -p "${WORKINGFOLDER}"
 	#~ mkdir -p "${WORKINGBOOTFOLDER}"
@@ -97,12 +106,12 @@ function mbr_part()
 {
 	# Use dd to remove partition table and delete filesystem info.
 	dd if=/dev/zero of="$DEV" bs=1M count=4 conv=notrunc 2>/dev/null
-	
+
 	DRIVESIZE=$(blockdev --getsize64 "$DEV")
 	DRIVEMBSIZE=$(( $DRIVESIZE / 1000000 ))
 	EFISIZE=50
 	MAINDRIVE=$(( $DRIVEMBSIZE - $EFISIZE ))
-	
+
 	parted -s -a optimal "$DEV" -- mktable msdos
 	parted -s -a optimal "$DEV" -- mkpart primary ntfs 1 $MAINDRIVE set 1 boot
 	parted -s -a optimal "$DEV" -- mkpart primary fat32 $MAINDRIVE 100% set 2 esp
@@ -116,14 +125,14 @@ function install_grub_mbr()
 {
 	echo "Installing grub to ${DEV}"
 	USBUUID=$(blkid -s UUID -o value "${DEV}1")
-	grub-install --target=i386-pc --boot-directory="${WORKINGFOLDER}/boot" "$DEV"
+	grub-install --debug --target=i386-pc --boot-directory="${WORKINGFOLDER}/boot" "$DEV"
 	cat >"${WORKINGFOLDER}/boot/grub/grub.cfg"<<EOF
 default=0
 timeout=3
 color_normal=light-cyan/dark-gray
 menu_color_normal=black/light-cyan
 menu_color_highlight=white/black
- 
+
 menuentry "Start Windows Installation" {
     insmod ntfs
     insmod search_fs_uuid
@@ -191,11 +200,11 @@ function copy_files()
 	then
 		WIM="${ISOFOLDER}/sources/install.wim"
 		EFI="1/Windows/Boot/EFI/bootmgfw.efi"
-		DST="${WORKINGFOLDER}/efi/boot"		
+		DST="${WORKINGFOLDER}/efi/boot"
 		7z e "$WIM" "$EFI" "-o${DST}" > /dev/null 2>&1 || { echo 1>&2 "Error extracting bootmgfw.efi"; exit 1; }
 		mv "${DST}/bootmgfw.efi" "${DST}/bootx64.efi"
 	fi
-	
+
 	wget https://raw.githubusercontent.com/pbatard/rufus/master/res/uefi/uefi-ntfs.img -O "${WORKINGFOLDER}/uefi-ntfs.img"
 	dd if="${WORKINGFOLDER}/uefi-ntfs.img" of=${DEV}2 bs=512
 	rm "${WORKINGFOLDER}/uefi-ntfs.img"
