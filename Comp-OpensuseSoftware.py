@@ -96,6 +96,9 @@ zypper ar -f http://download.opensuse.org/repositories/home:/lbssousa:/numix/ope
 # Terminix repo
 zypper ar -f http://download.opensuse.org/repositories/devel:/languages:/D/openSUSE_Tumbleweed/ "devel:languages:D"
 
+# Emulators
+zypper ar -f http://download.opensuse.org/repositories/Emulators/openSUSE_Factory/ "Emulators"
+
 # Import all gpg keys
 zypper --non-interactive --gpg-auto-import-keys refresh
 
