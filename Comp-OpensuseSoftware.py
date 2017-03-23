@@ -81,12 +81,6 @@ zypper ar -f http://download.opensuse.org/tumbleweed/repo/non-oss/ repo-non-oss
 # Packman
 zypper ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/packman/suse/openSUSE_Tumbleweed/ packman
 
-# Adobe Flash
-# https://en.opensuse.org/Adobe_Flash_Player
-zypper ar --check --refresh http://linuxdownload.adobe.com/linux/x86_64/ adobe
-rpm -ivh http://linuxdownload.adobe.com/adobe-release/adobe-release-x86_64-1.0-1.noarch.rpm
-rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-adobe-linux
-
 # Vinadoros repo
 zypper ar -f http://download.opensuse.org/repositories/home:/vinadoros/openSUSE_Tumbleweed/ vinadoros-home
 
@@ -114,9 +108,9 @@ zypper in -yl fish nano tmux iotop rsync p7zip zip unzip xdg-utils xdg-user-dirs
 zypper in -yl gparted leafpad
 
 # Install browsers
-zypper in -yl chromium MozillaFirefox freshplayerplugin
+zypper in -yl chromium MozillaFirefox
 # Adobe Flash
-zypper in -yl flash-plugin flash-player-ppapi
+zypper in -yl flash-player-ppapi freshplayerplugin
 
 # Samba
 zypper in -yl samba samba-client
