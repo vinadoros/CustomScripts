@@ -530,6 +530,7 @@ else if type -q zypper;
     function dup
         echo "Dist-upgrading system."
         sudo zypper dup --no-recommends
+    end
 
 else if type -q apt-get
     set -gx PATH $PATH /usr/local/sbin /usr/sbin /sbin
