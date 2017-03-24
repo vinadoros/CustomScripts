@@ -320,7 +320,7 @@ if os.access("/opt", os.W_OK):
     if not os.path.isdir("/opt/bash-it"):
         subprocess.run("git clone https://github.com/Bash-it/bash-it /opt/bash-it", shell=True)
     else:
-        subprocess.run("cd /opt/bash-it; git pull", shell=True)
+        subprocess.run("cd /opt/bash-it; git checkout -f; git pull", shell=True)
     subprocess.run("chmod a+rwx -R /opt/bash-it", shell=True)
 if os.path.isdir("/opt/bash-it"):
     subprocess.run("/opt/bash-it/install.sh --silent", shell=True)
