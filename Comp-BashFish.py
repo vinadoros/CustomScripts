@@ -209,6 +209,10 @@ elif type zypper &> /dev/null; then
     	echo "Updating system."
     	$SUDOCMD zypper up -yl --no-recommends
     }
+    function dup () {
+        echo "Dist-upgrading system."
+        $SUDOCMD zypper dup --no-recommends
+    }
 elif type -p apt-get &> /dev/null; then
     if [ -f /etc/environment ]; then
     	PATH2=$PATH
@@ -523,6 +527,9 @@ else if type -q zypper;
     	echo "Updating system."
     	sudo zypper up -yl --no-recommends
     end
+    function dup
+        echo "Dist-upgrading system."
+        sudo zypper dup --no-recommends
 
 else if type -q apt-get
     set -gx PATH $PATH /usr/local/sbin /usr/sbin /sbin
