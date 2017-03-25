@@ -323,15 +323,15 @@ print("VM successfully output to {0}".format(vmpath+"/"+vmname))
 
 # Attach VM to libvirt
 if args.vmtype is 2:
-    CREATESCRIPT_KVM="""#!/bin/bash
+    DESTROYSCRIPT_KVM="""#!/bin/bash
     if virsh --connect qemu:///system -q list --all | grep -i "{vmname}"; then
         virsh --connect qemu:///system destroy {vmname}
         virsh --connect qemu:///system undefine {vmname}
     fi
+    """.format(vmname=vmname)
+    CREATESCRIPT_KVM="""
     virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg}.qcow2,bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model=virtio --filesystem source=/,target=root,mode=mapped --os-type={kvm_os} --os-variant={kvm_variant} --import --noautoconsole --video=qxl --channel unix,target_type=virtio,name=org.qemu.guest_agent.0
     """.format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=vmpath+"/"+vmname, imgsize=args.imgsize, kvm_os=kvm_os, kvm_variant=kvm_variant)
-    try:
-       subprocess.run(CREATESCRIPT_KVM, shell=True)
-    except:
-       print('Creating KVM failed, printing used command.')
-       print(CREATESCRIPT_KVM)
+   subprocess.run(DESTROYSCRIPT_KVM, shell=True)
+   print(CREATESCRIPT_KVM)
+   subprocess.run(CREATESCRIPT_KVM, shell=True)
