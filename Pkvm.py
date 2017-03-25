@@ -274,7 +274,7 @@ if 20 <= args.ostype <= 21:
     data['builders'][0]["boot_command"] = ["<wait><down><wait><f4><wait><esc><wait>autoyast2=http://{{ .HTTPIP }}:{{ .HTTPPort }}/opensuse.cfg textmode=1<enter>"]
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = 'while ! zypper install -yl --no-recommends git; do sleep 5; done; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}'.format(vmprovisionscript, vmprovision_opts)
-if 50 <= args.ostype <= 69:
+if args.ostype == 50:
     data['provisioners'][0]["type"] = "powershell"
     data['provisioners'][0]["inline"] = "dir"
     data['builders'][0]["communicator"] = "winrm"
@@ -292,6 +292,27 @@ if 50 <= args.ostype <= 69:
     "unattend/windows/floppy/zz-start-sshd.cmd"]
     data['builders'][0]["boot_command"] = ["<wait5> <enter> <wait>"]
     subprocess.run("git clone https://github.com/boxcutter/windows {0}".format(packer_temp_folder+"/unattend/windows"), shell=True)
+    shutil.move(packer_temp_folder+"/unattend/windows10.xml", packer_temp_folder+"/unattend/autounattend.xml")
+
+if args.ostype == 51:
+    data['provisioners'][0]["type"] = "powershell"
+    data['provisioners'][0]["inline"] = "dir"
+    data['builders'][0]["communicator"] = "winrm"
+    data['builders'][0]["floppy_files"] = ["unattend/autounattend.xml",
+    "unattend/windows/floppy/00-run-all-scripts.cmd",
+    "unattend/windows/floppy/01-install-wget.cmd",
+    "unattend/windows/floppy/_download.cmd",
+    "unattend/windows/floppy/_packer_config.cmd",
+    "unattend/windows/floppy/disablewinupdate.bat",
+    "unattend/windows/floppy/fixnetwork.ps1",
+    "unattend/windows/floppy/install-winrm.cmd",
+    "unattend/windows/floppy/passwordchange.bat",
+    "unattend/windows/floppy/powerconfig.bat",
+    "unattend/windows/floppy/update.bat",
+    "unattend/windows/floppy/zz-start-sshd.cmd"]
+    data['builders'][0]["boot_command"] = ["<wait5> <enter> <wait>"]
+    subprocess.run("git clone https://github.com/boxcutter/windows {0}".format(packer_temp_folder+"/unattend/windows"), shell=True)
+    shutil.move(packer_temp_folder+"/unattend/windows7.xml", packer_temp_folder+"/unattend/autounattend.xml")
 
 # Write packer json file.
 with open(packer_temp_folder+'/file.json', 'w') as file_json_wr:
