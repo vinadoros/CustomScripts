@@ -183,11 +183,11 @@ if type -p yaourt &> /dev/null; then
 elif type zypper &> /dev/null; then
     function ins () {
     	echo "Installing $@."
-    	$SUDOCMD zypper install $@
+    	$SUDOCMD zypper install --no-recommends $@
     }
     function inr () {
-        echo "Installing $@."
-        $SUDOCMD zypper install --no-recommends $@
+        echo "Installing $@ with recommends."
+        $SUDOCMD zypper install $@
     }
     function iny () {
     	echo "Installing $@."
@@ -501,11 +501,11 @@ if type -q yaourt
 else if type -q zypper;
     function ins
     	echo "Installing $argv."
-    	sudo zypper install $argv
+    	sudo zypper install --no-recommends $argv
     end
     function inr
-        echo "Installing $argv."
-        sudo zypper install --no-recommends $argv
+        echo "Installing $argv with recommends."
+        sudo zypper install $argv
     end
     function iny
     	echo "Installing $argv."
