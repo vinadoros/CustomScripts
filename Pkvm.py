@@ -273,7 +273,7 @@ if 10 <= args.ostype <= 11:
 if 20 <= args.ostype <= 21:
     data['builders'][0]["boot_command"] = ["<wait><down><wait><f4><wait><esc><wait>autoyast2=http://{{ .HTTPIP }}:{{ .HTTPPort }}/opensuse.cfg textmode=1<enter>"]
     data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = 'zypper install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}'.format(vmprovisionscript, vmprovision_opts)
+    data['provisioners'][0]["inline"] = 'while ! zypper install -yl --no-recommends git; do sleep 5; done; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}'.format(vmprovisionscript, vmprovision_opts)
 if 50 <= args.ostype <= 69:
     data['provisioners'][0]["type"] = "powershell"
     data['provisioners'][0]["inline"] = "dir"
