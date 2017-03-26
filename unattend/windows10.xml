@@ -69,7 +69,7 @@
       </ImageInstall>
       <UserData>
         <AcceptEula>true</AcceptEula>
-        <FullName>user</FullName>
+        <FullName>INSERTUSERHERE</FullName>
         <Organization/>
         <ProductKey>
           <Key>W269N-WFGWX-YVC9B-4J6C9-T83GX</Key>
@@ -125,7 +125,7 @@
       </ImageInstall>
       <UserData>
         <AcceptEula>true</AcceptEula>
-        <FullName>user</FullName>
+        <FullName>INSERTUSERHERE</FullName>
         <Organization/>
         <ProductKey>
           <Key>W269N-WFGWX-YVC9B-4J6C9-T83GX</Key>
@@ -194,11 +194,11 @@
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
       <AutoLogon>
         <Password>
-          <Value>asdf</Value>
+          <Value>INSERTPASSWORDHERE</Value>
           <PlainText>true</PlainText>
         </Password>
         <Enabled>true</Enabled>
-        <Username>user</Username>
+        <Username>INSERTUSERHERE</Username>
       </AutoLogon>
       <OOBE>
         <HideEULAPage>true</HideEULAPage>
@@ -214,18 +214,18 @@
         <LocalAccounts>
           <LocalAccount wcm:action="add">
             <Password>
-              <Value>asdf</Value>
+              <Value>INSERTPASSWORDHERE</Value>
               <PlainText>true</PlainText>
             </Password>
             <Description/>
-            <DisplayName>user</DisplayName>
+            <DisplayName>INSERTUSERHERE</DisplayName>
             <Group>Administrators</Group>
-            <Name>user</Name>
+            <Name>INSERTUSERHERE</Name>
           </LocalAccount>
         </LocalAccounts>
       </UserAccounts>
       <RegisteredOrganization/>
-      <RegisteredOwner>user</RegisteredOwner>
+      <RegisteredOwner>INSERTUSERHERE</RegisteredOwner>
       <DisableAutoDaylightTimeSet>false</DisableAutoDaylightTimeSet>
       <FirstLogonCommands>
         <SynchronousCommand wcm:action="add">
@@ -246,11 +246,11 @@
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
       <AutoLogon>
         <Password>
-          <Value>asdf</Value>
+          <Value>INSERTPASSWORDHERE</Value>
           <PlainText>true</PlainText>
         </Password>
         <Enabled>true</Enabled>
-        <Username>user</Username>
+        <Username>INSERTUSERHERE</Username>
       </AutoLogon>
       <OOBE>
         <HideEULAPage>true</HideEULAPage>
@@ -266,18 +266,18 @@
         <LocalAccounts>
           <LocalAccount wcm:action="add">
             <Password>
-              <Value>asdf</Value>
+              <Value>INSERTPASSWORDHERE</Value>
               <PlainText>true</PlainText>
             </Password>
             <Description/>
-            <DisplayName>user</DisplayName>
+            <DisplayName>INSERTUSERHERE</DisplayName>
             <Group>Administrators</Group>
-            <Name>user</Name>
+            <Name>INSERTUSERHERE</Name>
           </LocalAccount>
         </LocalAccounts>
       </UserAccounts>
       <RegisteredOrganization/>
-      <RegisteredOwner>user</RegisteredOwner>
+      <RegisteredOwner>INSERTUSERHERE</RegisteredOwner>
       <DisableAutoDaylightTimeSet>false</DisableAutoDaylightTimeSet>
       <FirstLogonCommands>
         <SynchronousCommand wcm:action="add">

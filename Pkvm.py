@@ -253,8 +253,8 @@ data['builders'][0]["ssh_username"] = "root"
 data['builders'][0]["ssh_password"] = "{0}".format(args.vmpass)
 data['builders'][0]["ssh_wait_timeout"] = "90m"
 data['builders'][0]["winrm_timeout"] = "90m"
-data['builders'][0]["winrm_username"] = "{0}".format("vagrant")
-data['builders'][0]["winrm_password"] = "{0}".format("vagrant")
+data['builders'][0]["winrm_username"] = "{0}".format(args.vmuser)
+data['builders'][0]["winrm_password"] = "{0}".format(args.vmpass)
 # Packer Provisioning Configuration
 data['provisioners']=['']
 data['provisioners'][0]={}
@@ -293,7 +293,6 @@ if args.ostype == 50:
     data['builders'][0]["boot_command"] = ["<wait5> <enter> <wait>"]
     subprocess.run("git clone https://github.com/boxcutter/windows {0}".format(packer_temp_folder+"/unattend/windows"), shell=True)
     shutil.move(packer_temp_folder+"/unattend/windows10.xml", packer_temp_folder+"/unattend/autounattend.xml")
-
 if args.ostype == 51:
     data['provisioners'][0]["type"] = "powershell"
     data['provisioners'][0]["inline"] = "dir"
