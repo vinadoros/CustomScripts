@@ -72,7 +72,7 @@
       </ImageInstall>
       <UserData>
         <AcceptEula>true</AcceptEula>
-        <FullName>username</FullName>
+        <FullName>user</FullName>
         <Organization/>
       </UserData>
       <EnableFirewall>true</EnableFirewall>
@@ -130,7 +130,7 @@
       </ImageInstall>
       <UserData>
         <AcceptEula>true</AcceptEula>
-        <FullName>username</FullName>
+        <FullName>user</FullName>
         <Organization/>
       </UserData>
       <EnableFirewall>true</EnableFirewall>
@@ -154,12 +154,12 @@
       <SkipAutoActivation>true</SkipAutoActivation>
     </component>
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <ComputerName>Nameof-PC</ComputerName>
+      <ComputerName>TestPC</ComputerName>
       <ProductKey>HYF8J-CVRMY-CM74G-RPHKF-PW487</ProductKey>
       <TimeZone>Eastern Standard Time</TimeZone>
     </component>
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <ComputerName>Nameof-PC</ComputerName>
+      <ComputerName>TestPC</ComputerName>
       <ProductKey>HYF8J-CVRMY-CM74G-RPHKF-PW487</ProductKey>
       <TimeZone>Eastern Standard Time</TimeZone>
     </component>
@@ -176,7 +176,7 @@
       <UserLocale>en-US</UserLocale>
     </component>
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <RegisteredOwner>username</RegisteredOwner>
+      <RegisteredOwner>user</RegisteredOwner>
       <OOBE>
         <HideEULAPage>true</HideEULAPage>
         <NetworkLocation>Home</NetworkLocation>
@@ -203,34 +203,34 @@
           <Order>3</Order>
           <Description>Control Panel Icon Size</Description>
           <RequiresUserInput>false</RequiresUserInput>
-          <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v AllItemsIconView /t REG_DWORD /d 1 /f</CommandLine>
+          <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v AllItemsIconView /t REG_DWORD /d 0 /f</CommandLine>
         </SynchronousCommand>
       </FirstLogonCommands>
       <AutoLogon>
         <Password>
-          <Value/>
+          <Value>asdf</Value>
           <PlainText>true</PlainText>
         </Password>
         <Enabled>true</Enabled>
-        <Username>username</Username>
+        <Username>user</Username>
       </AutoLogon>
       <UserAccounts>
         <LocalAccounts>
           <LocalAccount wcm:action="add">
             <Password>
-              <Value/>
+              <Value>asdf</Value>
               <PlainText>true</PlainText>
             </Password>
             <Description/>
-            <DisplayName>username</DisplayName>
+            <DisplayName>user</DisplayName>
             <Group>Administrators</Group>
-            <Name>username</Name>
+            <Name>user</Name>
           </LocalAccount>
         </LocalAccounts>
       </UserAccounts>
     </component>
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <RegisteredOwner>username</RegisteredOwner>
+      <RegisteredOwner>user</RegisteredOwner>
       <OOBE>
         <HideEULAPage>true</HideEULAPage>
         <NetworkLocation>Home</NetworkLocation>
@@ -257,28 +257,28 @@
           <Order>3</Order>
           <Description>Control Panel Icon Size</Description>
           <RequiresUserInput>false</RequiresUserInput>
-          <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v AllItemsIconView /t REG_DWORD /d 1 /f</CommandLine>
+          <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v AllItemsIconView /t REG_DWORD /d 0 /f</CommandLine>
         </SynchronousCommand>
       </FirstLogonCommands>
       <AutoLogon>
         <Password>
-          <Value/>
+          <Value>asdf</Value>
           <PlainText>true</PlainText>
         </Password>
         <Enabled>true</Enabled>
-        <Username>username</Username>
+        <Username>user</Username>
       </AutoLogon>
       <UserAccounts>
         <LocalAccounts>
           <LocalAccount wcm:action="add">
             <Password>
-              <Value/>
+              <Value>asdf</Value>
               <PlainText>true</PlainText>
             </Password>
             <Description/>
-            <DisplayName>username</DisplayName>
+            <DisplayName>user</DisplayName>
             <Group>Administrators</Group>
-            <Name>username</Name>
+            <Name>user</Name>
           </LocalAccount>
         </LocalAccounts>
       </UserAccounts>
@@ -286,12 +286,12 @@
   </settings>
   <settings pass="offlineServicing">
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-LUA-Settings" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <EnableLUA>true</EnableLUA>
+      <EnableLUA>false</EnableLUA>
     </component>
   </settings>
   <settings pass="offlineServicing">
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-LUA-Settings" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <EnableLUA>true</EnableLUA>
+      <EnableLUA>false</EnableLUA>
     </component>
   </settings>
 </unattend>

@@ -69,7 +69,7 @@
       </ImageInstall>
       <UserData>
         <AcceptEula>true</AcceptEula>
-        <FullName>vagrant</FullName>
+        <FullName>user</FullName>
         <Organization/>
         <ProductKey>
           <Key>W269N-WFGWX-YVC9B-4J6C9-T83GX</Key>
@@ -125,7 +125,7 @@
       </ImageInstall>
       <UserData>
         <AcceptEula>true</AcceptEula>
-        <FullName>vagrant</FullName>
+        <FullName>user</FullName>
         <Organization/>
         <ProductKey>
           <Key>W269N-WFGWX-YVC9B-4J6C9-T83GX</Key>
@@ -136,12 +136,12 @@
   </settings>
   <settings pass="offlineServicing">
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-LUA-Settings" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <EnableLUA>true</EnableLUA>
+      <EnableLUA>false</EnableLUA>
     </component>
   </settings>
   <settings pass="offlineServicing">
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-LUA-Settings" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <EnableLUA>true</EnableLUA>
+      <EnableLUA>false</EnableLUA>
     </component>
   </settings>
   <settings pass="generalize">
@@ -194,20 +194,12 @@
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
       <AutoLogon>
         <Password>
-          <Value>vagrant</Value>
+          <Value>asdf</Value>
           <PlainText>true</PlainText>
         </Password>
         <Enabled>true</Enabled>
-        <Username>vagrant</Username>
+        <Username>user</Username>
       </AutoLogon>
-      <FirstLogonCommands>
-        <SynchronousCommand wcm:action="add">
-          <CommandLine>cmd.exe /C start /wait a:\00-run-all-scripts.cmd</CommandLine>
-          <Description>Run all *.bat and *.cmd scripts on drive A:</Description>
-          <Order>1</Order>
-          <RequiresUserInput>true</RequiresUserInput>
-        </SynchronousCommand>
-      </FirstLogonCommands>
       <OOBE>
         <HideEULAPage>true</HideEULAPage>
         <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
@@ -216,24 +208,24 @@
         <NetworkLocation>Home</NetworkLocation>
         <SkipUserOOBE>true</SkipUserOOBE>
         <SkipMachineOOBE>true</SkipMachineOOBE>
-        <ProtectYourPC>1</ProtectYourPC>
+        <ProtectYourPC>3</ProtectYourPC>
       </OOBE>
       <UserAccounts>
         <LocalAccounts>
           <LocalAccount wcm:action="add">
             <Password>
-              <Value>vagrant</Value>
+              <Value>asdf</Value>
               <PlainText>true</PlainText>
             </Password>
             <Description/>
-            <DisplayName>vagrant</DisplayName>
+            <DisplayName>user</DisplayName>
             <Group>Administrators</Group>
-            <Name>vagrant</Name>
+            <Name>user</Name>
           </LocalAccount>
         </LocalAccounts>
       </UserAccounts>
       <RegisteredOrganization/>
-      <RegisteredOwner>vagrant</RegisteredOwner>
+      <RegisteredOwner>user</RegisteredOwner>
       <DisableAutoDaylightTimeSet>false</DisableAutoDaylightTimeSet>
       <FirstLogonCommands>
         <SynchronousCommand wcm:action="add">
@@ -254,19 +246,12 @@
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
       <AutoLogon>
         <Password>
-          <Value>vagrant</Value>
+          <Value>asdf</Value>
           <PlainText>true</PlainText>
         </Password>
         <Enabled>true</Enabled>
-        <Username>vagrant</Username>
+        <Username>user</Username>
       </AutoLogon>
-      <FirstLogonCommands>
-        <SynchronousCommand wcm:action="add">
-          <CommandLine>cmd.exe /c a:\00-run-all-scripts.cmd</CommandLine>
-          <Description>Run all *.bat and *.cmd scripts on drive A:</Description>
-          <Order>1</Order>
-        </SynchronousCommand>
-      </FirstLogonCommands>
       <OOBE>
         <HideEULAPage>true</HideEULAPage>
         <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
@@ -275,24 +260,24 @@
         <NetworkLocation>Home</NetworkLocation>
         <SkipUserOOBE>true</SkipUserOOBE>
         <SkipMachineOOBE>true</SkipMachineOOBE>
-        <ProtectYourPC>1</ProtectYourPC>
+        <ProtectYourPC>3</ProtectYourPC>
       </OOBE>
       <UserAccounts>
         <LocalAccounts>
           <LocalAccount wcm:action="add">
             <Password>
-              <Value>vagrant</Value>
+              <Value>asdf</Value>
               <PlainText>true</PlainText>
             </Password>
             <Description/>
-            <DisplayName>vagrant</DisplayName>
+            <DisplayName>user</DisplayName>
             <Group>Administrators</Group>
-            <Name>vagrant</Name>
+            <Name>user</Name>
           </LocalAccount>
         </LocalAccounts>
       </UserAccounts>
       <RegisteredOrganization/>
-      <RegisteredOwner>vagrant</RegisteredOwner>
+      <RegisteredOwner>user</RegisteredOwner>
       <DisableAutoDaylightTimeSet>false</DisableAutoDaylightTimeSet>
       <FirstLogonCommands>
         <SynchronousCommand wcm:action="add">
