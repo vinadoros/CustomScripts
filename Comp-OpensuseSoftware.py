@@ -164,6 +164,7 @@ make install
 systemctl disable cron
 
 # Change to NetworkManager
+systemctl daemon-reload
 systemctl disable wicked
 systemctl enable NetworkManager
 """.format(USERNAMEVAR)
