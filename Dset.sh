@@ -47,6 +47,14 @@ if type terminix; then
 	dconf write /com/gexperts/Terminix/profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d/terminal-bell "'icon'"
 fi
 
+# Tilix configuration
+if type tilix; then
+	gsettings set com.gexperts.Tilix.Settings warn-vte-config-issue false
+	gsettings set com.gexperts.Tilix.Settings terminal-title-style 'small'
+	dconf write /com/gexperts/Tilix/profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d/login-shell true
+	dconf write /com/gexperts/Tilix/profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d/scrollback-unlimited true
+	dconf write /com/gexperts/Tilix/profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d/terminal-bell "'icon'"
+fi
 
 # Terminator configuration
 if type terminator; then

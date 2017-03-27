@@ -321,6 +321,9 @@ EOL
 	# Email
 	dist_install thunderbird thunderbird-i18n-en-us
 
+	# Tilix
+	dist_install tilix python2-nautilus
+
 	###############################################################################
 	######################       Live Computer Section      #######################
 	###############################################################################
