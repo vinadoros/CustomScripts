@@ -200,6 +200,18 @@
                 <RequiresUserInput>true</RequiresUserInput>
             </SynchronousCommand>
             <SynchronousCommand wcm:action="add">
+                <Description>Control Panel View</Description>
+                <Order>3</Order>
+                <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v StartupPage /t REG_DWORD /d 1 /f</CommandLine>
+                <RequiresUserInput>true</RequiresUserInput>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <Order>4</Order>
+                <Description>Control Panel Icon Size</Description>
+                <RequiresUserInput>false</RequiresUserInput>
+                <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v AllItemsIconView /t REG_DWORD /d 1 /f</CommandLine>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
                 <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v HideFileExt /t REG_DWORD /d 0 /f</CommandLine>
                 <Order>16</Order>
                 <Description>Show file extensions in Explorer</Description>
@@ -287,6 +299,18 @@
                 <Description>Set Execution Policy 32 Bit</Description>
                 <Order>2</Order>
                 <RequiresUserInput>true</RequiresUserInput>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <Description>Control Panel View</Description>
+                <Order>3</Order>
+                <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v StartupPage /t REG_DWORD /d 1 /f</CommandLine>
+                <RequiresUserInput>true</RequiresUserInput>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <Order>4</Order>
+                <Description>Control Panel Icon Size</Description>
+                <RequiresUserInput>false</RequiresUserInput>
+                <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v AllItemsIconView /t REG_DWORD /d 1 /f</CommandLine>
             </SynchronousCommand>
             <SynchronousCommand wcm:action="add">
                 <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v HideFileExt /t REG_DWORD /d 0 /f</CommandLine>

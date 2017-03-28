@@ -255,6 +255,7 @@ data['builders'][0]["ssh_wait_timeout"] = "90m"
 data['builders'][0]["winrm_timeout"] = "90m"
 data['builders'][0]["winrm_username"] = "{0}".format(args.vmuser)
 data['builders'][0]["winrm_password"] = "{0}".format(args.vmpass)
+data['builders'][0]["guest_additions_mode"] = "attach"
 # Packer Provisioning Configuration
 data['provisioners']=['']
 data['provisioners'][0]={}
@@ -275,9 +276,9 @@ if 20 <= args.ostype <= 21:
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = 'while ! zypper install -yl --no-recommends git; do sleep 5; done; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}'.format(vmprovisionscript, vmprovision_opts)
 if args.ostype == 50:
-    data['provisioners'][0]["type"] = "powershell"
+    data['provisioners'][0]["type"] = "windows-shell"
     data['provisioners'][0]["inline"] = "dir"
-    data['builders'][0]["shutdown_command"] = "shutdown -a; shutdown /s /t 1 /c \"Packer Shutdown\" /f /d p:4:1"
+    data['builders'][0]["shutdown_command"] = "shutdown /s /t 90"
     data['builders'][0]["communicator"] = "winrm"
     data['builders'][0]["floppy_files"] = ["unattend/autounattend.xml",
     "unattend/windows/floppy/00-run-all-scripts.cmd",
@@ -295,9 +296,9 @@ if args.ostype == 50:
     subprocess.run("git clone https://github.com/boxcutter/windows {0}".format(packer_temp_folder+"/unattend/windows"), shell=True)
     shutil.move(packer_temp_folder+"/unattend/windows10.xml", packer_temp_folder+"/unattend/autounattend.xml")
 if args.ostype == 51:
-    data['provisioners'][0]["type"] = "powershell"
+    data['provisioners'][0]["type"] = "windows-shell"
     data['provisioners'][0]["inline"] = "dir"
-    data['builders'][0]["shutdown_command"] = "shutdown -a; shutdown /s /t 1 /c \"Packer Shutdown\" /f /d p:4:1"
+    data['builders'][0]["shutdown_command"] = "shutdown /s /t 90"
     data['builders'][0]["communicator"] = "winrm"
     data['builders'][0]["floppy_files"] = ["unattend/autounattend.xml",
     "unattend/windows/floppy/00-run-all-scripts.cmd",

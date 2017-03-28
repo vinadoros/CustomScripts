@@ -229,16 +229,69 @@
       <DisableAutoDaylightTimeSet>false</DisableAutoDaylightTimeSet>
       <FirstLogonCommands>
         <SynchronousCommand wcm:action="add">
-          <Description>Control Panel View</Description>
-          <Order>1</Order>
-          <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v StartupPage /t REG_DWORD /d 1 /f</CommandLine>
-          <RequiresUserInput>true</RequiresUserInput>
+            <CommandLine>cmd.exe /c powershell -Command "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force"</CommandLine>
+            <Description>Set Execution Policy 64 Bit</Description>
+            <Order>1</Order>
+            <RequiresUserInput>true</RequiresUserInput>
         </SynchronousCommand>
         <SynchronousCommand wcm:action="add">
-          <Order>2</Order>
-          <Description>Control Panel Icon Size</Description>
-          <RequiresUserInput>false</RequiresUserInput>
-          <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v AllItemsIconView /t REG_DWORD /d 1 /f</CommandLine>
+            <CommandLine>C:\Windows\SysWOW64\cmd.exe /c powershell -Command "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force"</CommandLine>
+            <Description>Set Execution Policy 32 Bit</Description>
+            <Order>2</Order>
+            <RequiresUserInput>true</RequiresUserInput>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <Description>Control Panel View</Description>
+            <Order>3</Order>
+            <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v StartupPage /t REG_DWORD /d 1 /f</CommandLine>
+            <RequiresUserInput>true</RequiresUserInput>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <Order>4</Order>
+            <Description>Control Panel Icon Size</Description>
+            <RequiresUserInput>false</RequiresUserInput>
+            <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v AllItemsIconView /t REG_DWORD /d 1 /f</CommandLine>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v HideFileExt /t REG_DWORD /d 0 /f</CommandLine>
+            <Order>16</Order>
+            <Description>Show file extensions in Explorer</Description>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\Console /v QuickEdit /t REG_DWORD /d 1 /f</CommandLine>
+            <Order>17</Order>
+            <Description>Enable QuickEdit mode</Description>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v Start_ShowRun /t REG_DWORD /d 1 /f</CommandLine>
+            <Order>18</Order>
+            <Description>Show Run command in Start Menu</Description>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v StartMenuAdminTools /t REG_DWORD /d 1 /f</CommandLine>
+            <Order>19</Order>
+            <Description>Show Administrative Tools in Start Menu</Description>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <CommandLine>%SystemRoot%\System32\reg.exe ADD HKLM\SYSTEM\CurrentControlSet\Control\Power\ /v HibernateFileSizePercent /t REG_DWORD /d 0 /f</CommandLine>
+            <Order>20</Order>
+            <Description>Zero Hibernation File</Description>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <CommandLine>%SystemRoot%\System32\reg.exe ADD HKLM\SYSTEM\CurrentControlSet\Control\Power\ /v HibernateEnabled /t REG_DWORD /d 0 /f</CommandLine>
+            <Order>21</Order>
+            <Description>Disable Hibernation Mode</Description>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <CommandLine>%SystemRoot%\System32\netsh.exe advfirewall set allprofiles state off</CommandLine>
+            <Order>23</Order>
+            <Description>Disable Windows Firewall</Description>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <CommandLine>cmd.exe /c a:\install-winrm.cmd</CommandLine>
+            <Description>Configure WinRM</Description>
+            <Order>24</Order>
+            <RequiresUserInput>true</RequiresUserInput>
         </SynchronousCommand>
       </FirstLogonCommands>
       <TimeZone>Eastern Standard Time</TimeZone>
@@ -281,16 +334,64 @@
       <DisableAutoDaylightTimeSet>false</DisableAutoDaylightTimeSet>
       <FirstLogonCommands>
         <SynchronousCommand wcm:action="add">
-          <Description>Control Panel View</Description>
-          <Order>1</Order>
-          <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v StartupPage /t REG_DWORD /d 1 /f</CommandLine>
-          <RequiresUserInput>true</RequiresUserInput>
+            <CommandLine>cmd.exe /c powershell -Command "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force"</CommandLine>
+            <Description>Set Execution Policy 64 Bit</Description>
+            <Order>1</Order>
+            <RequiresUserInput>true</RequiresUserInput>
         </SynchronousCommand>
         <SynchronousCommand wcm:action="add">
-          <Order>2</Order>
-          <Description>Control Panel Icon Size</Description>
-          <RequiresUserInput>false</RequiresUserInput>
-          <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v AllItemsIconView /t REG_DWORD /d 1 /f</CommandLine>
+            <CommandLine>C:\Windows\SysWOW64\cmd.exe /c powershell -Command "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force"</CommandLine>
+            <Description>Set Execution Policy 32 Bit</Description>
+            <Order>2</Order>
+            <RequiresUserInput>true</RequiresUserInput>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <Description>Control Panel View</Description>
+            <Order>3</Order>
+            <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v StartupPage /t REG_DWORD /d 1 /f</CommandLine>
+            <RequiresUserInput>true</RequiresUserInput>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <Order>4</Order>
+            <Description>Control Panel Icon Size</Description>
+            <RequiresUserInput>false</RequiresUserInput>
+            <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v AllItemsIconView /t REG_DWORD /d 1 /f</CommandLine>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v HideFileExt /t REG_DWORD /d 0 /f</CommandLine>
+            <Order>16</Order>
+            <Description>Show file extensions in Explorer</Description>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\Console /v QuickEdit /t REG_DWORD /d 1 /f</CommandLine>
+            <Order>17</Order>
+            <Description>Enable QuickEdit mode</Description>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v Start_ShowRun /t REG_DWORD /d 1 /f</CommandLine>
+            <Order>18</Order>
+            <Description>Show Run command in Start Menu</Description>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v StartMenuAdminTools /t REG_DWORD /d 1 /f</CommandLine>
+            <Order>19</Order>
+            <Description>Show Administrative Tools in Start Menu</Description>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <CommandLine>powercfg -h off</CommandLine>
+            <Order>21</Order>
+            <Description>Disable Hibernation Mode</Description>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <CommandLine>%SystemRoot%\System32\netsh.exe advfirewall set allprofiles state off</CommandLine>
+            <Order>23</Order>
+            <Description>Disable Windows Firewall</Description>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <CommandLine>cmd.exe /c a:\install-winrm.cmd</CommandLine>
+            <Description>Configure WinRM</Description>
+            <Order>24</Order>
+            <RequiresUserInput>true</RequiresUserInput>
         </SynchronousCommand>
       </FirstLogonCommands>
       <TimeZone>Eastern Standard Time</TimeZone>
