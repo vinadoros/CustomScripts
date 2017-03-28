@@ -72,7 +72,7 @@
       </ImageInstall>
       <UserData>
         <AcceptEula>true</AcceptEula>
-        <FullName>user</FullName>
+        <FullName>INSERTUSERHERE</FullName>
         <Organization/>
       </UserData>
       <EnableFirewall>true</EnableFirewall>
@@ -130,7 +130,7 @@
       </ImageInstall>
       <UserData>
         <AcceptEula>true</AcceptEula>
-        <FullName>user</FullName>
+        <FullName>INSERTUSERHERE</FullName>
         <Organization/>
       </UserData>
       <EnableFirewall>true</EnableFirewall>
@@ -176,7 +176,7 @@
       <UserLocale>en-US</UserLocale>
     </component>
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <RegisteredOwner>user</RegisteredOwner>
+      <RegisteredOwner>INSERTUSERHERE</RegisteredOwner>
       <OOBE>
         <HideEULAPage>true</HideEULAPage>
         <NetworkLocation>Home</NetworkLocation>
@@ -187,50 +187,85 @@
       </OOBE>
       <DisableAutoDaylightTimeSet>false</DisableAutoDaylightTimeSet>
       <FirstLogonCommands>
-        <SynchronousCommand wcm:action="add">
-          <RequiresUserInput>false</RequiresUserInput>
-          <Order>1</Order>
-          <Description>Disable Auto Updates</Description>
-          <CommandLine>reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update" /v AUOptions /t REG_DWORD /d 2 /f</CommandLine>
-        </SynchronousCommand>
-        <SynchronousCommand wcm:action="add">
-          <Description>Control Panel View</Description>
-          <Order>2</Order>
-          <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v StartupPage /t REG_DWORD /d 1 /f</CommandLine>
-          <RequiresUserInput>true</RequiresUserInput>
-        </SynchronousCommand>
-        <SynchronousCommand wcm:action="add">
-          <Order>3</Order>
-          <Description>Control Panel Icon Size</Description>
-          <RequiresUserInput>false</RequiresUserInput>
-          <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v AllItemsIconView /t REG_DWORD /d 0 /f</CommandLine>
-        </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>cmd.exe /c powershell -Command "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force"</CommandLine>
+                <Description>Set Execution Policy 64 Bit</Description>
+                <Order>1</Order>
+                <RequiresUserInput>true</RequiresUserInput>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>C:\Windows\SysWOW64\cmd.exe /c powershell -Command "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force"</CommandLine>
+                <Description>Set Execution Policy 32 Bit</Description>
+                <Order>2</Order>
+                <RequiresUserInput>true</RequiresUserInput>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v HideFileExt /t REG_DWORD /d 0 /f</CommandLine>
+                <Order>16</Order>
+                <Description>Show file extensions in Explorer</Description>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\Console /v QuickEdit /t REG_DWORD /d 1 /f</CommandLine>
+                <Order>17</Order>
+                <Description>Enable QuickEdit mode</Description>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v Start_ShowRun /t REG_DWORD /d 1 /f</CommandLine>
+                <Order>18</Order>
+                <Description>Show Run command in Start Menu</Description>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v StartMenuAdminTools /t REG_DWORD /d 1 /f</CommandLine>
+                <Order>19</Order>
+                <Description>Show Administrative Tools in Start Menu</Description>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>%SystemRoot%\System32\reg.exe ADD HKLM\SYSTEM\CurrentControlSet\Control\Power\ /v HibernateFileSizePercent /t REG_DWORD /d 0 /f</CommandLine>
+                <Order>20</Order>
+                <Description>Zero Hibernation File</Description>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>%SystemRoot%\System32\reg.exe ADD HKLM\SYSTEM\CurrentControlSet\Control\Power\ /v HibernateEnabled /t REG_DWORD /d 0 /f</CommandLine>
+                <Order>21</Order>
+                <Description>Disable Hibernation Mode</Description>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>%SystemRoot%\System32\netsh.exe advfirewall set allprofiles state off</CommandLine>
+                <Order>23</Order>
+                <Description>Disable Windows Firewall</Description>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>cmd.exe /c a:\install-winrm.cmd</CommandLine>
+                <Description>Configure WinRM</Description>
+                <Order>24</Order>
+                <RequiresUserInput>true</RequiresUserInput>
+            </SynchronousCommand>
       </FirstLogonCommands>
       <AutoLogon>
         <Password>
-          <Value>asdf</Value>
+          <Value>INSERTPASSWORDHERE</Value>
           <PlainText>true</PlainText>
         </Password>
         <Enabled>true</Enabled>
-        <Username>user</Username>
+        <Username>INSERTUSERHERE</Username>
       </AutoLogon>
       <UserAccounts>
         <LocalAccounts>
           <LocalAccount wcm:action="add">
             <Password>
-              <Value>asdf</Value>
+              <Value>INSERTPASSWORDHERE</Value>
               <PlainText>true</PlainText>
             </Password>
             <Description/>
-            <DisplayName>user</DisplayName>
+            <DisplayName>INSERTUSERHERE</DisplayName>
             <Group>Administrators</Group>
-            <Name>user</Name>
+            <Name>INSERTUSERHERE</Name>
           </LocalAccount>
         </LocalAccounts>
       </UserAccounts>
     </component>
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <RegisteredOwner>user</RegisteredOwner>
+      <RegisteredOwner>INSERTUSERHERE</RegisteredOwner>
       <OOBE>
         <HideEULAPage>true</HideEULAPage>
         <NetworkLocation>Home</NetworkLocation>
@@ -241,44 +276,79 @@
       </OOBE>
       <DisableAutoDaylightTimeSet>false</DisableAutoDaylightTimeSet>
       <FirstLogonCommands>
-        <SynchronousCommand wcm:action="add">
-          <RequiresUserInput>false</RequiresUserInput>
-          <Order>1</Order>
-          <Description>Disable Auto Updates</Description>
-          <CommandLine>reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update" /v AUOptions /t REG_DWORD /d 2 /f</CommandLine>
-        </SynchronousCommand>
-        <SynchronousCommand wcm:action="add">
-          <Description>Control Panel View</Description>
-          <Order>2</Order>
-          <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v StartupPage /t REG_DWORD /d 1 /f</CommandLine>
-          <RequiresUserInput>true</RequiresUserInput>
-        </SynchronousCommand>
-        <SynchronousCommand wcm:action="add">
-          <Order>3</Order>
-          <Description>Control Panel Icon Size</Description>
-          <RequiresUserInput>false</RequiresUserInput>
-          <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v AllItemsIconView /t REG_DWORD /d 0 /f</CommandLine>
-        </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>cmd.exe /c powershell -Command "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force"</CommandLine>
+                <Description>Set Execution Policy 64 Bit</Description>
+                <Order>1</Order>
+                <RequiresUserInput>true</RequiresUserInput>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>C:\Windows\SysWOW64\cmd.exe /c powershell -Command "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force"</CommandLine>
+                <Description>Set Execution Policy 32 Bit</Description>
+                <Order>2</Order>
+                <RequiresUserInput>true</RequiresUserInput>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v HideFileExt /t REG_DWORD /d 0 /f</CommandLine>
+                <Order>16</Order>
+                <Description>Show file extensions in Explorer</Description>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\Console /v QuickEdit /t REG_DWORD /d 1 /f</CommandLine>
+                <Order>17</Order>
+                <Description>Enable QuickEdit mode</Description>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v Start_ShowRun /t REG_DWORD /d 1 /f</CommandLine>
+                <Order>18</Order>
+                <Description>Show Run command in Start Menu</Description>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v StartMenuAdminTools /t REG_DWORD /d 1 /f</CommandLine>
+                <Order>19</Order>
+                <Description>Show Administrative Tools in Start Menu</Description>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>%SystemRoot%\System32\reg.exe ADD HKLM\SYSTEM\CurrentControlSet\Control\Power\ /v HibernateFileSizePercent /t REG_DWORD /d 0 /f</CommandLine>
+                <Order>20</Order>
+                <Description>Zero Hibernation File</Description>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>%SystemRoot%\System32\reg.exe ADD HKLM\SYSTEM\CurrentControlSet\Control\Power\ /v HibernateEnabled /t REG_DWORD /d 0 /f</CommandLine>
+                <Order>21</Order>
+                <Description>Disable Hibernation Mode</Description>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>%SystemRoot%\System32\netsh.exe advfirewall set allprofiles state off</CommandLine>
+                <Order>23</Order>
+                <Description>Disable Windows Firewall</Description>
+            </SynchronousCommand>
+            <SynchronousCommand wcm:action="add">
+                <CommandLine>cmd.exe /c a:\install-winrm.cmd</CommandLine>
+                <Description>Configure WinRM</Description>
+                <Order>24</Order>
+                <RequiresUserInput>true</RequiresUserInput>
+            </SynchronousCommand>
       </FirstLogonCommands>
       <AutoLogon>
         <Password>
-          <Value>asdf</Value>
+          <Value>INSERTPASSWORDHERE</Value>
           <PlainText>true</PlainText>
         </Password>
         <Enabled>true</Enabled>
-        <Username>user</Username>
+        <Username>INSERTUSERHERE</Username>
       </AutoLogon>
       <UserAccounts>
         <LocalAccounts>
           <LocalAccount wcm:action="add">
             <Password>
-              <Value>asdf</Value>
+              <Value>INSERTPASSWORDHERE</Value>
               <PlainText>true</PlainText>
             </Password>
             <Description/>
-            <DisplayName>user</DisplayName>
+            <DisplayName>INSERTUSERHERE</DisplayName>
             <Group>Administrators</Group>
-            <Name>user</Name>
+            <Name>INSERTUSERHERE</Name>
           </LocalAccount>
         </LocalAccounts>
       </UserAccounts>

@@ -277,6 +277,7 @@ if 20 <= args.ostype <= 21:
 if args.ostype == 50:
     data['provisioners'][0]["type"] = "powershell"
     data['provisioners'][0]["inline"] = "dir"
+    data['builders'][0]["shutdown_command"] = "shutdown -a; shutdown /s /t 1 /c \"Packer Shutdown\" /f /d p:4:1"
     data['builders'][0]["communicator"] = "winrm"
     data['builders'][0]["floppy_files"] = ["unattend/autounattend.xml",
     "unattend/windows/floppy/00-run-all-scripts.cmd",
@@ -296,6 +297,7 @@ if args.ostype == 50:
 if args.ostype == 51:
     data['provisioners'][0]["type"] = "powershell"
     data['provisioners'][0]["inline"] = "dir"
+    data['builders'][0]["shutdown_command"] = "shutdown -a; shutdown /s /t 1 /c \"Packer Shutdown\" /f /d p:4:1"
     data['builders'][0]["communicator"] = "winrm"
     data['builders'][0]["floppy_files"] = ["unattend/autounattend.xml",
     "unattend/windows/floppy/00-run-all-scripts.cmd",
