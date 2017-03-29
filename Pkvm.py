@@ -229,11 +229,17 @@ if args.vmtype is 1:
     data['builders'][0]["vboxmanage_post"][0]= ["sharedfolder", "add", "{{.Name}}", "--name", "root", "--hostpath", "/", "--automount"]
     data['builders'][0]["guest_additions_mode"] = "attach"
     data['builders'][0]["post_shutdown_delay"] = "30s"
+    if 50 <= args.ostype <= 60:
+        data['builders'][0]["headless"] = "true"
 elif args.vmtype is 2:
     data['builders'][0]["type"] = "qemu"
     data['builders'][0]["accelerator"] = "kvm"
-    data['builders'][0]["disk_interface"] = "virtio"
-    data['builders'][0]["net_device"] = "virtio-net"
+    if 50 <= args.ostype <= 60:
+        data['builders'][0]["disk_interface"] = "ide"
+        data['builders'][0]["net_device"] = "e1000"
+    else:
+        data['builders'][0]["disk_interface"] = "virtio"
+        data['builders'][0]["net_device"] = "virtio-net"
     data['builders'][0]["vm_name"] = "{0}.qcow2".format(vmname)
     data['builders'][0]["qemuargs"]=['']
     data['builders'][0]["qemuargs"][0]= ["-m", "{0}M".format(args.memory)]
@@ -279,12 +285,9 @@ if 20 <= args.ostype <= 21:
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = 'while ! zypper install -yl --no-recommends git; do sleep 5; done; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}'.format(vmprovisionscript, vmprovision_opts)
 if 50 <= args.ostype <= 60:
-    data['builders'][0]["disk_interface"] = "ide"
-    data['builders'][0]["net_device"] = "e1000"
     data['provisioners'][0]["type"] = "windows-shell"
-    data['builders'][0]["headless"] = "true"
-    data['builders'][0]["shutdown_command"] = "shutdown /s /t 120"
-    data['builders'][0]["shutdown_timeout"] = "10m"
+    data['builders'][0]["shutdown_command"] = "shutdown /s /t 240"
+    data['builders'][0]["shutdown_timeout"] = "15m"
     data['builders'][0]["communicator"] = "winrm"
 if args.ostype == 50:
     data['provisioners'][0]["inline"] = "dir"
