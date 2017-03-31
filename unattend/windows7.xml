@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <unattend xmlns="urn:schemas-microsoft-com:unattend">
   <settings pass="windowsPE">
-    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <SetupUILanguage>
-        <UILanguage>en-US</UILanguage>
-      </SetupUILanguage>
-      <InputLocale>1033:00000409</InputLocale>
-      <SystemLocale>en-US</SystemLocale>
-      <UILanguage>en-US</UILanguage>
-      <UserLocale>en-US</UserLocale>
-    </component>
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
       <SetupUILanguage>
         <UILanguage>en-US</UILanguage>
@@ -18,64 +9,6 @@
       <SystemLocale>en-US</SystemLocale>
       <UILanguage>en-US</UILanguage>
       <UserLocale>en-US</UserLocale>
-    </component>
-    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Setup" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <Diagnostics>
-        <OptIn>false</OptIn>
-      </Diagnostics>
-      <DiskConfiguration>
-        <WillShowUI>OnError</WillShowUI>
-        <Disk wcm:action="add">
-          <DiskID>0</DiskID>
-          <WillWipeDisk>true</WillWipeDisk>
-          <CreatePartitions>
-            <CreatePartition wcm:action="add">
-              <Order>1</Order>
-              <Type>Primary</Type>
-              <Size>100</Size>
-            </CreatePartition>
-            <CreatePartition wcm:action="add">
-              <Order>2</Order>
-              <Type>Primary</Type>
-              <Extend>true</Extend>
-            </CreatePartition>
-          </CreatePartitions>
-          <ModifyPartitions>
-            <ModifyPartition wcm:action="add">
-              <Format>NTFS</Format>
-              <Label>System Reserved</Label>
-              <Order>1</Order>
-              <Active>true</Active>
-              <PartitionID>1</PartitionID>
-              <TypeID>0x27</TypeID>
-            </ModifyPartition>
-            <ModifyPartition wcm:action="add">
-              <Active>true</Active>
-              <Format>NTFS</Format>
-              <Label>OS</Label>
-              <Letter>C</Letter>
-              <Order>2</Order>
-              <PartitionID>2</PartitionID>
-            </ModifyPartition>
-          </ModifyPartitions>
-        </Disk>
-      </DiskConfiguration>
-      <ImageInstall>
-        <OSImage>
-          <InstallTo>
-            <DiskID>0</DiskID>
-            <PartitionID>2</PartitionID>
-          </InstallTo>
-          <WillShowUI>OnError</WillShowUI>
-          <InstallToAvailablePartition>false</InstallToAvailablePartition>
-        </OSImage>
-      </ImageInstall>
-      <UserData>
-        <AcceptEula>true</AcceptEula>
-        <FullName>INSERTUSERHERE</FullName>
-        <Organization/>
-      </UserData>
-      <EnableFirewall>true</EnableFirewall>
     </component>
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
       <Diagnostics>
@@ -137,144 +70,25 @@
     </component>
   </settings>
   <settings pass="generalize">
-    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Security-SPP" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <SkipRearm>1</SkipRearm>
-    </component>
-  </settings>
-  <settings pass="generalize">
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Security-SPP" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
       <SkipRearm>1</SkipRearm>
     </component>
   </settings>
   <settings pass="specialize">
-    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Security-SPP-UX" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <SkipAutoActivation>true</SkipAutoActivation>
-    </component>
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Security-SPP-UX" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
       <SkipAutoActivation>true</SkipAutoActivation>
     </component>
-    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <ComputerName>TestPC</ComputerName>
-      <ProductKey>H7X92-3VPBB-Q799D-Y6JJ3-86WC6</ProductKey>
-      <TimeZone>Eastern Standard Time</TimeZone>
-    </component>
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <ComputerName>TestPC</ComputerName>
+      <ComputerName>*</ComputerName>
       <ProductKey>H7X92-3VPBB-Q799D-Y6JJ3-86WC6</ProductKey>
       <TimeZone>Eastern Standard Time</TimeZone>
     </component>
   </settings>
   <settings pass="oobeSystem">
-    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-International-Core" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <InputLocale>1033:00000409</InputLocale>
-      <UILanguage>en-US</UILanguage>
-      <UserLocale>en-US</UserLocale>
-    </component>
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-International-Core" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
       <InputLocale>1033:00000409</InputLocale>
       <UILanguage>en-US</UILanguage>
       <UserLocale>en-US</UserLocale>
-    </component>
-    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <RegisteredOwner>INSERTUSERHERE</RegisteredOwner>
-      <OOBE>
-        <HideEULAPage>true</HideEULAPage>
-        <NetworkLocation>Home</NetworkLocation>
-        <ProtectYourPC>1</ProtectYourPC>
-        <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
-        <SkipMachineOOBE>true</SkipMachineOOBE>
-        <SkipUserOOBE>true</SkipUserOOBE>
-      </OOBE>
-      <DisableAutoDaylightTimeSet>false</DisableAutoDaylightTimeSet>
-      <FirstLogonCommands>
-            <SynchronousCommand wcm:action="add">
-                <CommandLine>cmd.exe /c powershell -Command "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force"</CommandLine>
-                <Description>Set Execution Policy 64 Bit</Description>
-                <Order>1</Order>
-                <RequiresUserInput>true</RequiresUserInput>
-            </SynchronousCommand>
-            <SynchronousCommand wcm:action="add">
-                <CommandLine>C:\Windows\SysWOW64\cmd.exe /c powershell -Command "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force"</CommandLine>
-                <Description>Set Execution Policy 32 Bit</Description>
-                <Order>2</Order>
-                <RequiresUserInput>true</RequiresUserInput>
-            </SynchronousCommand>
-            <SynchronousCommand wcm:action="add">
-                <Description>Control Panel View</Description>
-                <Order>3</Order>
-                <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v StartupPage /t REG_DWORD /d 1 /f</CommandLine>
-                <RequiresUserInput>true</RequiresUserInput>
-            </SynchronousCommand>
-            <SynchronousCommand wcm:action="add">
-                <Order>4</Order>
-                <Description>Control Panel Icon Size</Description>
-                <RequiresUserInput>false</RequiresUserInput>
-                <CommandLine>reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" /v AllItemsIconView /t REG_DWORD /d 1 /f</CommandLine>
-            </SynchronousCommand>
-            <SynchronousCommand wcm:action="add">
-                <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v HideFileExt /t REG_DWORD /d 0 /f</CommandLine>
-                <Order>16</Order>
-                <Description>Show file extensions in Explorer</Description>
-            </SynchronousCommand>
-            <SynchronousCommand wcm:action="add">
-                <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\Console /v QuickEdit /t REG_DWORD /d 1 /f</CommandLine>
-                <Order>17</Order>
-                <Description>Enable QuickEdit mode</Description>
-            </SynchronousCommand>
-            <SynchronousCommand wcm:action="add">
-                <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v Start_ShowRun /t REG_DWORD /d 1 /f</CommandLine>
-                <Order>18</Order>
-                <Description>Show Run command in Start Menu</Description>
-            </SynchronousCommand>
-            <SynchronousCommand wcm:action="add">
-                <CommandLine>%SystemRoot%\System32\reg.exe ADD HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\ /v StartMenuAdminTools /t REG_DWORD /d 1 /f</CommandLine>
-                <Order>19</Order>
-                <Description>Show Administrative Tools in Start Menu</Description>
-            </SynchronousCommand>
-            <SynchronousCommand wcm:action="add">
-                <CommandLine>%SystemRoot%\System32\reg.exe ADD HKLM\SYSTEM\CurrentControlSet\Control\Power\ /v HibernateFileSizePercent /t REG_DWORD /d 0 /f</CommandLine>
-                <Order>20</Order>
-                <Description>Zero Hibernation File</Description>
-            </SynchronousCommand>
-            <SynchronousCommand wcm:action="add">
-                <CommandLine>%SystemRoot%\System32\reg.exe ADD HKLM\SYSTEM\CurrentControlSet\Control\Power\ /v HibernateEnabled /t REG_DWORD /d 0 /f</CommandLine>
-                <Order>21</Order>
-                <Description>Disable Hibernation Mode</Description>
-            </SynchronousCommand>
-            <SynchronousCommand wcm:action="add">
-                <CommandLine>%SystemRoot%\System32\netsh.exe advfirewall set allprofiles state off</CommandLine>
-                <Order>23</Order>
-                <Description>Disable Windows Firewall</Description>
-            </SynchronousCommand>
-            <SynchronousCommand wcm:action="add">
-                <CommandLine>cmd.exe /c a:\install-winrm.cmd</CommandLine>
-                <Description>Configure WinRM</Description>
-                <Order>24</Order>
-                <RequiresUserInput>true</RequiresUserInput>
-            </SynchronousCommand>
-      </FirstLogonCommands>
-      <AutoLogon>
-        <Password>
-          <Value>INSERTPASSWORDHERE</Value>
-          <PlainText>true</PlainText>
-        </Password>
-        <Enabled>true</Enabled>
-        <Username>INSERTUSERHERE</Username>
-      </AutoLogon>
-      <UserAccounts>
-        <LocalAccounts>
-          <LocalAccount wcm:action="add">
-            <Password>
-              <Value>INSERTPASSWORDHERE</Value>
-              <PlainText>true</PlainText>
-            </Password>
-            <Description/>
-            <DisplayName>INSERTUSERHERE</DisplayName>
-            <Group>Administrators</Group>
-            <Name>INSERTUSERHERE</Name>
-          </LocalAccount>
-        </LocalAccounts>
-      </UserAccounts>
     </component>
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
       <RegisteredOwner>INSERTUSERHERE</RegisteredOwner>
@@ -348,8 +162,8 @@
                 <Description>Disable Windows Firewall</Description>
             </SynchronousCommand>
             <SynchronousCommand wcm:action="add">
-                <CommandLine>cmd.exe /c a:\install-winrm.cmd</CommandLine>
-                <Description>Configure WinRM</Description>
+                <CommandLine>cmd.exe /c a:\00-run-all-scripts.cmd</CommandLine>
+                <Description>Run all Scripts</Description>
                 <Order>24</Order>
                 <RequiresUserInput>true</RequiresUserInput>
             </SynchronousCommand>
@@ -376,11 +190,6 @@
           </LocalAccount>
         </LocalAccounts>
       </UserAccounts>
-    </component>
-  </settings>
-  <settings pass="offlineServicing">
-    <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-LUA-Settings" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <EnableLUA>false</EnableLUA>
     </component>
   </settings>
   <settings pass="offlineServicing">
