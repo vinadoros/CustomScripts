@@ -56,7 +56,7 @@ if [[ $(type -P lightdm) ]]; then
 fi
 
 # Enable lightdm autologin for virtual machines.
-if [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 || $LIGHTDMAUTO = 1 ]]; then
+if type lightdm && [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 || $LIGHTDMAUTO = 1 ]]; then
 	echo "Enabling lightdm autologin for $USERNAMEVAR."
 	[ -f /etc/lightdm/lightdm.conf ] && sed -i 's/#autologin-user=/autologin-user='$USERNAMEVAR'/g' /etc/lightdm/lightdm.conf
 	mkdir -p /etc/lightdm/lightdm.conf.d/
