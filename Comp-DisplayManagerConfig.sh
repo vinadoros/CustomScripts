@@ -58,11 +58,9 @@ fi
 # Enable lightdm autologin for virtual machines.
 if [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 || $LIGHTDMAUTO = 1 ]]; then
 	echo "Enabling lightdm autologin for $USERNAMEVAR."
-	if [ -f /etc/lightdm/lightdm.conf ]; then
-		sed -i 's/#autologin-user=/autologin-user='$USERNAMEVAR'/g' /etc/lightdm/lightdm.conf
-	elif [[ ! -f /etc/lightdm/lightdm.conf && -d /etc/lightdm/lightdm.conf.d/ ]]; then
-		echo -e "[SeatDefaults]\nautologin-user=$USERNAMEVAR" > /etc/lightdm/lightdm.conf.d/12-autologin.conf
-	fi
+	[ -f /etc/lightdm/lightdm.conf ] && sed -i 's/#autologin-user=/autologin-user='$USERNAMEVAR'/g' /etc/lightdm/lightdm.conf
+	mkdir -p /etc/lightdm/lightdm.conf.d/
+	echo -e "[SeatDefaults]\nautologin-user=$USERNAMEVAR" > /etc/lightdm/lightdm.conf.d/12-autologin.conf
 fi
 
 # Enable listing of users
