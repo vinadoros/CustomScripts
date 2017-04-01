@@ -5,7 +5,7 @@ title Installing Custom Stuff. Please wait...
 set NINITE_URL=https://ninite.com/.net4.6.2-7zip-chrome-classicstart-java8-libreoffice-notepadplusplus-pdfcreator-sumatrapdf-vscode-winmerge/ninite.exe
 
 for %%i in (%NINITE_URL%) do set NINITE_EXE=%%~nxi
-set NINITE_DIR=%TEMP%\ninite
+set NINITE_DIR=%USERPROFILE%\Desktop
 set NINITE_PATH=%NINITE_DIR%\%NINITE_EXE%
 
 echo ==^> Creating "%NINITE_DIR%"
