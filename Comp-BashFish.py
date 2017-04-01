@@ -67,7 +67,7 @@ if [ $(uname -m) != "armv7l" ]; then
 fi
 alias la='ls -lah --color=auto'
 # Add sbin to PATH
-if ! echo $PATH | grep "/sbin"; then
+if ! echo $PATH | grep -q "/sbin"; then
     export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
 fi
 if timeout 3 test -d "$CUSTOMSCRIPTPATH" && ! echo $PATH | grep -iq "$CUSTOMSCRIPTPATH"; then
@@ -377,7 +377,7 @@ if [ (uname -m) != "armv7l" ]
 	set -gx XZ_OPT "-T0"
 end
 # Set sbin in path
-if not echo $PATH | grep "/sbin"
+if not echo $PATH | grep -q "/sbin"
     set -gx PATH $PATH /usr/local/sbin /usr/sbin /sbin
 end
 # Set Custom Scripts in path
