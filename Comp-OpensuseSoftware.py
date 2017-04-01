@@ -216,7 +216,7 @@ elif args.desktop is 3:
 # MATE
 zypper in -yl -t pattern mate_basis mate_admin mate_utilities
 # Applications
-zypper in -yl dconf-editor atril eom mate-search-tool mate-system-monitor caja-extension-open-terminal caja-extension-atril caja-extension-gksu mate-tweak
+zypper in -yl --force-resolution dconf-editor atril eom mate-search-tool mate-system-monitor caja-extension-open-terminal caja-extension-atril caja-extension-gksu mate-tweak
 # Change display manager to lightdm
 zypper in -yl lightdm lightdm-gtk-greeter
 sed -i 's/DISPLAYMANAGER=.*$/DISPLAYMANAGER="lightdm"/g' /etc/sysconfig/displaymanager
