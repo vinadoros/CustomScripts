@@ -187,6 +187,11 @@ if type mate-session; then
   dconf write /org/mate/panel/objects/notification-area/panel-right-stick "true"
   dconf write /org/mate/panel/objects/notification-area/locked "true"
   gsettings set org.mate.Marco.general side-by-side-tiling true
+	# Set Fonts
+  gsettings set org.mate.desktop.interface document-font-name 'Noto Sans 11'
+  gsettings set org.mate.desktop.interface font-name 'Ubuntu 11'
+  gsettings set org.mate.desktop.interface monospace-font-name 'Liberation Mono 11'
+  gsettings set org.mate.Marco.general titlebar-font 'Ubuntu Bold 11'
   BINDING="custom2"
   dconf write /org/mate/desktop/keybindings/$BINDING/action "'/usr/local/bin/turnoffscreen.sh'"
   dconf write /org/mate/desktop/keybindings/$BINDING/binding "'<Mod4>q'"
