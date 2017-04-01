@@ -66,6 +66,10 @@ if [ $(uname -m) != "armv7l" ]; then
 	export XZ_OPT="-T0"
 fi
 alias la='ls -lah --color=auto'
+# Add sbin to PATH
+if ! echo $PATH | grep "/sbin"; then
+    export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
+fi
 if timeout 3 test -d "$CUSTOMSCRIPTPATH" && ! echo $PATH | grep -iq "$CUSTOMSCRIPTPATH"; then
 	export PATH=$PATH:$CUSTOMSCRIPTPATH
 fi
@@ -214,11 +218,6 @@ elif type zypper &> /dev/null; then
         $SUDOCMD zypper dup --no-recommends
     }
 elif type -p apt-get &> /dev/null; then
-    if [ -f /etc/environment ]; then
-    	PATH2=$PATH
-    	source /etc/environment
-    	export PATH=$PATH:$PATH2:/sbin:/usr/sbin:/usr/local/sbin
-    fi
     function ins () {
     	echo "Installing $@."
     	$SUDOCMD apt-get install $@
@@ -377,11 +376,14 @@ set -gx EDITOR nano
 if [ (uname -m) != "armv7l" ]
 	set -gx XZ_OPT "-T0"
 end
+# Set sbin in path
+if not echo $PATH | grep "/sbin"
+    set -gx PATH $PATH /usr/local/sbin /usr/sbin /sbin
+end
 # Set Custom Scripts in path
 if timeout 3 test -d "$CUSTOMSCRIPTPATH"
 	set -gx PATH $PATH "$CUSTOMSCRIPTPATH"
 end
-
 function sl
 	xhost +localhost >> /dev/null
 	env DISPLAY=$DISPLAY sudo fish
@@ -533,7 +535,6 @@ else if type -q zypper;
     end
 
 else if type -q apt-get
-    set -gx PATH $PATH /usr/local/sbin /usr/sbin /sbin
     function ins
     	echo "Installing $argv."
     	sudo apt-get install $argv

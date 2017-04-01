@@ -16,7 +16,10 @@ fi
 if type yaourt; then
   yaourt -ASa --needed --noconfirm python-jedi shellcheck pylama pylama_pylint
 elif type zypper; then
-  sudo zypper in -yl python3-jedi ShellCheck
+	sudo zypper ar -f http://download.opensuse.org/repositories/devel:/languages:/python3/openSUSE_Tumbleweed/ languages-python3
+	sudo zypper ar -f http://download.opensuse.org/repositories/devel:/languages:/python/openSUSE_Tumbleweed/ languages-python
+	sudo zypper --non-interactive --gpg-auto-import-keys refresh
+  sudo zypper in -yl python3-jedi ShellCheck python3-pylama python-pylama_pylint
 fi
 
 # Update existing plugins
