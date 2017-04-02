@@ -41,6 +41,7 @@ while true; do
 			echo "none"
 		fi
 		sudo virsh net-autostart default
+		sudo virsh net-start default
 		sudo sed -i 's/#user = \"root\"/user = \"'$USERNAMEVAR'\"/g' /etc/libvirt/qemu.conf
 		#sudo sed -i 's/group=.*/group=\"users\"/g' /etc/libvirt/qemu.conf
 		sudo sed -i 's/#save_image_format = \"raw\"/save_image_format = \"xz"/g' /etc/libvirt/qemu.conf
@@ -61,6 +62,7 @@ EOL
 	[2]* )
 	echo "You asked to remove virt-manager."
 	sudo virsh net-autostart default --disable
+	sudo virsh net-destroy default
 	if type pacman; then
 		sudo systemctl disable libvirtd
 		sudo systemctl stop libvirtd
