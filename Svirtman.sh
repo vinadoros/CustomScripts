@@ -40,8 +40,43 @@ while true; do
 		elif type dnf; then
 			echo "none"
 		fi
+
+		# Set network info
 		sudo virsh net-autostart default
 		sudo virsh net-start default
+
+		# Set default storage location
+		while true; do
+			echo "Enter a path for VM images. (i.e. \"/mnt/Path here\")"
+			read -p "Leave blank for none: " IMAGEPATH
+			case $IMAGEPATH in
+				"") echo "No answer given. Skipping.";
+				break;;
+				*)
+				echo "$IMAGEPATH"
+				IMAGEPATH=$(readlink -f "$IMAGEPATH")
+				if [ -d "$IMAGEPATH" ]; then
+					echo "Using folder $IMAGEPATH."
+					# Remove existing default pool
+					sudo virsh pool-destroy default
+					sudo virsh pool-undefine default
+					echo "List all pools after deletion"
+					sudo virsh pool-list --all
+					# Create new default pool
+					sudo virsh pool-define-as default dir - - - - "$IMAGEPATH"
+					sudo virsh pool-autostart default
+					sudo virsh pool-start default
+					echo "List all pools after re-creation"
+					sudo virsh pool-list --all
+					sudo virsh pool-info default
+					break
+				else
+					echo "$IMAGEPATH is not detected to be a folder. Please input a folder or press enter to skip."
+				fi;;
+			esac
+		done
+
+		# Set config info
 		sudo sed -i 's/#user = \"root\"/user = \"'$USERNAMEVAR'\"/g' /etc/libvirt/qemu.conf
 		#sudo sed -i 's/group=.*/group=\"users\"/g' /etc/libvirt/qemu.conf
 		sudo sed -i 's/#save_image_format = \"raw\"/save_image_format = \"xz"/g' /etc/libvirt/qemu.conf
