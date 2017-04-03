@@ -19,8 +19,8 @@ if [ -z $USERNAMEVAR ]; then
 	else
 		export USERNAMEVAR=$(id 1000 -un)
 	fi
-	USERGROUP=$(id 1000 -gn)
-	USERHOME=/home/$USERNAMEVAR
+	export USERGROUP=$(id $USERNAMEVAR -gn)
+	export USERHOME=/home/$USERNAMEVAR
 fi
 
 # Set default VM guest variables
@@ -195,14 +195,19 @@ if [[ $(type -P gdm) || $(type -P gdm3) ]]; then
 	fi
 
 	# Enable gdm autologin for virtual machines. Does not currently work.
-	# if [ -f $GDMETCPATH/custom.conf ] && [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 || $DMAUTO = 1 ]]; then
-	# 	echo "Enabling gdm autologin for $USERNAMEVAR."
-	# 	if ! grep -q "AutomaticLogin" /etc/gdm/custom.conf; then
-	# 		sed -i "/\[daemon\]/a AutomaticLoginEnable=True" "$GDMETCPATH/custom.conf"
-	# 		sed -i "/\[daemon\]/a AutomaticLogin=$USERNAMEVAR" "$GDMETCPATH/custom.conf"
-	# 	fi
-	# 	sed -i "s/AutomaticLogin=.*/AutomaticLogin=$USERNAMEVAR/g" /etc/gdm/custom.conf
-	# fi
+	if [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 || $DMAUTO = 1 ]]; then
+		echo "Enabling gdm autologin for $USERNAMEVAR."
+		# https://afrantzis.wordpress.com/2012/06/11/changing-gdmlightdm-user-login-settings-programmatically/
+		# Get uid for usernamevar
+		USERNAMEVARID=$(id -u $USERNAMEVAR)
+		# Get dbus path for the user
+		USER_PATH=$(dbus-send --print-reply=literal --system --dest=org.freedesktop.Accounts /org/freedesktop/Accounts org.freedesktop.Accounts.FindUserById int64:$USERNAMEVARID)
+		# Send the command over dbus to freedesktop accounts.
+		dbus-send --print-reply --system --dest=org.freedesktop.Accounts $USER_PATH org.freedesktop.Accounts.User.SetAutomaticLogin boolean:true
+		# https://hup.hu/node/114631
+		# Can check options with following command:
+		# dbus-send --system --dest=org.freedesktop.Accounts --print-reply --type=method_call $USER_PATH org.freedesktop.DBus.Introspectable.Introspect
+	fi
 
 	# Pulseaudio gdm fix
 	# http://www.debuntu.org/how-to-disable-pulseaudio-and-sound-in-gdm/
