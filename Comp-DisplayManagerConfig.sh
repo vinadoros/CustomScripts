@@ -7,9 +7,6 @@ SCRIPTDIR="$(dirname "$FLWSOURCE")"
 SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
-# Disable error handlingss
-set +eu
-
 # Add general functions if they don't exist.
 type -t grepadd &> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
 
@@ -33,10 +30,7 @@ fi
 [ -z $QEMUGUEST ] && ! grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=0
 [ -z $VMWGUEST ] && grep -iq "VMware" "/sys/devices/virtual/dmi/id/product_name" && VMWGUEST=1
 [ -z $VMWGUEST ] && ! grep -iq "VMware" "/sys/devices/virtual/dmi/id/product_name" && VMWGUEST=0
-[ -z $LIGHTDMAUTO ] && LIGHTDMAUTO=0
-
-# Enable error halting.
-set -eu
+[ -z $DMAUTO ] && DMAUTO=0
 
 if [ "$(id -u)" != "0" ]; then
 	echo "Not running with root. Please run the script with su privledges."
@@ -56,7 +50,7 @@ if [[ $(type -P lightdm) ]]; then
 fi
 
 # Enable lightdm autologin for virtual machines.
-if type lightdm && [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 || $LIGHTDMAUTO = 1 ]]; then
+if type lightdm && [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 || $DMAUTO = 1 ]]; then
 	echo "Enabling lightdm autologin for $USERNAMEVAR."
 	[ -f /etc/lightdm/lightdm.conf ] && sed -i 's/#autologin-user=/autologin-user='$USERNAMEVAR'/g' /etc/lightdm/lightdm.conf
 	mkdir -p /etc/lightdm/lightdm.conf.d/
@@ -188,7 +182,6 @@ EOL
 
 # Detect gdm folders
 if [[ $(type -P gdm) || $(type -P gdm3) ]]; then
-	set +eu
 	if type -P gdm3; then
 		GDMUID="$(id -u Debian-gdm)"
 		GDMGID="$(id -g Debian-gdm)"
@@ -200,7 +193,16 @@ if [[ $(type -P gdm) || $(type -P gdm3) ]]; then
 		GDMPATH="/var/lib/gdm"
 		GDMETCPATH="/etc/gdm"
 	fi
-	set -eu
+
+	# Enable gdm autologin for virtual machines. Does not currently work.
+	# if [ -f $GDMETCPATH/custom.conf ] && [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 || $DMAUTO = 1 ]]; then
+	# 	echo "Enabling gdm autologin for $USERNAMEVAR."
+	# 	if ! grep -q "AutomaticLogin" /etc/gdm/custom.conf; then
+	# 		sed -i "/\[daemon\]/a AutomaticLoginEnable=True" "$GDMETCPATH/custom.conf"
+	# 		sed -i "/\[daemon\]/a AutomaticLogin=$USERNAMEVAR" "$GDMETCPATH/custom.conf"
+	# 	fi
+	# 	sed -i "s/AutomaticLogin=.*/AutomaticLogin=$USERNAMEVAR/g" /etc/gdm/custom.conf
+	# fi
 
 	# Pulseaudio gdm fix
 	# http://www.debuntu.org/how-to-disable-pulseaudio-and-sound-in-gdm/
