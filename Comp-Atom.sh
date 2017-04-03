@@ -23,7 +23,7 @@ elif type zypper; then
 fi
 
 # Update existing plugins
-apm update
+apm update -c false
 # Install atom plugins
 # Python plugins
 apm install autocomplete-python
