@@ -205,6 +205,7 @@ if [[ $(type -P gdm) || $(type -P gdm3) ]]; then
 		# https://hup.hu/node/114631
 		# Can check options with following command:
 		# dbus-send --system --dest=org.freedesktop.Accounts --print-reply --type=method_call $USER_PATH org.freedesktop.DBus.Introspectable.Introspect
+		# qdbus --system org.freedesktop.Accounts $USER_PATH org.freedesktop.Accounts.User.AutomaticLogin
 	fi
 
 	# Pulseaudio gdm fix
