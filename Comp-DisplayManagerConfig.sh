@@ -198,10 +198,8 @@ if [[ $(type -P gdm) || $(type -P gdm3) ]]; then
 	if [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 || $DMAUTO = 1 ]]; then
 		echo "Enabling gdm autologin for $USERNAMEVAR."
 		# https://afrantzis.wordpress.com/2012/06/11/changing-gdmlightdm-user-login-settings-programmatically/
-		# Get uid for usernamevar
-		USERNAMEVARID=$(id -u $USERNAMEVAR)
 		# Get dbus path for the user
-		USER_PATH=$(dbus-send --print-reply=literal --system --dest=org.freedesktop.Accounts /org/freedesktop/Accounts org.freedesktop.Accounts.FindUserById int64:$USERNAMEVARID)
+		USER_PATH=$(dbus-send --print-reply=literal --system --dest=org.freedesktop.Accounts /org/freedesktop/Accounts org.freedesktop.Accounts.FindUserByName string:"$USERNAMEVAR")
 		# Send the command over dbus to freedesktop accounts.
 		dbus-send --print-reply --system --dest=org.freedesktop.Accounts $USER_PATH org.freedesktop.Accounts.User.SetAutomaticLogin boolean:true
 		# https://hup.hu/node/114631
