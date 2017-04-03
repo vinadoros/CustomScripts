@@ -2,6 +2,7 @@
 
 title Installing Custom Stuff. Please wait...
 
+echo Downloading Ninite
 set NINITE_URL=https://ninite.com/.net4.6.2-7zip-chrome-classicstart-java8-libreoffice-notepadplusplus-pdfcreator-sumatrapdf-vscode-winmerge/ninite.exe
 
 for %%i in (%NINITE_URL%) do set NINITE_EXE=%%~nxi
@@ -18,7 +19,14 @@ if exist "%SystemRoot%\_download.cmd" (
   echo ==^> Downloading "%NINITE_URL%" to "%NINITE_PATH%"
   powershell -Command "(New-Object System.Net.WebClient).DownloadFile('%NINITE_URL%', '%NINITE_PATH%')" <NUL
 )
-if not exist "%NINITE_PATH%" goto exit1
+
+
+set WINISO="C:\Windows\Temp\windows.iso"
+if exist "%WINISO%" (
+  echo Installing VM Tools
+  
+)
+
 
 :exit0
 

@@ -227,11 +227,12 @@ if args.vmtype is 1:
     data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--cpus", "{0}".format(CPUCORES)])
     data['builders'][0]["vboxmanage_post"] = ['']
     data['builders'][0]["vboxmanage_post"][0]= ["sharedfolder", "add", "{{.Name}}", "--name", "root", "--hostpath", "/", "--automount"]
-    data['builders'][0]["guest_additions_mode"] = "attach"
     data['builders'][0]["post_shutdown_delay"] = "30s"
     if 50 <= args.ostype <= 60:
         # https://hodgkins.io/best-practices-with-packer-and-windows#use-headless-mode
         data['builders'][0]["headless"] = "true"
+        data['builders'][0]["guest_additions_mode"] = "upload"
+        data['builders'][0]["guest_additions_path"] = "c:/Windows/Temp/windows.iso"
 elif args.vmtype is 2:
     data['builders'][0]["type"] = "qemu"
     data['builders'][0]["accelerator"] = "kvm"
@@ -249,10 +250,14 @@ elif args.vmtype is 2:
     data['builders'][0]["qemuargs"].append(["--smp", "cores={0}".format(CPUCORES)])
 elif args.vmtype is 3:
     data['builders'][0]["type"] = "vmware-iso"
+    data['builders'][0]["version"] = "12"
     data['builders'][0]["vm_name"] = "{0}".format(vmname)
     data['builders'][0]["vmdk_name"] = "{0}".format(vmname)
     data['builders'][0]["vmx_data"] = { "virtualhw.version": "12", "memsize": "{0}".format(args.memory), "numvcpus": "{0}".format(CPUCORES), "cpuid.coresPerSocket": "{0}".format(CPUCORES), "guestos": "{0}".format(vmwareid), "usb.present": "TRUE", "scsi0.virtualDev": "lsisas1068" }
-    data['builders'][0]["vmx_data_post"] = { "sharedFolder0.present": "TRUE", "sharedFolder0.enabled": "TRUE", "sharedFolder0.readAccess": "TRUE", "sharedFolder0.writeAccess": "TRUE", "sharedFolder0.hostPath": "/", "sharedFolder0.guestName": "root", "sharedFolder0.expiration": "never", "sharedFolder.maxNum": "1" }
+    data['builders'][0]["vmx_data_post"] = { "sharedFolder0.present": "TRUE", "sharedFolder0.enabled": "TRUE", "sharedFolder0.readAccess": "TRUE", "sharedFolder0.writeAccess": "TRUE", "sharedFolder0.hostPath": "/", "sharedFolder0.guestName": "root", "sharedFolder0.expiration": "never", "sharedFolder.maxNum": "1", "isolation.tools.hgfs.disable": "FALSE" }
+    if 50 <= args.ostype <= 60:
+        data['builders'][0]["tools_upload_flavor"] = "windows"
+        data['builders'][0]["tools_upload_path"] = "c:/Windows/Temp/windows.iso"
 data['builders'][0]["shutdown_command"] = "shutdown -P now"
 data['builders'][0]["iso_url"] = "file://"+isopath
 data['builders'][0]["iso_checksum"] = "{0}".format(md5.stdout.strip())
@@ -339,7 +344,7 @@ if args.ostype == 51:
     "unattend/windows/floppy/passwordchange.bat",
     "unattend/windows/floppy/powerconfig.bat",
     "unattend/windows/floppy/time12h.bat",
-    "unattend/windows/floppy/uac-disable.bat",
+    "unattend/windows/floppy/uac-enable.bat",
     "unattend/windows/floppy/zz-start-sshd.cmd"]
     data['builders'][0]["boot_command"] = ["<wait5> <enter> <wait>"]
     shutil.move(packer_temp_folder+"/unattend/windows7.xml", packer_temp_folder+"/unattend/autounattend.xml")
