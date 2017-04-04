@@ -130,6 +130,9 @@
             <Name>INSERTUSERHERE</Name>
           </LocalAccount>
         </LocalAccounts>
+        <AdministratorPassword>
+          <Value>INSERTPASSWORDHERE</Value>
+        </AdministratorPassword>
       </UserAccounts>
       <RegisteredOrganization/>
       <RegisteredOwner>INSERTUSERHERE</RegisteredOwner>
@@ -184,11 +187,11 @@
             <Order>21</Order>
             <Description>Disable Hibernation Mode</Description>
         </SynchronousCommand>
-        <SynchronousCommand wcm:action="add">
+        <!-- <SynchronousCommand wcm:action="add">
             <CommandLine>%SystemRoot%\System32\netsh.exe advfirewall set allprofiles state off</CommandLine>
             <Order>23</Order>
             <Description>Disable Windows Firewall</Description>
-        </SynchronousCommand>
+        </SynchronousCommand> -->
         <SynchronousCommand wcm:action="add">
             <CommandLine>cmd.exe /c a:\00-run-all-scripts.cmd</CommandLine>
             <Description>Run all Scripts</Description>
