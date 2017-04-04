@@ -52,6 +52,9 @@ if exist "%WINISO%" (
 
 )
 
+echo Extra Folder Options
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /f /v ShowSuperHidden /t REG_DWORD /d 1
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /f /v LaunchTo /t REG_DWORD /d 1
 
 :exit0
 
