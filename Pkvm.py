@@ -140,6 +140,14 @@ elif args.ostype == 51:
     kvm_variant = "win7"
     vmprovision_defopts = " "
     isourl = None
+elif args.ostype == 52:
+    vmname = "Packer-Windows2016-{0}".format(hvname)
+    vboxosid = "Windows2012_64"
+    vmwareid = "windows9srv-64"
+    kvm_os = "windows"
+    kvm_variant = "win10"
+    vmprovision_defopts = " "
+    isourl = None
 
 # Override provision opts if provided.
 if args.vmprovision is None:
@@ -309,9 +317,7 @@ if 50 <= args.ostype <= 60:
     "unattend/windows/floppy/folderoptions.bat",
     "unattend/windows/floppy/networkprompt.bat",
     "unattend/windows/floppy/openssh.bat",
-    "unattend/windows/floppy/oracle-cert.cer",
     "unattend/windows/floppy/pagefile.bat",
-    "unattend/windows/floppy/install-winrm.cmd",
     "unattend/windows/floppy/passwordchange.bat",
     "unattend/windows/floppy/powerconfig.bat",
     "unattend/windows/floppy/time12h.bat",
@@ -320,6 +326,10 @@ if 50 <= args.ostype <= 60:
     subprocess.run("git clone https://github.com/boxcutter/windows {0}".format(packer_temp_folder+"/unattend/windows"), shell=True)
     # Set ssh password for windows
     subprocess.run('sed -i "s/set SSHD_PASSWORD=.*/set SSHD_PASSWORD={0}/g" {1}/floppy/openssh.bat'.format(args.vmpass, packer_temp_folder+"/unattend/windows"), shell=True)
+    # Update ssh version
+    subprocess.run('sed -i "s@/files/setupssh.*@/files/setupssh-7\\.5p1-1\\.exe@g" {0}/floppy/openssh.bat'.format(packer_temp_folder+"/unattend/windows"), shell=True)
+    # Change ssh parameters
+    subprocess.run('sed -i "s@/privsep=1@/domain=0@g" {0}/floppy/openssh.bat'.format(packer_temp_folder+"/unattend/windows"), shell=True)
 if args.ostype == 50:
     data['provisioners'][0]["script"] = packer_temp_folder+"/unattend/wincustom.bat"
     data['builders'][0]["boot_command"] = ["<wait5>"]
@@ -328,6 +338,28 @@ if args.ostype == 51:
     data['provisioners'][0]["script"] = packer_temp_folder+"/unattend/wincustom.bat"
     data['builders'][0]["boot_command"] = ["<wait5>"]
     shutil.move(packer_temp_folder+"/unattend/windows7.xml", packer_temp_folder+"/unattend/autounattend.xml")
+if args.ostype == 52:
+    data['provisioners'][0]["script"] = packer_temp_folder+"/unattend/wincustom.bat"
+    data['builders'][0]["boot_command"] = ["<wait5>"]
+    data['builders'][0]["ssh_username"] = "Administrator"
+    data['builders'][0]["floppy_files"] = ["unattend/autounattend.xml",
+    "unattend/win_openssh.ps1",
+    "unattend/windows/floppy/00-run-all-scripts.cmd",
+    "unattend/windows/floppy/01-install-wget.cmd",
+    "unattend/windows/floppy/_download.cmd",
+    "unattend/windows/floppy/_packer_config.cmd",
+    "unattend/windows/floppy/_post_update_install.bat",
+    "unattend/windows/floppy/fixnetwork.ps1",
+    "unattend/windows/floppy/folderoptions.bat",
+    "unattend/windows/floppy/networkprompt.bat",
+    "unattend/windows/floppy/pagefile.bat",
+    "unattend/windows/floppy/passwordchange.bat",
+    "unattend/windows/floppy/powerconfig.bat",
+    "unattend/windows/floppy/time12h.bat",
+    "unattend/windows/floppy/uac-disable.bat",
+    "unattend/windows/floppy/zz-start-sshd.cmd"]
+    shutil.move(packer_temp_folder+"/unattend/windows2016.xml", packer_temp_folder+"/unattend/autounattend.xml")
+
 
 # Write packer json file.
 with open(packer_temp_folder+'/file.json', 'w') as file_json_wr:
