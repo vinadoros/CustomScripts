@@ -277,9 +277,6 @@ data['builders'][0]["boot_wait"] = "5s"
 data['builders'][0]["ssh_username"] = "root"
 data['builders'][0]["ssh_password"] = "{0}".format(args.vmpass)
 data['builders'][0]["ssh_wait_timeout"] = "90m"
-data['builders'][0]["winrm_timeout"] = "90m"
-data['builders'][0]["winrm_username"] = "{0}".format(args.vmuser)
-data['builders'][0]["winrm_password"] = "{0}".format(args.vmpass)
 # Packer Provisioning Configuration
 data['provisioners']=['']
 data['provisioners'][0]={}
@@ -302,7 +299,7 @@ if 20 <= args.ostype <= 21:
 if 50 <= args.ostype <= 60:
     data['provisioners'][0]["type"] = "windows-shell"
     # Shutdown in 4 minutes (for Windows 7, which runs the commands earlier in setup than Windows 10)
-    data['builders'][0]["shutdown_command"] = "shutdown /s /t 240"
+    data['builders'][0]["shutdown_command"] = "shutdown /s /t 60"
     data['builders'][0]["shutdown_timeout"] = "15m"
     # Use ssh for communication instead of winrm (which doesn't work for vmware for some reason)
     data['builders'][0]["communicator"] = "ssh"
@@ -343,7 +340,7 @@ if args.ostype == 52:
     data['builders'][0]["boot_command"] = ["<wait5>"]
     data['builders'][0]["ssh_username"] = "Administrator"
     data['builders'][0]["floppy_files"] = ["unattend/autounattend.xml",
-    "unattend/win_openssh.ps1",
+    "unattend/win_openssh.bat",
     "unattend/windows/floppy/00-run-all-scripts.cmd",
     "unattend/windows/floppy/01-install-wget.cmd",
     "unattend/windows/floppy/_download.cmd",

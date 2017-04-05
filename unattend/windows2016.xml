@@ -162,12 +162,6 @@
                 <Order>24</Order>
                 <RequiresUserInput>true</RequiresUserInput>
             </SynchronousCommand>
-            <SynchronousCommand wcm:action="add">
-                <CommandLine>powershell -c a:\win_openssh.ps1</CommandLine>
-                <Description>Install openssh</Description>
-                <Order>25</Order>
-                <RequiresUserInput>true</RequiresUserInput>
-            </SynchronousCommand>
       </FirstLogonCommands>
       <AutoLogon>
         <Password>
