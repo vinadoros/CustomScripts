@@ -34,7 +34,7 @@ apm install sublime-style-column-selection
 
 ### Plugins which require external packages ###
 # Linting
-apm install linter
+apm install linter linter-ui-default
 # Python
 apm install autocomplete-python linter-python
 # Shell
@@ -43,5 +43,9 @@ apm install linter-shellcheck
 apm install linter-php
 # C
 apm install linter-gcc
+# Powershell
+apm install language-powershell
+# Hardware languages
+apm install language-vhdl language-verilog
 
 echo "Be sure to install php, gcc, python3-jedi, pylama, pylama-pylint, shellcheck"
