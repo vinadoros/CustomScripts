@@ -23,11 +23,14 @@ if [ -z $USERNAMEVAR ]; then
 		export USERNAMEVAR=$(id 1000 -un)
 	fi
 fi
-USERGROUP=$(id 1000 -gn)
-USERHOME=/home/$USERNAMEVAR
+export USERGROUP=$(id $USERNAMEVAR -gn)
+export USERHOME=/home/$USERNAMEVAR
 
 # Install tigervnc
 dist_install tigervnc autocutsel
+if type yaourt; then
+	yaourt -ASa --needed --noconfirm openbox xfce4-panel
+fi
 
 # Enable error halting.
 set -eu
@@ -58,20 +61,28 @@ if [ ! -d $USERHOME/.vnc/ ]; then
 	chmod 700 -R $USERHOME/.vnc/
 fi
 
-if [ ! -f $USERHOME/.vnc/xstartup ]; then
-	echo "Creating $USERHOME/.vnc/xstartup."
-	bash -c "cat >>$USERHOME/.vnc/xstartup" <<'EOL'
+echo "Creating $USERHOME/.vnc/xstartup."
+bash -c "cat >$USERHOME/.vnc/xstartup" <<'EOL'
 #!/bin/bash
 unset SESSION_MANAGER
 unset DBUS_SESSION_BUS_ADDRESS
 # Execute this session. Add more sessions as necessary to autoselect.
 if type mate-session; then
 	exec mate-session
-elif type gnome-session; then
-	exec gnome-session
+elif type openbox-session; then
+	exec openbox-session
 fi
 EOL
-	chmod 777 $USERHOME/.vnc/xstartup
+chmod a+rwx $USERHOME/.vnc/xstartup
+chown $USERNAMEVAR:$USERGROUP -R $USERHOME/.vnc
+
+# Configure openbox
+if type openbox-session && type xfce4-panel; then
+	mkdir -p $USERHOME/.config/openbox
+	bash -c "cat >>$USERHOME/.config/openbox/autostart" <<'EOL'
+xfce4-panel &
+EOL
+chown $USERNAMEVAR:$USERGROUP -R $USERHOME/.config/openbox
 fi
 
 # TODO Eliminate prompting for password at some point.
