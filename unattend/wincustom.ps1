@@ -9,7 +9,7 @@ Start-Process -Wait "$sevenfile" -ArgumentList "/qn","/passive"
 Remove-Item -Recurse -Force $sevenfile
 
 # Check if Windows 7
-if ([Environment]::OSVersion.Version -ge (new-object 'Version' 6,1)){
+if ([Environment]::OSVersion.Version.Major -eq 6 -And [Environment]::OSVersion.Version.Minor -eq 1){
   echo "Windows 7 detected."
   # Install .net Framework 4.5.2 on Windows 7
   echo "Installing .net 4.5.2"
@@ -63,3 +63,19 @@ if (Test-Path $winiso) {
   Remove-Item -Recurse -Force $winiso
   Remove-Item -Recurse -Force $vmfolder
 }
+
+# Windows customizations
+echo "Extra Folder Options"
+New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowSuperHidden -Value 1 -Force | Out-Null
+New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowSuperHidden -Value 1 -Force | Out-Null
+New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name LaunchTo -Value 1 -Force | Out-Null
+echo "Hide Search bar"
+New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Search -Name SearchboxTaskbarMode -Value 0 -Force | Out-Null
+echo "Set small icons for taskbar"
+New-ItemProperty -Path Registry::HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name TaskbarSmallIcons -Value 1 -Force | Out-Null
+echo "Show taskbar on multiple displays"
+New-ItemProperty -Path Registry::HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name MMTaskbarEnabled -Value 1 -Force | Out-Null
+New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name MMTaskbarMode -Value 2 -Force | Out-Null
+echo "Combine taskbar items only when full"
+New-ItemProperty -Path Registry::HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name TaskbarGlomLevel -Value 1 -Force | Out-Null
+New-ItemProperty -Path Registry::HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name MMTaskbarGlomLevel -Value 1 -Force | Out-Null

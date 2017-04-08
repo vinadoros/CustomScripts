@@ -297,7 +297,7 @@ if 20 <= args.ostype <= 21:
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = 'while ! zypper install -yl --no-recommends git; do sleep 5; done; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}'.format(vmprovisionscript, vmprovision_opts)
 if 50 <= args.ostype <= 60:
-    data['provisioners'][0]["type"] = "windows-shell"
+    data['provisioners'][0]["type"] = "powershell"
     data['builders'][0]["boot_command"] = ["<wait5>"]
     # Shutdown in 4 minutes (for Windows 7, which runs the commands earlier in setup than Windows 10)
     data['builders'][0]["shutdown_command"] = "shutdown /s /t 60"
@@ -323,7 +323,7 @@ if 50 <= args.ostype <= 60:
     "unattend/windows/floppy/zz-start-sshd.cmd"]
     subprocess.run("git clone https://github.com/boxcutter/windows {0}".format(packer_temp_folder+"/unattend/windows"), shell=True)
     # Provision with generic windows script
-    data['provisioners'][0]["script"] = packer_temp_folder+"/unattend/wincustom.bat"
+    data['provisioners'][0]["script"] = packer_temp_folder+"/unattend/wincustom.ps1"
 if args.ostype == 50:
     shutil.move(packer_temp_folder+"/unattend/windows10.xml", packer_temp_folder+"/unattend/autounattend.xml")
 if args.ostype == 51:
