@@ -83,8 +83,8 @@ if args.ostype == 1:
     vmname = "Packer-CentosTest-{0}".format(hvname)
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
-    vmprovisionscript = "MFedora.sh"
-    vmprovision_defopts = "-n -s {0}".format(args.vmpass)
+    vmprovisionscript = "Comp-CentosSoftware.sh"
+    vmprovision_defopts = " "
     kvm_os = "linux"
     kvm_variant = "fedora22"
     isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1611.iso"
@@ -283,7 +283,7 @@ data['provisioners'][0]={}
 if args.ostype is 1:
     data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos7-ks.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts;"
+    data['provisioners'][0]["inline"] = "git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
 if args.ostype is 2:
     data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/fedora.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
