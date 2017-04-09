@@ -1,5 +1,11 @@
 $temppath = "C:\Windows\Temp"
 
+# Power customizations
+powercfg /hibernate off
+powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+powercfg -Change -monitor-timeout-ac 0
+powercfg -Change -monitor-timeout-dc 0
+
 # Chocolatey section
 echo "Installing Chocolatey"
 iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
@@ -47,9 +53,17 @@ if (Test-Path $winiso) {
 
 # Windows customizations
 echo "Extra Folder Options"
+# Show OS Files
 New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowSuperHidden -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
-New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowSuperHidden -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+# Launch Windows Explorer in ThisPC
 New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name LaunchTo -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+# Don't hide file extensions
+New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name HideFileExt -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+# Show hidden files
+New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name Hidden -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+# Display full paths
+New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name FullPath -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name FullPathAddress -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
 echo "Hide Search bar"
 New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Search -Name SearchboxTaskbarMode -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
 echo "Set small icons for taskbar"
@@ -60,5 +74,40 @@ New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\
 echo "Combine taskbar items only when full"
 New-ItemProperty -Path Registry::HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name TaskbarGlomLevel -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
 New-ItemProperty -Path Registry::HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name MMTaskbarGlomLevel -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+# Enable quickedit in shells
+New-ItemProperty -Path Registry::HKCU\Console -Name QuickEdit -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+# Set Control Panel Icon Size
+echo "Control Panel icon changes"
+New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel -Name AllItemsIconView -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel -Name StartupPage -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+
+# Set pagefile
+wmic computersystem set AutomaticManagedPagefile=False
+wmic pagefileset delete
+wmic pagefileset create name="$ENV:SystemDrive\pagefile.sys"
+$PageFile = Get-WmiObject -Class Win32_PageFileSetting
+$PageFile.InitialSize = 64
+$PageFile.MaximumSize = 2048
+$PageFile.Put()
+
+# Set system clock to UTC
+#write-host "Setting up NTP..."
+#W32tm /register
+#start-service w32time
+#w32tm /config /manualpeerlist:uk.pool.ntp.org
+#restart-service w32time
+#Set-Service W32Time -StartupType Automatic
+#sc triggerinfo w32time start/networkon stop/networkoff
+#sc config W32Time start=auto
+
+# Disable telemetry
+#New-ItemProperty -Path Registry::HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection -Name AllowTelemetry -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+#Stop-Service diagtrack
+#Set-Service diagtrack -startuptype disabled
+#Stop-Service dmwappushsvc
+#Set-Service dmwappushsvc -startuptype disabled
+
+# Disable UAC
+New-ItemProperty -Path Registry::HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -Name EnableLUA -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
 
 exit 0

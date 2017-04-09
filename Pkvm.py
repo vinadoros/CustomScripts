@@ -306,24 +306,10 @@ if 50 <= args.ostype <= 60:
     data['builders'][0]["communicator"] = "ssh"
     data['builders'][0]["ssh_username"] = "{0}".format(args.vmuser)
     data['builders'][0]["floppy_files"] = ["unattend/autounattend.xml",
-    "unattend/win_openssh.bat",
-    "unattend/windows/floppy/00-run-all-scripts.cmd",
-    "unattend/windows/floppy/01-install-wget.cmd",
-    "unattend/windows/floppy/_download.cmd",
-    "unattend/windows/floppy/_packer_config.cmd",
-    "unattend/windows/floppy/_post_update_install.bat",
-    "unattend/windows/floppy/fixnetwork.ps1",
-    "unattend/windows/floppy/folderoptions.bat",
-    "unattend/windows/floppy/networkprompt.bat",
-    "unattend/windows/floppy/pagefile.bat",
-    "unattend/windows/floppy/passwordchange.bat",
-    "unattend/windows/floppy/powerconfig.bat",
-    "unattend/windows/floppy/time12h.bat",
-    "unattend/windows/floppy/uac-disable.bat",
-    "unattend/windows/floppy/zz-start-sshd.cmd"]
-    subprocess.run("git clone https://github.com/boxcutter/windows {0}".format(packer_temp_folder+"/unattend/windows"), shell=True)
+    "unattend/win_initial.bat",
+    "unattend/win_openssh.bat"]
     # Provision with generic windows script
-    data['provisioners'][0]["script"] = packer_temp_folder+"/unattend/wincustom.ps1"
+    data['provisioners'][0]["script"] = packer_temp_folder+"/unattend/win_custom.ps1"
 if args.ostype == 50:
     shutil.move(packer_temp_folder+"/unattend/windows10.xml", packer_temp_folder+"/unattend/autounattend.xml")
 if args.ostype == 51:
