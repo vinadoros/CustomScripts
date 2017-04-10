@@ -77,6 +77,7 @@ dnf install -y fish nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-util
 
 # Install GUI packages
 dnf install -y @fonts @base-x @networkmanager-submodules avahi
+dnf install -y powerline-fonts
 
 # Management tools
 dnf install -y yumex-dnf gparted
