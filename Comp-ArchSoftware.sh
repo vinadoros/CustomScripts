@@ -240,7 +240,7 @@ dist_install pamac-aur
 dist_install run-parts
 
 # Font packages
-dist_install ttf-dejavu ttf-liberation ttf-ubuntu-font-family noto-fonts
+dist_install ttf-dejavu ttf-liberation ttf-ubuntu-font-family noto-fonts ttf-roboto
 bash <<EOF
 cd /etc/fonts/conf.d
 ln -s ../conf.avail/10-sub-pixel-rgb.conf

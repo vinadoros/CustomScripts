@@ -77,7 +77,7 @@ dnf install -y fish nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-util
 
 # Install GUI packages
 dnf install -y @fonts @base-x @networkmanager-submodules avahi
-dnf install -y powerline-fonts
+dnf install -y powerline-fonts google-roboto-fonts google-roboto-mono-fonts
 
 # Management tools
 dnf install -y yumex-dnf gparted
@@ -86,7 +86,7 @@ dnf install -y yumex-dnf gparted
 dnf install -y chromium @firefox freshplayerplugin
 
 # Samba
-dnf install -y samba samba-winbind
+dnf install -y samba
 
 # NTP configuration
 systemctl enable systemd-timesyncd
@@ -100,7 +100,7 @@ dnf install -y cups-pdf
 dnf install -y wine playonlinux
 
 # terminator
-dnf install -y terminator
+# dnf install -y terminator
 """
 # Install software for VMs
 if QEMUGUEST is True:

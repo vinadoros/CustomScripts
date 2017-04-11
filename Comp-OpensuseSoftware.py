@@ -147,7 +147,7 @@ zypper in -yl terminix
 zypper in -yl numix-icon-theme-circle
 
 # Fonts
-zypper in -yl noto-sans-fonts ubuntu-fonts liberation-fonts
+zypper in -yl noto-sans-fonts ubuntu-fonts liberation-fonts google-roboto-fonts google-roboto-mono-fonts
 
 # VNC and synergy
 zypper in -yl xorg-x11-Xvnc tigervnc synergy qsynergy
