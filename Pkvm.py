@@ -97,7 +97,7 @@ elif args.ostype == 2:
     kvm_os = "linux"
     kvm_variant = "fedora22"
     isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/25/Server/x86_64/iso/Fedora-Server-dvd-x86_64-25-1.3.iso"
-if args.ostype == 10:
+elif args.ostype == 10:
     vmname = "Packer-UbuntuTest1610-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
     vmwareid = "ubuntu-64"
@@ -106,7 +106,7 @@ if args.ostype == 10:
     kvm_os = "linux"
     kvm_variant = "ubuntu16.04"
     isourl = "http://releases.ubuntu.com/16.10/ubuntu-16.10-server-amd64.iso"
-if args.ostype == 11:
+elif args.ostype == 11:
     vmname = "Packer-UbuntuTest1604-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
     vmwareid = "ubuntu-64"
@@ -115,7 +115,7 @@ if args.ostype == 11:
     kvm_os = "linux"
     kvm_variant = "ubuntu16.04"
     isourl = "http://releases.ubuntu.com/16.04/ubuntu-16.04.2-server-amd64.iso"
-if args.ostype == 20:
+elif args.ostype == 20:
     vmname = "Packer-OpenSuseTW-{0}".format(hvname)
     vboxosid = "OpenSUSE_64"
     vmwareid = "ubuntu-64"
