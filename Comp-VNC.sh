@@ -32,7 +32,7 @@ if type yaourt; then
 elif type zypper; then
 	zypper in -yl tigervnc autocutsel
 elif type dnf; then
-	dnf install -y tigervnc openbox xfce4-panel
+	dnf install -y tigervnc tigervnc-server openbox xfce4-panel
 fi
 
 # Enable error halting.
