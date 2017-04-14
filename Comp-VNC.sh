@@ -27,9 +27,12 @@ export USERGROUP=$(id $USERNAMEVAR -gn)
 export USERHOME=/home/$USERNAMEVAR
 
 # Install tigervnc
-dist_install tigervnc autocutsel
 if type yaourt; then
 	yaourt -ASa --needed --noconfirm openbox xfce4-panel
+elif type zypper; then
+	zypper in -yl tigervnc autocutsel
+elif type dnf; then
+	dnf install -y tigervnc openbox xfce4-panel
 fi
 
 # Enable error halting.
