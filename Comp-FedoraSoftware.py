@@ -5,6 +5,7 @@ import argparse
 import grp
 import os
 import pwd
+import shutil
 import subprocess
 import sys
 
@@ -137,5 +138,48 @@ dnf install -y dconf-editor
 
 DESKTOPSCRIPT+="""
 systemctl set-default graphical.target
+
+# Delete defaults in sudoers.
+if grep -iq $'^Defaults secure_path' /etc/sudoers; then
+    sed -e 's/^Defaults env_reset$/Defaults !env_reset/g' -i /etc/sudoers
+	sed -i $'/^Defaults mail_badpass/ s/^#*/#/' /etc/sudoers
+	sed -i $'/^Defaults secure_path/ s/^#*/#/' /etc/sudoers
+fi
+visudo -c
 """
 subprocess.run(DESKTOPSCRIPT, shell=True)
+
+# Add normal user to all reasonable groups
+GROUPSCRIPT="""
+# Get all groups
+LISTOFGROUPS="$(cut -d: -f1 /etc/group)"
+# Remove some groups
+CUTGROUPS=$(sed -e "/^users/d; /^root/d; /^nobody/d; /^nogroup/d" <<< $LISTOFGROUPS)
+echo Groups to Add: $CUTGROUPS
+for grp in $CUTGROUPS; do
+    usermod -aG $grp {0}
+done
+""".format(USERNAMEVAR)
+subprocess.run(GROUPSCRIPT, shell=True)
+
+# Edit sudoers to add dnf.
+if os.path.isdir('/etc/sudoers.d'):
+    CUSTOMSUDOERSPATH="/etc/sudoers.d/pkmgt"
+    print("Writing {0}".format(CUSTOMSUDOERSPATH))
+    with open(CUSTOMSUDOERSPATH, 'w') as sudoers_writefile:
+        sudoers_writefile.write("""%wheel ALL=(ALL) ALL
+{0} ALL=(ALL) NOPASSWD: {1}
+""".format(USERNAMEVAR, shutil.which("dnf")))
+    os.chmod(CUSTOMSUDOERSPATH, 0o440)
+    status = subprocess.run('visudo -c', shell=True)
+    if status.returncode is not 0:
+        print("Visudo status not 0, removing sudoers file.")
+        os.remove(CUSTOMSUDOERSPATH)
+
+# Run only on real machine
+if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
+    # Copy synergy to global startup folder
+    if os.path.isfile("/usr/share/applications/synergy.desktop"):
+        shutil.copy2("/usr/share/applications/synergy.desktop", "/etc/xdg/autostart/synergy.desktop")
+    # Install virtualbox
+    subprocess.run("dnf install -yl VirtualBox", shell=True)
