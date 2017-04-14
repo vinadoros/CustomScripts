@@ -77,7 +77,7 @@ dnf install -y fish nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-util
 
 # Install GUI packages
 dnf install -y @fonts @base-x @networkmanager-submodules avahi
-dnf install -y powerline-fonts google-roboto-fonts google-roboto-mono-fonts
+dnf install -y powerline-fonts google-roboto-fonts
 
 # Management tools
 dnf install -y yumex-dnf gparted
@@ -125,7 +125,7 @@ if args.desktop is 1:
 dnf install -y @workstation-product @gnome-desktop
 # Some Gnome Extensions
 dnf install -y gnome-terminal-nautilus gnome-tweak-tool dconf-editor
-dnf install -y gnome-shell-extension-gpaste
+dnf install -y gnome-shell-extension-gpaste gnome-shell-extension-media-player-indicator gnome-shell-extension-topicons-plus
 """
 elif args.desktop is 3:
     DESKTOPSCRIPT="""
