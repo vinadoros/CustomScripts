@@ -65,7 +65,7 @@ REPOSCRIPT="""
 #!/bin/bash
 
 # RPM Fusion
-dnf install -y http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+dnf install -y http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm https://www.folkswithhats.org/repo/$(rpm -E %fedora)/RPMS/noarch/folkswithhats-release-1.0.1-1.fc$(rpm -E %fedora).noarch.rpm
 dnf update -y
 
 """
@@ -99,6 +99,10 @@ dnf install -y cups-pdf
 
 # Wine
 dnf install -y wine playonlinux
+
+# Audio/video
+dnf install -y pulseaudio-module-zeroconf pulseaudio-utils paprefs
+dnf install -y youtube-dl ffmpeg vlc fedy-multimedia-codecs
 
 # terminator
 # dnf install -y terminator
