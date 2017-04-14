@@ -74,7 +74,7 @@ subprocess.run(REPOSCRIPT, shell=True)
 # Install Fedora Software
 SOFTWARESCRIPT="""
 # Install cli tools
-dnf install -y fish nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils xdg-user-dirs util-linux-user
+dnf install -y fish nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils xdg-user-dirs util-linux-user fuse-sshfs
 
 # Install GUI packages
 dnf install -y @fonts @base-x @networkmanager-submodules avahi
@@ -102,6 +102,9 @@ dnf install -y wine playonlinux
 
 # terminator
 # dnf install -y terminator
+
+# Numix
+dnf install -y numix-icon-theme-circle
 """
 # Install software for VMs
 if QEMUGUEST is True:
