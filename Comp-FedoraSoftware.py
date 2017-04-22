@@ -51,14 +51,14 @@ with open('/sys/devices/virtual/dmi/id/product_name', 'r') as VAR:
     if "VirtualBox" in DATA:
         VBOXGUEST=True
     else:
-     	VBOXGUEST=False
+        VBOXGUEST=False
 # Detect VMWare
 with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
     DATA=VAR.read().replace('\n', '')
     if "VMware" in DATA:
         VMWGUEST=True
     else:
-     	VMWGUEST=False
+        VMWGUEST=False
 
 # Set up Fedora Repos
 REPOSCRIPT="""
@@ -66,6 +66,16 @@ REPOSCRIPT="""
 
 # RPM Fusion
 dnf install -y http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm https://www.folkswithhats.org/repo/$(rpm -E %fedora)/RPMS/noarch/folkswithhats-release-1.0.1-1.fc$(rpm -E %fedora).noarch.rpm
+
+# Adobe Flash
+dnf -y install http://linuxdownload.adobe.com/adobe-release/adobe-release-$(uname -i)-1.0-1.noarch.rpm
+rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-adobe-linux
+
+# Visual Studio Code
+rpm --import https://packages.microsoft.com/keys/microsoft.asc
+echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo
+
+# Update
 dnf update -y
 
 """
@@ -85,6 +95,7 @@ dnf install -y yumex-dnf gparted
 
 # Install browsers
 dnf install -y chromium @firefox freshplayerplugin
+dnf install -y flash-plugin
 
 # Samba
 dnf install -y samba
@@ -103,6 +114,9 @@ dnf install -y wine playonlinux
 # Audio/video
 dnf install -y pulseaudio-module-zeroconf pulseaudio-utils paprefs
 dnf install -y youtube-dl ffmpeg vlc fedy-multimedia-codecs
+
+# Editors
+dnf install -y code
 
 # terminator
 # dnf install -y terminator
@@ -190,3 +204,25 @@ if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
         shutil.copy2("/usr/share/applications/synergy.desktop", "/etc/xdg/autostart/synergy.desktop")
     # Install virtualbox
     subprocess.run("dnf install -y VirtualBox", shell=True)
+
+# Install Atom
+ATOMRPMFILE="/tmp/atom.x86_64.rpm"
+ATOMRPMURL="https://atom.io/download/rpm"
+# The atom rpm is only available for x86_64.
+if MACHINEARCH == "x86_64":
+    # If the existing file is older than a day, delete it.
+    if os.path.isfile(ATOMRPMFILE):
+        # Get the time one day ago.
+        one_day_ago = datetime.now() - timedelta(days=1)
+        # Get the file modified time.
+        filetime = datetime.fromtimestamp(os.path.getmtime(ATOMRPMFILE))
+        # If the file is older than a day old, delete it.
+        if filetime < one_day_ago:
+            print("{0} is more than one day old. Deleting.".format(ATOMRPMFILE))
+            os.remove(ATOMRPMFILE)
+    # Download the file if it isn't in /tmp.
+    if not os.path.isfile(ATOMRPMFILE):
+        print("Downloading",ATOMRPMURL,"to",ATOMRPMFILE)
+        urllib.request.urlretrieve(ATOMRPMURL, ATOMRPMFILE)
+    # Install it with zypper.
+    subprocess.run("dnf install -y {0}".format(ATOMRPMFILE), shell=True)
