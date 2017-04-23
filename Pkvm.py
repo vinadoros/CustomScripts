@@ -98,7 +98,7 @@ elif args.ostype == 2:
     kvm_variant = "fedora22"
     isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/25/Server/x86_64/iso/Fedora-Server-dvd-x86_64-25-1.3.iso"
 elif args.ostype == 10:
-    vmname = "Packer-UbuntuTestLatest-{0}".format(hvname)
+    vmname = "Packer-UbuntuTest1704-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
     vmwareid = "ubuntu-64"
     vmprovisionscript = "MDebUbu.sh"
