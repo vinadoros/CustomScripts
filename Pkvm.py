@@ -101,8 +101,8 @@ elif args.ostype == 10:
     vmname = "Packer-UbuntuTest1704-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
     vmwareid = "ubuntu-64"
-    vmprovisionscript = "MDebUbu.sh"
-    vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
+    vmprovisionscript = "MUbuntu.sh"
+    vmprovision_defopts = "-n -e 1 -s {0}".format(args.vmpass)
     kvm_os = "linux"
     kvm_variant = "ubuntu16.04"
     isourl = "http://releases.ubuntu.com/17.04/ubuntu-17.04-server-amd64.iso"
@@ -110,7 +110,7 @@ elif args.ostype == 11:
     vmname = "Packer-UbuntuTest1604-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
     vmwareid = "ubuntu-64"
-    vmprovisionscript = "MDebUbu.sh"
+    vmprovisionscript = "MUbuntu.sh"
     vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
     kvm_os = "linux"
     kvm_variant = "ubuntu16.04"

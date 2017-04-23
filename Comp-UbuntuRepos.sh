@@ -85,8 +85,6 @@ sed -i '/httpredir/ s/^#*/#/' /etc/apt/sources.list
 
 # Syncthing
 if [ ! -f /etc/apt/sources.list.d/syncthing-release.list ]; then
-
-	#curl -s https://syncthing.net/release-key.txt | apt-key add -
 	wget -qO- https://syncthing.net/release-key.txt | apt-key add -
 
 	# Add the "release" channel to your APT sources:

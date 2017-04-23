@@ -34,16 +34,7 @@ if [ -z $SETDE ]; then
 	SETDE=0
 fi
 
-if [ -z $OS ]; then
-	OS=$(lsb_release -si)
-fi
-
 [ -z "$MACHINEARCH" ] && MACHINEARCH="$(uname -m)"
-
-# Enable error halting.
-if [ "$DEBRELEASE" != "jessie" ]; then
-	set -eu
-fi
 
 if [ "$(id -u)" != "0" ]; then
 	echo "Not running with root. Please run the script with su privledges."
@@ -51,43 +42,6 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # Install software
-
-# Ubuntu specific and debian specific global here.
-if [ "$OS" = "Ubuntu" ]; then
-	echo "Installing Ubuntu specific software."
-
-elif [ "$OS" = "Debian" ]; then
-	echo "Installing Debian specific software."
-
-	# Apt updating sources
-	apt-get install -y apt-config-auto-update
-
-	# Set up GPG.
-	# Make sure .gnupg folder exists for root
-	if [ ! -d /root/.gnupg ]; then
-		echo "Creating /root/.gnupg folder."
-		gpg --list-keys
-		# Have gnupg autoretrieve keys.
-		if [ -f /root/.gnupg/gpg.conf ]; then
-			sed -i 's/#keyserver-options auto-key-retrieve/keyserver-options auto-key-retrieve/g' ~/.gnupg/gpg.conf
-		fi
-	else
-		echo "Skipping /root/.gnupg creation, folder exists."
-	fi
-
-	# Set gnupg to auto-retrive keys. This is needed for some aur packages.
-	su $USERNAMEVAR -s /bin/bash <<'EOL'
-		# First create the gnupg database if it doesn't exist.
-		if [ ! -d ~/.gnupg ]; then
-			gpg --list-keys
-		fi
-		# Have gnupg autoretrieve keys.
-		if [ -f ~/.gnupg/gpg.conf ]; then
-			sed -i 's/#keyserver-options auto-key-retrieve/keyserver-options auto-key-retrieve/g' ~/.gnupg/gpg.conf
-		fi
-EOL
-
-fi
 
 # Set up import missing keys.
 KEYMISSSCRIPT="/usr/local/bin/keymissing"
@@ -119,14 +73,8 @@ fi
 
 #Variables
 PPA="$1"
-OS="$(lsb_release -si)"
 
-if [ $OS = "Ubuntu" ]; then
-	add-apt-repository -y "$PPA"
-else
-	ppa_name=$(echo "$PPA" | cut -d":" -f2 -s)
-	add-apt-repository -y "deb http://ppa.launchpad.net/$ppa_name/ubuntu yakkety main"
-fi
+add-apt-repository -y "$PPA"
 apt-get update
 keymissing
 EOL
@@ -146,9 +94,7 @@ visudo -c
 apt-get install -y ssh tmux
 
 # Install fish
-if [ "$OS" = "Ubuntu" ]; then
-	ppa ppa:fish-shell/release-2
-fi
+ppa ppa:fish-shell/release-2
 apt-get install -y fish
 FISHPATH=$(which fish)
 if ! grep -iq "$FISHPATH" /etc/shells; then
@@ -164,14 +110,12 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y nbd-client
 dpkg-reconfigure -f noninteractive tzdata
 
 # CLI and system utilities
-apt-get install -y curl rsync less
+apt-get install -y curl rsync less iotop
 # Needed for systemd user sessions.
-if [ "$DEBRELEASE" != "jessie" ]; then
-	apt-get install -y dbus-user-session
-fi
+apt-get install -y dbus-user-session
 
 # Samba
-apt-get install -y samba winbind
+apt-get install -y samba
 
 # NTP
 systemctl enable systemd-timesyncd
@@ -194,62 +138,49 @@ apt-get install -y vlc audacious ffmpeg
 apt-get install -y fonts-powerline fonts-noto fonts-roboto
 
 # Browsers
-[ "$OS" = "Debian" ] && apt-get install -y chromium
-[ "$OS" = "Ubuntu" ] && apt-get install -y chromium-browser
-apt-get install -y firefox
-
-# Utils
-apt-get install -y iotop
+apt-get install -y chromium-browser firefox flashplugin-installer
 
 # Terminals
 # apt-get install -y terminator
-# apt-get install -y terminix
+ppa ppa:webupd8team/terminix
+apt-get install -y tilix
 
 # Cron
 apt-get install -y cron anacron
 systemctl disable cron
 systemctl disable anacron
 
+# Network manager
+apt-get install -y network-manager network-manager-ssh
+sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf
+# https://askubuntu.com/questions/882806/ethernet-device-not-managed
+if [ -f /etc/NetworkManager/conf.d/10-globally-managed-devices.conf ]; then
+	rm /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
+fi
+touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
+
+
 ###############################################################################
 ######################        Desktop Environments      #######################
 ###############################################################################
-# Case for SETDE variable. 0=do nothing, 1=KDE, 2=cinnamon
+# Case for SETDE variable.
 case $SETDE in
 [1]* )
-    # KDE
-    echo "KDE stuff."
+		# GNOME
+		echo "GNOME stuff."
+		apt-get install -y ubuntu-gnome-desktop
+		apt-get install -y gnome-shell-extension-dashtodock gnome-shell-extension-mediaplayer gnome-shell-extension-top-icons-plus gnome-shell-extension-gpaste
+		$SCRIPTDIR/DExtGnome.sh -v
     ;;
 [2]* )
-    # GNOME
-    echo "GNOME stuff."
-
-	if [ "$OS" = "Ubuntu" ]; then
-		echo ""
-	elif [ "$OS" = "Debian" ]; then
-		# Locale fix for gnome-terminal.
-		localectl set-locale LANG="en_US.UTF-8"
-
-		apt-get install -y gnome-core alacarte desktop-base file-roller gedit gnome-clocks gnome-color-manager gnome-logs gnome-nettool gnome-tweak-tool seahorse
-		# Shell extensions
-		apt-get install -y gnome-shell-extensions-gpaste gnome-shell-extension-top-icons-plus gnome-shell-extension-mediaplayer
-		apt-get install -y gdm3
-		apt-get install -y gnome-packagekit network-manager-gnome
-		$SCRIPTDIR/DExtGnome.sh -d -v
-	fi
+		# KDE
+		echo "KDE stuff."
 	;;
 [3]* )
     # MATE
     echo "MATE stuff."
-
-		if [ "$OS" = "Ubuntu" ]; then
-			apt-get install -y ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop
-			apt-get install -y ubuntu-mate-lightdm-theme
-		elif [ "$OS" = "Debian" ]; then
-			apt-get install -y mate-desktop-environment caja-open-terminal caja-gksu caja-share dconf-editor gnome-keyring mate-sensors-applet mozo
-			apt-get install -y lightdm accountsservice
-			apt-get install -y gnome-packagekit pk-update-icon network-manager-gnome
-		fi
-
+		apt-get install -y ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop
+		apt-get install -y ubuntu-mate-lightdm-theme
 		apt-get install -y dconf-cli
 		;;
 * ) echo "Not changing desktop environment."
@@ -257,11 +188,9 @@ case $SETDE in
 esac
 
 
-# PPA software
-if [ "$DEBRELEASE" != "jessie" ]; then
-	ppa ppa:numix/ppa
-	apt-get install -y numix-icon-theme-circle
-fi
+# Numix
+ppa ppa:numix/ppa
+apt-get install -y numix-icon-theme-circle
 
 ###############################################################################
 ##########################        Guest Section      ##########################

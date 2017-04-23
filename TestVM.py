@@ -118,7 +118,7 @@ elif args.ostype == 2:
     vboxosid = "Debian_64"
     vmbootstrapscript = "BDebian.py"
     vmbootstrap_defopts = '-t debian -r unstable'
-    vmprovisionscript = "MDebUbu.sh"
+    vmprovisionscript = "MUbuntu.sh"
     vmprovision_defopts = "-e 2"
     kvm_variant = "debian8"
 elif args.ostype == 3:
@@ -126,7 +126,7 @@ elif args.ostype == 3:
     vboxosid = "Debian_64"
     vmbootstrapscript = "BDebian.py"
     vmbootstrap_defopts = '-t debian -r jessie'
-    vmprovisionscript = "MDebUbu.sh"
+    vmprovisionscript = "MUbuntu.sh"
     vmprovision_defopts = "-e 3"
     kvm_variant = "debian8"
 elif args.ostype == 4:
@@ -134,7 +134,7 @@ elif args.ostype == 4:
     vboxosid = "Ubuntu_64"
     vmbootstrapscript = "BDebian.py"
     vmbootstrap_defopts = '-t ubuntu -r xenial'
-    vmprovisionscript = "MDebUbu.sh"
+    vmprovisionscript = "MUbuntu.sh"
     vmprovision_defopts = "-e 3"
     kvm_variant = "ubuntu16.04"
 elif args.ostype == 5:

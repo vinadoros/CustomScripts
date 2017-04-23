@@ -28,8 +28,6 @@ NOPROMPT=0
 
 usage () {
 	echo "h - help"
-	echo "d - OS is Debian"
-	echo "u - OS is Ubuntu"
 	echo "e - Set Desktop Environment"
 	echo "s - Samba password"
 	echo "n - Do not prompt to continue."
@@ -43,12 +41,6 @@ do
 		h)
 			echo "Select a valid option."
 			usage
-			;;
-		d)
-			OS="Debian"
-			;;
-		u)
-			OS="Ubuntu"
 			;;
 		e)
 			SETDE="$OPTARG"
@@ -83,20 +75,6 @@ if [ $ROOTACCTSTATUS != "P" ]; then
 	exit 0
 fi
 
-# Set debian or ubuntu
-if [ -z "$OS" ]; then
-	OS = "$(lsb_release -si)"
-fi
-if [ -z "$OS" ]; then
-	read -p "Select Debian or Ubuntu (type \"Debian\" or \"Ubuntu\"): " OS
-	export OS=${OS//[^a-zA-Z0-9_]/}
-	if [ -z "$OS" ]; then
-		echo "No input found. Please select Debian or Ubuntu."
-		usage
-	fi
-fi
-echo "OS is $OS"
-
 # Install a desktop environment. 0=do nothing, 1=KDE, 2=GNOME, 3=MATE
 if [ -z "$SETDE" ]; then
 	read -p "Enter a number to install a desktop environment (0=do nothing/default option, 1=KDE, 2=GNOME, 3=MATE):" SETDE
@@ -113,11 +91,7 @@ if [[ $NOPROMPT != 1 ]]; then
 fi
 set -eu
 
-if [ "$OS" = "Ubuntu" ]; then
-	source "$SCRIPTDIR/Comp-UbuntuRepos.sh"
-else
-	source "$SCRIPTDIR/Comp-DebianRepos.sh"
-fi
+source "$SCRIPTDIR/Comp-UbuntuRepos.sh"
 
 source "$SCRIPTDIR/Comp-DebianSoftware.sh"
 
@@ -132,8 +106,6 @@ source "$SCRIPTDIR/Comp-CSClone.sh"
 source "$SCRIPTDIR/Comp-DisplayManagerConfig.sh"
 
 source "$SCRIPTDIR/Comp-SambaConfig.sh"
-
-#source "$SCRIPTDIR/Comp-DebVBoxHost.sh"
 
 source "$SCRIPTDIR/Comp-VMGeneral.sh"
 
