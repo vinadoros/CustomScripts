@@ -24,9 +24,9 @@ if [ -z $USERNAMEVAR ]; then
 	else
 		export USERNAMEVAR=$(id 1000 -un)
 	fi
-	USERGROUP=$(id 1000 -gn)
-	USERHOME=/home/$USERNAMEVAR
 fi
+export USERGROUP=$(id $USERNAMEVAR -gn)
+export USERHOME=/home/$USERNAMEVAR
 
 # Variables for Script
 LXCCONFFILE="/etc/lxc/lxc.conf"

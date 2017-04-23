@@ -15,15 +15,15 @@ type -t grepadd >> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
 # Set user folders if they don't exist.
 if [ -z $USERNAMEVAR ]; then
 	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
-		export USERNAMEVAR="$SUDO_USER"
+		export USERNAMEVAR=$SUDO_USER
 	elif [ "$USER" != "root" ]; then
-		export USERNAMEVAR="$USER"
+		export USERNAMEVAR=$USER
 	else
-		export USERNAMEVAR="$(id 1000 -un)"
+		export USERNAMEVAR=$(id 1000 -un)
 	fi
-	USERGROUP="$(id 1000 -gn)"
-	USERHOME="/home/$USERNAMEVAR"
 fi
+export USERGROUP=$(id $USERNAMEVAR -gn)
+export USERHOME=/home/$USERNAMEVAR
 
 if [ -z $DEBRELEASE ]; then
 	DEBRELEASE=$(lsb_release -sc)
