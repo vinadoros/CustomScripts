@@ -60,7 +60,7 @@ elif [ "$OS" = "Debian" ]; then
 	echo "Installing Debian specific software."
 
 	# Apt updating sources
-	dist_install apt-config-auto-update
+	apt-get install -y apt-config-auto-update
 
 	# Set up GPG.
 	# Make sure .gnupg folder exists for root
@@ -132,7 +132,7 @@ keymissing
 EOL
 
 # Make user part of sudo group
-dist_install sudo
+apt-get install -y sudo
 usermod -aG sudo $USERNAMEVAR
 # Delete defaults in sudoers for Debian.
 if grep -iq $'^Defaults\tenv_reset' /etc/sudoers; then
@@ -143,35 +143,35 @@ fi
 visudo -c
 
 # Install openssh
-dist_install ssh tmux
+apt-get install -y ssh tmux
 
 # Install fish
 if [ "$OS" = "Ubuntu" ]; then
 	ppa ppa:fish-shell/release-2
 fi
-dist_install fish
+apt-get install -y fish
 FISHPATH=$(which fish)
 if ! grep -iq "$FISHPATH" /etc/shells; then
 	echo "$FISHPATH" | tee -a /etc/shells
 fi
 
 # For general desktop
-dist_install synaptic gdebi gparted xdg-utils leafpad nano
-dist_install gnome-disk-utility btrfs-tools f2fs-tools dmraid mdadm
+apt-get install -y synaptic gdebi gparted xdg-utils leafpad nano
+apt-get install -y gnome-disk-utility btrfs-tools f2fs-tools dmraid mdadm
 DEBIAN_FRONTEND=noninteractive apt-get install -y nbd-client
 
 # Timezone stuff
 dpkg-reconfigure -f noninteractive tzdata
 
 # CLI and system utilities
-dist_install curl rsync less
+apt-get install -y curl rsync less
 # Needed for systemd user sessions.
 if [ "$DEBRELEASE" != "jessie" ]; then
-	dist_install dbus-user-session
+	apt-get install -y dbus-user-session
 fi
 
 # Samba
-dist_install samba winbind
+apt-get install -y samba winbind
 
 # NTP
 systemctl enable systemd-timesyncd
@@ -179,34 +179,34 @@ timedatectl set-local-rtc false
 timedatectl set-ntp 1
 
 # Avahi
-dist_install avahi-daemon avahi-discover libnss-mdns
+apt-get install -y avahi-daemon avahi-discover libnss-mdns
 
 # Cups-pdf
-dist_install printer-driver-cups-pdf
+apt-get install -y printer-driver-cups-pdf
 
 # Audio
-dist_install alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pulseaudio-module-bluetooth
+apt-get install -y alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pulseaudio-module-bluetooth
 
 # Media Playback
-dist_install vlc audacious ffmpeg
+apt-get install -y vlc audacious ffmpeg
 
 # Fonts
-dist_install fonts-powerline fonts-noto fonts-roboto
+apt-get install -y fonts-powerline fonts-noto fonts-roboto
 
 # Browsers
-[ "$OS" = "Debian" ] && dist_install chromium
-[ "$OS" = "Ubuntu" ] && dist_install chromium-browser
-dist_install firefox
+[ "$OS" = "Debian" ] && apt-get install -y chromium
+[ "$OS" = "Ubuntu" ] && apt-get install -y chromium-browser
+apt-get install -y firefox
 
 # Utils
-dist_install iotop
+apt-get install -y iotop
 
 # Terminals
-# dist_install terminator
-# dist_install terminix
+# apt-get install -y terminator
+# apt-get install -y terminix
 
 # Cron
-dist_install cron anacron
+apt-get install -y cron anacron
 systemctl disable cron
 systemctl disable anacron
 
@@ -218,9 +218,7 @@ case $SETDE in
 [1]* )
     # KDE
     echo "KDE stuff."
-
-    break;;
-
+    ;;
 [2]* )
     # GNOME
     echo "GNOME stuff."
@@ -231,42 +229,38 @@ case $SETDE in
 		# Locale fix for gnome-terminal.
 		localectl set-locale LANG="en_US.UTF-8"
 
-		dist_install gnome-core alacarte desktop-base file-roller gedit gnome-clocks gnome-color-manager gnome-logs gnome-nettool gnome-tweak-tool seahorse
+		apt-get install -y gnome-core alacarte desktop-base file-roller gedit gnome-clocks gnome-color-manager gnome-logs gnome-nettool gnome-tweak-tool seahorse
 		# Shell extensions
-		dist_install gnome-shell-extensions-gpaste gnome-shell-extension-top-icons-plus gnome-shell-extension-mediaplayer
-		dist_install gdm3
-		dist_install gnome-packagekit network-manager-gnome
+		apt-get install -y gnome-shell-extensions-gpaste gnome-shell-extension-top-icons-plus gnome-shell-extension-mediaplayer
+		apt-get install -y gdm3
+		apt-get install -y gnome-packagekit network-manager-gnome
 		$SCRIPTDIR/DExtGnome.sh -d -v
 	fi
-
-    break;;
-
+	;;
 [3]* )
     # MATE
     echo "MATE stuff."
 
 		if [ "$OS" = "Ubuntu" ]; then
-			dist_install ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop
-			dist_install ubuntu-mate-lightdm-theme
+			apt-get install -y ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop
+			apt-get install -y ubuntu-mate-lightdm-theme
 		elif [ "$OS" = "Debian" ]; then
-			dist_install mate-desktop-environment caja-open-terminal caja-gksu caja-share dconf-editor gnome-keyring mate-sensors-applet mozo
-			dist_install lightdm accountsservice
-			dist_install gnome-packagekit pk-update-icon network-manager-gnome
+			apt-get install -y mate-desktop-environment caja-open-terminal caja-gksu caja-share dconf-editor gnome-keyring mate-sensors-applet mozo
+			apt-get install -y lightdm accountsservice
+			apt-get install -y gnome-packagekit pk-update-icon network-manager-gnome
 		fi
 
-		dist_install dconf-cli
-
-    break;;
-
+		apt-get install -y dconf-cli
+		;;
 * ) echo "Not changing desktop environment."
-    break;;
+    ;;
 esac
 
 
 # PPA software
 if [ "$DEBRELEASE" != "jessie" ]; then
 	ppa ppa:numix/ppa
-	dist_install numix-icon-theme-circle
+	apt-get install -y numix-icon-theme-circle
 fi
 
 ###############################################################################
@@ -297,6 +291,6 @@ if [ "${MACHINEARCH}" != "armv7l" ]; then
 	echo "Install x86 specific software."
 
 	# TLP
-	dist_install tlp smartmontools ethtool
+	apt-get install -y --no-install-recommends tlp smartmontools ethtool
 
 fi
