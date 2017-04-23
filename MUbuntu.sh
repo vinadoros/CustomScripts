@@ -93,7 +93,7 @@ set -eu
 
 source "$SCRIPTDIR/Comp-UbuntuRepos.sh"
 
-source "$SCRIPTDIR/Comp-DebianSoftware.sh"
+source "$SCRIPTDIR/Comp-UbuntuSoftware.sh"
 
 source "$SCRIPTDIR/Comp-sdtimers.sh"
 
