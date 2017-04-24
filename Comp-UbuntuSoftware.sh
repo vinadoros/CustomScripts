@@ -142,6 +142,11 @@ apt-get install -y alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pul
 # Media Playback
 apt-get install -y vlc audacious ffmpeg
 
+# Wine
+apt-get install -y playonlinux wine64-development wine32-development-preloader
+# For Office 2010
+apt-get install -y winbind
+
 # Fonts
 apt-get install -y fonts-powerline fonts-noto fonts-roboto
 
@@ -224,19 +229,30 @@ apt-get install -y adapta-gtk-theme
 # Install virtualbox guest utils
 if [ $VBOXGUEST = 1 ]; then
 	apt-get install -y virtualbox-guest-utils virtualbox-guest-dkms dkms
-
 	# Add the user to the vboxsf group, so that the shared folders can be accessed.
 	gpasswd -a $USERNAMEVAR vboxsf
-
 fi
 # Install qemu/kvm guest utils.
 if [ $QEMUGUEST = 1 ]; then
 	apt-get install -y spice-vdagent qemu-guest-agent
-
 fi
 # Install VMWare guest utils
 if [ $VMWGUEST = 1 ]; then
 	apt-get install -y open-vm-tools open-vm-tools-dkms open-vm-tools-desktop
+fi
+
+# Install on real machine
+if [[ $VBOXGUEST = 0 && $QEMUGUEST = 0 && $VMWGUEST = 0 ]]; then
+	# Virtualbox Host
+	wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | apt-key add -
+	add-apt-repository "deb http://download.virtualbox.org/virtualbox/debian $(lsb_release -sc) contrib"
+	apt-get update
+	apt-get install -y virtualbox-5.1
+	VBOXVER=$(vboxmanage -v)
+	VBOXVER2=$(echo $VBOXVER | cut -d 'r' -f 1)
+	wget -P ~/ http://download.virtualbox.org/virtualbox/$VBOXVER2/Oracle_VM_VirtualBox_Extension_Pack-$VBOXVER2.vbox-extpack
+	yes | VBoxManage extpack install --replace ~/Oracle_VM_VirtualBox_Extension_Pack-$VBOXVER2.vbox-extpack
+	rm ~/Oracle_VM_VirtualBox_Extension_Pack-$VBOXVER2.vbox-extpack
 fi
 
 ###############################################################################

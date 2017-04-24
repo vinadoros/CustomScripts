@@ -1,17 +1,15 @@
 #!/bin/bash
 
 # Set user folders if they don't exist.
-if [ -z $USERNAMEVAR ]; then
-	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
-		export USERNAMEVAR="$SUDO_USER"
-	elif [ "$USER" != "root" ]; then
-		export USERNAMEVAR="$USER"
-	else
-		export USERNAMEVAR="$(id 1000 -un)"
-	fi
-	USERGROUP="$(id 1000 -gn)"
-	USERHOME="/home/$USERNAMEVAR"
+if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
+	export USERNAMEVAR="$SUDO_USER"
+elif [ "$USER" != "root" ]; then
+	export USERNAMEVAR="$USER"
+else
+	export USERNAMEVAR="$(id 1000 -un)"
 fi
+USERGROUP="$(id $USERNAMEVAR -gn)"
+USERHOME="/home/$USERNAMEVAR"
 
 while true; do
     read -p "1: Install/enable virt-manager. 2: Remove virt-mananger. Enter 0 to do nothing. (0/1/2)" QU
@@ -36,7 +34,7 @@ while true; do
 			sudo systemctl start libvirtd
 		elif type apt-get; then
 			sudo apt-get install -y virt-manager qemu-kvm ssh-askpass
-			sudo gpasswd -a $USERNAMEVAR libvirtd
+			sudo gpasswd -a $USERNAMEVAR libvirt libvirt-qemu
 		elif type dnf; then
 			echo "none"
 		fi
