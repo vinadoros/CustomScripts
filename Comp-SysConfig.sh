@@ -14,17 +14,15 @@ set +eu
 type -t grepadd >> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
 
 # Set user folders if they don't exist.
-if [ -z $USERNAMEVAR ]; then
-	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
-		export USERNAMEVAR="$SUDO_USER"
-	elif [ "$USER" != "root" ]; then
-		export USERNAMEVAR="$USER"
-	else
-		export USERNAMEVAR="$(id 1000 -un)"
-	fi
-	USERGROUP="$(id 1000 -gn)"
-	USERHOME="/home/$USERNAMEVAR"
+if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
+	export USERNAMEVAR="$SUDO_USER"
+elif [ "$USER" != "root" ]; then
+	export USERNAMEVAR="$USER"
+else
+	export USERNAMEVAR="$(id 1000 -un)"
 fi
+USERGROUP="$(id $USERNAMEVAR -gn)"
+USERHOME="/home/$USERNAMEVAR"
 
 [ -z "$MACHINEARCH" ] && MACHINEARCH="$(uname -m)"
 
@@ -36,10 +34,8 @@ fi
 
 
 # Set computer to not sleep on lid close
-if ! grep -Fxq "HandleLidSwitch=ignore" /etc/systemd/logind.conf && grep -iq "Latitude D610" "/sys/devices/virtual/dmi/id/product_name"; then
-	echo 'HandleLidSwitch=ignore' | sudo tee -a /etc/systemd/logind.conf
-elif ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf && ! grep -iq "Latitude D610" "/sys/devices/virtual/dmi/id/product_name"; then
-    echo 'HandleLidSwitch=lock' | sudo tee -a /etc/systemd/logind.conf
+if ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf; then
+	echo 'HandleLidSwitch=lock' | sudo tee -a /etc/systemd/logind.conf
 fi
 
 #Xorg fix for Joysticks
@@ -91,32 +87,6 @@ if [ -f /etc/anacrontab ]; then
 	sed -i -e 's/7.*\tcron.weekly/7\t0\tcron.weekly/g' /etc/anacrontab
 	sed -i -e 's/@monthly.*\tcron.monthly/@monthly 0\tcron.monthly/g' /etc/anacrontab
 	sed -i '/^MAILTO=.*/s/^/#/g' /etc/anacrontab
-fi
-
-# Some personal cron scripts
-# Cleanup thumbnails cron script.
-if [ -d "/etc/cron.weekly" ]; then
-	multilinereplace "/etc/cron.weekly/cleanthumbs" << EOFXYZ
-#!/bin/bash
-set -eu
-echo "Executing \$0"
-su $USERNAMEVAR -s /bin/bash <<'EOL'
-
-if [ -d $USERHOME/.cache/thumbnails ]; then
-	SIZEVAR="\$(du -sm $USERHOME/.cache/thumbnails | awk '{ print \$1 }')"
-	echo "Size is \$SIZEVAR"
-	if [[ \$SIZEVAR -ge 100 ]]; then
-		echo "Removing thumbnails."
-		rm -rf $USERHOME/.cache/thumbnails/*
-	else
-		echo "Not Removing thumbnails."
-	fi
-else
-	echo "No thumbnail folder detected. Exiting."
-fi
-
-EOL
-EOFXYZ
 fi
 
 if [ "${MACHINEARCH}" != "armv7l" ]; then
