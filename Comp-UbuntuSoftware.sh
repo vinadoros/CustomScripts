@@ -187,10 +187,13 @@ case $SETDE in
     ;;
 esac
 
-
 # Numix
 ppa ppa:numix/ppa
 apt-get install -y numix-icon-theme-circle
+
+# Adapta
+ppa ppa:tista/adapta
+apt-get install -y adapta-gtk-theme
 
 ###############################################################################
 ##########################        Guest Section      ##########################
