@@ -630,18 +630,6 @@ end
         if os.path.isfile(FISHSCRIPTUSERPATH):
             os.remove(FISHSCRIPTUSERPATH)
 
-    # Install fish script
-    FISHSCRIPT_VAR = open(FISHSCRIPTPATH, mode='w')
-    FISHSCRIPT_VAR.write(FISHSCRIPT)
-    FISHSCRIPT_VAR.close()
-    os.chmod(FISHSCRIPTPATH, 0o644)
-    if os.geteuid() == 0:
-        FISHSCRIPTUSER_VAR = open(FISHSCRIPTUSERPATH, mode='w')
-        FISHSCRIPTUSER_VAR.write(FISHSCRIPT)
-        FISHSCRIPTUSER_VAR.close()
-        os.chmod(FISHSCRIPTUSERPATH, 0o644)
-        subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, os.path.dirname(FISHSCRIPTUSERPATH)), shell=True)
-
     # Install fish utilities and plugins
     fish_testcmd = 'fish -c "omf update"'
     fish_installplugins = """
@@ -672,5 +660,17 @@ end
         if status.returncode is not 0:
             print("Installing omf for {0}.".format(USERNAMEVAR))
             process = subprocess.Popen(fish_installplugins, preexec_fn=demote(pw_record.pw_uid, pw_record.pw_gid), env=env, shell=True)
+
+    # Install fish script
+    FISHSCRIPT_VAR = open(FISHSCRIPTPATH, mode='a')
+    FISHSCRIPT_VAR.write(FISHSCRIPT)
+    FISHSCRIPT_VAR.close()
+    os.chmod(FISHSCRIPTPATH, 0o644)
+    if os.geteuid() == 0:
+        FISHSCRIPTUSER_VAR = open(FISHSCRIPTUSERPATH, mode='a')
+        FISHSCRIPTUSER_VAR.write(FISHSCRIPT)
+        FISHSCRIPTUSER_VAR.close()
+        os.chmod(FISHSCRIPTUSERPATH, 0o644)
+        subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, os.path.dirname(FISHSCRIPTUSERPATH)), shell=True)
 
 print("Script finished successfully.")
