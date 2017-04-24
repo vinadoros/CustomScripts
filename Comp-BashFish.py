@@ -630,6 +630,12 @@ end
         if os.path.isfile(FISHSCRIPTUSERPATH):
             os.remove(FISHSCRIPTUSERPATH)
 
+    # Install root fish script
+    FISHSCRIPT_VAR = open(FISHSCRIPTPATH, mode='a')
+    FISHSCRIPT_VAR.write(FISHSCRIPT)
+    FISHSCRIPT_VAR.close()
+    os.chmod(FISHSCRIPTPATH, 0o644)
+
     # Install fish utilities and plugins
     fish_testcmd = 'fish -c "omf update"'
     fish_installplugins = """
@@ -653,19 +659,16 @@ end
     if os.geteuid() == 0:
         pw_record = pwd.getpwnam(USERNAMEVAR)
         env = os.environ.copy()
-        env['HOME']  = pw_record.pw_dir
-        env['LOGNAME']  = pw_record.pw_name
-        env['USER']  = pw_record.pw_name
+        env['HOME'] = pw_record.pw_dir
+        env['LOGNAME'] = pw_record.pw_name
+        env['USER'] = pw_record.pw_name
         status = subprocess.run('su {0} -s {1} -c "omf update"'.format(USERNAMEVAR, shutil.which("fish")), shell=True)
         if status.returncode is not 0:
             print("Installing omf for {0}.".format(USERNAMEVAR))
             process = subprocess.Popen(fish_installplugins, preexec_fn=demote(pw_record.pw_uid, pw_record.pw_gid), env=env, shell=True)
 
-    # Install fish script
-    FISHSCRIPT_VAR = open(FISHSCRIPTPATH, mode='a')
-    FISHSCRIPT_VAR.write(FISHSCRIPT)
-    FISHSCRIPT_VAR.close()
-    os.chmod(FISHSCRIPTPATH, 0o644)
+    # Install fish script for user
+    # Bug: Once demoting using the above code, rest of script runs as normal user.
     if os.geteuid() == 0:
         FISHSCRIPTUSER_VAR = open(FISHSCRIPTUSERPATH, mode='a')
         FISHSCRIPTUSER_VAR.write(FISHSCRIPT)
