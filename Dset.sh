@@ -212,6 +212,7 @@ if type gnome-session; then
   gsettings set org.gnome.gedit.preferences.editor tabs-size 4
   gsettings set org.gtk.Settings.FileChooser show-hidden true
   gsettings set org.gtk.Settings.FileChooser sort-directories-first true
+	gsettings set org.gnome.nautilus.preferences sort-directories-first true
   gsettings set org.gnome.nautilus.preferences executable-text-activation ask
   gsettings set org.gnome.nautilus.preferences click-policy double
   gsettings set org.gnome.nautilus.preferences automatic-decompression false

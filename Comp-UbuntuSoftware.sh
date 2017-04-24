@@ -34,6 +34,14 @@ if [ -z $SETDE ]; then
 	SETDE=0
 fi
 
+# Set default VM guest variables
+[ -z $VBOXGUEST ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1
+[ -z $VBOXGUEST ] && ! grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=0
+[ -z $QEMUGUEST ] && grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=1
+[ -z $QEMUGUEST ] && ! grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=0
+[ -z $VMWGUEST ] && grep -iq "VMware" "/sys/devices/virtual/dmi/id/product_name" && VMWGUEST=1
+[ -z $VMWGUEST ] && ! grep -iq "VMware" "/sys/devices/virtual/dmi/id/product_name" && VMWGUEST=0
+
 [ -z "$MACHINEARCH" ] && MACHINEARCH="$(uname -m)"
 
 if [ "$(id -u)" != "0" ]; then
@@ -102,7 +110,7 @@ if ! grep -iq "$FISHPATH" /etc/shells; then
 fi
 
 # For general desktop
-apt-get install -y synaptic gdebi gparted xdg-utils leafpad nano
+apt-get install -y synaptic gdebi gparted xdg-utils leafpad nano p7zip-full
 apt-get install -y gnome-disk-utility btrfs-tools f2fs-tools dmraid mdadm
 DEBIAN_FRONTEND=noninteractive apt-get install -y nbd-client
 
@@ -150,6 +158,21 @@ apt-get install -y cron anacron
 systemctl disable cron
 systemctl disable anacron
 
+# Atom Editor
+ppa ppa:webupd8team/atom
+apt-get install -y atom
+
+# Visual Studio Code
+curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
+# Install repo
+echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list
+# Update apt-get
+apt-get update
+# Install
+apt-get install code
+
+
 # Network manager
 apt-get install -y network-manager network-manager-ssh
 sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf
@@ -169,7 +192,7 @@ case $SETDE in
 		# GNOME
 		echo "GNOME stuff."
 		apt-get install -y ubuntu-gnome-desktop
-		apt-get install -y gnome-shell-extension-dashtodock gnome-shell-extension-mediaplayer gnome-shell-extension-top-icons-plus gnome-shell-extension-gpaste
+		apt-get install -y gnome-shell-extension-dashtodock gnome-shell-extension-mediaplayer gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste
 		$SCRIPTDIR/DExtGnome.sh -v
     ;;
 [2]* )
@@ -226,3 +249,13 @@ if [ "${MACHINEARCH}" != "armv7l" ]; then
 	apt-get install -y --no-install-recommends tlp smartmontools ethtool
 
 fi
+
+# Add normal user to all reasonable groups
+# Get all groups
+LISTOFGROUPS="$(cut -d: -f1 /etc/group)"
+# Remove some groups
+CUTGROUPS=$(sed -e "/^users/d; /^root/d; /^nobody/d; /^nogroup/d; /^$USERGROUP/d" <<< $LISTOFGROUPS)
+echo Groups to Add: $CUTGROUPS
+for grp in $CUTGROUPS; do
+    usermod -aG $grp $USERNAMEVAR
+done

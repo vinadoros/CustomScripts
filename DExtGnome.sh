@@ -3,17 +3,15 @@
 set -e
 
 # Set user folders if they don't exist.
-if [ -z $USERNAMEVAR ]; then
-	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
-		export USERNAMEVAR="$SUDO_USER"
-	elif [ "$USER" != "root" ]; then
-		export USERNAMEVAR="$USER"
-	else
-		export USERNAMEVAR="$(id 1000 -un)"
-	fi
-	USERGROUP="$(id 1000 -gn)"
-	USERHOME="/home/$USERNAMEVAR"
+if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
+	export USERNAMEVAR="$SUDO_USER"
+elif [ "$USER" != "root" ]; then
+	export USERNAMEVAR="$USER"
+else
+	export USERNAMEVAR="$(id 1000 -un)"
 fi
+USERGROUP="$(id $USERNAMEVAR -gn)"
+USERHOME="/home/$USERNAMEVAR"
 
 function installdeps {
 	if type -p pacman &> /dev/null; then
@@ -60,8 +58,7 @@ function volumemixer {
 	git clone https://github.com/aleho/gnome-shell-volume-mixer.git "$TEMPFOLDER"
 	cd "$TEMPFOLDER"
 	make
-	EXTDIR="$(readlink -f ~/.local/share/gnome-shell/extensions/shell-volume-mixer@derhofbauer.at/)"
-	#EXTDIR="$(readlink -f /usr/share/gnome-shell/extensions/shell-volume-mixer@derhofbauer.at/)"
+	EXTDIR="$(readlink -m ~/.local/share/gnome-shell/extensions/shell-volume-mixer@derhofbauer.at/)"
 	mkdir -p "$EXTDIR"
 	7z x ./shell-volume-mixer*.zip -aoa -o"$EXTDIR"
 	cd ..
