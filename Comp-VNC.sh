@@ -13,15 +13,13 @@ set +eu
 # Add general functions if they don't exist.
 type -t grepadd &> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
 
-# Set user folders if they don't exist.
-if [ -z $USERNAMEVAR ]; then
-	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
-		export USERNAMEVAR=$SUDO_USER
-	elif [ "$USER" != "root" ]; then
-		export USERNAMEVAR=$USER
-	else
-		export USERNAMEVAR=$(id 1000 -un)
-	fi
+# Set user folders.
+if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
+	export USERNAMEVAR=$SUDO_USER
+elif [ "$USER" != "root" ]; then
+	export USERNAMEVAR=$USER
+else
+	export USERNAMEVAR=$(id 1000 -un)
 fi
 export USERGROUP=$(id $USERNAMEVAR -gn)
 export USERHOME=/home/$USERNAMEVAR
@@ -31,6 +29,8 @@ if type yaourt; then
 	yaourt -ASa --needed --noconfirm openbox xfce4-panel
 elif type zypper; then
 	zypper in -yl tigervnc autocutsel
+elif type apt-get; then
+	apt-get install -y tigervnc-standalone-server vnc4server openbox xfce4-panel autocutsel
 elif type dnf; then
 	dnf install -y tigervnc tigervnc-server openbox xfce4-panel
 fi
