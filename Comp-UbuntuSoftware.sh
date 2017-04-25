@@ -151,7 +151,7 @@ apt-get install -y winbind
 apt-get install -y fonts-powerline fonts-noto fonts-roboto
 
 # Browsers
-apt-get install -y chromium-browser firefox flashplugin-installer
+apt-get install -y chromium-browser firefox flashplugin-installer pepperflashplugin-nonfree
 
 # Terminals
 # apt-get install -y terminator
