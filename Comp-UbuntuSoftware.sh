@@ -118,12 +118,12 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y nbd-client
 dpkg-reconfigure -f noninteractive tzdata
 
 # CLI and system utilities
-apt-get install -y curl rsync less iotop
+apt-get install -y curl rsync less iotop sshfs
 # Needed for systemd user sessions.
 apt-get install -y dbus-user-session
 
 # Samba
-apt-get install -y samba
+apt-get install -y samba cifs-utils
 
 # NTP
 systemctl enable systemd-timesyncd
@@ -197,6 +197,7 @@ case $SETDE in
 		# GNOME
 		echo "GNOME stuff."
 		apt-get install -y ubuntu-gnome-desktop
+		apt-get install -y gnome-clocks
 		apt-get install -y gnome-shell-extension-dashtodock gnome-shell-extension-mediaplayer gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste
 		$SCRIPTDIR/DExtGnome.sh -v
     ;;
