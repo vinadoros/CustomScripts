@@ -7,20 +7,13 @@ SCRIPTDIR="$(dirname "$FLWSOURCE")"
 SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
-set +eu
-
-# Add general functions if they don't exist.
-type -t grepadd >> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
-
-# Set user folders if they don't exist.
-if [ -z $USERNAMEVAR ]; then
-	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
-		export USERNAMEVAR=$SUDO_USER
-	elif [ "$USER" != "root" ]; then
-		export USERNAMEVAR=$USER
-	else
-		export USERNAMEVAR=$(id 1000 -un)
-	fi
+# Set user folders.
+if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
+	export USERNAMEVAR=$SUDO_USER
+elif [ "$USER" != "root" ]; then
+	export USERNAMEVAR=$USER
+else
+	export USERNAMEVAR=$(id 1000 -un)
 fi
 export USERGROUP=$(id $USERNAMEVAR -gn)
 export USERHOME=/home/$USERNAMEVAR
@@ -53,7 +46,7 @@ fi
 
 # Set up import missing keys.
 KEYMISSSCRIPT="/usr/local/bin/keymissing"
-multilinereplace "$KEYMISSSCRIPT" <<'EOL'
+cat > "$KEYMISSSCRIPT" <<'EOL'
 #!/bin/bash
 APTLOG=/tmp/aptlog
 sudo apt-get update 2> $APTLOG
@@ -71,7 +64,7 @@ chmod a+rwx "$KEYMISSSCRIPT"
 
 # PPASCRIPT, common to Debian and Ubuntu for now.
 PPASCRIPT="/usr/local/bin/ppa"
-multilinereplace "$PPASCRIPT" <<'EOL'
+cat > "$PPASCRIPT" <<'EOL'
 #!/bin/bash
 
 if [ -z $1 ]; then
@@ -86,6 +79,7 @@ add-apt-repository -y "$PPA"
 apt-get update
 keymissing
 EOL
+chmod a+rwx "$PPASCRIPT"
 
 # Make user part of sudo group
 apt-get install -y sudo
@@ -93,6 +87,8 @@ usermod -aG sudo $USERNAMEVAR
 # Delete defaults in sudoers for Debian.
 if grep -iq $'^Defaults\tenv_reset' /etc/sudoers; then
 	sed -i $'/^Defaults\tenv_reset/ s/^#*/#/' /etc/sudoers
+	# Consider changing above line to below line in future (as in Opensuse)
+	# sed -e 's/^Defaults env_reset$/Defaults !env_reset/g' -i /etc/sudoers
 	sed -i $'/^Defaults\tmail_badpass/ s/^#*/#/' /etc/sudoers
 	sed -i $'/^Defaults\tsecure_path/ s/^#*/#/' /etc/sudoers
 fi
@@ -175,7 +171,7 @@ echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" 
 # Update apt-get
 apt-get update
 # Install
-apt-get install code
+apt-get install -y code
 
 
 # Network manager
