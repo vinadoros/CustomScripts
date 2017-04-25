@@ -107,7 +107,4 @@ $PageFile.Put()
 #Stop-Service dmwappushsvc
 #Set-Service dmwappushsvc -startuptype disabled
 
-# Disable UAC
-New-ItemProperty -Path Registry::HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -Name EnableLUA -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
-
 exit 0
