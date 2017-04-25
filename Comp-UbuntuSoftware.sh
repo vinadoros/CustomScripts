@@ -7,6 +7,9 @@ SCRIPTDIR="$(dirname "$FLWSOURCE")"
 SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
+# Disable error handlingss
+set +eu
+
 # Set user folders.
 if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
 	export USERNAMEVAR=$SUDO_USER
