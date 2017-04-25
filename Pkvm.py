@@ -38,12 +38,6 @@ USERGROUP=grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
 USERHOME=os.path.expanduser("~")
 CPUCORES=multiprocessing.cpu_count() if multiprocessing.cpu_count() <= 4 else 4
 
-# Ensure that certain commands exist.
-cmdcheck = ["packer", "ssh"]
-for cmd in cmdcheck:
-    if not shutil.which(cmd):
-        sys.exit("\nError, ensure command {0} is installed.".format(cmd))
-
 # Get arguments
 parser = argparse.ArgumentParser(description='Create a VM using packer.')
 parser.add_argument("-m", "--noprompt",help='Do not prompt to continue.', action="store_true")
@@ -56,6 +50,7 @@ parser.add_argument("-s", "--imgsize", type=int, help="Size of image", default=6
 parser.add_argument("-p", "--vmpath", help="Path of Packer output", required=True)
 parser.add_argument("-y", "--vmuser", help="VM Username", default="user")
 parser.add_argument("-z", "--vmpass", help="VM Password", default="asdf")
+parser.add_argument("-b", "--getpacker", help="Force refresh packer", action="store_true")
 parser.add_argument("--memory", help="Memory for VM", default="2048")
 parser.add_argument("--vmprovision", help="""Override provision options. Enclose options in double backslashes and quotes. Example: \\\\"-n -e 3\\\\" """)
 
@@ -69,6 +64,24 @@ print("OS Type is {0}".format(args.ostype))
 print("VM Memory is {0}".format(args.memory))
 print("VM Hard Disk size is {0}".format(args.imgsize))
 print("VM User is {0}".format(args.vmuser))
+
+# Get Packer
+if not shutil.which("packer") or args.getpacker is True:
+    print("Getting packer binary.")
+    packer_zipfile = "/tmp/packer.zip"
+    packer_zipurl = "https://releases.hashicorp.com/packer/1.0.0/packer_1.0.0_linux_amd64.zip"
+    urllib.request.urlretrieve(packer_zipurl, packer_zipfile)
+    subprocess.run("unzip -o {0} -d /usr/local/bin".format(packer_zipfile), shell=True)
+    os.chmod("/usr/local/bin/packer", 0o777)
+    if os.path.isfile(packer_zipfile):
+        os.remove(packer_zipfile)
+    subprocess.run("packer -v", shell=True)
+
+# Ensure that certain commands exist.
+cmdcheck = ["packer", "ssh"]
+for cmd in cmdcheck:
+    if not shutil.which(cmd):
+        sys.exit("\nError, ensure command {0} is installed.".format(cmd))
 
 # Determine VM hypervisor
 if args.vmtype == 1:
