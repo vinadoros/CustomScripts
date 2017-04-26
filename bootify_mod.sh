@@ -117,6 +117,7 @@ function mbr_part()
 	parted -s -a optimal "$DEV" -- mkpart primary fat32 $MAINDRIVE 100% set 2 esp
 	# Wait until partitions appear
 	while [ ! -b ${DEV}1 ]; do sleep .5; done
+	sleep 1
 	mkfs.ntfs -f -L "${ISOLABEL}" ${DEV}1
 	mkfs.vfat -F32 -n "EFI" ${DEV}2
 	copy_files
