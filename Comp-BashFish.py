@@ -34,11 +34,6 @@ for cmd in cmdcheck:
     if not shutil.which(cmd):
         sys.exit("\nError, ensure command {0} is installed.".format(cmd))
 
-# Demote to normal user.
-# https://stackoverflow.com/questions/1770209/run-child-processes-as-different-user-from-a-long-running-process/6037494#6037494
-def demote(user_uid, user_gid):
-    os.setgid(user_gid)
-    os.setuid(user_uid)
 
 ######### Bash Section #########
 
