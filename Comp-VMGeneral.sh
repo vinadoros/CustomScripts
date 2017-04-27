@@ -130,6 +130,6 @@ if [ $VMWGUEST = 1 ]; then
 			echo "" | sudo tee -a /etc/fstab
 		fi
 		mkdir -m 777 -p /media/host
-		echo -e ".host:/\t/media/host\tfuse.vmhgfs-fuse\tdefaults,allow_other,auto_unmount\t0\t0" | sudo tee -a /etc/fstab
+		echo -e ".host:/\t/media/host\tfuse.vmhgfs-fuse\tdefaults,allow_other,auto_unmount,nofail\t0\t0" | sudo tee -a /etc/fstab
 	fi
 fi
