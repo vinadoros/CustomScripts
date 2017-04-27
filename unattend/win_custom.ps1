@@ -90,6 +90,13 @@ $PageFile.InitialSize = 64
 $PageFile.MaximumSize = 2048
 $PageFile.Put()
 
+# Disable thumbs.db on lower than Windows 8
+if ([Environment]::OSVersion.Version.Major -lt 8){
+  echo "Disable Thumbs.db"
+  New-ItemProperty -Path Registry::HKCU\Software\Policies\Microsoft\Windows\Explorer -Name DisableThumbsDBOnNetworkFolders -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+  New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name DisableThumbnailCache -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+}
+
 # Set system clock to UTC
 #write-host "Setting up NTP..."
 #W32tm /register
