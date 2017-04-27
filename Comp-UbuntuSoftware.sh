@@ -186,6 +186,9 @@ if [ -f /etc/NetworkManager/conf.d/10-globally-managed-devices.conf ]; then
 fi
 touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
 
+# Disable apport if it exists
+[ -f /etc/default/apport ] && sed -i 's/^enabled=.*/enabled=0/g' /etc/default/apport
+
 
 ###############################################################################
 ######################        Desktop Environments      #######################
