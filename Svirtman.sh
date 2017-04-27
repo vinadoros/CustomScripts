@@ -27,14 +27,15 @@ while true; do
 			sudo systemctl start libvirtd
 			sudo systemctl enable virtlogd
 			sudo systemctl start virtlogd
-			sudo gpasswd -a $USERNAMEVAR kvm
+			sudo usermod -aG kvm $USERNAMEVAR
 		elif type zypper; then
 			sudo zypper in -l -y virt-manager libvirt
 			sudo systemctl enable libvirtd
 			sudo systemctl start libvirtd
 		elif type apt-get; then
 			sudo apt-get install -y virt-manager qemu-kvm ssh-askpass
-			sudo gpasswd -a $USERNAMEVAR libvirt libvirt-qemu
+			sudo usermod -aG libvirt $USERNAMEVAR
+			sudo usermod -aG libvirt-qemu $USERNAMEVAR
 		elif type dnf; then
 			echo "none"
 		fi
