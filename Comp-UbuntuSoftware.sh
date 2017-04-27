@@ -135,11 +135,10 @@ apt-get install -y avahi-daemon avahi-discover libnss-mdns
 # Cups-pdf
 apt-get install -y printer-driver-cups-pdf
 
-# Audio
-apt-get install -y alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pulseaudio-module-bluetooth
-
 # Media Playback
-apt-get install -y vlc audacious ffmpeg
+apt-get install -y vlc audacious ffmpeg youtube-dl smplayer
+apt-get install -y alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pulseaudio-module-bluetooth
+apt-get install -y gstreamer1.0-vaapi gstreamer1.0-packagekit
 
 # Wine
 apt-get install -y playonlinux wine64-development wine32-development-preloader
