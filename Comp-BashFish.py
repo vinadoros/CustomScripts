@@ -7,27 +7,26 @@ import pwd
 import sys
 import subprocess
 import shutil
-import stat
 
 print("Running {0}".format(__file__))
 
 # Folder of this script
-SCRIPTDIR=sys.path[0]
+SCRIPTDIR = sys.path[0]
 
 # Get non-root user information.
 if os.getenv("SUDO_USER") != None and os.getenv("SUDO_USER") != "root":
-    USERNAMEVAR=os.getenv("SUDO_USER")
+    USERNAMEVAR = os.getenv("SUDO_USER")
 elif os.getenv("USER") != "root":
-    USERNAMEVAR=os.getenv("USER")
+    USERNAMEVAR = os.getenv("USER")
 else:
     # https://docs.python.org/3/library/pwd.html
-    USERNAMEVAR=pwd.getpwuid(1000)[0]
+    USERNAMEVAR = pwd.getpwuid(1000)[0]
 # https://docs.python.org/3/library/grp.html
-USERGROUP=grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
+USERGROUP = grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
 # Note: This folder is the root home folder if this script is run as root.
-USERHOME=os.path.expanduser("~")
+USERHOME = os.path.expanduser("~")
 # This folder is the above detected user's home folder if this script is run as root.
-USERVARHOME=os.path.expanduser("~{0}".format(USERNAMEVAR))
+USERVARHOME = os.path.expanduser("~{0}".format(USERNAMEVAR))
 
 # Ensure that certain commands exist.
 cmdcheck = ["chsh"]
@@ -38,8 +37,8 @@ for cmd in cmdcheck:
 # Demote to normal user.
 # https://stackoverflow.com/questions/1770209/run-child-processes-as-different-user-from-a-long-running-process/6037494#6037494
 def demote(user_uid, user_gid):
-  os.setgid(user_gid)
-  os.setuid(user_uid)
+    os.setgid(user_gid)
+    os.setuid(user_uid)
 
 ######### Bash Section #########
 
@@ -636,6 +635,14 @@ end
     FISHSCRIPT_VAR.close()
     os.chmod(FISHSCRIPTPATH, 0o644)
 
+    # Install fish script for user
+    if os.geteuid() == 0:
+        FISHSCRIPTUSER_VAR = open(FISHSCRIPTUSERPATH, mode='a')
+        FISHSCRIPTUSER_VAR.write(FISHSCRIPT)
+        FISHSCRIPTUSER_VAR.close()
+        os.chmod(FISHSCRIPTUSERPATH, 0o644)
+        subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, os.path.dirname(FISHSCRIPTUSERPATH)), shell=True)
+
     # Install fish utilities and plugins
     fish_testcmd = 'fish -c "omf update"'
     fish_installplugins = """
@@ -657,23 +664,24 @@ end
         print("Installing omf.")
         process = subprocess.run(fish_installplugins, shell=True)
     if os.geteuid() == 0:
-        pw_record = pwd.getpwnam(USERNAMEVAR)
-        env = os.environ.copy()
-        env['HOME'] = pw_record.pw_dir
-        env['LOGNAME'] = pw_record.pw_name
-        env['USER'] = pw_record.pw_name
         status = subprocess.run('su {0} -s {1} -c "omf update"'.format(USERNAMEVAR, shutil.which("fish")), shell=True)
         if status.returncode is not 0:
             print("Installing omf for {0}.".format(USERNAMEVAR))
-            process = subprocess.Popen(fish_installplugins, preexec_fn=demote(pw_record.pw_uid, pw_record.pw_gid), env=env, shell=True)
+            fish_installuserplugins = """
+            # Install oh-my-fish
+            cd /tmp
+            git clone https://github.com/oh-my-fish/oh-my-fish userfish
+            cd userfish
+            su {0} -s {3} -c "bin/install --offline --noninteractive"
+            cd /tmp
+            rm -rf userfish
+            # Install bobthefish theme
+            su {0} -s {3} -c "omf install bobthefish"
+            chown -R {0}:{1} {2}
+            """.format(USERNAMEVAR, USERGROUP, os.path.dirname(FISHSCRIPTUSERPATH), shutil.which("fish"))
+            status = subprocess.run(fish_installuserplugins, shell=True)
 
-    # Install fish script for user
-    # Bug: Once demoting using the above code, rest of script runs as normal user.
-    if os.geteuid() == 0:
-        FISHSCRIPTUSER_VAR = open(FISHSCRIPTUSERPATH, mode='a')
-        FISHSCRIPTUSER_VAR.write(FISHSCRIPT)
-        FISHSCRIPTUSER_VAR.close()
-        os.chmod(FISHSCRIPTUSERPATH, 0o644)
-        subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, os.path.dirname(FISHSCRIPTUSERPATH)), shell=True)
+    # Personal note: To uninstall omf completely, use the following command as a normal user:
+    # omf destroy; sudo rm -rf /root/.config/omf/ /root/.cache/omf/ /root/.local/share/omf/ ~/.config/omf/ ~/.cache/omf/ ~/.local/share/omf/
 
 print("Script finished successfully.")
