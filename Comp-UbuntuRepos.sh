@@ -93,6 +93,11 @@ if [ ! -f /etc/apt/sources.list.d/syncthing-release.list ]; then
 	apt-get install -y syncthing
 fi
 
+# Getdeb
+wget http://archive.getdeb.net/install_deb/getdeb-repository_0.1-1~getdeb1_all.deb -O /tmp/getdeb.deb
+apt-get install /tmp/getdeb.deb
+[ -f /tmp/getdeb.deb ] && rm /tmp/getdeb.deb
+
 # Update repositories
 echo "Done adding repositories. Now updating."
 apt-get update
