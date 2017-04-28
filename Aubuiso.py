@@ -281,7 +281,10 @@ subprocess.run("chown {0}:{1} -R {2}".format(USERNAMEVAR, USERGROUP, buildfolder
 # Find the iso
 # https://stackoverflow.com/questions/3964681/find-all-files-in-directory-with-extension-txt-in-python#3964691
 # https://stackoverflow.com/questions/2186525/use-a-glob-to-find-files-recursively-in-python
-for filename in glob.iglob(buildfolder+"/*.hybrid.iso"):
+for filename in glob.iglob(buildfolder+"/chroot/*.hybrid.iso"):
+    print("Detected: "+filename)
+    # Run isohybrid on the file in case it failed.
+    subprocess.run("isohybrid {0}".format(filename))
     print("Detected: "+filename)
     # Make the iso world rwx
     os.chmod(filename, 0o777)
