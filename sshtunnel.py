@@ -14,6 +14,7 @@ parser = argparse.ArgumentParser(description='Opens an ssh tunnel for use by a c
 parser.add_argument("-s", "--server", help='Server to connect to.')
 parser.add_argument("-p", "--sshport", type=int, help='SSH port to connect to.', default="22")
 parser.add_argument("-d", "--destport", type=int, help='Port on local machine to map to this machine.', default="5900")
+parser.add_argument("-r", "--destserver", help='Server on the destination side to connect to.', default="localhost")
 parser.add_argument("-c", "--command", help='Run commands (vnc=1)', type=int, default="1")
 
 # Save arguments.
@@ -51,7 +52,7 @@ def getrandomport():
 # Begin code.
 # Get a raondom port.
 networkport = getrandomport()
-p = subprocess.Popen('ssh -N {0} -p {1} -L {2}:localhost:{3}'.format(args.server, args.sshport, networkport, args.destport).split(), stdout=subprocess.PIPE)
+p = subprocess.Popen('ssh -N {0} -p {1} -L {2}:{4}:{3}'.format(args.server, args.sshport, networkport, args.destport, args.destserver).split(), stdout=subprocess.PIPE)
 # Wait for forwarding to take effect.
 time.sleep(1)
 # Wait until the port is open.
