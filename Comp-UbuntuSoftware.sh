@@ -175,6 +175,8 @@ apt-get update
 # Install
 apt-get install -y code
 
+# Java
+apt-get install -y default-jre
 
 # Network manager
 apt-get install -y network-manager network-manager-ssh
