@@ -18,14 +18,6 @@ print("Running {0}".format(__file__))
 if not os.geteuid() == 0:
     sys.exit("\nError: Please run this script as root.\n")
 
-# Ensure that certain commands exist.
-cmdcheck = ["lb", "debootstrap", "syslinux", "rsync", "time"]
-for cmd in cmdcheck:
-    if not shutil.which(cmd):
-        subprocess.run("apt-get update; apt-get install -y live-build debootstrap syslinux syslinux-utils isolinux xorriso rsync time", shell=True)
-    if not shutil.which(cmd):
-        sys.exit("\nError, ensure command {0} is installed.".format(cmd))
-
 # Get non-root user information.
 if os.getenv("SUDO_USER") != None and os.getenv("SUDO_USER") != "root":
     USERNAMEVAR=os.getenv("SUDO_USER")
@@ -51,7 +43,7 @@ parser.add_argument("-f", "--flavor", help='Ubuntu Flavor', default="zesty")
 args = parser.parse_args()
 
 # Process variables
-buildfolder = os.path.abspath(args.workfolderroot+"/debiso_buildfolder")
+buildfolder = os.path.abspath(args.workfolderroot+"/ubuiso_buildfolder")
 print("Root of Working Folder:",buildfolder)
 outfolder = os.path.abspath(args.output)
 print("ISO Output Folder:",outfolder)
@@ -61,22 +53,37 @@ if not os.path.isdir(outfolder):
 if args.noprompt == False:
     input("Press Enter to continue.")
 
+# Ensure that certain commands exist.
+subprocess.run("apt-get update; apt-get install -y live-build debootstrap genisoimage syslinux syslinux-utils isolinux xorriso rsync time memtest86+ syslinux-themes-ubuntu-xenial gfxboot-theme-ubuntu livecd-rootfs", shell=True)
+
 # Make the build folder if it doesn't exist
 os.makedirs(buildfolder, 0o777, exist_ok=True)
-
-# Configure and clean the live build
-# https://debian-live.alioth.debian.org/live-manual/stable/manual/html/live-manual.en.html
-subprocess.run('cd {0}; lb clean; lb config --mode ubuntu --parent-distribution {1} --syslinux-theme ubuntu-xenial --bootappend-live "boot=live components timezone=America/New_York"'.format(buildfolder, args.flavor), shell=True)
 
 # Copy over autoconfig
 if os.path.isdir(buildfolder+"/auto"):
     shutil.rmtree(buildfolder+"/auto")
-shutil.copytree("/usr/share/doc/live-build/examples/auto", buildfolder+"/auto")
+shutil.copytree("/usr/share/livecd-rootfs/live-build/auto", buildfolder+"/auto")
+
+# Configure and cleanthe live build
+# https://debian-live.alioth.debian.org/live-manual/stable/manual/html/live-manual.en.html
+subprocess.run("""
+cd {0}
+
+export SUITE={1}
+export ARCH=amd64
+export PROJECT=ubuntu-mate
+export MIRROR=http://archive.ubuntu.com/ubuntu/
+export BINARYFORMAT=iso-hybrid
+export LB_SYSLINUX_THEME=ubuntu-xenial
+
+lb clean
+lb config --initramfs-compression=gzip
+""".format(buildfolder, args.flavor), shell=True)
 
 # Add packages
 PACKAGELIST="""
 # Desktop utils
-#task-mate-desktop
+# task-mate-desktop
 mate-desktop-environment
 lightdm
 network-manager-gnome
@@ -145,16 +152,16 @@ with open(chrootrepofile, 'w') as chrootrepofile_write:
     chrootrepofile_write.write(REPOLIST)
 
 # Add bootloader config
-if os.path.isdir(buildfolder+"/config/bootloaders"):
-    shutil.rmtree(buildfolder+"/config/bootloaders")
-os.makedirs(buildfolder+"/config/bootloaders/", exist_ok=True)
-shutil.copytree("/usr/share/live/build/bootloaders/isolinux", buildfolder+"/config/bootloaders/isolinux", ignore_dangling_symlinks=True)
-shutil.copy2("/usr/lib/syslinux/modules/bios/vesamenu.c32", buildfolder+"/config/bootloaders/isolinux")
-shutil.copy2("/usr/lib/ISOLINUX/isolinux.bin", buildfolder+"/config/bootloaders/isolinux")
+# if os.path.isdir(buildfolder+"/config/bootloaders"):
+#     shutil.rmtree(buildfolder+"/config/bootloaders")
+# os.makedirs(buildfolder+"/config/bootloaders/", exist_ok=True)
+# shutil.copytree("/usr/share/live/build/bootloaders/isolinux", buildfolder+"/config/bootloaders/isolinux", ignore_dangling_symlinks=True)
+# shutil.copy2("/usr/lib/syslinux/modules/bios/vesamenu.c32", buildfolder+"/config/bootloaders/isolinux")
+# shutil.copy2("/usr/lib/ISOLINUX/isolinux.bin", buildfolder+"/config/bootloaders/isolinux")
 subprocess.run("sed -i 's/^timeout .*/timeout 10/g' {0}".format(buildfolder+"/config/bootloaders/isolinux/isolinux.cfg"), shell=True)
 
 # Add chroot script
-CHROOTSCRIPT="""#!/bin/bash -x
+CHROOTSCRIPT = """#!/bin/bash -x
 
 # Modify ssh config
 echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
@@ -229,13 +236,31 @@ if ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf; then
 	echo 'HandleLidSwitch=lock' >> /etc/systemd/logind.conf
 fi
 
+# Fix kernel and initrd locations.
+# ln -sf /boot/vmlinuz-*-generic /boot/vmlinuz
+# ln -sf /boot/initrd.img-*-generic /boot/initrd.img
 """
-chroothookfolder=buildfolder+"/config/hooks/normal"
-chroothookfile=chroothookfolder+"/custom.hook.chroot"
+chroothookfolder = buildfolder+"/config/hooks/normal"
+chroothookfile = chroothookfolder+"/custom.hook.chroot"
 os.makedirs(chroothookfolder, 0o777, exist_ok=True)
 print("Writing {0}".format(chroothookfile))
 with open(chroothookfile, 'w') as chroothookfile_write:
     chroothookfile_write.write(CHROOTSCRIPT)
+
+# Add binary script
+BINARYSCRIPT = """#!/bin/bash -x
+
+# Fix kernel and initrd locations.
+cp -a {0}/chroot/boot/vmlinuz-*-generic {0}/binary/casper/vmlinuz
+cp -a {0}/chroot/boot/initrd.img-*-generic {0}/binary/casper/initrd.img
+"""
+binaryhookfolder = buildfolder+"/config/hooks/normal"
+binaryhookfile = binaryhookfolder+"/custom.hook.binary"
+os.makedirs(binaryhookfolder, 0o777, exist_ok=True)
+print("Writing {0}".format(binaryhookfile))
+with open(binaryhookfile, 'w') as binaryhookfile_write:
+    binaryhookfile_write.write(BINARYSCRIPT)
+
 
 # Boot-time hooks
 BOOTHOOKSCRIPT="""#!/bin/bash -x
@@ -272,7 +297,7 @@ with open(boothookfile, 'w') as boothookfile_write:
     boothookfile_write.write(BOOTHOOKSCRIPT)
 os.chmod(boothookfile, 0o755)
 
-# Build the live build
+# Build the live image
 subprocess.run("cd {0}; time lb build".format(buildfolder), shell=True)
 
 # Make normal user owner of build folder.
@@ -281,11 +306,10 @@ subprocess.run("chown {0}:{1} -R {2}".format(USERNAMEVAR, USERGROUP, buildfolder
 # Find the iso
 # https://stackoverflow.com/questions/3964681/find-all-files-in-directory-with-extension-txt-in-python#3964691
 # https://stackoverflow.com/questions/2186525/use-a-glob-to-find-files-recursively-in-python
-for filename in glob.iglob(buildfolder+"/chroot/*.hybrid.iso"):
+for filename in glob.iglob(buildfolder+"/livecd.*.iso"):
     print("Detected: "+filename)
-    # Run isohybrid on the file in case it failed.
-    subprocess.run("isohybrid {0}".format(filename))
-    print("Detected: "+filename)
+    # # Run isohybrid on the file in case it failed.
+    # subprocess.run("isohybrid {0}".format(filename))
     # Make the iso world rwx
     os.chmod(filename, 0o777)
     # Move the iso to the output folder
