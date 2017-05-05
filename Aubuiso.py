@@ -237,10 +237,10 @@ if ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf; then
 fi
 
 # Fix kernel and initrd locations.
-# ln -sf /boot/vmlinuz-*-generic /boot/vmlinuz
-# ln -sf /boot/initrd.img-*-generic /boot/initrd.img
+ln -sf /boot/vmlinuz-*-generic /boot/vmlinuz
+ln -sf /boot/initrd.img-*-generic /boot/initrd.lz
 """
-chroothookfolder = buildfolder+"/config/hooks/normal"
+chroothookfolder = buildfolder+"/config/hooks"
 chroothookfile = chroothookfolder+"/custom.hook.chroot"
 os.makedirs(chroothookfolder, 0o777, exist_ok=True)
 print("Writing {0}".format(chroothookfile))
@@ -252,9 +252,10 @@ BINARYSCRIPT = """#!/bin/bash -x
 
 # Fix kernel and initrd locations.
 cp -a {0}/chroot/boot/vmlinuz-*-generic {0}/binary/casper/vmlinuz
-cp -a {0}/chroot/boot/initrd.img-*-generic {0}/binary/casper/initrd.img
-"""
-binaryhookfolder = buildfolder+"/config/hooks/normal"
+cp -a {0}/chroot/boot/initrd.img-*-generic {0}/binary/casper/initrd.lz
+ls -la {0}/binary/casper
+""".format(buildfolder)
+binaryhookfolder = buildfolder+"/config/hooks"
 binaryhookfile = binaryhookfolder+"/custom.hook.binary"
 os.makedirs(binaryhookfolder, 0o777, exist_ok=True)
 print("Writing {0}".format(binaryhookfile))
