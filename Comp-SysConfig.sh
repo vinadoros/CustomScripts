@@ -89,23 +89,23 @@ if [ -f /etc/anacrontab ]; then
 	sed -i '/^MAILTO=.*/s/^/#/g' /etc/anacrontab
 fi
 
-if [ "${MACHINEARCH}" != "armv7l" ]; then
-	echo "Install x86 specific tweaks."
+# Nano Configuration
+NANOCONFIG="set const\nset softwrap\nset smooth\nset tabsize 4\nset autoindent"
+# For root
+echo -e $NANOCONFIG > "/root/.nanorc"
+# For user
+echo -e $NANOCONFIG > "$USERHOME/.nanorc"
+chown $USERNAMEVAR:$USERGROUP "$USERHOME/.nanorc"
 
-	# Edit grub settings
-	if [ -f /etc/default/grub ]; then
-		# Uncomment
-		sed -i '/^#GRUB_TIMEOUT=.*/s/^#//g' /etc/default/grub
-		# Comment
-		sed -i '/GRUB_HIDDEN_TIMEOUT/ s/^#*/#/' /etc/default/grub
-		sed -i '/GRUB_HIDDEN_TIMEOUT_QUIET/ s/^#*/#/' /etc/default/grub
-		# Change timeout
-		sed -i 's/GRUB_TIMEOUT=.*$/GRUB_TIMEOUT=1/g' /etc/default/grub
-		sed -i 's/GRUB_HIDDEN_TIMEOUT=.*$/GRUB_HIDDEN_TIMEOUT=1/g' /etc/default/grub
-		grub_update
-	fi
-
-elif [ "${MACHINEARCH}" = "armv7l" ]; then
-	echo "Install arm specific tweaks."
-
+# Edit grub settings
+if [ -f /etc/default/grub ]; then
+	# Uncomment
+	sed -i '/^#GRUB_TIMEOUT=.*/s/^#//g' /etc/default/grub
+	# Comment
+	sed -i '/GRUB_HIDDEN_TIMEOUT/ s/^#*/#/' /etc/default/grub
+	sed -i '/GRUB_HIDDEN_TIMEOUT_QUIET/ s/^#*/#/' /etc/default/grub
+	# Change timeout
+	sed -i 's/GRUB_TIMEOUT=.*$/GRUB_TIMEOUT=1/g' /etc/default/grub
+	sed -i 's/GRUB_HIDDEN_TIMEOUT=.*$/GRUB_HIDDEN_TIMEOUT=1/g' /etc/default/grub
+	grub_update
 fi
