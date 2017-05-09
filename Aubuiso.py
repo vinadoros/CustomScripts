@@ -50,7 +50,7 @@ print("ISO Output Folder:",outfolder)
 if not os.path.isdir(outfolder):
     sys.exit("\nError, ensure {0} is a folder.".format(outfolder))
 
-if args.noprompt == False:
+if args.noprompt is False:
     input("Press Enter to continue.")
 
 # Ensure that certain commands exist.
@@ -83,10 +83,6 @@ lb config --initramfs-compression=gzip
 # Add packages
 PACKAGELIST="""
 # Desktop utils
-# task-mate-desktop
-mate-desktop-environment
-lightdm
-network-manager-gnome
 caja-open-terminal
 caja-gksu
 dconf-editor
@@ -151,18 +147,8 @@ print("Writing {0}".format(chrootrepofile))
 with open(chrootrepofile, 'w') as chrootrepofile_write:
     chrootrepofile_write.write(REPOLIST)
 
-# Add bootloader config
-# if os.path.isdir(buildfolder+"/config/bootloaders"):
-#     shutil.rmtree(buildfolder+"/config/bootloaders")
-# os.makedirs(buildfolder+"/config/bootloaders/", exist_ok=True)
-# shutil.copytree("/usr/share/live/build/bootloaders/isolinux", buildfolder+"/config/bootloaders/isolinux", ignore_dangling_symlinks=True)
-# shutil.copy2("/usr/lib/syslinux/modules/bios/vesamenu.c32", buildfolder+"/config/bootloaders/isolinux")
-# shutil.copy2("/usr/lib/ISOLINUX/isolinux.bin", buildfolder+"/config/bootloaders/isolinux")
-subprocess.run("sed -i 's/^timeout .*/timeout 10/g' {0}".format(buildfolder+"/config/bootloaders/isolinux/isolinux.cfg"), shell=True)
-
 # Add chroot script
 CHROOTSCRIPT = """#!/bin/bash -x
-
 # Modify ssh config
 echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 sed -i '/PasswordAuthentication/d' /etc/ssh/sshd_config
@@ -236,41 +222,6 @@ if ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf; then
 	echo 'HandleLidSwitch=lock' >> /etc/systemd/logind.conf
 fi
 
-# Fix kernel and initrd locations.
-ln -sf /boot/vmlinuz-*-generic /boot/vmlinuz
-ln -sf /boot/initrd.img-*-generic /boot/initrd.lz
-"""
-chroothookfolder = buildfolder+"/config/hooks"
-chroothookfile = chroothookfolder+"/custom.hook.chroot"
-os.makedirs(chroothookfolder, 0o777, exist_ok=True)
-print("Writing {0}".format(chroothookfile))
-with open(chroothookfile, 'w') as chroothookfile_write:
-    chroothookfile_write.write(CHROOTSCRIPT)
-
-# Add binary script
-BINARYSCRIPT = """#!/bin/bash -x
-
-# Fix kernel and initrd locations.
-cp -a {0}/chroot/boot/vmlinuz-*-generic {0}/binary/casper/vmlinuz
-cp -a {0}/chroot/boot/initrd.img-*-generic {0}/binary/casper/initrd.lz
-ls -la {0}/binary/casper
-""".format(buildfolder)
-binaryhookfolder = buildfolder+"/config/hooks"
-binaryhookfile = binaryhookfolder+"/custom.hook.binary"
-os.makedirs(binaryhookfolder, 0o777, exist_ok=True)
-print("Writing {0}".format(binaryhookfile))
-with open(binaryhookfile, 'w') as binaryhookfile_write:
-    binaryhookfile_write.write(BINARYSCRIPT)
-
-
-# Boot-time hooks
-BOOTHOOKSCRIPT="""#!/bin/bash -x
-echo "live-config: 2000-usercustomization"
-
-# Set root password
-passwd -u root
-echo "root:asdf" | chpasswd
-
 # Add CustomScripts to path
 SCRIPTBASENAME="/CustomScripts"
 if ! grep "$SCRIPTBASENAME" /root/.bashrc; then
@@ -281,22 +232,43 @@ if [ -d $SCRIPTBASENAME ]; then
 fi
 EOLBASH
 fi
-if ! grep "$SCRIPTBASENAME" /home/user/.bashrc; then
-	cat >>/home/user/.bashrc <<EOLBASH
+if ! grep "$SCRIPTBASENAME" /home/ubuntu/.bashrc; then
+	cat >>/home/ubuntu/.bashrc <<EOLBASH
 
 if [ -d $SCRIPTBASENAME ]; then
 	export PATH=\$PATH:$SCRIPTBASENAME:/sbin:/usr/sbin
 fi
 EOLBASH
 fi
+
+# Remove apps
+apt-get remove -y ubiquity ubiquity-casper
+apt-get remove -y ubuntu-mate-welcome
+
+# Set root password
+passwd -u root
+echo "root:asdf" | chpasswd
+
 """
-boothookfolder=buildfolder+"/config/includes.chroot/lib/live/config"
-boothookfile=boothookfolder+"/2000-usercustomization"
-os.makedirs(boothookfolder, 0o777, exist_ok=True)
-print("Writing {0}".format(boothookfile))
-with open(boothookfile, 'w') as boothookfile_write:
-    boothookfile_write.write(BOOTHOOKSCRIPT)
-os.chmod(boothookfile, 0o755)
+chroothookfolder = buildfolder+"/config/hooks"
+chroothookfile = chroothookfolder+"/custom.hook.chroot"
+os.makedirs(chroothookfolder, 0o777, exist_ok=True)
+print("Writing {0}".format(chroothookfile))
+with open(chroothookfile, 'w') as chroothookfile_write:
+    chroothookfile_write.write(CHROOTSCRIPT)
+
+# Add binary script
+BINARYSCRIPT = """#!/bin/bash -x
+# Fix kernel and initrd locations.
+cp -a {0}/chroot/boot/vmlinuz-*-generic {0}/binary/casper/vmlinuz
+cp -a {0}/chroot/boot/initrd.img-*-generic {0}/binary/casper/initrd.lz
+""".format(buildfolder)
+binaryhookfolder = buildfolder+"/config/hooks"
+binaryhookfile = binaryhookfolder+"/custom.hook.binary"
+os.makedirs(binaryhookfolder, 0o777, exist_ok=True)
+print("Writing {0}".format(binaryhookfile))
+with open(binaryhookfile, 'w') as binaryhookfile_write:
+    binaryhookfile_write.write(BINARYSCRIPT)
 
 # Build the live image
 subprocess.run("cd {0}; time lb build".format(buildfolder), shell=True)
