@@ -207,6 +207,7 @@ case $SETDE in
 [2]* )
 		# KDE
 		echo "KDE stuff."
+		apt-get install -y kubuntu-desktop
 	;;
 [3]* )
     # MATE
@@ -214,6 +215,11 @@ case $SETDE in
 		apt-get install -y ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop
 		apt-get install -y ubuntu-mate-lightdm-theme
 		apt-get install -y dconf-cli
+		;;
+[4]* )
+    # XFCE
+    echo "XFCE stuff."
+		apt-get install -y xubuntu-desktop
 		;;
 * ) echo "Not changing desktop environment."
     ;;

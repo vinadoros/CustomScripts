@@ -133,7 +133,7 @@ elif args.ostype == 20:
     vboxosid = "OpenSUSE_64"
     vmwareid = "ubuntu-64"
     vmprovisionscript = "Mopensuse.sh"
-    vmprovision_defopts = "-n -e 1 -s {0}".format(args.vmpass)
+    vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
     kvm_os = "linux"
     kvm_variant = "opensusetumbleweed"
     isourl = "http://download.opensuse.org/tumbleweed/iso/openSUSE-Tumbleweed-DVD-x86_64-Current.iso"
