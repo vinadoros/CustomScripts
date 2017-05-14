@@ -35,6 +35,7 @@ MACHINEARCH = platform.machine()
 # Get arguments
 parser = argparse.ArgumentParser(description='Build Ubuntu LiveCD.')
 parser.add_argument("-n", "--noprompt",help='Do not prompt.', action="store_true")
+parser.add_argument("-c", "--clean",help='Clean the working folder.', action="store_true")
 parser.add_argument("-w", "--workfolderroot", help='Location of Working Folder (i.e. {0})'.format(USERHOME), default=USERHOME)
 parser.add_argument("-o", "--output", help='Output Location of ISO (i.e. {0})'.format(USERHOME), default=USERHOME)
 parser.add_argument("-f", "--flavor", help='Ubuntu Flavor', default="zesty")
@@ -43,7 +44,8 @@ parser.add_argument("-f", "--flavor", help='Ubuntu Flavor', default="zesty")
 args = parser.parse_args()
 
 # Process variables
-buildfolder = os.path.abspath(args.workfolderroot+"/ubuiso_buildfolder")
+buildfolder = os.path.abspath(args.workfolderroot+"/ubuiso2_buildfolder")
+chrootfolder = buildfolder+"/chroot"
 print("Root of Working Folder:",buildfolder)
 outfolder = os.path.abspath(args.output)
 print("ISO Output Folder:",outfolder)
@@ -54,37 +56,26 @@ if args.noprompt is False:
     input("Press Enter to continue.")
 
 # Ensure that certain commands exist.
-subprocess.run("apt-get update; apt-get install -y live-build debootstrap genisoimage syslinux syslinux-utils isolinux xorriso rsync time memtest86+ syslinux-themes-ubuntu-xenial gfxboot-theme-ubuntu livecd-rootfs", shell=True)
+subprocess.run("apt-get update; apt-get install -y debootstrap systemd-container genisoimage syslinux syslinux-utils isolinux xorriso rsync time systemd-container", shell=True)
 
+# Clean the build folder if it exists
+if args.clean is True and os.path.isdir(buildfolder):
+    print("Removing {0}".format(buildfolder))
+    shutil.rmtree(buildfolder)
 # Make the build folder if it doesn't exist
 os.makedirs(buildfolder, 0o777, exist_ok=True)
 
-# Copy over autoconfig
-if os.path.isdir(buildfolder+"/auto"):
-    shutil.rmtree(buildfolder+"/auto")
-shutil.copytree("/usr/share/livecd-rootfs/live-build/auto", buildfolder+"/auto")
-
-# Configure and cleanthe live build
-# https://debian-live.alioth.debian.org/live-manual/stable/manual/html/live-manual.en.html
+# Debootstrap the filesystem
 subprocess.run("""
 cd {0}
-
-export SUITE={1}
-export ARCH=amd64
-export PROJECT=ubuntu-mate
-export MIRROR=http://archive.ubuntu.com/ubuntu/
-export BINARYFORMAT=iso-hybrid
-export LB_SYSLINUX_THEME=ubuntu-xenial
-
-sed -i 's@#! /bin/sh@#! /bin/sh -x@g' {0}/auto/config {0}/auto/build
-
-lb clean
-lb config --initramfs-compression=gzip
-""".format(buildfolder, args.flavor), shell=True)
+mkdir -p {2}
+debootstrap --arch amd64 {1} {2} http://archive.ubuntu.com/ubuntu/
+""".format(buildfolder, args.flavor, chrootfolder), shell=True)
 
 # Add packages
 PACKAGELIST="""
 # Desktop utils
+ubuntu-mate-desktop
 caja-open-terminal
 caja-gksu
 dconf-editor
@@ -129,28 +120,20 @@ open-vm-tools-desktop
 virtualbox-guest-utils
 virtualbox-guest-dkms
 """
-pkgfolder=buildfolder+"/config/package-lists"
-pkgfile=pkgfolder+"/custom.list.chroot"
-os.makedirs(pkgfolder, 0o777, exist_ok=True)
-print("Writing {0}".format(pkgfile))
-with open(pkgfile, 'w') as pkgfile_write:
-    pkgfile_write.write(PACKAGELIST)
+# pkgfolder=buildfolder+"/config/package-lists"
+# pkgfile=pkgfolder+"/custom.list.chroot"
+# os.makedirs(pkgfolder, 0o777, exist_ok=True)
+# print("Writing {0}".format(pkgfile))
+# with open(pkgfile, 'w') as pkgfile_write:
+#     pkgfile_write.write(PACKAGELIST)
 
-# Add repositories
-REPOLIST='deb http://us.archive.ubuntu.com/ubuntu {0} main restricted universe multiverse'.format(args.flavor)
-repofolder=buildfolder+"/config/archives"
-binaryrepofile=repofolder+"/your-repository.list.binary"
-chrootrepofile=repofolder+"/your-repository.list.chroot"
-os.makedirs(repofolder, 0o777, exist_ok=True)
-print("Writing {0}".format(binaryrepofile))
-with open(binaryrepofile, 'w') as binaryrepofile_write:
-    binaryrepofile_write.write(REPOLIST)
-print("Writing {0}".format(chrootrepofile))
-with open(chrootrepofile, 'w') as chrootrepofile_write:
-    chrootrepofile_write.write(REPOLIST)
 
 # Add chroot script
 CHROOTSCRIPT = """#!/bin/bash -x
+
+apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get install -y -o Dpkg::Options::="--force-confnew" ubuntu-minimal ubuntu-standard linux-generic linux-firmware git sudo ssh tmux nano curl rsync less iotop
+
 # Modify ssh config
 echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 sed -i '/PasswordAuthentication/d' /etc/ssh/sshd_config
@@ -234,58 +217,77 @@ if [ -d $SCRIPTBASENAME ]; then
 fi
 EOLBASH
 fi
-if ! grep "$SCRIPTBASENAME" /home/ubuntu/.bashrc; then
-	cat >>/home/ubuntu/.bashrc <<EOLBASH
-
-if [ -d $SCRIPTBASENAME ]; then
-	export PATH=\$PATH:$SCRIPTBASENAME:/sbin:/usr/sbin
-fi
-EOLBASH
-fi
-
-# Remove apps
-apt-get remove -y ubiquity ubiquity-casper
-apt-get remove -y ubuntu-mate-welcome
 
 # Set root password
 passwd -u root
 echo "root:asdf" | chpasswd
 
+# Install livecd packages
+apt-get install -y casper lupin-casper
 """
-chroothookfolder = buildfolder+"/config/hooks"
-chroothookfile = chroothookfolder+"/custom.hook.chroot"
-os.makedirs(chroothookfolder, 0o777, exist_ok=True)
-print("Writing {0}".format(chroothookfile))
-with open(chroothookfile, 'w') as chroothookfile_write:
-    chroothookfile_write.write(CHROOTSCRIPT)
+setupscript = chrootfolder+"/setupscript.sh"
+print("Writing {0}".format(setupscript))
+with open(setupscript, 'w') as setupscript_write:
+    setupscript_write.write(CHROOTSCRIPT)
+os.chmod(setupscript, 0o777)
 
-# Add binary script
-BINARYSCRIPT = """#!/bin/bash -x
-# Fix kernel and initrd locations.
-cp -a {0}/chroot/boot/vmlinuz-*-generic {0}/binary/casper/vmlinuz
-cp -a {0}/chroot/boot/initrd.img-*-generic {0}/binary/casper/initrd.lz
-""".format(buildfolder)
-binaryhookfolder = buildfolder+"/config/hooks"
-binaryhookfile = binaryhookfolder+"/custom.hook.binary"
-os.makedirs(binaryhookfolder, 0o777, exist_ok=True)
-print("Writing {0}".format(binaryhookfile))
-with open(binaryhookfile, 'w') as binaryhookfile_write:
-    binaryhookfile_write.write(BINARYSCRIPT)
+# Remove resolv.conf before chroot
+if os.path.exists("{0}/etc/resolv.conf".format(chrootfolder)):
+    os.remove("{0}/etc/resolv.conf".format(chrootfolder))
 
-# Build the live image
-subprocess.run("cd {0}; time lb build".format(buildfolder), shell=True)
+# Run chroot script
+subprocess.run("""
+systemd-nspawn -D {0} /setupscript.sh
+""".format(chrootfolder), shell=True)
 
-# Make normal user owner of build folder.
-subprocess.run("chown {0}:{1} -R {2}".format(USERNAMEVAR, USERGROUP, buildfolder), shell=True)
+# Run final prep
+subprocess.run("""
+cd {0}
+mkdir -p image/casper image/isolinux image/install
+cp -a {1}/boot/vmlinuz-*-generic {0}/image/casper/vmlinuz
+cp -a {1}/boot/initrd.img-*-generic {0}/image/casper/initrd.lz
+cp /usr/lib/ISOLINUX/isolinux.bin {0}/image/isolinux/
+cp /usr/lib/syslinux/modules/bios/ldlinux.c32 {0}/image/isolinux/
+cp /boot/memtest86+.bin {0}/image/install/memtest
 
-# Find the iso
-# https://stackoverflow.com/questions/3964681/find-all-files-in-directory-with-extension-txt-in-python#3964691
-# https://stackoverflow.com/questions/2186525/use-a-glob-to-find-files-recursively-in-python
-for filename in glob.iglob(buildfolder+"/livecd.*.iso"):
-    print("Detected: "+filename)
-    # # Run isohybrid on the file in case it failed.
-    # subprocess.run("isohybrid {0}".format(filename))
-    # Make the iso world rwx
-    os.chmod(filename, 0o777)
-    # Move the iso to the output folder
-    subprocess.run("cd {2}; rsync -aP {0} {1}; sync".format(filename, outfolder+"/", buildfolder), shell=True)
+chroot chroot dpkg-query -W --showformat='${{Package}} ${{Version}}\n' | tee image/casper/filesystem.manifest
+cp -v image/casper/filesystem.manifest image/casper/filesystem.manifest-desktop
+REMOVE='ubiquity ubiquity-frontend-gtk ubiquity-frontend-kde casper lupin-casper live-initramfs user-setup discover1 xresprobe os-prober libdebian-installer4'
+for i in $REMOVE
+do
+    sudo sed -i "/$i/d" image/casper/filesystem.manifest-desktop
+done
+
+cat > {0}/image/isolinux/isolinux.cfg <<'EOL'
+DEFAULT live
+LABEL live
+  menu label ^Start or install Ubuntu Remix
+  kernel /casper/vmlinuz
+  append  file=/cdrom/preseed/ubuntu.seed boot=casper initrd=/casper/initrd.lz quiet splash --
+LABEL check
+  menu label ^Check CD for defects
+  kernel /casper/vmlinuz
+  append  boot=casper integrity-check initrd=/casper/initrd.lz quiet splash --
+LABEL memtest
+  menu label ^Memory test
+  kernel /install/memtest
+  append -
+LABEL hd
+  menu label ^Boot from first hard disk
+  localboot 0x80
+  append -
+DISPLAY isolinux.txt
+TIMEOUT 5
+PROMPT 1
+EOL
+
+cd {0}
+mksquashfs chroot image/casper/filesystem.squashfs -e boot
+cd image && find . -type f -print0 | xargs -0 md5sum | grep -v "\./md5sum.txt" > md5sum.txt
+cd {0}
+
+cd {0}/image
+mkisofs -r -V "ubuntu-custom" -cache-inodes -J -l -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o {2}/ubuntu-custom.iso .
+isohybrid {2}/ubuntu-custom.iso
+
+""".format(buildfolder, chrootfolder, outfolder), shell=True)
