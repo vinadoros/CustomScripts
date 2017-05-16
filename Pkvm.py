@@ -51,7 +51,7 @@ parser.add_argument("-p", "--vmpath", help="Path of Packer output", required=Tru
 parser.add_argument("-y", "--vmuser", help="VM Username", default="user")
 parser.add_argument("-z", "--vmpass", help="VM Password", default="asdf")
 parser.add_argument("-b", "--getpacker", help="Force refresh packer", action="store_true")
-parser.add_argument("--memory", help="Memory for VM", default="2048")
+parser.add_argument("--memory", help="Memory for VM", default="4096")
 parser.add_argument("--vmprovision", help="""Override provision options. Enclose options in double backslashes and quotes. Example: \\\\"-n -e 3\\\\" """)
 
 # Save arguments.
