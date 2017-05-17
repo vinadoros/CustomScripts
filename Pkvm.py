@@ -137,6 +137,15 @@ elif args.ostype == 20:
     kvm_os = "linux"
     kvm_variant = "opensusetumbleweed"
     isourl = "http://download.opensuse.org/tumbleweed/iso/openSUSE-Tumbleweed-DVD-x86_64-Current.iso"
+elif args.ostype == 40:
+    vmname = "Packer-FreeBSD-{0}".format(hvname)
+    vboxosid = "FreeBSD_64"
+    vmwareid = "freebsd-64"
+    vmprovisionscript = "Mopensuse.sh"
+    vmprovision_defopts = "-n -e 1 -s {0}".format(args.vmpass)
+    kvm_os = "linux"
+    kvm_variant = "opensusetumbleweed"
+    isourl = "https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/11.0/FreeBSD-11.0-RELEASE-amd64-disc1.iso"
 elif args.ostype == 50:
     vmname = "Packer-Windows10-{0}".format(hvname)
     vboxosid = "Windows10_64"
@@ -309,7 +318,14 @@ if 20 <= args.ostype <= 21:
     data['builders'][0]["boot_command"] = ["<wait><down><wait><f4><wait><esc><wait>autoyast2=http://{{ .HTTPIP }}:{{ .HTTPPort }}/opensuse.cfg textmode=1<enter>"]
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = 'while ! zypper install -yl --no-recommends git; do sleep 5; done; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}'.format(vmprovisionscript, vmprovision_opts)
-if 50 <= args.ostype <= 60:
+if 40 <= args.ostype <= 41:
+    data['builders'][0]["boot_command"] = ["<wait><enter><wait10><wait10><right><enter><wait>dhclient -b vtnet0<enter><wait>dhclient -b em0<enter><wait10>fetch -o /tmp/installerconfig http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd<wait><enter><wait>bsdinstall script /tmp/installerconfig<wait><enter>"]
+    data['provisioners'][0]["type"] = "shell"
+    # Needed for freebsd: https://www.packer.io/docs/provisioners/shell.html#execute_command
+    data['provisioners'][0]["execute_command"] = "chmod +x {{ .Path }}; env {{ .Vars }} {{ .Path }}"
+    data['provisioners'][0]["inline"] = 'export ASSUME_ALWAYS_YES=yes; pkg update -f; pkg install -y nano fish'
+    data['builders'][0]["shutdown_command"] = "shutdown -p now"
+if 50 <= args.ostype <= 59:
     data['provisioners'][0]["type"] = "powershell"
     data['builders'][0]["boot_command"] = ["<wait5>"]
     # Shutdown in 4 minutes (for Windows 7, which runs the commands earlier in setup than Windows 10)

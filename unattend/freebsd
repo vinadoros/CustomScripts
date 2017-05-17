@@ -1,0 +1,46 @@
+DISTRIBUTIONS="base.txz kernel.txz lib32.txz ports.txz src.txz"
+
+if [ -e /dev/ada0 ]; then
+	GEOM=ada0 # VirtualBox
+else
+	GEOM=da0  # VMWare
+fi
+
+export ZFSBOOT_DISKS="$GEOM"
+export nonInteractive="YES"
+
+#!/bin/sh -e
+
+# Basic network options
+echo 'hostname="INSERTHOSTNAMENAMEHERE"' >> /etc/rc.conf
+
+# Use DHCP to get the network configuration
+echo 'ifconfig_DEFAULT="SYNCDHCP"' >> /etc/rc.conf
+
+# Enable sshd
+echo 'sshd_enable="YES"' >> /etc/rc.conf
+echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+
+# Disable sendmail
+{
+	echo 'sendmail_enable="NO"'
+	echo 'sendmail_submit_enable="NO"'
+	echo 'sendmail_outbound_enable="NO"'
+	echo 'sendmail_msp_queue_enable="NO"'
+} >> /etc/rc.conf
+
+# Change root's password
+echo 'INSERTPASSWORDHERE' | pw usermod root -h 0
+
+# Reboot quickly, don't wait at the panic screen
+{
+	echo 'debug.trace_on_panic=1'
+	echo 'debug.debugger_on_panic=0'
+	echo 'kern.panic_reboot_wait_time=0'
+} >> /etc/sysctl.conf
+
+# The console is not interactive, so we might as well boot quickly
+echo 'autoboot_delay="-1"' >> /boot/loader.conf
+
+# Reboot
+reboot
