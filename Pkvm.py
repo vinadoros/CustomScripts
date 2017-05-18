@@ -92,6 +92,7 @@ elif args.vmtype == 3:
     hvname = "vmware"
 
 # Set OS options.
+# KVM os options can be found by running "osinfo-query os"
 if args.ostype == 1:
     vmname = "Packer-CentosTest-{0}".format(hvname)
     vboxosid = "Fedora_64"
@@ -141,10 +142,10 @@ elif args.ostype == 40:
     vmname = "Packer-FreeBSD-{0}".format(hvname)
     vboxosid = "FreeBSD_64"
     vmwareid = "freebsd-64"
-    vmprovisionscript = "Mopensuse.sh"
-    vmprovision_defopts = "-n -e 1 -s {0}".format(args.vmpass)
-    kvm_os = "linux"
-    kvm_variant = "opensusetumbleweed"
+    vmprovisionscript = "Comp-FreeBSD.sh"
+    vmprovision_defopts = " "
+    kvm_os = "freebsd"
+    kvm_variant = "freebsd11.0"
     isourl = "https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/11.0/FreeBSD-11.0-RELEASE-amd64-disc1.iso"
 elif args.ostype == 50:
     vmname = "Packer-Windows10-{0}".format(hvname)
@@ -323,7 +324,7 @@ if 40 <= args.ostype <= 41:
     data['provisioners'][0]["type"] = "shell"
     # Needed for freebsd: https://www.packer.io/docs/provisioners/shell.html#execute_command
     data['provisioners'][0]["execute_command"] = "chmod +x {{ .Path }}; env {{ .Vars }} {{ .Path }}"
-    data['provisioners'][0]["inline"] = 'export ASSUME_ALWAYS_YES=yes; pkg update -f; pkg install -y nano fish'
+    data['provisioners'][0]["inline"] = 'export ASSUME_ALWAYS_YES=yes; pkg update -f; pkg install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}'.format(vmprovisionscript, vmprovision_opts)
     data['builders'][0]["shutdown_command"] = "shutdown -p now"
 if 50 <= args.ostype <= 59:
     data['provisioners'][0]["type"] = "powershell"
