@@ -17,3 +17,4 @@ sysrc moused_enable=yes dbus_enable=yes hald_enable=yes
 # Slim display manager
 pkg install -y slim
 sysrc slim_enable=yes
+echo "exec mate-session" > /root/.xinitrc
