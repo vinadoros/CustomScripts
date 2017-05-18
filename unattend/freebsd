@@ -2,8 +2,10 @@ DISTRIBUTIONS="base.txz kernel.txz lib32.txz ports.txz src.txz"
 
 if [ -e /dev/ada0 ]; then
 	GEOM=ada0 # VirtualBox
-else
+elif [ -e /dev/da0 ]; then
 	GEOM=da0  # VMWare
+elif [ -e /dev/vtbd0 ]; then
+	GEOM=vtbd0 # libvirt-kvm
 fi
 
 export ZFSBOOT_DISKS="$GEOM"
