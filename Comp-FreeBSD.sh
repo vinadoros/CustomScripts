@@ -4,7 +4,7 @@
 export ASSUME_ALWAYS_YES=yes
 
 # Update freebsd.
-freebsd-update -F fetch install
+freebsd-update --not-running-from-cron fetch install
 # Update packages.
 pkg update -f
 
@@ -12,7 +12,7 @@ pkg update -f
 pkg install -y nano fish git
 
 # Install mate.
-pkg install -y xorg xf86-video-fbdev mate-desktop mate
+pkg install -y xorg xorg-drivers mate-desktop mate
 sysrc moused_enable=yes dbus_enable=yes hald_enable=yes
 # Slim display manager
 pkg install -y slim
