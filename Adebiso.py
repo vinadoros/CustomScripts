@@ -18,14 +18,6 @@ print("Running {0}".format(__file__))
 if not os.geteuid() == 0:
     sys.exit("\nError: Please run this script as root.\n")
 
-# Ensure that certain commands exist.
-cmdcheck = ["lb", "debootstrap", "syslinux", "rsync", "time"]
-for cmd in cmdcheck:
-    if not shutil.which(cmd):
-        subprocess.run("apt-get update; apt-get install -y live-build syslinux isolinux xorriso dctrl-tools rsync time", shell=True)
-    if not shutil.which(cmd):
-        sys.exit("\nError, ensure command {0} is installed.".format(cmd))
-
 # Get non-root user information.
 if os.getenv("SUDO_USER") != None and os.getenv("SUDO_USER") != "root":
     USERNAMEVAR=os.getenv("SUDO_USER")
@@ -57,8 +49,11 @@ print("ISO Output Folder:",outfolder)
 if not os.path.isdir(outfolder):
     sys.exit("\nError, ensure {0} is a folder.".format(outfolder))
 
-if args.noprompt == False:
+if args.noprompt is False:
     input("Press Enter to continue.")
+
+# Ensure that certain commands exist.
+subprocess.run("apt-get update; apt-get install -y live-build syslinux isolinux xorriso rsync time", shell=True)
 
 # Make the build folder if it doesn't exist
 os.makedirs(buildfolder, 0o777, exist_ok=True)
@@ -146,7 +141,9 @@ with open(chrootrepofile, 'w') as chrootrepofile_write:
 if os.path.isdir(buildfolder+"/config/bootloaders"):
     shutil.rmtree(buildfolder+"/config/bootloaders")
 os.makedirs(buildfolder+"/config/bootloaders/", exist_ok=True)
-shutil.copytree("/usr/share/live/build/bootloaders/isolinux", buildfolder+"/config/bootloaders/isolinux")
+shutil.copytree("/usr/share/live/build/bootloaders/isolinux", buildfolder+"/config/bootloaders/isolinux", ignore_dangling_symlinks=True)
+shutil.copy2("/usr/lib/ISOLINUX/isolinux.bin", buildfolder+"/config/bootloaders/isolinux")
+shutil.copy2("/usr/lib/syslinux/modules/bios/vesamenu.c32", buildfolder+"/config/bootloaders/isolinux")
 subprocess.run("sed -i 's/^timeout .*/timeout 10/g' {0}".format(buildfolder+"/config/bootloaders/isolinux/isolinux.cfg"), shell=True)
 
 # Add chroot script
