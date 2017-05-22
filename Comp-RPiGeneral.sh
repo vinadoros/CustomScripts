@@ -78,9 +78,22 @@ YTSCRIPT=/usr/local/bin/yt
 echo "Creating ${YTSCRIPT}."
 bash -c "cat >${YTSCRIPT}" <<'EOLXYZ'
 #!/bin/bash
-set -eu
-YT_URL="$1"
-omxplayer -o both "$(youtube-dl -g -f best $YT_URL)"
+set -e
+if [ -z "$1" ]; then
+	echo "No url. Exiting."
+	exit 0;
+else
+	YT_URL="$1"
+fi
+if [ ! -z "$2" ]; then
+	OMXOPTS="-l $2"
+else
+	OMXOPTS=""
+fi
+echo "Getting URL for $YT_URL"
+OMXURL="$(youtube-dl -g -f best $YT_URL)"
+echo "Playing $OMXURL"
+omxplayer -o both "$OMXURL" "$OMXOPTS"
 EOLXYZ
 chmod a+rwx "${YTSCRIPT}"
 
@@ -89,6 +102,7 @@ YTCLIPSCRIPT=/usr/local/bin/ytclip
 echo "Creating ${YTCLIPSCRIPT}."
 bash -c "cat >${YTCLIPSCRIPT}" <<"EOLXYZ"
 #!/bin/bash
+set -x
 YTURL="$(xclip -selection clipboard -o)"
 if ! echo "$YTURL" | grep -iq youtube; then
 	echo "Error. Clipboard contains $YTURL"
