@@ -38,10 +38,11 @@ fi
 while [ ! -d "$LXCVMPATH" ]; do
 	echo "Input an LXC VM Path (i.e. \"/mnt/Storage/VMs\")"
 	read -r LXCVMPATH
-	if [ ! -d "$LXCVMPATH"]; then
+	if [ ! -d "$LXCVMPATH" ]; then
 		echo "$LXCVMPATH is not a folder. Please input a new path."
 	else
 		echo "Writing ${LXCVMPATH} to ${LXCCONFFILE}."
+		sed -i '/lxc.lxcpath/d' ${LXCCONFFILE}
 		echo "lxc.lxcpath = ${LXCVMPATH}" >> ${LXCCONFFILE}
 	fi
 done
@@ -99,7 +100,6 @@ case $LXCVMCHOICE in
 [2] )
 	if [ -f /usr/share/lxc/templates/lxc-archlinux ]; then
 		lxc-create -n "${LXCVMNAME}" -t /usr/share/lxc/templates/lxc-archlinux
-		"$SCRIPTDIR/BArchChroot.sh" "${LXCVMROOT}"
 	else
 		echo "Arch template not found. Exiting."
 	fi
@@ -132,6 +132,7 @@ if [ -f "${LXCVMCONFIG}" ]; then
 	sed -i "s/^lxc.network.ipv4=.*/lxc.network.ipv4=10.0.3."$LXCVMIP"/" "${LXCVMCONFIG}"
 	sed -i '/^#lxc.network.ipv4.gateway=.*/s/^#//g' "${LXCVMCONFIG}"
 	sed -i '/^#lxc.hook.pre-start=.*/s/^#//g' "${LXCVMCONFIG}"
+	sed -i "s@^lxc.hook.pre-start=.*@lxc.hook.pre-start=$LXCVMSCRIPT@g" "${LXCVMCONFIG}"
 fi
 
 cd "${LXCVMROOT}/opt"
