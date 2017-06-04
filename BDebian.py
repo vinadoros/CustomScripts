@@ -73,9 +73,8 @@ chroot {INSTALLPATH}/ /debootstrap/debootstrap --second-stage --verbose
 else:
     BOOTSTRAPSCRIPT += """
 debootstrap --no-check-gpg --arch {DEBARCH} {DISTROCHOICE} {INSTALLPATH} {URL}
-genfstab -U {INSTALLPATH} > {INSTALLPATH}/etc/fstab
 """.format(DEBARCH=args.architecture, DISTROCHOICE=args.release, INSTALLPATH=absinstallpath, URL=osurl)
-subprocess.run(BOOTSTRAPSCRIPT, shell=True, check=True)
+subprocess.run(BOOTSTRAPSCRIPT, shell=True)
 
 # Create and run setup script.
 SETUPSCRIPT = """#!/bin/bash
@@ -231,8 +230,11 @@ DEBIAN_FRONTEND=noninteractive apt install -y ^firmware-*
 # Grub install selection statement.
 if args.grubtype == 1:
     print("Not installing grub.")
+else:
+    # Create fstab for other grub scenarios
+    subprocess.run("genfstab -U {INSTALLPATH} > {INSTALLPATH}/etc/fstab".format(INSTALLPATH=absinstallpath), shell=True)
 # Use autodetected or specified grub partition.
-elif args.grubtype == 2:
+if args.grubtype == 2:
     # Add if partition is a block device
     if stat.S_ISBLK(os.stat(grubpart).st_mode) == True:
         GRUBSCRIPT += """
