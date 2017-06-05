@@ -9,7 +9,7 @@ import shutil
 import stat
 
 # Globals
-SCRIPTDIR=sys.path[0]
+SCRIPTDIR = sys.path[0]
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Install Debian/Ubuntu into a folder/chroot.')
@@ -27,24 +27,24 @@ parser.add_argument("installpath", help='Path of Installation')
 
 # Save arguments.
 args = parser.parse_args()
-print("Hostname:",args.hostname)
-print("Username:",args.username)
-print("Full Name:",args.fullname)
-print("Grub Install Number:",args.grubtype)
+print("Hostname:", args.hostname)
+print("Username:", args.username)
+print("Full Name:", args.fullname)
+print("Grub Install Number:", args.grubtype)
 # Get absolute path of the given path.
 absinstallpath = os.path.realpath(args.installpath)
-print("Path of Installation:",absinstallpath)
-print("OS Type:",args.type)
-print("Release Distribution:",args.release)
+print("Path of Installation:", absinstallpath)
+print("OS Type:", args.type)
+print("Release Distribution:", args.release)
 DEVPART = subprocess.run('sh -c df -m | grep " \+'+absinstallpath+'$" | grep -Eo "/dev/[a-z]d[a-z]"', shell=True, stdout=subprocess.PIPE, universal_newlines=True)
 grubautopart = format(DEVPART.stdout.strip())
-print("Autodetect grub partition:",grubautopart)
-if args.grubpartition != None and stat.S_ISBLK(os.stat(args.grubpartition).st_mode) == True:
+print("Autodetect grub partition:", grubautopart)
+if args.grubpartition is not None and stat.S_ISBLK(os.stat(args.grubpartition).st_mode) is True:
     grubpart = args.grubpartition
 else:
     grubpart = grubautopart
-print("Grub partition to be used:",grubpart)
-print("Architecture to install:",args.architecture)
+print("Grub partition to be used:", grubpart)
+print("Architecture to install:", args.architecture)
 if args.type == "ubuntu" and args.architecture == "armhf":
     osurl = "http://ports.ubuntu.com/ubuntu-ports/"
 elif args.type == "ubuntu":
@@ -57,12 +57,23 @@ print("URL to use:", osurl)
 if not os.geteuid() == 0:
     sys.exit("\nError: Please run this script as root.\n")
 
-if args.noprompt == False:
+# Ensure that certain commands exist.
+cmdcheck = ["debootstrap", "systemd-nspawn"]
+for cmd in cmdcheck:
+    if not shutil.which(cmd):
+        sys.exit("\nError, ensure command {0} is installed.".format(cmd))
+
+if args.noprompt is False:
     input("Press Enter to continue.")
 
 # Bootstrap the chroot environment.
 BOOTSTRAPSCRIPT = ""
 if args.architecture == "armhf":
+    # Ensure that certain commands exist.
+    cmdcheck = ["update-binfmts", "qemu-arm-static"]
+    for cmd in cmdcheck:
+        if not shutil.which(cmd):
+            sys.exit("\nError, ensure command {0} is installed.".format(cmd))
     # ARM specific init here.
     BOOTSTRAPSCRIPT += """
 debootstrap --foreign --no-check-gpg --include=ca-certificates --arch {DEBARCH} {DISTROCHOICE} {INSTALLPATH} {URL}
@@ -132,8 +143,22 @@ chpasswd <<<"{USERNAME}:{PASSWORD}"
 usermod -aG daemon,bin,sys,adm,tty,disk,lp,mail,news,uucp,man,proxy,kmem,dialout,fax,voice,cdrom,floppy,tape,sudo,audio,dip,www-data,backup,operator,list,irc,src,gnats,shadow,utmp,video,sasl,plugdev,staff,games,users,netdev,crontab,systemd-journal {USERNAME}
 
 # Network software
-apt install -y network-manager
 apt install -y ssh
+# Allow root login
+sed -i '/^#PermitRootLogin.*/s/^#//g' /etc/ssh/sshd_config
+sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config
+
+# Network manager
+apt-get install -y network-manager network-manager-ssh
+sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf
+# https://askubuntu.com/questions/882806/ethernet-device-not-managed
+if [ -f /etc/NetworkManager/conf.d/10-globally-managed-devices.conf ]; then
+	rm /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
+fi
+touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
+# Ensure DNS resolution is working
+dpkg-reconfigure --frontend=noninteractive resolvconf
+
 """.format(HOSTNAME=args.hostname, USERNAME=args.username, PASSWORD=args.password, FULLNAME=args.fullname)
 
 # Set up repositories for debian/ubuntu.

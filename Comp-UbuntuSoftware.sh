@@ -186,6 +186,8 @@ if [ -f /etc/NetworkManager/conf.d/10-globally-managed-devices.conf ]; then
 	rm /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
 fi
 touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
+# Ensure DNS resolution is working
+dpkg-reconfigure --frontend=noninteractive resolvconf
 
 # Disable apport if it exists
 [ -f /etc/default/apport ] && sed -i 's/^enabled=.*/enabled=0/g' /etc/default/apport
