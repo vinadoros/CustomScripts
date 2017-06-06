@@ -122,7 +122,7 @@ echo "LANG=en_US.UTF-8" > /etc/locale.conf
 echo "console-setup	console-setup/charmap47	select	UTF-8" | debconf-set-selections
 
 # Install lsb_release
-DEBIAN_FRONTEND=noninteractive apt install -y lsb-release nano sudo less apt-transport-https
+DEBIAN_FRONTEND=noninteractive apt install -y lsb-release nano sudo less apt-transport-https psmisc
 
 # Store distro being used.
 DISTRO=$(lsb_release -si)
@@ -140,7 +140,16 @@ if ! grep -i {USERNAME} /etc/passwd; then
     chfn -f "{FULLNAME}" {USERNAME}
 fi
 chpasswd <<<"{USERNAME}:{PASSWORD}"
-usermod -aG daemon,bin,sys,adm,tty,disk,lp,mail,news,uucp,man,proxy,kmem,dialout,fax,voice,cdrom,floppy,tape,sudo,audio,dip,www-data,backup,operator,list,irc,src,gnats,shadow,utmp,video,sasl,plugdev,staff,games,users,netdev,crontab,systemd-journal {USERNAME}
+
+# Add user to all reasonable groups
+# Get all groups
+LISTOFGROUPS="$(cut -d: -f1 /etc/group)"
+# Remove some groups
+CUTGROUPS=$(sed -e "/^users/d; /^root/d; /^nobody/d; /^nogroup/d" <<< $LISTOFGROUPS)
+echo Groups to Add: $CUTGROUPS
+for grp in $CUTGROUPS; do
+    usermod -aG $grp {USERNAME}
+done
 
 # Network software
 apt install -y ssh
