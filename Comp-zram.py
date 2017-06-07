@@ -93,7 +93,7 @@ esac""".format(cpucores))
 Description=Zram-based swap (compressed RAM block devices)
 
 [Service]
-Type=oneshot
+Type=simple
 ExecStart={0} start
 ExecStop={0} stop
 RemainAfterExit=yes
