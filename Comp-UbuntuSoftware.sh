@@ -110,7 +110,7 @@ fi
 
 # For general desktop
 apt-get install -y synaptic gdebi gparted xdg-utils leafpad nano p7zip-full
-apt-get install -y gnome-disk-utility btrfs-tools f2fs-tools dmraid mdadm
+apt-get install -y gnome-disk-utility btrfs-tools f2fs-tools xfsprogs dmraid mdadm
 DEBIAN_FRONTEND=noninteractive apt-get install -y nbd-client
 
 # Timezone stuff
