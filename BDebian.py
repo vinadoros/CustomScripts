@@ -158,7 +158,7 @@ sed -i '/^#PermitRootLogin.*/s/^#//g' /etc/ssh/sshd_config
 sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config
 
 # Network manager
-apt-get install -y network-manager network-manager-ssh
+apt-get install -y network-manager
 sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf
 # https://askubuntu.com/questions/882806/ethernet-device-not-managed
 if [ -f /etc/NetworkManager/conf.d/10-globally-managed-devices.conf ]; then
@@ -166,6 +166,11 @@ if [ -f /etc/NetworkManager/conf.d/10-globally-managed-devices.conf ]; then
 fi
 touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
 # Ensure DNS resolution is working
+# Create resolv.conf file if it doesn't exist (and its path)
+if [ ! -f /run/resolvconf/resolv.conf ]; then
+    mkdir -p /run/resolvconf
+    touch /run/resolvconf/resolv.conf
+fi
 dpkg-reconfigure --frontend=noninteractive resolvconf
 
 """.format(HOSTNAME=args.hostname, USERNAME=args.username, PASSWORD=args.password, FULLNAME=args.fullname)
