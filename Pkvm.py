@@ -22,7 +22,7 @@ print("Running {0}".format(__file__))
 SCRIPTDIR=sys.path[0]
 
 # Exit if root.
-if os.geteuid() == 0:
+if os.geteuid() is 0:
     sys.exit("\nError: Please run this script as a normal (non root) user.\n")
 
 # Get non-root user information.

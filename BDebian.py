@@ -54,7 +54,7 @@ else:
 print("URL to use:", osurl)
 
 # Exit if not root.
-if not os.geteuid() == 0:
+if os.geteuid() is not 0:
     sys.exit("\nError: Please run this script as root.\n")
 
 # Ensure that certain commands exist.

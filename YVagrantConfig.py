@@ -8,7 +8,7 @@ import sys
 print("Running {0}".format(__file__))
 
 # Exit if root.
-if os.geteuid() == 0:
+if os.geteuid() is 0:
     sys.exit("\nError: Please run this script as a normal user (not root).\n")
 
 # Exit if vagrant not installed.

@@ -291,19 +291,19 @@ fi
 
 # Set bash script
 BASHSCRIPTPATH=USERHOME+"/.bashrc"
-if os.geteuid() == 0:
+if os.geteuid() is 0:
     BASHSCRIPTUSERPATH="{0}/.bashrc".format(USERVARHOME)
 
 # Remove existing bash scripts and copy skeleton.
 if os.path.isfile(BASHSCRIPTPATH):
     os.remove(BASHSCRIPTPATH)
-if os.geteuid() == 0:
+if os.geteuid() is 0:
     if os.path.isfile(BASHSCRIPTUSERPATH):
         os.remove(BASHSCRIPTUSERPATH)
 # Skeleton will get overwritten by bash-it below, this is left here just in case it is needed in the future.
 if os.path.isfile("/etc/skel/.bashrc"):
     shutil.copy("/etc/skel/.bashrc", BASHSCRIPTPATH)
-    if os.geteuid() == 0:
+    if os.geteuid() is 0:
         shutil.copy("/etc/skel/.bashrc", BASHSCRIPTUSERPATH)
         shutil.chown(BASHSCRIPTUSERPATH, USERNAMEVAR, USERGROUP)
 
@@ -318,7 +318,7 @@ if os.access("/opt", os.W_OK):
 if os.path.isdir("/opt/bash-it"):
     subprocess.run("/opt/bash-it/install.sh --silent", shell=True)
     subprocess.run("""sed -i "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTPATH), shell=True)
-    if os.geteuid() == 0:
+    if os.geteuid() is 0:
         subprocess.run('su {0} -s {1} -c "/opt/bash-it/install.sh --silent"'.format(USERNAMEVAR, shutil.which("bash")), shell=True)
         subprocess.run("""sed -i "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTUSERPATH), shell=True)
 
@@ -327,7 +327,7 @@ BASHSCRIPT_VAR = open(BASHSCRIPTPATH, mode='a')
 BASHSCRIPT_VAR.write(BASHSCRIPT)
 BASHSCRIPT_VAR.close()
 os.chmod(BASHSCRIPTPATH, 0o644)
-if os.geteuid() == 0:
+if os.geteuid() is 0:
     BASHSCRIPTUSER_VAR = open(BASHSCRIPTUSERPATH, mode='a')
     BASHSCRIPTUSER_VAR.write(BASHSCRIPT)
     BASHSCRIPTUSER_VAR.close()
@@ -342,7 +342,7 @@ if shutil.which('fish'):
     if not os.getenv("SHELL").endswith("fish"):
         subprocess.run('chsh -s {FISHPATH}'.format(FISHPATH=FISHPATH), shell=True)
         # Change the shell for the non-root user if running as root.
-        if os.geteuid() == 0:
+        if os.geteuid() is 0:
             subprocess.run('chsh -s {FISHPATH} {USERNAMEVAR}'.format(USERNAMEVAR=USERNAMEVAR, FISHPATH=FISHPATH), shell=True)
 
     # Generate fish script.
@@ -608,19 +608,19 @@ end
 
     # Set fish script
     FISHSCRIPTPATH=USERHOME+"/.config/fish/config.fish"
-    if os.geteuid() == 0:
+    if os.geteuid() is 0:
         FISHSCRIPTUSERPATH="{0}/.config/fish/config.fish".format(USERVARHOME)
 
     # Create path if it doesn't existing
     os.makedirs(os.path.dirname(FISHSCRIPTPATH),exist_ok=True)
-    if os.geteuid() == 0:
+    if os.geteuid() is 0:
         os.makedirs(os.path.dirname(FISHSCRIPTUSERPATH),exist_ok=True)
         subprocess.run("chown -R {0}:{1} {2}/.config".format(USERNAMEVAR, USERGROUP, USERVARHOME), shell=True)
 
     # Remove existing fish scripts.
     if os.path.isfile(FISHSCRIPTPATH):
         os.remove(FISHSCRIPTPATH)
-    if os.geteuid() == 0:
+    if os.geteuid() is 0:
         if os.path.isfile(FISHSCRIPTUSERPATH):
             os.remove(FISHSCRIPTUSERPATH)
 
@@ -631,7 +631,7 @@ end
     os.chmod(FISHSCRIPTPATH, 0o644)
 
     # Install fish script for user
-    if os.geteuid() == 0:
+    if os.geteuid() is 0:
         FISHSCRIPTUSER_VAR = open(FISHSCRIPTUSERPATH, mode='a')
         FISHSCRIPTUSER_VAR.write(FISHSCRIPT)
         FISHSCRIPTUSER_VAR.close()
@@ -658,7 +658,7 @@ end
     if status.returncode is not 0:
         print("Installing omf.")
         process = subprocess.run(fish_installplugins, shell=True)
-    if os.geteuid() == 0:
+    if os.geteuid() is 0:
         status = subprocess.run('su {0} -s {1} -c "omf update"'.format(USERNAMEVAR, shutil.which("fish")), shell=True)
         if status.returncode is not 0:
             print("Installing omf for {0}.".format(USERNAMEVAR))

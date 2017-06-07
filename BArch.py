@@ -41,7 +41,7 @@ else:
 print("Grub partition to be used:",grubpart)
 
 # Exit if not root.
-if not os.geteuid() == 0:
+if os.geteuid() is not 0:
     sys.exit("\nError: Please run this script as root.\n")
 
 if args.noprompt == False:
