@@ -8,7 +8,7 @@ import subprocess
 import shutil
 import stat
 
-# Globals
+# Folder of this script
 SCRIPTDIR = sys.path[0]
 
 # Get arguments
@@ -307,10 +307,10 @@ if os.path.exists("{0}/etc/resolv.conf".format(absinstallpath)):
     os.remove("{0}/etc/resolv.conf".format(absinstallpath))
 # Run the setup script.
 subprocess.run("systemd-nspawn -D {0} /setupscript.sh".format(absinstallpath), shell=True)
-# Copy resolv.conf into chroot (needed for arch-chroot)
+# Copy resolv.conf into chroot (needed for chroot)
 shutil.copy2("/etc/resolv.conf", "{0}/etc/resolv.conf".format(absinstallpath))
 # Run the grub script.
-subprocess.run("arch-chroot {0} /grubscript.sh".format(absinstallpath), shell=True)
+subprocess.run("{1}/zch.py {0} -c /grubscript.sh".format(absinstallpath, SCRIPTDIR), shell=True)
 # Remove after running
 os.remove(SETUPSCRIPT_PATH)
 os.remove(GRUBSCRIPT_PATH)
