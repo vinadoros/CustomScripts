@@ -15,7 +15,7 @@ parser.add_argument("-s", "--server", help='Server to connect to.')
 parser.add_argument("-p", "--sshport", type=int, help='SSH port to connect to.', default="22")
 parser.add_argument("-d", "--destport", type=int, help='Port on local machine to map to this machine.', default="5900")
 parser.add_argument("-r", "--destserver", help='Server on the destination side to connect to.', default="localhost")
-parser.add_argument("-c", "--command", help='Run commands (vnc=1)', type=int, default="1")
+parser.add_argument("-c", "--command", help='Run commands (none=0, vnc=1)', type=int, default="0")
 
 # Save arguments.
 args = parser.parse_args()
@@ -63,7 +63,13 @@ while True:
     if result is True:
         break
 # Process command switches.
-if args.command == 1:
+if args.command is 0:
+    print("""
+    If accessing a website at the local port:
+    http://localhost:{0}
+    https://localhost:{0}
+    """.format(networkport))
+if args.command is 1:
     subprocess.run('{0} localhost:{1}'.format("vncviewer", networkport), shell=True)
 input("Press Enter to stop ssh.")
 # Stop ssh tunnel.
