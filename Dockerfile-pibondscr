@@ -1,6 +1,6 @@
 #
 # Usage:
-# docker build -t vinadoros/bondscript -f Dockerfile-bondscr .
+# docker build -t vinadoros/bondscript -f Dockerfile-pibondscr .
 # docker run -d -t -u 1000 --name bondscript -v /path:/privscript -v /path:/tempfiles vinadoros/bondscript
 #
 
