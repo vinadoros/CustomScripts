@@ -20,6 +20,7 @@ print("This script is for use only on Ubuntu.")
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Install Raspberry Pi stuff.')
+parser.add_argument("-c", "--cliutils", help='Install command line utilities', action="store_true")
 parser.add_argument("-d", "--docker", help='Install docker', action="store_true")
 parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
 parser.add_argument("-o", "--omxdeb", help='Install OMXPlayer.', action="store_true")
@@ -51,3 +52,19 @@ print(args)
 
 if args.noprompt is False:
     input("Press Enter to continue.")
+
+if args.cliutils is True:
+    print("Installing command line utilities.")
+    subprocess.run("apt-get update; apt-get install -y avahi-daemon", shell=True)
+
+if args.docker is True:
+    print("Installing Docker.")
+    subprocess.run("""
+    apt-get update
+    apt-get install -y software-properties-common
+    add-apt-repository "deb [arch=armhf] https://apt.dockerproject.org/repo raspbian-jessie main"
+    apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+    apt-get update
+    apt-get install -y docker-engine
+    usermod -aG docker {0}
+    """.format(USERNAMEVAR), shell=True)
