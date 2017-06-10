@@ -111,7 +111,7 @@ source "$SCRIPTDIR/Comp-VMGeneral.sh"
 
 source "$SCRIPTDIR/Comp-xdgdirs.sh"
 
-source "$SCRIPTDIR/Comp-zram.sh"
+"$SCRIPTDIR/Comp-zram.py"
 
 source "$SCRIPTDIR/Comp-SysConfig.sh"
 
