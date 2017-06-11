@@ -51,6 +51,7 @@ parser.add_argument("-p", "--vmpath", help="Path of Packer output", required=Tru
 parser.add_argument("-y", "--vmuser", help="VM Username", default="user")
 parser.add_argument("-z", "--vmpass", help="VM Password", default="asdf")
 parser.add_argument("-b", "--getpacker", help="Force refresh packer", action="store_true")
+parser.add_argument("-x", "--sshkey", help="SSH authorizaiton key")
 parser.add_argument("--memory", help="Memory for VM", default="4096")
 parser.add_argument("--vmprovision", help="""Override provision options. Enclose options in double backslashes and quotes. Example: \\\\"-n -e 3\\\\" """)
 
@@ -171,6 +172,15 @@ elif args.ostype == 52:
     kvm_variant = "win10"
     vmprovision_defopts = " "
     isourl = None
+elif args.ostype == 60:
+    vmname = "Packer-CoreOS-{0}".format(hvname)
+    vboxosid = "Fedora_64"
+    vmwareid = "fedora-64"
+    vmprovisionscript = " "
+    vmprovision_defopts = " "
+    kvm_os = "linux"
+    kvm_variant = "fedora22"
+    isourl = "https://stable.release.core-os.net/amd64-usr/current/coreos_production_iso_image.iso"
 
 # Override provision opts if provided.
 if args.vmprovision is None:
@@ -229,6 +239,25 @@ if os.path.isdir(packer_temp_folder):
 os.mkdir(packer_temp_folder)
 os.chdir(packer_temp_folder)
 
+# Detect root ssh key.
+if args.sshkey != None:
+    sshkey = args.rootsshkey
+elif os.path.isfile(USERHOME+"/.ssh/id_ed25519.pub") == True:
+    with open(USERHOME+"/.ssh/id_ed25519.pub", 'r') as sshfile:
+        sshkey=sshfile.read().replace('\n', '')
+elif os.path.isfile(USERHOME+"/.ssh/id_rsa.pub") == True:
+    with open(USERHOME+"/.ssh/id_rsa.pub", 'r') as sshfile:
+        sshkey=sshfile.read().replace('\n', '')
+else:
+    sshkey=" "
+print("SSH Key is \"{0}\"".format(sshkey))
+
+# Generate hashed password
+# https://serverfault.com/questions/330069/how-to-create-an-sha-512-hashed-password-for-shadow#330072
+import crypt
+sha512_password = crypt.crypt(args.vmpass, crypt.mksalt(crypt.METHOD_SHA512))
+
+
 # Copy unattend script folder
 if os.path.isdir(SCRIPTDIR+"/unattend"):
     tempunattendfolder=packer_temp_folder+"/unattend"
@@ -238,6 +267,9 @@ if os.path.isdir(SCRIPTDIR+"/unattend"):
     subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's/INSERTPASSWORDHERE/{1}/g'".format(tempunattendfolder, args.vmpass), shell=True)
     subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's/INSERTFULLNAMEHERE/{1}/g'".format(tempunattendfolder, args.fullname), shell=True)
     subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's/INSERTHOSTNAMENAMEHERE/{1}/g'".format(tempunattendfolder, vmname), shell=True)
+    subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's@INSERTHASHEDPASSWORDHERE@{1}@g'".format(tempunattendfolder, sha512_password), shell=True)
+    subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's/INSERTSSHKEYHERE/{1}/g'".format(tempunattendfolder, sshkey), shell=True)
+
 
 # Get hash for iso.
 print("Generating Checksum of {0}".format(isopath))
@@ -259,7 +291,7 @@ if args.vmtype is 1:
     data['builders'][0]["vboxmanage_post"] = ['']
     data['builders'][0]["vboxmanage_post"][0]= ["sharedfolder", "add", "{{.Name}}", "--name", "root", "--hostpath", "/", "--automount"]
     data['builders'][0]["post_shutdown_delay"] = "30s"
-    if 50 <= args.ostype <= 60:
+    if 50 <= args.ostype <= 59:
         # https://hodgkins.io/best-practices-with-packer-and-windows#use-headless-mode
         data['builders'][0]["headless"] = "true"
         data['builders'][0]["guest_additions_mode"] = "upload"
@@ -267,7 +299,7 @@ if args.vmtype is 1:
 elif args.vmtype is 2:
     data['builders'][0]["type"] = "qemu"
     data['builders'][0]["accelerator"] = "kvm"
-    if 50 <= args.ostype <= 60:
+    if 50 <= args.ostype <= 59:
         # Use more generic hardware for windows
         data['builders'][0]["disk_interface"] = "ide"
         data['builders'][0]["net_device"] = "e1000"
@@ -286,7 +318,7 @@ elif args.vmtype is 3:
     data['builders'][0]["vmdk_name"] = "{0}".format(vmname)
     data['builders'][0]["vmx_data"] = { "virtualhw.version": "12", "memsize": "{0}".format(args.memory), "numvcpus": "{0}".format(CPUCORES), "cpuid.coresPerSocket": "{0}".format(CPUCORES), "guestos": "{0}".format(vmwareid), "usb.present": "TRUE", "scsi0.virtualDev": "lsisas1068" }
     data['builders'][0]["vmx_data_post"] = { "sharedFolder0.present": "TRUE", "sharedFolder0.enabled": "TRUE", "sharedFolder0.readAccess": "TRUE", "sharedFolder0.writeAccess": "TRUE", "sharedFolder0.hostPath": "/", "sharedFolder0.guestName": "root", "sharedFolder0.expiration": "never", "sharedFolder.maxNum": "1", "isolation.tools.hgfs.disable": "FALSE" }
-    if 50 <= args.ostype <= 60:
+    if 50 <= args.ostype <= 59:
         data['builders'][0]["tools_upload_flavor"] = "windows"
         data['builders'][0]["tools_upload_path"] = "c:/Windows/Temp/windows.iso"
 data['builders'][0]["shutdown_command"] = "shutdown -P now"
@@ -348,6 +380,10 @@ if args.ostype == 52:
     # Username is fixed to Administrator in Server 2016
     data['builders'][0]["ssh_username"] = "Administrator"
     shutil.move(packer_temp_folder+"/unattend/windows2016.xml", packer_temp_folder+"/unattend/autounattend.xml")
+if args.ostype is 60:
+    data['builders'][0]["boot_command"] = ["<wait10><wait10><wait10>sudo systemctl stop sshd.socket<wait><enter>wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/coreos.json<wait><enter><wait>if [ -b /dev/sda ]; then export BLK=/dev/sda; elif [ -b /dev/vda ]; then export BLK=/dev/vda; fi<wait><enter>sudo coreos-install -d $BLK -i coreos.json; sudo reboot<wait><enter>"]
+    data['provisioners'][0]["type"] = "shell"
+    data['provisioners'][0]["inline"] = "ls -la"
 
 
 # Write packer json file.

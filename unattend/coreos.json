@@ -1,0 +1,1 @@
+{"ignition":{"version":"2.0.0","config":{}},"storage":{"files":[{"filesystem":"root","path":"/etc/ssh/sshd_config","contents":{"source":"data:,PermitRootLogin%20yes%0A","verification":{}},"mode":384,"user":{},"group":{}}]},"systemd":{},"networkd":{},"passwd":{"users":[{"name":"root","passwordHash":"INSERTHASHEDPASSWORDHERE","sshAuthorizedKeys":["INSERTSSHKEYHERE"]}]}}
