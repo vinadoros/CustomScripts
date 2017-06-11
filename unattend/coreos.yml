@@ -26,3 +26,8 @@ storage:
       contents:
         inline: |
           PermitRootLogin yes
+    - filesystem: "root"
+      path:       "/etc/hostname"
+      mode:       0644
+      contents:
+        inline: INSERTHOSTNAMENAMEHERE

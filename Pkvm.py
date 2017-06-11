@@ -180,7 +180,7 @@ elif args.ostype == 60:
     vmprovision_defopts = " "
     kvm_os = "linux"
     kvm_variant = "fedora22"
-    isourl = "https://stable.release.core-os.net/amd64-usr/current/coreos_production_iso_image.iso"
+    isourl = "https://alpha.release.core-os.net/amd64-usr/current/coreos_production_iso_image.iso"
 
 # Override provision opts if provided.
 if args.vmprovision is None:
@@ -381,7 +381,7 @@ if args.ostype == 52:
     data['builders'][0]["ssh_username"] = "Administrator"
     shutil.move(packer_temp_folder+"/unattend/windows2016.xml", packer_temp_folder+"/unattend/autounattend.xml")
 if args.ostype is 60:
-    data['builders'][0]["boot_command"] = ["<wait10><wait10><wait10>sudo systemctl stop sshd.socket<wait><enter>wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/coreos.json<wait><enter><wait>if [ -b /dev/sda ]; then export BLK=/dev/sda; elif [ -b /dev/vda ]; then export BLK=/dev/vda; fi<wait><enter>sudo coreos-install -d $BLK -i coreos.json; sudo reboot<wait><enter>"]
+    data['builders'][0]["boot_command"] = ["<wait10><wait10><wait10>sudo systemctl stop sshd.socket<wait><enter>wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/coreos.json<wait><enter><wait>if [ -b /dev/sda ]; then export BLK=/dev/sda; elif [ -b /dev/vda ]; then export BLK=/dev/vda; fi<wait><enter>sudo coreos-install -d $BLK -C alpha -i coreos.json; sudo reboot<wait><enter>"]
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "ls -la"
 
