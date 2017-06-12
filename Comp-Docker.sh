@@ -8,4 +8,4 @@ SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
 # Add standard docker containers
-docker run -d --name portainer --restart=always -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock portainer/portainer
+docker run -d --name portainer --restart=always -p 61234:9000 -v /var/run/docker.sock:/var/run/docker.sock portainer/portainer
