@@ -14,9 +14,9 @@ print("Running {0}".format(__file__))
 SCRIPTDIR = sys.path[0]
 
 # Get non-root user information.
-if os.getenv("SUDO_USER") != None and os.getenv("SUDO_USER") != "root":
+if os.getenv("SUDO_USER") not in ["root", None]:
     USERNAMEVAR = os.getenv("SUDO_USER")
-elif os.getenv("USER") != "root":
+elif os.getenv("USER") not in ["root", None]:
     USERNAMEVAR = os.getenv("USER")
 else:
     # https://docs.python.org/3/library/pwd.html
