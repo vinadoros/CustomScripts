@@ -1,0 +1,24 @@
+#
+# Usage:
+# docker build -t vinadoros/debiso -f Dockerfile-debiso .
+# docker run -d -t --privileged --name debiso -v /opt/CustomScripts:/opt/CustomScripts -v /path:/debbuild vinadoros/debiso
+#
+
+FROM debian:sid
+
+RUN apt update && apt install -y git build-essential debhelper devscripts live-build syslinux isolinux rsync time
+# Get and build live-build from source
+RUN git clone http://anonscm.debian.org/git/debian-live/live-build.git && \
+    cd live-build && \
+    dpkg-buildpackage -b -uc -us && \
+    cd .. && \
+    dpkg -i live-build_*.deb && \
+    mkdir /debbuild
+
+VOLUME ["/opt/CustomScripts"]
+
+VOLUME ["/debbuild"]
+WORKDIR /debbuild
+
+ENTRYPOINT ["/opt/CustomScripts/Adebiso.py"]
+CMD ["-n","-w","/debbuild"]

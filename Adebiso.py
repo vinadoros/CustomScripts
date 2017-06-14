@@ -18,19 +18,7 @@ print("Running {0}".format(__file__))
 if os.geteuid() is not 0:
     sys.exit("\nError: Please run this script as root.\n")
 
-# Get non-root user information.
-if os.getenv("SUDO_USER") not in ["root", None]:
-    USERNAMEVAR = os.getenv("SUDO_USER")
-elif os.getenv("USER") not in ["root", None]:
-    USERNAMEVAR = os.getenv("USER")
-else:
-    # https://docs.python.org/3/library/pwd.html
-    USERNAMEVAR = pwd.getpwuid(1000)[0]
-# https://docs.python.org/3/library/grp.html
-USERGROUP=grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
-ROOTHOME=os.path.expanduser("~")
-USERHOME=os.path.expanduser("~{0}".format(USERNAMEVAR))
-MACHINEARCH = platform.machine()
+USERHOME = "/root"
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Build Debian LiveCD.')
@@ -52,14 +40,11 @@ if not os.path.isdir(outfolder):
 if args.noprompt is False:
     input("Press Enter to continue.")
 
-# Ensure that certain commands exist.
-subprocess.run("apt-get update; apt-get install -y live-build syslinux isolinux xorriso rsync time", shell=True)
-
 # Make the build folder if it doesn't exist
 os.makedirs(buildfolder, 0o777, exist_ok=True)
 
 # Configure and clean the live build
-subprocess.run('cd {0}; lb clean; lb config --bootappend-live "boot=live components timezone=America/New_York"'.format(buildfolder), shell=True)
+subprocess.run('cd {0}; lb clean; lb config --distribution sid --archive-areas "main contrib non-free" --bootappend-live "boot=live components timezone=America/New_York"'.format(buildfolder), shell=True)
 
 # Copy over autoconfig
 if os.path.isdir(buildfolder+"/auto"):
@@ -124,26 +109,24 @@ print("Writing {0}".format(pkgfile))
 with open(pkgfile, 'w') as pkgfile_write:
     pkgfile_write.write(PACKAGELIST)
 
-# Add repositories
-REPOLIST='deb http://ftp.us.debian.org/debian unstable main contrib non-free'
-repofolder=buildfolder+"/config/archives"
-binaryrepofile=repofolder+"/your-repository.list.binary"
-chrootrepofile=repofolder+"/your-repository.list.chroot"
-os.makedirs(repofolder, 0o777, exist_ok=True)
-print("Writing {0}".format(binaryrepofile))
-with open(binaryrepofile, 'w') as binaryrepofile_write:
-    binaryrepofile_write.write(REPOLIST)
-print("Writing {0}".format(chrootrepofile))
-with open(chrootrepofile, 'w') as chrootrepofile_write:
-    chrootrepofile_write.write(REPOLIST)
+# # Add repositories
+# REPOLIST='deb http://ftp.us.debian.org/debian unstable main contrib non-free'
+# repofolder=buildfolder+"/config/archives"
+# binaryrepofile=repofolder+"/your-repository.list.binary"
+# chrootrepofile=repofolder+"/your-repository.list.chroot"
+# os.makedirs(repofolder, 0o777, exist_ok=True)
+# print("Writing {0}".format(binaryrepofile))
+# with open(binaryrepofile, 'w') as binaryrepofile_write:
+#     binaryrepofile_write.write(REPOLIST)
+# print("Writing {0}".format(chrootrepofile))
+# with open(chrootrepofile, 'w') as chrootrepofile_write:
+#     chrootrepofile_write.write(REPOLIST)
 
-# Add bootloader config
+# # Add bootloader config
 if os.path.isdir(buildfolder+"/config/bootloaders"):
     shutil.rmtree(buildfolder+"/config/bootloaders")
 os.makedirs(buildfolder+"/config/bootloaders/", exist_ok=True)
-shutil.copytree("/usr/share/live/build/bootloaders/isolinux", buildfolder+"/config/bootloaders/isolinux", ignore_dangling_symlinks=True)
-shutil.copy2("/usr/lib/ISOLINUX/isolinux.bin", buildfolder+"/config/bootloaders/isolinux")
-shutil.copy2("/usr/lib/syslinux/modules/bios/vesamenu.c32", buildfolder+"/config/bootloaders/isolinux")
+shutil.copytree("/usr/share/live/build/bootloaders/isolinux", buildfolder+"/config/bootloaders/isolinux", ignore_dangling_symlinks=False)
 subprocess.run("sed -i 's/^timeout .*/timeout 10/g' {0}".format(buildfolder+"/config/bootloaders/isolinux/isolinux.cfg"), shell=True)
 
 # Add chroot script
@@ -269,14 +252,14 @@ os.chmod(boothookfile, 0o755)
 subprocess.run("cd {0}; time lb build".format(buildfolder), shell=True)
 
 # Make normal user owner of build folder.
-subprocess.run("chown {0}:{1} -R {2}".format(USERNAMEVAR, USERGROUP, buildfolder), shell=True)
+# subprocess.run("chown {0}:{1} -R {2}".format(USERNAMEVAR, USERGROUP, buildfolder), shell=True)
 
-# Find the iso
-# https://stackoverflow.com/questions/3964681/find-all-files-in-directory-with-extension-txt-in-python#3964691
-# https://stackoverflow.com/questions/2186525/use-a-glob-to-find-files-recursively-in-python
-for filename in glob.iglob(buildfolder+"/*.hybrid.iso"):
-    print("Detected: "+filename)
-    # Make the iso world rwx
-    os.chmod(filename, 0o777)
-    # Move the iso to the output folder
-    subprocess.run("cd {2}; rsync -aP {0} {1}; sync".format(filename, outfolder+"/", buildfolder), shell=True)
+# # Find the iso
+# # https://stackoverflow.com/questions/3964681/find-all-files-in-directory-with-extension-txt-in-python#3964691
+# # https://stackoverflow.com/questions/2186525/use-a-glob-to-find-files-recursively-in-python
+# for filename in glob.iglob(buildfolder+"/*.hybrid.iso"):
+#     print("Detected: "+filename)
+#     # Make the iso world rwx
+#     os.chmod(filename, 0o777)
+#     # Move the iso to the output folder
+#     subprocess.run("cd {2}; rsync -aP {0} {1}; sync".format(filename, outfolder+"/", buildfolder), shell=True)
