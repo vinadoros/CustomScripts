@@ -2,15 +2,12 @@
 
 # Python includes.
 import argparse
-from datetime import datetime, timedelta
 import glob
-import grp
 import os
-import platform
-import pwd
 import shutil
 import subprocess
 import sys
+import time
 
 print("Running {0}".format(__file__))
 
@@ -126,7 +123,9 @@ with open(pkgfile, 'w') as pkgfile_write:
 if os.path.isdir(buildfolder+"/config/bootloaders"):
     shutil.rmtree(buildfolder+"/config/bootloaders")
 os.makedirs(buildfolder+"/config/bootloaders/", exist_ok=True)
+# Copy isolinux
 shutil.copytree("/usr/share/live/build/bootloaders/isolinux", buildfolder+"/config/bootloaders/isolinux", ignore_dangling_symlinks=False)
+# Modify isolinux timeout
 subprocess.run("sed -i 's/^timeout .*/timeout 10/g' {0}".format(buildfolder+"/config/bootloaders/isolinux/isolinux.cfg"), shell=True)
 
 # Add chroot script
@@ -254,12 +253,23 @@ subprocess.run("cd {0}; time lb build".format(buildfolder), shell=True)
 # Make normal user owner of build folder.
 # subprocess.run("chown {0}:{1} -R {2}".format(USERNAMEVAR, USERGROUP, buildfolder), shell=True)
 
-# # Find the iso
-# # https://stackoverflow.com/questions/3964681/find-all-files-in-directory-with-extension-txt-in-python#3964691
-# # https://stackoverflow.com/questions/2186525/use-a-glob-to-find-files-recursively-in-python
-# for filename in glob.iglob(buildfolder+"/*.hybrid.iso"):
-#     print("Detected: "+filename)
-#     # Make the iso world rwx
-#     os.chmod(filename, 0o777)
-#     # Move the iso to the output folder
-#     subprocess.run("cd {2}; rsync -aP {0} {1}; sync".format(filename, outfolder+"/", buildfolder), shell=True)
+# Find the iso
+# https://stackoverflow.com/questions/3964681/find-all-files-in-directory-with-extension-txt-in-python#3964691
+# https://stackoverflow.com/questions/2186525/use-a-glob-to-find-files-recursively-in-python
+for filename in glob.iglob(buildfolder+"/*.hybrid.iso"):
+    print("Detected: "+filename)
+    # Get basename and dirname of file.
+    basefilename = os.path.basename(filename)
+    dirfilename = os.path.dirname(filename)
+    # New file name for file.
+    currentdatetime = time.strftime("%Y-%m-%d_%H:%M")
+    newfilename = basefilename.replace("hybrid", currentdatetime)
+    # Make the iso world rwx
+    os.chmod(filename, 0o777)
+    # Move the iso to the output folder
+    subprocess.run("""
+    cd {buildfolder}
+    rsync -aP "{filename}" "{output}"
+    mv "{output}/{oldfilename}" "{output}/{newfilename}"
+    sync
+    """.format(filename=filename, output=outfolder+"/", buildfolder=buildfolder, origfolder=dirfilename, oldfilename=basefilename, newfilename=newfilename), shell=True)

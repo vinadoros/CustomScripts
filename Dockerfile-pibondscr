@@ -15,5 +15,4 @@ VOLUME ["/privscript"]
 WORKDIR /tempfiles
 VOLUME ["/tempfiles"]
 
-ENTRYPOINT ["python3"]
-CMD ["/privscript/combined.py","-e"]
+CMD ["python3","/privscript/combined.py","-e"]
