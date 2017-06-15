@@ -2,6 +2,7 @@
 
 # Python includes.
 import argparse
+from datetime import datetime
 import glob
 import os
 import shutil
@@ -248,7 +249,9 @@ with open(boothookfile, 'w') as boothookfile_write:
 os.chmod(boothookfile, 0o755)
 
 # Build the live build
-subprocess.run("cd {0}; time lb build".format(buildfolder), shell=True)
+beforetime = datetime.now()
+subprocess.run("cd {0}; lb build".format(buildfolder), shell=True)
+print("Build completed in :", datetime.now() - beforetime)
 
 # Make normal user owner of build folder.
 # subprocess.run("chown {0}:{1} -R {2}".format(USERNAMEVAR, USERGROUP, buildfolder), shell=True)
