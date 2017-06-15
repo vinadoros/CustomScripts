@@ -24,6 +24,7 @@ print("This script is for use only on Ubuntu.")
 parser = argparse.ArgumentParser(description='Install Raspberry Pi stuff.')
 parser.add_argument("-c", "--cliutils", help='Install command line utilities', action="store_true")
 parser.add_argument("-d", "--docker", help='Install docker', action="store_true")
+parser.add_argument("-e", "--desktopomx", help='Install desktop omx scripts', action="store_true")
 parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
 parser.add_argument("-o", "--omxdeb", help='Install OMXPlayer.', action="store_true")
 parser.add_argument("-u", "--upscript", help='Install rpi-update and run it.', action="store_true")
@@ -125,3 +126,60 @@ if args.omxdeb is True:
     if os.path.isfile(omxdeb_file) is True:
         subprocess.run("apt-get install -y {0}".format(omxdeb_file), shell=True)
         os.remove(omxdeb_file)
+
+
+if args.desktopomx is True:
+    yt_script = """#!/bin/bash -e
+if [ -z "$1" ]; then
+	echo "No url. Exiting."
+	exit 0;
+else
+	YT_URL="$1"
+fi
+if [ ! -z "$2" ]; then
+	OMXOPTS="-l $2"
+else
+	OMXOPTS=""
+fi
+echo "Getting URL for $YT_URL"
+OMXURL="$(youtube-dl -g -f best $YT_URL)"
+echo "Playing $OMXURL"
+omxplayer -o both "$OMXURL" "$OMXOPTS"
+"""
+    yt_file = "/usr/local/bin/yt"
+    print("Writing {0}".format(yt_file))
+    with open(yt_file, 'w') as yt_file_write:
+        yt_file_write.write(yt_script)
+    os.chmod(yt_file, 0o777)
+
+    ytclip_script = """#!/bin/bash -x
+YTURL="$(xclip -selection clipboard -o)"
+if ! echo "$YTURL" | grep -iq youtube; then
+	echo "Error. Clipboard contains $YTURL"
+else
+	echo "Playing $YTURL"
+	yt "$YTURL"
+fi
+sleep 1
+"""
+    ytclip_file = "/usr/local/bin/yt"
+    print("Writing {0}".format(ytclip_file))
+    with open(ytclip_file, 'w') as ytclip_file_write:
+        ytclip_file_write.write(ytclip_script)
+    os.chmod(ytclip_file, 0o777)
+
+    userdesktop = USERHOME + "/Desktop"
+    if os.path.isdir(userdesktop) is True:
+        ytclipdesktop_script = """#!/usr/bin/env xdg-open
+[Desktop Entry]
+Type=Application
+Terminal=true
+Exec=/usr/local/bin/ytclip
+Name=YoutubeOMX
+Comment=Youtube + OMXPlayer clipboard script
+"""
+        ytclipdesktop_file = "/usr/local/bin/yt"
+        print("Writing {0}".format(ytclipdesktop_file))
+        with open(ytclipdesktop_file, 'w') as ytclipdesktop_file_write:
+            ytclip_file_write.write(ytclipdesktop_script)
+        os.chmod(ytclipdesktop_file, 0o777)
