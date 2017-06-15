@@ -115,3 +115,13 @@ if args.docker is True:
     apt-get install -y docker-engine
     usermod -aG docker {0}
     """.format(USERNAMEVAR), shell=True)
+
+
+if args.omxdeb is True:
+    print("Installing omxplayer.")
+    tempfolder = "/var/tmp"
+    omxdeb_file = tempfolder + "/omxplayer.deb"
+    urllib.request.urlretrieve(OMXURL, omxdeb_file)
+    if os.path.isfile(omxdeb_file) is True:
+        subprocess.run("apt-get install -y {0}".format(omxdeb_file), shell=True)
+        os.remove(omxdeb_file)
