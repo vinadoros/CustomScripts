@@ -92,6 +92,7 @@ if args.scripts is True:
     systemctl disable cron
     {0}/Comp-zram.py -c 1
     {0}/Comp-sshconfig.sh
+    {0}/Comp-CSClone.sh
     """.format(SCRIPTDIR), shell=True)
 
 # upscript section
