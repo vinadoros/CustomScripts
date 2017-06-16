@@ -160,7 +160,7 @@ if args.omxdeb is True:
         subprocess.run("""
 echo 'SUBSYSTEM=="vchiq",GROUP="video",MODE="0660"' > /etc/udev/rules.d/10-vchiq-permissions.rules
 usermod -aG video {0}
-        """.format(USERNAMEVAR))
+        """.format(USERNAMEVAR), shell=True)
 
 # desktopomx section
 if args.desktopomx is True:
