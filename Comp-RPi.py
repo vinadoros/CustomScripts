@@ -2,12 +2,12 @@
 
 # Python includes.
 import argparse
-from datetime import datetime, timedelta
 import grp
 import os
 import platform
 import pwd
 import shutil
+import stat
 import subprocess
 import sys
 import urllib.request
@@ -155,6 +155,12 @@ if args.omxdeb is True:
     if os.path.isfile(omxdeb_file) is True:
         subprocess.run("apt-get install -y {0}".format(omxdeb_file), shell=True)
         os.remove(omxdeb_file)
+    if stat.S_ISBLK(os.stat("/dev/vchiq").st_mode) is True:
+        print("Adding udev rule for /dev/vchiq")
+        subprocess.run("""
+echo 'SUBSYSTEM=="vchiq",GROUP="video",MODE="0660"' > /etc/udev/rules.d/10-vchiq-permissions.rules
+usermod -aG video {0}
+        """.format(USERNAMEVAR))
 
 # desktopomx section
 if args.desktopomx is True:
