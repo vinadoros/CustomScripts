@@ -17,6 +17,9 @@ OMXURL = "http://omxplayer.sconde.net/builds/omxplayer_0.3.7~git20170130~62fb580
 # rpi-update from https://github.com/Hexxeh/rpi-update
 RPIUPDATEURL = "https://raw.githubusercontent.com/Hexxeh/rpi-update/master/rpi-update"
 
+# Folder of this script
+SCRIPTDIR = sys.path[0]
+
 print("Running {0}".format(__file__))
 print("This script is for use only on Ubuntu.")
 
@@ -28,6 +31,7 @@ parser.add_argument("-e", "--desktopomx", help='Install desktop omx scripts', ac
 parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
 parser.add_argument("-o", "--omxdeb", help='Install OMXPlayer.', action="store_true")
 parser.add_argument("-p", "--ppa", help='Install RPi optional ppa and libraspberrypi-dev.', action="store_true")
+parser.add_argument("-s", "--scripts", help='Run CustomScripts in this folder.', action="store_true")
 parser.add_argument("-u", "--upscript", help='Install rpi-update and run it.', action="store_true")
 
 # Save arguments.
@@ -77,6 +81,18 @@ if args.cliutils is True:
     # Disable pulseaudio suspend-on-idle
     if os.path.isfile("/etc/pulse/system.pa") is True:
         subprocess.run("sed -i '/load-module module-suspend-on-idle/ s/^#*/#/' /etc/pulse/system.pa", shell=True)
+
+if args.scripts is True:
+    print("Running extra scripts for Pi.")
+    subprocess.run("""
+    apt-get update
+    apt-get install -y fish
+    {0}/Comp-BashFish.py
+    {0}/Comp-sdtimers.sh
+    systemctl disable cron
+    {0}/Comp-zram.py -c 1
+    {0}/Comp-sshconfig.sh
+    """.format(SCRIPTDIR), shell=True)
 
 # upscript section
 if args.upscript is True:
