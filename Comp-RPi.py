@@ -27,6 +27,7 @@ parser.add_argument("-d", "--docker", help='Install docker', action="store_true"
 parser.add_argument("-e", "--desktopomx", help='Install desktop omx scripts', action="store_true")
 parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
 parser.add_argument("-o", "--omxdeb", help='Install OMXPlayer.', action="store_true")
+parser.add_argument("-p", "--ppa", help='Install RPi optional ppa and libraspberrypi-dev.', action="store_true")
 parser.add_argument("-u", "--upscript", help='Install rpi-update and run it.', action="store_true")
 
 # Save arguments.
@@ -57,7 +58,7 @@ print(args)
 if args.noprompt is False:
     input("Press Enter to continue.")
 
-
+# cliutils section
 if args.cliutils is True:
     print("Installing command line utilities.")
     subprocess.run("apt-get update; apt-get install -y avahi-daemon wget curl ca-certificates build-essential", shell=True)
@@ -77,7 +78,7 @@ if args.cliutils is True:
     if os.path.isfile("/etc/pulse/system.pa") is True:
         subprocess.run("sed -i '/load-module module-suspend-on-idle/ s/^#*/#/' /etc/pulse/system.pa", shell=True)
 
-
+# upscript section
 if args.upscript is True:
     print("Installing rpi-update script.")
     localpiupbinary = "/usr/local/bin/rpi-update"
@@ -104,7 +105,7 @@ fi
     else:
         print(cronfolder, "does not exist. Please install a cron.")
 
-
+# docker section
 if args.docker is True:
     print("Installing Docker.")
     subprocess.run("""
@@ -117,7 +118,7 @@ if args.docker is True:
     usermod -aG docker {0}
     """.format(USERNAMEVAR), shell=True)
 
-
+# omxdeb section
 if args.omxdeb is True:
     print("Installing omxplayer.")
     tempfolder = "/var/tmp"
@@ -127,7 +128,7 @@ if args.omxdeb is True:
         subprocess.run("apt-get install -y {0}".format(omxdeb_file), shell=True)
         os.remove(omxdeb_file)
 
-
+# desktopomx section
 if args.desktopomx is True:
     yt_script = """#!/bin/bash -e
 if [ -z "$1" ]; then
@@ -183,3 +184,13 @@ Comment=Youtube + OMXPlayer clipboard script
         with open(ytclipdesktop_file, 'w') as ytclipdesktop_file_write:
             ytclip_file_write.write(ytclipdesktop_script)
         os.chmod(ytclipdesktop_file, 0o777)
+
+# ppa section
+if args.ppa is True:
+    print("Installing optional RPi ppa and libraspberrypi-dev.")
+    subprocess.run("""
+    add-apt-repository -y "deb http://ppa.launchpad.net/ubuntu-raspi2/ppa/ubuntu xenial main"
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 7876AE518CBCF2F2
+    apt-get update
+    apt-get install -y libraspberrypi-dev
+    """, shell=True)
