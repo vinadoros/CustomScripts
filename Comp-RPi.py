@@ -117,8 +117,19 @@ fi
         with open(aptautoupdate_file, 'w') as aptautoupdate_file_write:
             aptautoupdate_file_write.write(aptautoupdate_script)
         os.chmod(aptautoupdate_file, 0o777)
+        # Remove the boot firmware version to refresh all boot and library files.
+        if os.path.isfile("/boot/.firmware_revision") is True:
+            print("Removing /boot/.firmware_revision")
+            os.remove("/boot/.firmware_revision")
         print("Running {0}".format(aptautoupdate_file))
         subprocess.run(aptautoupdate_file, shell=True)
+        # Remove all backup folders if they exist.
+        if os.path.isdir("/boot.bak") is True:
+            print("Removing /boot.bak")
+            shutil.rmtree("/boot.bak")
+        if os.path.isdir("/lib/modules.bak") is True:
+            print("Removing /lib/modules.bak")
+            shutil.rmtree("/lib/modules.bak")
     else:
         print(cronfolder, "does not exist. Please install a cron.")
 
