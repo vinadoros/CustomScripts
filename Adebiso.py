@@ -221,6 +221,9 @@ echo "live-config: 2000-usercustomization"
 passwd -u root
 echo "root:asdf" | chpasswd
 
+# Set user password
+echo "user:asdf" | chpasswd
+
 # Add CustomScripts to path
 SCRIPTBASENAME="/CustomScripts"
 if ! grep "$SCRIPTBASENAME" /root/.bashrc; then
