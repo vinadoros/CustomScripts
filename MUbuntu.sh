@@ -75,9 +75,9 @@ if [ $ROOTACCTSTATUS != "P" ]; then
 	exit 0
 fi
 
-# Install a desktop environment. 0=do nothing, 1=KDE, 2=GNOME, 3=MATE
+# Install a desktop environment. 0=do nothing, 1=GNOME, 2=KDE, 3=MATE
 if [ -z "$SETDE" ]; then
-	read -p "Enter a number to install a desktop environment (0=do nothing/default option, 1=KDE, 2=GNOME, 3=MATE):" SETDE
+	read -p "Enter a number to install a desktop environment (0=do nothing/default option, 1=GNOME, 2=KDE, 3=MATE):" SETDE
 	export SETDE=${SETDE//[^a-zA-Z0-9_]/}
 	if [ -z "$SETDE" ]; then
 		echo "No input found. Defaulting to 0."
