@@ -171,6 +171,9 @@ if [ ! -f /run/resolvconf/resolv.conf ]; then
     mkdir -p /run/resolvconf
     touch /run/resolvconf/resolv.conf
 fi
+# https://askubuntu.com/questions/137037/networkmanager-not-populating-resolv-conf
+[ -f /etc/resolv.conf ] && rm -rf /etc/resolv.conf
+ln -sf ../run/resolvconf/resolv.conf /etc/resolv.conf
 dpkg-reconfigure --frontend=noninteractive resolvconf
 
 """.format(HOSTNAME=args.hostname, USERNAME=args.username, PASSWORD=args.password, FULLNAME=args.fullname)
