@@ -2,7 +2,7 @@
 # Derived from https://github.com/ConSol/docker-headless-vnc-container
 # Usage:
 # docker build -t vinadoros/ubuvnc -f Dockerfile-ubuvnc .
-# docker run -d -t --privileged --name ubuvnc -p 5901:5901 -v /path:/files vinadoros/ubuvnc
+# docker run -d -t --privileged --name ubuvnc -p 5901:5901 -v /path:/files -e 'VNC_PW=vncpass' vinadoros/ubuvnc
 #
 
 FROM ubuntu:rolling
@@ -13,13 +13,10 @@ ENV DISPLAY :1
 ENV VNC_PORT 5901
 EXPOSE $VNC_PORT
 
-ENV HOME /headless
 ENV STARTUPDIR /dockerstartup
-WORKDIR $HOME
 
 ### Envrionment config
 ENV DEBIAN_FRONTEND noninteractive
-ENV NO_VNC_HOME $HOME/noVNC
 ENV VNC_COL_DEPTH 24
 ENV VNC_RESOLUTION 1280x1024
 ENV VNC_PW vncpassword
@@ -37,19 +34,13 @@ RUN apt-get update && \
     apt-get clean -y
 
 # Add user
-RUN adduser --disabled-password --gecos "" user && \
+RUN adduser --disabled-password -uid 1000 --gecos "" user && \
     echo "root:asdf" | chpasswd && \
     echo "user:asdf" | chpasswd && \
-    usermod -aG sudo user
+    usermod -aG sudo,video,disk,tty user
 
-# Configure Software
-RUN echo "CHROMIUM_FLAGS='--no-sandbox --start-maximized --user-data-dir'" > "$HOME/.chromium-browser.init"
-
-### configure startup
-ADD ./vnc_startup.sh $STARTUPDIR/vnc_startup.sh
+# Configure startup
+ADD ./vnc_start.sh $STARTUPDIR/vnc_start.sh
 RUN find $STARTUPDIR  -name '*.sh' -exec chmod a+x {} +
-RUN chmod a+rwx -R /headless
 
-USER 1984
-
-CMD ["/dockerstartup/vnc_startup.sh","--tail-log"]
+CMD ["/dockerstartup/vnc_start.sh"]
