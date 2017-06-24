@@ -70,7 +70,7 @@ print("VM User is {0}".format(args.vmuser))
 if not shutil.which("packer") or args.getpacker is True:
     print("Getting packer binary.")
     packer_zipfile = "/tmp/packer.zip"
-    packer_zipurl = "https://releases.hashicorp.com/packer/1.0.0/packer_1.0.0_linux_amd64.zip"
+    packer_zipurl = "https://releases.hashicorp.com/packer/1.0.2/packer_1.0.2_linux_amd64.zip"
     urllib.request.urlretrieve(packer_zipurl, packer_zipfile)
     subprocess.run("unzip -o {0} -d /usr/local/bin".format(packer_zipfile), shell=True)
     os.chmod("/usr/local/bin/packer", 0o777)
