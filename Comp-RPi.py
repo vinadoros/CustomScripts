@@ -213,7 +213,7 @@ Exec=/usr/local/bin/ytclip
 Name=YoutubeOMX
 Comment=Youtube + OMXPlayer clipboard script
 """
-        ytclipdesktop_file = "/usr/local/bin/yt"
+        ytclipdesktop_file = userdesktop+"/yt.desktop"
         print("Writing {0}".format(ytclipdesktop_file))
         with open(ytclipdesktop_file, 'w') as ytclipdesktop_file_write:
             ytclip_file_write.write(ytclipdesktop_script)
