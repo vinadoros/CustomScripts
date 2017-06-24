@@ -197,7 +197,7 @@ else
 fi
 sleep 1
 """
-    ytclip_file = "/usr/local/bin/yt"
+    ytclip_file = "/usr/local/bin/ytclip"
     print("Writing {0}".format(ytclip_file))
     with open(ytclip_file, 'w') as ytclip_file_write:
         ytclip_file_write.write(ytclip_script)
