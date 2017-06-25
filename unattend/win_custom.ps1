@@ -22,10 +22,10 @@ if ([Environment]::OSVersion.Version.Major -ge 8){
 #}
 
 # Get Ninite
-echo "Getting ninite"
-$url = "https://ninite.com/.net4.6.2-7zip-chrome-classicstart-java8-libreoffice-notepadplusplus-pdfcreator-sumatrapdf-vscode-winmerge/ninite.exe"
-$ninitefile = "$ENV:UserProfile\Desktop\ninite.exe"
-(New-Object System.Net.WebClient).DownloadFile($url, $ninitefile)
+#echo "Getting ninite"
+#$url = "https://ninite.com/.net4.6.2-7zip-chrome-classicstart-java8-libreoffice-notepadplusplus-pdfcreator-sumatrapdf-vscode-winmerge/ninite.exe"
+#$ninitefile = "$ENV:UserProfile\Desktop\ninite.exe"
+#(New-Object System.Net.WebClient).DownloadFile($url, $ninitefile)
 
 # Handle VMTools
 $winiso = "C:\Windows\Temp\windows.iso"
