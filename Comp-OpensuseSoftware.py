@@ -91,7 +91,7 @@ zypper ar -f http://download.opensuse.org/repositories/home:/lbssousa:/numix/ope
 zypper ar -f http://download.opensuse.org/repositories/devel:/languages:/D/openSUSE_Tumbleweed/ "devel:languages:D"
 
 # Emulators
-zypper ar -f http://download.opensuse.org/repositories/Emulators/openSUSE_Factory/ "Emulators"
+zypper ar -f http://download.opensuse.org/repositories/Emulators/openSUSE_Tumbleweed/ "Emulators"
 
 # Import all gpg keys
 zypper --non-interactive --gpg-auto-import-keys refresh
@@ -201,10 +201,11 @@ sed -i 's/DISPLAYMANAGER=.*$/DISPLAYMANAGER="gdm"/g' /etc/sysconfig/displaymanag
 elif args.desktop is 2:
     DESKTOPSCRIPT+="""
 # KDE
-if rpm -iq patterns-openSUSE-x11_yast; then
-    zypper rm -y patterns-openSUSE-x11_yast
+if rpm -iq patterns-yast-x11_yast; then
+    zypper rm -y patterns-yast-x11_yast
 fi
-zypper in -yl -t pattern kde kde_plasma
+zypper in -yl -t pattern kde_plasma
+zypper in -yl -t pattern kde
 # Systray fixes, http://blog.martin-graesslin.com/blog/2014/06/where-are-my-systray-icons/
 zypper in -yl libappindicator1 libappindicator3-1 sni-qt sni-qt-32bit
 # Change display manager to sddm
