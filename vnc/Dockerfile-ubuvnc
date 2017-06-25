@@ -29,7 +29,4 @@ RUN chmod a+x -R $STARTUPDIR
 # Install Software
 RUN /dockerstartup/vnc_common.sh
 
-# Install VNC
-RUN wget -qO- https://dl.bintray.com/tigervnc/stable/tigervnc-1.8.0.x86_64.tar.gz | tar xz --strip 1 -C /
-
 CMD ["/dockerstartup/vnc_start.sh"]

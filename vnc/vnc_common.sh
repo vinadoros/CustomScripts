@@ -7,6 +7,7 @@ set -e
 # Install common software
 apt-get update
 apt-get install -y vim sudo wget nano net-tools iproute2
+apt-get install -y tigervnc-standalone-server tigervnc-xorg-extension
 apt-get install -y firefox chromium-browser chromium-codecs-ffmpeg
 apt-get install -y xfce4 xterm xfce4-terminal xubuntu-default-settings
 apt-get purge -y pm-utils xscreensaver*

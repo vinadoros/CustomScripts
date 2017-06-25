@@ -29,7 +29,4 @@ RUN chmod a+x -R $STARTUPDIR
 # Install Software
 RUN /dockerstartup/vnc_common.sh
 
-# Install VNC
-RUN apt-get install -y tigervnc-standalone-server && apt-get clean
-
 CMD ["/dockerstartup/vnc_start.sh"]
