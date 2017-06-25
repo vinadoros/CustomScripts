@@ -74,7 +74,7 @@ set "SSH_USER=cyg_server" || REM You'll never use this account. It's used by the
 set "SSH_PW=q1w2E3R4" || REM You will never need to enter this password. But change it anyway for security reasons.
 set "SSH_PORT=22"
 set "MIRROR=http://mirrors.kernel.org/sourceware/cygwin/"
-set "PACKAGES=openssh,wget,nano"
+set "PACKAGES=openssh,wget,nano,rsync"
 REM #################### MODIFY #################### > END
 
 set "TAB=	"
