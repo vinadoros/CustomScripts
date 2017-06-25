@@ -2,7 +2,7 @@
 # Derived from https://github.com/ConSol/docker-headless-vnc-container
 # Usage:
 # docker build -t vinadoros/ubuvnc -f Dockerfile-ubuvnc .
-# docker run -d -t --privileged --name ubuvnc -p 5901:5901 -v /path:/files -e 'VNC_PW=vncpass' vinadoros/ubuvnc
+# docker run -d -t --privileged --name ubuvnc -p 5901:5901 -v /:/files -e 'VNC_PW=vncpassword' vinadoros/ubuvnc
 #
 
 FROM ubuntu:rolling
