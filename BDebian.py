@@ -165,7 +165,8 @@ if [ -f /etc/NetworkManager/conf.d/10-globally-managed-devices.conf ]; then
 	rm /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
 fi
 touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
-# Ensure DNS resolution is working
+# Ensure DNS resolution is installed and working
+apt-get install -y resolvconf
 # Create resolv.conf file if it doesn't exist (and its path)
 if [ ! -f /run/resolvconf/resolv.conf ]; then
     mkdir -p /run/resolvconf
@@ -192,7 +193,11 @@ fi
 if ! grep -i "{DEBRELEASE}-backports main" /etc/apt/sources.list; then
 	add-apt-repository "deb {URL} {DEBRELEASE}-backports main restricted universe multiverse"
 fi
-""".format(DEBRELEASE=args.release, URL=osurl)
+# Install firmware for armhf architecture.
+if [[ "{DEBARCH}" = "armhf" ]]; then
+	apt install -y linux-firmware
+fi
+""".format(DEBRELEASE=args.release, URL=osurl, DEBARCH=args.architecture)
 else:
     SETUPSCRIPT += """
 # Contrib and non-free for normal distro
@@ -204,7 +209,11 @@ if [[ "{DEBRELEASE}" != "sid" && "{DEBRELEASE}" != "unstable" && "{DEBRELEASE}" 
 fi
 # Comment out lines containing httpredir.
 sed -i '/httpredir/ s/^#*/#/' /etc/apt/sources.list
-""".format(DEBRELEASE=args.release)
+# Install firmware for armhf architecture.
+if [[ "{DEBARCH}" = "armhf" ]]; then
+	apt install -y firmware-linux
+fi
+""".format(DEBRELEASE=args.release, DEBARCH=args.architecture)
 
 SETUPSCRIPT += """
 # Enable 32-bit support for 64-bit arch.
