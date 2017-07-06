@@ -4,6 +4,7 @@
 import argparse
 import grp
 import os
+import platform
 import pwd
 import shutil
 import subprocess
@@ -32,10 +33,11 @@ else:
     # https://docs.python.org/3/library/pwd.html
     USERNAMEVAR = pwd.getpwuid(1000)[0]
 # https://docs.python.org/3/library/grp.html
-USERGROUP=grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
-USERHOME=os.path.expanduser("~{0}".format(USERNAMEVAR))
-print("Username is:",USERNAMEVAR)
-print("Group Name is:",USERGROUP)
+USERGROUP = grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
+USERHOME = os.path.expanduser("~{0}".format(USERNAMEVAR))
+MACHINEARCH = platform.machine()
+print("Username is:", USERNAMEVAR)
+print("Group Name is:", USERGROUP)
 
 # Get VM State
 # Detect QEMU
