@@ -2,6 +2,7 @@
 
 # Python includes.
 import argparse
+from datetime import datetime, timedelta
 import grp
 import os
 import platform
@@ -9,6 +10,7 @@ import pwd
 import shutil
 import subprocess
 import sys
+import urllib.request
 
 print("Running {0}".format(__file__))
 
@@ -187,7 +189,7 @@ subprocess.run(GROUPSCRIPT, shell=True)
 
 # Edit sudoers to add dnf.
 if os.path.isdir('/etc/sudoers.d'):
-    CUSTOMSUDOERSPATH="/etc/sudoers.d/pkmgt"
+    CUSTOMSUDOERSPATH = "/etc/sudoers.d/pkmgt"
     print("Writing {0}".format(CUSTOMSUDOERSPATH))
     with open(CUSTOMSUDOERSPATH, 'w') as sudoers_writefile:
         sudoers_writefile.write("""%wheel ALL=(ALL) ALL
@@ -208,8 +210,8 @@ if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
     subprocess.run("dnf install -y VirtualBox", shell=True)
 
 # Install Atom
-ATOMRPMFILE="/tmp/atom.x86_64.rpm"
-ATOMRPMURL="https://atom.io/download/rpm"
+ATOMRPMFILE = "/tmp/atom.x86_64.rpm"
+ATOMRPMURL = "https://atom.io/download/rpm"
 # The atom rpm is only available for x86_64.
 if MACHINEARCH == "x86_64":
     # If the existing file is older than a day, delete it.
@@ -224,7 +226,7 @@ if MACHINEARCH == "x86_64":
             os.remove(ATOMRPMFILE)
     # Download the file if it isn't in /tmp.
     if not os.path.isfile(ATOMRPMFILE):
-        print("Downloading",ATOMRPMURL,"to",ATOMRPMFILE)
+        print("Downloading", ATOMRPMURL, "to", ATOMRPMFILE)
         urllib.request.urlretrieve(ATOMRPMURL, ATOMRPMFILE)
     # Install it with zypper.
     subprocess.run("dnf install -y {0}".format(ATOMRPMFILE), shell=True)
