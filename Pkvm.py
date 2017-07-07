@@ -176,7 +176,7 @@ elif args.ostype == 60:
     vmname = "Packer-CoreOS-{0}".format(hvname)
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
-    vmprovisionscript = "Comp-Docker.sh"
+    vmprovisionscript = "Comp-CoreOS.sh"
     vmprovision_defopts = " "
     kvm_os = "linux"
     kvm_variant = "fedora22"
