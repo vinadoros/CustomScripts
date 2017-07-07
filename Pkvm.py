@@ -401,6 +401,15 @@ if os.path.isdir(output_folder):
     # Remove previous folder, if it exists.
     if os.path.isdir(vmpath+"/"+vmname):
         shutil.rmtree(vmpath+"/"+vmname)
+    # Remove existing VMs in KVM
+    if args.vmtype is 2:
+        DESTROYSCRIPT_KVM="""#!/bin/bash
+        if virsh --connect qemu:///system -q list --all | grep -i "{vmname}"; then
+            virsh --connect qemu:///system destroy {vmname}
+            virsh --connect qemu:///system undefine {vmname}
+        fi
+        """.format(vmname=vmname)
+        subprocess.run(DESTROYSCRIPT_KVM, shell=True)
     # Remove previous file for kvm.
     if args.vmtype is 2 and os.path.isfile(vmpath+"/"+vmname+".qcow2"):
         os.remove(vmpath+"/"+vmname+".qcow2")
@@ -416,15 +425,9 @@ print("VM successfully output to {0}".format(vmpath+"/"+vmname))
 
 # Attach VM to libvirt
 if args.vmtype is 2:
-    DESTROYSCRIPT_KVM="""#!/bin/bash
-    if virsh --connect qemu:///system -q list --all | grep -i "{vmname}"; then
-        virsh --connect qemu:///system destroy {vmname}
-        virsh --connect qemu:///system undefine {vmname}
-    fi
-    """.format(vmname=vmname)
-    CREATESCRIPT_KVM="""
-    virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg}.qcow2,bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model=virtio --filesystem source=/,target=root,mode=mapped --os-type={kvm_os} --os-variant={kvm_variant} --import --noautoconsole --video=virtio --channel unix,target_type=virtio,name=org.qemu.guest_agent.0
-    """.format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=vmpath+"/"+vmname, imgsize=args.imgsize, kvm_os=kvm_os, kvm_variant=kvm_variant)
-    subprocess.run(DESTROYSCRIPT_KVM, shell=True)
+    CREATESCRIPT_KVM = """virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg}.qcow2,bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model=virtio --filesystem source=/,target=root,mode=mapped --os-type={kvm_os} --os-variant={kvm_variant} --import --noautoconsole --video=virtio --channel unix,target_type=virtio,name=org.qemu.guest_agent.0""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=vmpath+"/"+vmname, imgsize=args.imgsize, kvm_os=kvm_os, kvm_variant=kvm_variant)
     print(CREATESCRIPT_KVM)
     subprocess.run(CREATESCRIPT_KVM, shell=True)
+    subprocess.run("""echo 'Running "virsh net-dhcp-leases default" soon to print ip leases.'
+sleep 25
+virsh net-dhcp-leases default""", shell=True)
