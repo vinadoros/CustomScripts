@@ -137,7 +137,7 @@ apt-get install -y printer-driver-cups-pdf
 
 # Media Playback
 apt-get install -y vlc audacious ffmpeg youtube-dl smplayer
-apt-get install -y alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pulseaudio-module-bluetooth
+apt-get install -y alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pulseaudio-module-bluetooth swh-plugins
 apt-get install -y gstreamer1.0-vaapi gstreamer1.0-packagekit
 
 # Wine
