@@ -26,7 +26,7 @@ USERHOME="$(eval echo ~$USERNAMEVAR)"
 # Repository options: https://wiki.centos.org/AdditionalResources/Repositories
 
 # Install repo tools
-yum install -y yum-utils
+yum install -y yum-utils deltarpm
 
 # EPEL
 yum install -y epel-release
@@ -63,10 +63,12 @@ yum update -y
 
 # Install cli tools
 yum install -y python34 python34-pip python36u python36u-pip
-yum install -y fish tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils
+yum install -y nano fish tmux iotop rsync p7zip p7zip-plugins zip unzip
+yum swap -y git git2u
 
 # Install kernel
 yum install -y kernel-ml kernel-ml-devel
+yum swap -y kernel-tools-libs kernel-ml-tools-libs kernel-ml-tools
 
 # Install docker
 yum install -y docker-ce
@@ -76,4 +78,12 @@ systemctl enable docker
 timedatectl set-local-rtc false
 timedatectl set-ntp 1
 
+##### CentOS Configuration #####
+
+# Grub configuration
+sed -i 's/GRUB_TIMEOUT=.*$/GRUB_TIMEOUT=1/g' /etc/default/grub
+sed -i 's/GRUB_DEFAULT=.*$/GRUB_DEFAULT=0/g' /etc/default/grub
+grub2-mkconfig -o /boot/grub2/grub.cfg
+
+# Extra Scripts
 python3.6 $SCRIPTDIR/Comp-BashFish.py
