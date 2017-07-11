@@ -2,9 +2,8 @@
 
 # Python includes.
 import argparse
+from datetime import datetime
 import grp
-import ipaddress
-import hashlib
 import json
 import multiprocessing
 import os
@@ -12,14 +11,13 @@ import pwd
 import shutil
 import subprocess
 import sys
-import time
 import urllib.parse
 import urllib.request
 
 print("Running {0}".format(__file__))
 
 # Folder of this script
-SCRIPTDIR=sys.path[0]
+SCRIPTDIR = sys.path[0]
 
 # Exit if root.
 if os.geteuid() is 0:
@@ -390,8 +388,12 @@ if args.ostype is 60:
 with open(packer_temp_folder+'/file.json', 'w') as file_json_wr:
     json.dump(data, file_json_wr, indent=2)
 
+# Save start time.
+beforetime = datetime.now()
 # Call packer.
 subprocess.run("packer build file.json", shell=True)
+# Save packer finish time.
+packerfinishtime = datetime.now()
 
 # Remove temp folder
 os.chdir(vmpath)
@@ -422,6 +424,8 @@ if os.path.isdir(output_folder):
 print("Removing {0}".format(packer_temp_folder))
 shutil.rmtree(packer_temp_folder)
 print("VM successfully output to {0}".format(vmpath+"/"+vmname))
+# Save full finish time.
+fullfinishtime = datetime.now()
 
 # Attach VM to libvirt
 if args.vmtype is 2:
@@ -431,3 +435,7 @@ if args.vmtype is 2:
     subprocess.run("""echo 'Running "virsh net-dhcp-leases default" soon to print ip leases.'
 sleep 40
 virsh net-dhcp-leases default""", shell=True)
+
+# Print finish times
+print("Packer completed in :", packerfinishtime - beforetime)
+print("Whole thing completed in :", fullfinishtime - beforetime)
