@@ -122,8 +122,8 @@ dnf install -y youtube-dl ffmpeg vlc fedy-multimedia-codecs
 # Editors
 dnf install -y code
 
-# terminator
-# dnf install -y terminator
+# Tilix
+dnf install -y tilix tilix-nautilus
 
 # Numix
 dnf install -y numix-icon-theme-circle

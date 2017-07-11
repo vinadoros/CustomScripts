@@ -62,13 +62,18 @@ yum update -y
 ##### Centos Software #####
 
 # Install cli tools
-yum install -y python34 fish tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils
+yum install -y python34 python34-pip python36u python36u-pip
+yum install -y fish tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils
+
+# Install kernel
+yum install -y kernel-ml kernel-ml-devel
 
 # Install docker
 yum install -y docker-ce
+systemctl enable docker
 
 # NTP configuration
 timedatectl set-local-rtc false
 timedatectl set-ntp 1
 
-# $SCRIPTDIR/Comp-BashFish.py
+python3.6 $SCRIPTDIR/Comp-BashFish.py

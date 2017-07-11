@@ -94,24 +94,24 @@ elif args.vmtype == 3:
 
 # Set OS options.
 # KVM os options can be found by running "osinfo-query os"
-if args.ostype == 1:
-    vmname = "Packer-Centos-{0}".format(hvname)
+if args.ostype is 1:
+    vmname = "Packer-Fedora-{0}".format(hvname)
+    vmprovisionscript = "MFedora.sh"
+    vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
-    vmprovisionscript = "Comp-CentosSoftware.sh"
+    kvm_os = "linux"
+    kvm_variant = "fedora25"
+    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/26/Server/x86_64/iso/Fedora-Server-dvd-x86_64-26-1.5.iso"
+elif args.ostype is 2:
+    vmname = "Packer-CentOS-{0}".format(hvname)
+    vboxosid = "Fedora_64"
+    vmwareid = "fedora-64"
+    vmprovisionscript = "Comp-CentOS.sh"
     vmprovision_defopts = " "
     kvm_os = "linux"
     kvm_variant = "fedora22"
     isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1611.iso"
-elif args.ostype == 2:
-    vmname = "Packer-Fedora-{0}".format(hvname)
-    vboxosid = "Fedora_64"
-    vmwareid = "fedora-64"
-    vmprovisionscript = "MFedora.sh"
-    vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
-    kvm_os = "linux"
-    kvm_variant = "fedora22"
-    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/26/Server/x86_64/iso/Fedora-Server-dvd-x86_64-26-1.5.iso"
 elif args.ostype == 10:
     vmname = "Packer-Ubuntu1704-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
@@ -336,13 +336,13 @@ data['builders'][0]["ssh_wait_timeout"] = "90m"
 data['provisioners']=['']
 data['provisioners'][0]={}
 if args.ostype is 1:
-    data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos7-ks.cfg<enter><wait>"]
-    data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
-if args.ostype is 2:
     data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/fedora.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "dnf update -y; dnf install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
+if args.ostype is 2:
+    data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos7-ks.cfg<enter><wait>"]
+    data['provisioners'][0]["type"] = "shell"
+    data['provisioners'][0]["inline"] = "git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
 if 10 <= args.ostype <= 11:
     data['builders'][0]["boot_command"] = ["<enter><wait><f6><wait><esc><home>url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu.cfg hostname=ubuntu locale=en_US keyboard-configuration/modelcode=SKIP <enter>"]
     data['provisioners'][0]["type"] = "shell"
@@ -429,5 +429,5 @@ if args.vmtype is 2:
     print(CREATESCRIPT_KVM)
     subprocess.run(CREATESCRIPT_KVM, shell=True)
     subprocess.run("""echo 'Running "virsh net-dhcp-leases default" soon to print ip leases.'
-sleep 25
+sleep 40
 virsh net-dhcp-leases default""", shell=True)
