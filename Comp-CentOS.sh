@@ -71,4 +71,4 @@ yum install -y docker-ce
 timedatectl set-local-rtc false
 timedatectl set-ntp 1
 
-$SCRIPTDIR/Comp-BashFish.py
+# $SCRIPTDIR/Comp-BashFish.py
