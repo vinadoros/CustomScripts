@@ -95,7 +95,7 @@ elif args.vmtype == 3:
 # Set OS options.
 # KVM os options can be found by running "osinfo-query os"
 if args.ostype == 1:
-    vmname = "Packer-CentosTest-{0}".format(hvname)
+    vmname = "Packer-Centos-{0}".format(hvname)
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
     vmprovisionscript = "Comp-CentosSoftware.sh"
@@ -104,7 +104,7 @@ if args.ostype == 1:
     kvm_variant = "fedora22"
     isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1611.iso"
 elif args.ostype == 2:
-    vmname = "Packer-FedoraTest-{0}".format(hvname)
+    vmname = "Packer-Fedora-{0}".format(hvname)
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
     vmprovisionscript = "MFedora.sh"
@@ -113,7 +113,7 @@ elif args.ostype == 2:
     kvm_variant = "fedora22"
     isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/26/Server/x86_64/iso/Fedora-Server-dvd-x86_64-26-1.5.iso"
 elif args.ostype == 10:
-    vmname = "Packer-UbuntuTest1704-{0}".format(hvname)
+    vmname = "Packer-Ubuntu1704-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
     vmwareid = "ubuntu-64"
     vmprovisionscript = "MUbuntu.sh"
@@ -122,7 +122,7 @@ elif args.ostype == 10:
     kvm_variant = "ubuntu16.04"
     isourl = "http://releases.ubuntu.com/17.04/ubuntu-17.04-server-amd64.iso"
 elif args.ostype == 11:
-    vmname = "Packer-UbuntuTest1604-{0}".format(hvname)
+    vmname = "Packer-Ubuntu1604-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
     vmwareid = "ubuntu-64"
     vmprovisionscript = "MUbuntu.sh"
