@@ -84,7 +84,7 @@ fi
 # 	[ -f /tmp/getdeb.deb ] && rm /tmp/getdeb.deb
 # fi
 add-apt-repository "deb http://mirrors.dotsrc.org/getdeb/ubuntu ${DEBRELEASE}-getdeb apps games"
-apt-key adv –recv-keys –keyserver keyserver.ubuntu.com A8A515F046D7E7CF
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A8A515F046D7E7CF
 
 # Add timeouts for repository connections
 cat >"/etc/apt/apt.conf.d/99timeout" <<'EOL'
