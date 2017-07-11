@@ -111,7 +111,7 @@ elif args.ostype == 2:
     vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
     kvm_os = "linux"
     kvm_variant = "fedora22"
-    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/25/Server/x86_64/iso/Fedora-Server-dvd-x86_64-25-1.3.iso"
+    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/26/Server/x86_64/iso/Fedora-Server-dvd-x86_64-26-1.5.iso"
 elif args.ostype == 10:
     vmname = "Packer-UbuntuTest1704-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
