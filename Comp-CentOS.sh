@@ -25,6 +25,9 @@ USERHOME="$(eval echo ~$USERNAMEVAR)"
 
 # Repository options: https://wiki.centos.org/AdditionalResources/Repositories
 
+# Install repo tools
+yum install -y yum-utils
+
 # EPEL
 yum install -y epel-release
 
@@ -62,10 +65,10 @@ yum update -y
 yum install -y python34 fish tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils
 
 # Install docker
-yum install docker-ce
+yum install -y docker-ce
 
 # NTP configuration
 timedatectl set-local-rtc false
 timedatectl set-ntp 1
 
-$SCRIPTDIR/
+$SCRIPTDIR/Comp-BashFish.py
