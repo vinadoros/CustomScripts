@@ -10,24 +10,8 @@ echo "Executing ${SCRNAME}."
 # Disable error handlingss
 set +eu
 
-# Set user folders.
-if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
-	export USERNAMEVAR=$SUDO_USER
-elif [ "$USER" != "root" ]; then
-	export USERNAMEVAR=$USER
-else
-	export USERNAMEVAR=$(id 1000 -un)
-fi
-USERGROUP=$(id $USERNAMEVAR -gn)
-USERHOME=/home/$USERNAMEVAR
-
-if [ -z $DEBRELEASE ]; then
-	DEBRELEASE=$(lsb_release -sc)
-fi
-
-if [ -z "$MACHINEARCH" ]; then
-	MACHINEARCH=$(uname -m)
-fi
+[ -z $DEBRELEASE ] && DEBRELEASE=$(lsb_release -sc)
+[ -z "$MACHINEARCH" ] && MACHINEARCH=$(uname -m)
 
 UBUNTUURL="http://archive.ubuntu.com/ubuntu/"
 UBUNTUARMURL="http://ports.ubuntu.com/ubuntu-ports/"
@@ -94,9 +78,20 @@ if [ ! -f /etc/apt/sources.list.d/syncthing-release.list ]; then
 fi
 
 # Getdeb
-wget http://archive.getdeb.net/install_deb/getdeb-repository_0.1-1~getdeb1_all.deb -O /tmp/getdeb.deb
-apt-get install /tmp/getdeb.deb
-[ -f /tmp/getdeb.deb ] && rm /tmp/getdeb.deb
+# if [ ! -f /etc/apt/sources.list.d/getdeb.list ]; then
+# 	wget http://archive.getdeb.net/install_deb/getdeb-repository_0.1-1~getdeb1_all.deb -O /tmp/getdeb.deb
+# 	apt-get install /tmp/getdeb.deb
+# 	[ -f /tmp/getdeb.deb ] && rm /tmp/getdeb.deb
+# fi
+add-apt-repository "deb http://mirrors.dotsrc.org/getdeb/ubuntu ${DEBRELEASE}-getdeb apps games"
+apt-key adv –recv-keys –keyserver keyserver.ubuntu.com A8A515F046D7E7CF
+
+# Add timeouts for repository connections
+cat >"/etc/apt/apt.conf.d/99timeout" <<'EOL'
+Acquire::http::Timeout "5";
+Acquire::https::Timeout "5";
+Acquire::ftp::Timeout "5";
+EOL
 
 # Update repositories
 echo "Done adding repositories. Now updating."
