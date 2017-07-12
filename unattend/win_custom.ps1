@@ -17,9 +17,9 @@ if ([Environment]::OSVersion.Version.Major -ge 8){
   choco upgrade -y classic-shell
 }
 # Install for lower than Windows 8
-#if ([Environment]::OSVersion.Version.Major -lt 8){
-#  choco upgrade -y wincdemu
-#}
+if ([Environment]::OSVersion.Version.Major -lt 8){
+  choco upgrade -y ie11
+}
 
 # Get Ninite
 #echo "Getting ninite"
