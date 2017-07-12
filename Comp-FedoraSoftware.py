@@ -149,7 +149,7 @@ if args.desktop is 1:
     DESKTOPSCRIPT="""
 # Gnome
 dnf install -y @workstation-product @gnome-desktop
-systemctl enable gdm
+systemctl enable -f gdm
 # Some Gnome Extensions
 dnf install -y gnome-terminal-nautilus gnome-tweak-tool dconf-editor
 dnf install -y gnome-shell-extension-gpaste gnome-shell-extension-media-player-indicator gnome-shell-extension-topicons-plus
@@ -158,6 +158,7 @@ elif args.desktop is 3:
     DESKTOPSCRIPT="""
 # MATE
 dnf install -y @mate-desktop @mate-applications
+systemctl enable -f lightdm
 # Applications
 dnf install -y dconf-editor
 """

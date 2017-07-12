@@ -57,14 +57,18 @@ yum-config-manager --add-repo http://download.opensuse.org/repositories/shells:f
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 yum-config-manager --enable docker-ce-edge
 
+# Update system
 yum update -y
 
 ##### Centos Software #####
 
 # Install cli tools
 yum install -y python34 python34-pip python36u python36u-pip
-yum install -y nano fish tmux iotop rsync p7zip p7zip-plugins zip unzip
+yum install -y nano fish tmux iotop rsync openssh-clients p7zip p7zip-plugins zip unzip
 yum swap -y git git2u
+
+# Bash/Fish Script in background
+python3.6 $SCRIPTDIR/Comp-BashFish.py &
 
 # Install kernel
 yum install -y kernel-ml kernel-ml-devel
@@ -73,6 +77,8 @@ yum swap -y kernel-tools-libs kernel-ml-tools-libs kernel-ml-tools
 # Install docker
 yum install -y docker-ce
 systemctl enable docker
+curl -L https://github.com/docker/compose/releases/download/1.14.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+chmod a+x /usr/local/bin/docker-compose
 
 # NTP configuration
 timedatectl set-local-rtc false
@@ -80,10 +86,13 @@ timedatectl set-ntp 1
 
 ##### CentOS Configuration #####
 
+# Selinux
+sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/sysconfig/selinux
+
 # Grub configuration
 sed -i 's/GRUB_TIMEOUT=.*$/GRUB_TIMEOUT=1/g' /etc/default/grub
 sed -i 's/GRUB_DEFAULT=.*$/GRUB_DEFAULT=0/g' /etc/default/grub
 grub2-mkconfig -o /boot/grub2/grub.cfg
 
-# Extra Scripts
-python3.6 $SCRIPTDIR/Comp-BashFish.py
+# Wait for forked processes to finish
+wait
