@@ -98,7 +98,7 @@ dnf install -y fish nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-util
 
 # Install GUI packages
 dnf install -y @fonts @base-x @networkmanager-submodules avahi
-dnf install -y powerline-fonts google-roboto-fonts
+dnf install -y powerline-fonts google-roboto-fonts google-noto-sans-fonts
 
 # Management tools
 dnf install -y yumex-dnf gparted
@@ -132,8 +132,6 @@ dnf install -y code
 # Tilix
 dnf install -y tilix tilix-nautilus
 
-# Numix
-dnf install -y numix-icon-theme-circle
 """
 # Install software for VMs
 if QEMUGUEST is True:
@@ -173,6 +171,9 @@ dnf install -y dconf-editor
 """
 
 DESKTOPSCRIPT += """
+# Numix
+dnf install -y numix-icon-theme-circle
+
 systemctl set-default graphical.target
 
 # Delete defaults in sudoers.

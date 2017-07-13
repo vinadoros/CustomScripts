@@ -2,6 +2,7 @@
 
 # Python includes.
 import argparse
+import crypt
 from datetime import datetime
 import grp
 import json
@@ -50,6 +51,7 @@ parser.add_argument("-y", "--vmuser", help="VM Username", default="user")
 parser.add_argument("-z", "--vmpass", help="VM Password", default="asdf")
 parser.add_argument("-b", "--getpacker", help="Force refresh packer", action="store_true")
 parser.add_argument("-x", "--sshkey", help="SSH authorizaiton key")
+parser.add_argument("-d", "--desktopenv", type=int, help="Desktop Environment (defaults to 3/MATE)", default=3)
 parser.add_argument("--memory", help="Memory for VM", default="4096")
 parser.add_argument("--vmprovision", help="""Override provision options. Enclose options in double backslashes and quotes. Example: \\\\"-n -e 3\\\\" """)
 
@@ -63,6 +65,7 @@ print("OS Type is {0}".format(args.ostype))
 print("VM Memory is {0}".format(args.memory))
 print("VM Hard Disk size is {0}".format(args.imgsize))
 print("VM User is {0}".format(args.vmuser))
+print("Desktop Environment:", args.desktopenv)
 
 # Get Packer
 if not shutil.which("packer") or args.getpacker is True:
@@ -95,7 +98,7 @@ elif args.vmtype == 3:
 if args.ostype is 1:
     vmname = "Packer-Fedora-{0}".format(hvname)
     vmprovisionscript = "MFedora.sh"
-    vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
+    vmprovision_defopts = "-n -e {1} -s {0}".format(args.vmpass, args.desktopenv)
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
     kvm_os = "linux"
@@ -115,7 +118,7 @@ elif args.ostype == 10:
     vboxosid = "Ubuntu_64"
     vmwareid = "ubuntu-64"
     vmprovisionscript = "MUbuntu.sh"
-    vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
+    vmprovision_defopts = "-n -e {1} -s {0}".format(args.vmpass, args.desktopenv)
     kvm_os = "linux"
     kvm_variant = "ubuntu16.04"
     isourl = "http://releases.ubuntu.com/17.04/ubuntu-17.04-server-amd64.iso"
@@ -124,7 +127,7 @@ elif args.ostype == 11:
     vboxosid = "Ubuntu_64"
     vmwareid = "ubuntu-64"
     vmprovisionscript = "MUbuntu.sh"
-    vmprovision_defopts = "-n -e 3 -s {0}".format(args.vmpass)
+    vmprovision_defopts = "-n -e {1} -s {0}".format(args.vmpass, args.desktopenv)
     kvm_os = "linux"
     kvm_variant = "ubuntu16.04"
     isourl = "http://releases.ubuntu.com/16.04/ubuntu-16.04.2-server-amd64.iso"
@@ -133,7 +136,7 @@ elif args.ostype == 20:
     vboxosid = "OpenSUSE_64"
     vmwareid = "ubuntu-64"
     vmprovisionscript = "Mopensuse.sh"
-    vmprovision_defopts = "-n -e 1 -s {0}".format(args.vmpass)
+    vmprovision_defopts = "-n -e {1} -s {0}".format(args.vmpass, args.desktopenv)
     kvm_os = "linux"
     kvm_variant = "opensusetumbleweed"
     isourl = "http://download.opensuse.org/tumbleweed/iso/openSUSE-Tumbleweed-DVD-x86_64-Current.iso"
@@ -238,21 +241,20 @@ os.mkdir(packer_temp_folder)
 os.chdir(packer_temp_folder)
 
 # Detect root ssh key.
-if args.sshkey != None:
+if args.sshkey is not None:
     sshkey = args.rootsshkey
 elif os.path.isfile(USERHOME+"/.ssh/id_ed25519.pub") == True:
     with open(USERHOME+"/.ssh/id_ed25519.pub", 'r') as sshfile:
-        sshkey=sshfile.read().replace('\n', '')
+        sshkey = sshfile.read().replace('\n', '')
 elif os.path.isfile(USERHOME+"/.ssh/id_rsa.pub") == True:
     with open(USERHOME+"/.ssh/id_rsa.pub", 'r') as sshfile:
-        sshkey=sshfile.read().replace('\n', '')
+        sshkey = sshfile.read().replace('\n', '')
 else:
-    sshkey=" "
+    sshkey = " "
 print("SSH Key is \"{0}\"".format(sshkey))
 
 # Generate hashed password
 # https://serverfault.com/questions/330069/how-to-create-an-sha-512-hashed-password-for-shadow#330072
-import crypt
 sha512_password = crypt.crypt(args.vmpass, crypt.mksalt(crypt.METHOD_SHA512))
 
 

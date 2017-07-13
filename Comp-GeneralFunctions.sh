@@ -10,18 +10,16 @@ SCRIPTDIR="$(dirname "$FLWSOURCE")"
 SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
-# Set user folders if they don't exist.
-if [ -z $USERNAMEVAR ]; then
-	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
-		export USERNAMEVAR=$SUDO_USER
-	elif [ "$USER" != "root" ]; then
-		export USERNAMEVAR=$USER
-	else
-		export USERNAMEVAR=$(id 1000 -un)
-	fi
-	USERGROUP=$(id 1000 -gn)
-	USERHOME=/home/$USERNAMEVAR
+# Set user folders.
+if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
+	export USERNAMEVAR=$SUDO_USER
+elif [ "$USER" != "root" ]; then
+	export USERNAMEVAR=$USER
+else
+	export USERNAMEVAR=$(id 1000 -un)
 fi
+USERGROUP=$(id 1000 -gn)
+USERHOME="$(eval echo ~$USERNAMEVAR)"
 
 grepadd () {
 		if [ -z "$1" ]; then
