@@ -74,7 +74,7 @@ if [ ! -f /etc/apt/sources.list.d/syncthing-release.list ]; then
 
 	# Update and install syncthing:
 	apt-get update
-	apt-get install -y syncthing
+	apt-get install -y syncthing syncthing-inotify
 fi
 
 # Getdeb
