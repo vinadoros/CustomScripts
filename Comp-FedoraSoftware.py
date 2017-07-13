@@ -105,7 +105,9 @@ dnf install -y powerline-fonts google-roboto-fonts google-noto-sans-fonts
 dnf install -y yumex-dnf gparted
 
 # Install browsers
-dnf install -y chromium @firefox freshplayerplugin
+# dnf install -y chromium
+dnf install -y https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+dnf install -y @firefox freshplayerplugin
 dnf install -y flash-plugin
 
 # Samba
@@ -220,27 +222,19 @@ if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
     # Install virtualbox
     subprocess.run("dnf install -y VirtualBox", shell=True)
 
+# Use atom unofficial repo
+# https://github.com/alanfranz/atom-text-editor-repository
+ATOMREPOFILE = "/etc/yum.repos.d/atom.repo"
+with open(ATOMREPOFILE, 'w') as atomrepo_writefile:
+    atomrepo_writefile.write("""[atom]
+name=atom
+baseurl=https://dl.bintray.com/alanfranz/atom-yum
+repo_gpgcheck=1
+gpgcheck=0
+enabled=1
+gpgkey=https://www.franzoni.eu/keys/D401AB61.txt""")
 # Install Atom
-ATOMRPMFILE = "/tmp/atom.x86_64.rpm"
-ATOMRPMURL = "https://atom.io/download/rpm"
-# The atom rpm is only available for x86_64.
-if MACHINEARCH == "x86_64":
-    # If the existing file is older than a day, delete it.
-    if os.path.isfile(ATOMRPMFILE):
-        # Get the time one day ago.
-        one_day_ago = datetime.now() - timedelta(days=1)
-        # Get the file modified time.
-        filetime = datetime.fromtimestamp(os.path.getmtime(ATOMRPMFILE))
-        # If the file is older than a day old, delete it.
-        if filetime < one_day_ago:
-            print("{0} is more than one day old. Deleting.".format(ATOMRPMFILE))
-            os.remove(ATOMRPMFILE)
-    # Download the file if it isn't in /tmp.
-    if not os.path.isfile(ATOMRPMFILE):
-        print("Downloading", ATOMRPMURL, "to", ATOMRPMFILE)
-        urllib.request.urlretrieve(ATOMRPMURL, ATOMRPMFILE)
-    # Install it with zypper.
-    subprocess.run("dnf install -y {0}".format(ATOMRPMFILE), shell=True)
+subprocess.run("dnf install -y atom", shell=True)
 
 # Selinux
 subprocess.run("sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/sysconfig/selinux", shell=True)
