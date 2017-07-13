@@ -68,8 +68,8 @@ with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
 REPOSCRIPT="""
 #!/bin/bash
 
-# RPM Fusion
-dnf install -y http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm https://www.folkswithhats.org/repo/$(rpm -E %fedora)/RPMS/noarch/folkswithhats-release-1.0.1-1.fc$(rpm -E %fedora).noarch.rpm
+# Fedy installer (including RPMFusion)
+curl https://www.folkswithhats.org/installer | bash
 
 # Adobe Flash
 dnf -y install http://linuxdownload.adobe.com/adobe-release/adobe-release-$(uname -i)-1.0-1.noarch.rpm
