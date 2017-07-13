@@ -232,3 +232,6 @@ if MACHINEARCH == "x86_64":
         urllib.request.urlretrieve(ATOMRPMURL, ATOMRPMFILE)
     # Install it with zypper.
     subprocess.run("dnf install -y {0}".format(ATOMRPMFILE), shell=True)
+
+# Selinux
+subprocess.run("sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/sysconfig/selinux", shell=True)
