@@ -68,8 +68,7 @@ with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
         VMWGUEST=False
 
 # Set up Fedora Repos
-REPOSCRIPT="""
-#!/bin/bash
+REPOSCRIPT = """#!/bin/bash
 
 # Fedy installer (including RPMFusion)
 curl https://www.folkswithhats.org/installer | bash
@@ -86,11 +85,10 @@ echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com
 dnf config-manager --add-repo "http://download.opensuse.org/repositories/shells:fish:release:2/Fedora_$(rpm -E %fedora)/shells:fish:release:2.repo"
 
 # Syncthing
-dnf copr enable decathorpe/syncthing
+dnf copr enable -y decathorpe/syncthing
 
 # Update
 dnf update -y
-
 """
 subprocess.run(REPOSCRIPT, shell=True)
 
