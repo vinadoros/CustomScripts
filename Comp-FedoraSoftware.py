@@ -14,6 +14,9 @@ import urllib.request
 
 print("Running {0}".format(__file__))
 
+# Folder of this script
+SCRIPTDIR = sys.path[0]
+
 # Get arguments
 parser = argparse.ArgumentParser(description='Install Fedora Software.')
 parser.add_argument("-d", "--desktop", dest="desktop", type=int, help='Desktop Environment', default="0")
@@ -79,6 +82,9 @@ rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-adobe-linux
 rpm --import https://packages.microsoft.com/keys/microsoft.asc
 echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo
 
+# Fish Shell
+dnf config-manager --add-repo "http://download.opensuse.org/repositories/shells:fish:release:2/Fedora_$(rpm -E %fedora)/shells:fish:release:2.repo"
+
 # Update
 dnf update -y
 
@@ -88,7 +94,7 @@ subprocess.run(REPOSCRIPT, shell=True)
 # Install Fedora Software
 SOFTWARESCRIPT="""
 # Install cli tools
-dnf install -y fish nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils xdg-user-dirs util-linux-user fuse-sshfs
+dnf install -y fish nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils xdg-user-dirs util-linux-user fuse-sshfs redhat-lsb-core
 
 # Install GUI packages
 dnf install -y @fonts @base-x @networkmanager-submodules avahi
@@ -117,7 +123,8 @@ dnf install -y wine playonlinux
 
 # Audio/video
 dnf install -y pulseaudio-module-zeroconf pulseaudio-utils paprefs
-dnf install -y youtube-dl ffmpeg vlc fedy-multimedia-codecs
+dnf install -y youtube-dl ffmpeg vlc
+dnf install -y fedy-multimedia-codecs
 
 # Editors
 dnf install -y code
@@ -130,32 +137,34 @@ dnf install -y numix-icon-theme-circle
 """
 # Install software for VMs
 if QEMUGUEST is True:
-    SOFTWARESCRIPT+="""
+    SOFTWARESCRIPT += """
 # Guest Agent
 dnf install -y spice-vdagent qemu-guest-agent
 """
 if VBOXGUEST is True:
-    SOFTWARESCRIPT+="""
+    SOFTWARESCRIPT += """
 """
 if VMWGUEST is True:
-    SOFTWARESCRIPT+="""
+    SOFTWARESCRIPT += """
 # VM tools
 dnf install -y open-vm-tools open-vm-tools-desktop
 """
 subprocess.run(SOFTWARESCRIPT, shell=True)
 
 # Install Desktop Software
+DESKTOPSCRIPT = """"""
 if args.desktop is 1:
-    DESKTOPSCRIPT="""
+    DESKTOPSCRIPT += """
 # Gnome
 dnf install -y @workstation-product @gnome-desktop
 systemctl enable -f gdm
 # Some Gnome Extensions
 dnf install -y gnome-terminal-nautilus gnome-tweak-tool dconf-editor
 dnf install -y gnome-shell-extension-gpaste gnome-shell-extension-media-player-indicator gnome-shell-extension-topicons-plus
-"""
+{0}/DExtGnome.sh -d -v
+""".format(SCRIPTDIR)
 elif args.desktop is 3:
-    DESKTOPSCRIPT="""
+    DESKTOPSCRIPT += """
 # MATE
 dnf install -y @mate-desktop @mate-applications
 systemctl enable -f lightdm
@@ -163,7 +172,7 @@ systemctl enable -f lightdm
 dnf install -y dconf-editor
 """
 
-DESKTOPSCRIPT+="""
+DESKTOPSCRIPT += """
 systemctl set-default graphical.target
 
 # Delete defaults in sudoers.
