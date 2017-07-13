@@ -14,6 +14,7 @@ if [ -f /etc/ssh/sshd_config ]; then
 	sed -i 's/#X11Forwarding no/X11Forwarding yes/g' /etc/ssh/sshd_config
 	sed -i 's/#AllowAgentForwarding yes/AllowAgentForwarding yes/g' /etc/ssh/sshd_config
 	sed -i 's/#AllowTcpForwarding yes/AllowTcpForwarding yes/g' /etc/ssh/sshd_config
+	sed -i 's/#StrictModes yes/StrictModes no/g' /etc/ssh/sshd_config
 fi
 
 if [ -f /etc/ssh/ssh_config ]; then
