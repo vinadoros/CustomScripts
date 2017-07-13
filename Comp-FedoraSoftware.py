@@ -122,7 +122,7 @@ dnf install -y cups-pdf
 dnf install -y wine playonlinux
 
 # Audio/video
-dnf install -y pulseaudio-module-zeroconf pulseaudio-utils paprefs
+dnf install -y pulseaudio-module-zeroconf pulseaudio-utils paprefs ladspa-swh-plugins
 dnf install -y youtube-dl ffmpeg vlc
 dnf install -y fedy-multimedia-codecs
 
