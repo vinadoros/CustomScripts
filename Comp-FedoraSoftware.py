@@ -124,7 +124,9 @@ dnf install -y wine playonlinux
 
 # Audio/video
 dnf install -y pulseaudio-module-zeroconf pulseaudio-utils paprefs ladspa-swh-plugins
-dnf install -y youtube-dl ffmpeg vlc
+dnf install -y gstreamer1-libav gstreamer1-vaapi gstreamer1-plugins-ugly gstreamer1-plugins-bad-freeworld gstreamer1-plugins-bad-nonfree
+dnf install -y youtube-dl ffmpeg vlc smplayer mpv
+dnf install -y audacious audacious-plugins-freeworld
 dnf install -y fedy-multimedia-codecs
 
 # Editors
@@ -139,18 +141,11 @@ dnf install -y syncthing syncthing-inotify
 """
 # Install software for VMs
 if QEMUGUEST is True:
-    SOFTWARESCRIPT += """
-# Guest Agent
-dnf install -y spice-vdagent qemu-guest-agent
-"""
+    SOFTWARESCRIPT += "\ndnf install -y spice-vdagent qemu-guest-agent"
 if VBOXGUEST is True:
-    SOFTWARESCRIPT += """
-"""
+    SOFTWARESCRIPT += "\ndnf install -y VirtualBox-guest-additions kmod-VirtualBox"
 if VMWGUEST is True:
-    SOFTWARESCRIPT += """
-# VM tools
-dnf install -y open-vm-tools open-vm-tools-desktop
-"""
+    SOFTWARESCRIPT += "\ndnf install -y open-vm-tools open-vm-tools-desktop"
 subprocess.run(SOFTWARESCRIPT, shell=True)
 
 # Install Desktop Software
