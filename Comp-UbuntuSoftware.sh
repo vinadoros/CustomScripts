@@ -231,6 +231,9 @@ esac
 ppa ppa:numix/ppa
 apt-get install -y numix-icon-theme-circle
 
+# Emulator ppa
+ppa ppa:random-stuff/ppa
+
 # Adapta
 ppa ppa:tista/adapta
 apt-get install -y adapta-gtk-theme
