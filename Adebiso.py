@@ -52,7 +52,6 @@ shutil.copytree("/usr/share/doc/live-build/examples/auto", buildfolder+"/auto")
 # Add packages
 PACKAGELIST="""
 # Desktop utils
-#task-mate-desktop
 mate-desktop-environment
 lightdm
 network-manager-gnome
@@ -62,7 +61,7 @@ dconf-editor
 gnome-keyring
 dconf-cli
 leafpad
-midori
+chromium
 gvfs
 avahi-daemon
 avahi-discover
