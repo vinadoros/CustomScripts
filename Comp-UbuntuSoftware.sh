@@ -19,7 +19,7 @@ else
 	export USERNAMEVAR=$(id 1000 -un)
 fi
 export USERGROUP=$(id $USERNAMEVAR -gn)
-export USERHOME=/home/$USERNAMEVAR
+export USERHOME="$(eval echo ~$USERNAMEVAR)"
 
 if [ -z $DEBRELEASE ]; then
 	DEBRELEASE=$(lsb_release -sc)

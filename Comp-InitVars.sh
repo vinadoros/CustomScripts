@@ -20,7 +20,7 @@ fi
 
 export MACHINEARCH=$(uname -m)
 export USERGROUP=$(id $USERNAMEVAR -gn)
-export USERHOME=/home/$USERNAMEVAR
+export USERHOME="$(eval echo ~$USERNAMEVAR)"
 export SAMBAFILEPASS="/var/tmp/sambapass.txt"
 if [ ! -d $USERHOME ]; then
 	echo "User home not found. Exiting."

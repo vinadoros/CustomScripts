@@ -24,7 +24,7 @@ if [ -z $USERNAMEVAR ]; then
 	fi
 fi
 export USERGROUP=$(id $USERNAMEVAR -gn)
-export USERHOME=/home/$USERNAMEVAR
+export USERHOME="$(eval echo ~$USERNAMEVAR)"
 
 # Set default user environment if none exist.
 [ -z $SETDE ] && SETDE=0

@@ -26,7 +26,7 @@ if [ -z $USERNAMEVAR ]; then
 	fi
 fi
 export USERGROUP=$(id $USERNAMEVAR -gn)
-export USERHOME=/home/$USERNAMEVAR
+export USERHOME="$(eval echo ~$USERNAMEVAR)"
 
 btrfsrmsubvol () {
 	MACHINESSUBVOL="/var/lib/machines/"

@@ -23,7 +23,7 @@ if [ -z $USERNAMEVAR ]; then
 		export USERNAMEVAR=$(id 1000 -un)
 	fi
 	USERGROUP=$(id 1000 -gn)
-	USERHOME=/home/$USERNAMEVAR
+	USERHOME="$(eval echo ~$USERNAMEVAR)"
 fi
 
 [ -z $VBOXGUEST ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1

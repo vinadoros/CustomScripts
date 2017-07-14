@@ -14,17 +14,15 @@ echo "Executing ${SCRNAME}."
 set +eu
 
 # Set user folders if they don't exist.
-if [ -z $USERNAMEVAR ]; then
-	if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
-		export USERNAMEVAR=$SUDO_USER
-	elif [ "$USER" != "root" ]; then
-		export USERNAMEVAR=$USER
-	else
-		export USERNAMEVAR=$(id 1000 -un)
-	fi
-	USERGROUP=$(id 1000 -gn)
-	USERHOME=/home/$USERNAMEVAR
+if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
+	export USERNAMEVAR=$SUDO_USER
+elif [ "$USER" != "root" ]; then
+	export USERNAMEVAR=$USER
+else
+	export USERNAMEVAR=$(id 1000 -un)
 fi
+USERGROUP=$(id 1000 -gn)
+USERHOME="$(eval echo ~$USERNAMEVAR)"
 
 # Samba password location
 SAMBAFILEPASS="/var/tmp/sambapass.txt"

@@ -13,7 +13,7 @@ else
 fi
 
 export USERGROUP=$(id $USERNAMEVAR -gn)
-export USERHOME=/home/$USERNAMEVAR
+export USERHOME="$(eval echo ~$USERNAMEVAR)"
 if [ ! -d $USERHOME ]; then
 	echo "User home not found. Exiting."
 	exit 1;
