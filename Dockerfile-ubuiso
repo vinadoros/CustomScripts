@@ -8,12 +8,12 @@ FROM ubuntu:rolling
 
 RUN apt update && apt install -y nano git build-essential debhelper devscripts live-build syslinux isolinux rsync
 # Get and build live-build from source
-RUN git clone http://anonscm.debian.org/git/debian-live/live-build.git && \
-    cd live-build && \
-    dpkg-buildpackage -b -uc -us && \
-    cd .. && \
-    dpkg -i live-build_*.deb && \
-    mkdir /ububuild
+# RUN git clone http://anonscm.debian.org/git/debian-live/live-build.git && \
+#     cd live-build && \
+#     dpkg-buildpackage -b -uc -us && \
+#     cd .. && \
+#     dpkg -i live-build_*.deb && \
+#     mkdir /ububuild
 
 VOLUME ["/opt/CustomScripts"]
 

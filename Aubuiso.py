@@ -19,16 +19,17 @@ if os.geteuid() is not 0:
 USERHOME = "/root"
 
 # Get arguments
-parser = argparse.ArgumentParser(description='Build Debian LiveCD.')
+parser = argparse.ArgumentParser(description='Build Ubuntu LiveCD.')
 parser.add_argument("-n", "--noprompt",help='Do not prompt.', action="store_true")
 parser.add_argument("-w", "--workfolderroot", help='Location of Working Folder (i.e. {0})'.format(USERHOME), default=USERHOME)
 parser.add_argument("-o", "--output", help='Output Location of ISO (i.e. {0})'.format(USERHOME), default=USERHOME)
+parser.add_argument("-f", "--flavor", help='Ubuntu Flavor', default="zesty")
 
 # Save arguments.
 args = parser.parse_args()
 
 # Process variables
-buildfolder = os.path.abspath(args.workfolderroot+"/debiso_buildfolder")
+buildfolder = os.path.abspath(args.workfolderroot+"/ubuiso_buildfolder")
 print("Root of Working Folder:",buildfolder)
 outfolder = os.path.abspath(args.output)
 print("ISO Output Folder:",outfolder)
@@ -38,24 +39,38 @@ if not os.path.isdir(outfolder):
 if args.noprompt is False:
     input("Press Enter to continue.")
 
+# Ensure that certain commands exist.
+subprocess.run("apt-get update; apt-get install -y live-build debootstrap genisoimage syslinux syslinux-utils isolinux xorriso rsync time memtest86+ syslinux-themes-ubuntu-xenial gfxboot-theme-ubuntu livecd-rootfs", shell=True)
+
 # Make the build folder if it doesn't exist
 os.makedirs(buildfolder, 0o777, exist_ok=True)
-
-# Configure and clean the live build
-subprocess.run('cd {0}; lb clean; lb config --distribution sid --archive-areas "main contrib non-free" --bootappend-live "boot=live components timezone=America/New_York"'.format(buildfolder), shell=True)
 
 # Copy over autoconfig
 if os.path.isdir(buildfolder+"/auto"):
     shutil.rmtree(buildfolder+"/auto")
-shutil.copytree("/usr/share/doc/live-build/examples/auto", buildfolder+"/auto")
+shutil.copytree("/usr/share/livecd-rootfs/live-build/auto", buildfolder+"/auto")
+
+# Configure and cleanthe live build
+# https://debian-live.alioth.debian.org/live-manual/stable/manual/html/live-manual.en.html
+subprocess.run("""
+cd {0}
+
+export SUITE={1}
+export ARCH=amd64
+export PROJECT=ubuntu-mate
+export MIRROR=http://archive.ubuntu.com/ubuntu/
+export BINARYFORMAT=iso-hybrid
+export LB_SYSLINUX_THEME=ubuntu-xenial
+
+sed -i 's@#! /bin/sh@#! /bin/sh -x@g' {0}/auto/config {0}/auto/build
+
+lb clean
+lb config --initramfs-compression=gzip
+""".format(buildfolder, args.flavor), shell=True)
 
 # Add packages
 PACKAGELIST="""
 # Desktop utils
-#task-mate-desktop
-mate-desktop-environment
-lightdm
-network-manager-gnome
 caja-open-terminal
 caja-gksu
 dconf-editor
@@ -107,31 +122,21 @@ print("Writing {0}".format(pkgfile))
 with open(pkgfile, 'w') as pkgfile_write:
     pkgfile_write.write(PACKAGELIST)
 
-# # Add repositories
-# REPOLIST='deb http://ftp.us.debian.org/debian unstable main contrib non-free'
-# repofolder=buildfolder+"/config/archives"
-# binaryrepofile=repofolder+"/your-repository.list.binary"
-# chrootrepofile=repofolder+"/your-repository.list.chroot"
-# os.makedirs(repofolder, 0o777, exist_ok=True)
-# print("Writing {0}".format(binaryrepofile))
-# with open(binaryrepofile, 'w') as binaryrepofile_write:
-#     binaryrepofile_write.write(REPOLIST)
-# print("Writing {0}".format(chrootrepofile))
-# with open(chrootrepofile, 'w') as chrootrepofile_write:
-#     chrootrepofile_write.write(REPOLIST)
-
-# # Add bootloader config
-if os.path.isdir(buildfolder+"/config/bootloaders"):
-    shutil.rmtree(buildfolder+"/config/bootloaders")
-os.makedirs(buildfolder+"/config/bootloaders/", exist_ok=True)
-# Copy isolinux
-shutil.copytree("/usr/share/live/build/bootloaders/isolinux", buildfolder+"/config/bootloaders/isolinux", ignore_dangling_symlinks=False)
-# Modify isolinux timeout
-subprocess.run("sed -i 's/^timeout .*/timeout 10/g' {0}".format(buildfolder+"/config/bootloaders/isolinux/isolinux.cfg"), shell=True)
+# Add repositories
+REPOLIST='deb http://us.archive.ubuntu.com/ubuntu {0} main restricted universe multiverse'.format(args.flavor)
+repofolder=buildfolder+"/config/archives"
+binaryrepofile=repofolder+"/your-repository.list.binary"
+chrootrepofile=repofolder+"/your-repository.list.chroot"
+os.makedirs(repofolder, 0o777, exist_ok=True)
+print("Writing {0}".format(binaryrepofile))
+with open(binaryrepofile, 'w') as binaryrepofile_write:
+    binaryrepofile_write.write(REPOLIST)
+print("Writing {0}".format(chrootrepofile))
+with open(chrootrepofile, 'w') as chrootrepofile_write:
+    chrootrepofile_write.write(REPOLIST)
 
 # Add chroot script
-CHROOTSCRIPT="""#!/bin/bash -x
-
+CHROOTSCRIPT = """#!/bin/bash -x
 # Modify ssh config
 echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 sed -i '/PasswordAuthentication/d' /etc/ssh/sshd_config
@@ -205,25 +210,6 @@ if ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf; then
 	echo 'HandleLidSwitch=lock' >> /etc/systemd/logind.conf
 fi
 
-"""
-chroothookfolder=buildfolder+"/config/hooks/normal"
-chroothookfile=chroothookfolder+"/custom.hook.chroot"
-os.makedirs(chroothookfolder, 0o777, exist_ok=True)
-print("Writing {0}".format(chroothookfile))
-with open(chroothookfile, 'w') as chroothookfile_write:
-    chroothookfile_write.write(CHROOTSCRIPT)
-
-# Boot-time hooks
-BOOTHOOKSCRIPT="""#!/bin/bash -x
-echo "live-config: 2000-usercustomization"
-
-# Set root password
-passwd -u root
-echo "root:asdf" | chpasswd
-
-# Set user password
-echo "user:asdf" | chpasswd
-
 # Add CustomScripts to path
 SCRIPTBASENAME="/CustomScripts"
 if ! grep "$SCRIPTBASENAME" /root/.bashrc; then
@@ -234,24 +220,45 @@ if [ -d $SCRIPTBASENAME ]; then
 fi
 EOLBASH
 fi
-if ! grep "$SCRIPTBASENAME" /home/user/.bashrc; then
-	cat >>/home/user/.bashrc <<EOLBASH
+if ! grep "$SCRIPTBASENAME" /home/ubuntu/.bashrc; then
+	cat >>/home/ubuntu/.bashrc <<EOLBASH
 
 if [ -d $SCRIPTBASENAME ]; then
 	export PATH=\$PATH:$SCRIPTBASENAME:/sbin:/usr/sbin
 fi
 EOLBASH
 fi
-"""
-boothookfolder=buildfolder+"/config/includes.chroot/lib/live/config"
-boothookfile=boothookfolder+"/2000-usercustomization"
-os.makedirs(boothookfolder, 0o777, exist_ok=True)
-print("Writing {0}".format(boothookfile))
-with open(boothookfile, 'w') as boothookfile_write:
-    boothookfile_write.write(BOOTHOOKSCRIPT)
-os.chmod(boothookfile, 0o755)
 
-# Build the live build
+# Remove apps
+apt-get remove -y ubiquity ubiquity-casper
+apt-get remove -y ubuntu-mate-welcome
+
+# Set root password
+passwd -u root
+echo "root:asdf" | chpasswd
+
+"""
+chroothookfolder = buildfolder+"/config/hooks"
+chroothookfile = chroothookfolder+"/custom.hook.chroot"
+os.makedirs(chroothookfolder, 0o777, exist_ok=True)
+print("Writing {0}".format(chroothookfile))
+with open(chroothookfile, 'w') as chroothookfile_write:
+    chroothookfile_write.write(CHROOTSCRIPT)
+
+# Add binary script
+BINARYSCRIPT = """#!/bin/bash -x
+# Fix kernel and initrd locations.
+cp -a {0}/chroot/boot/vmlinuz-*-generic {0}/binary/casper/vmlinuz
+cp -a {0}/chroot/boot/initrd.img-*-generic {0}/binary/casper/initrd.lz
+""".format(buildfolder)
+binaryhookfolder = buildfolder+"/config/hooks"
+binaryhookfile = binaryhookfolder+"/custom.hook.binary"
+os.makedirs(binaryhookfolder, 0o777, exist_ok=True)
+print("Writing {0}".format(binaryhookfile))
+with open(binaryhookfile, 'w') as binaryhookfile_write:
+    binaryhookfile_write.write(BINARYSCRIPT)
+
+# Build the live image
 beforetime = datetime.now()
 subprocess.run("cd {0}; lb build".format(buildfolder), shell=True)
 print("Build completed in :", datetime.now() - beforetime)
