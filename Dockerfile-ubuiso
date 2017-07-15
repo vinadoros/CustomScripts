@@ -6,18 +6,18 @@
 
 FROM ubuntu:rolling
 
-RUN apt update && apt install -y nano git build-essential debhelper devscripts live-build syslinux isolinux rsync
+RUN apt update && apt install -y nano git build-essential debhelper devscripts live-build syslinux isolinux rsync bzr gdebi-core
 # Get and build live-build from source
-# RUN git clone http://anonscm.debian.org/git/debian-live/live-build.git && \
-#     cd live-build && \
-#     dpkg-buildpackage -b -uc -us && \
-#     cd .. && \
-#     dpkg -i live-build_*.deb && \
-#     mkdir /ububuild
+RUN bzr branch lp:livecd-rootfs && \
+   cd livecd-rootfs && \
+   dpkg-buildpackage -b -uc -us && \
+   cd .. && \
+   gdebi -n livecd-rootfs_*.deb && \
+   mkdir /ububuild
 
 VOLUME ["/opt/CustomScripts"]
 
 VOLUME ["/ububuild"]
 WORKDIR /ububuild
 
-# CMD ["/opt/CustomScripts/Aubuiso.py","-n","-w","/ububuild","-o","/ububuild"]
+CMD ["/opt/CustomScripts/Aubuiso.sh"]
