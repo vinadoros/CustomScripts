@@ -21,3 +21,4 @@ VOLUME ["/ububuild"]
 WORKDIR /ububuild
 
 CMD ["/opt/CustomScripts/Aubuiso.sh"]
+# CMD ["/opt/CustomScripts/Aubuiso.py","-n","-w","/ububuild","-o","/ububuild"]
