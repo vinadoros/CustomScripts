@@ -103,7 +103,7 @@ dnf install -y @fonts @base-x @networkmanager-submodules avahi
 dnf install -y powerline-fonts google-roboto-fonts google-noto-sans-fonts
 
 # Management tools
-dnf install -y yumex-dnf gparted
+dnf install -y yumex-dnf dnfdragora dnfdragora-gui gparted
 
 # Install browsers
 # dnf install -y chromium
