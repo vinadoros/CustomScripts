@@ -176,6 +176,8 @@ dnf install -y dconf-editor
 DESKTOPSCRIPT += """
 # Numix
 dnf install -y numix-icon-theme-circle
+# Update pixbuf cache after installing icons (for some reason doesn't do this automatically).
+gdk-pixbuf-query-loaders-64 --update-cache
 
 systemctl set-default graphical.target
 
