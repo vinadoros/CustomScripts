@@ -238,5 +238,7 @@ gpgkey=https://www.franzoni.eu/keys/D401AB61.txt""")
 # Install Atom
 subprocess.run("dnf install -y atom", shell=True)
 
-# Selinux
-subprocess.run("sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/sysconfig/selinux", shell=True)
+# Disable Selinux
+# To get selinux status: sestatus, getenforce
+# To enable or disable selinux temporarily: setenforce 1 (to enable), setenforce 0 (to disable)
+subprocess.run("sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /etc/sysconfig/selinux", shell=True)
