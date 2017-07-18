@@ -247,10 +247,6 @@ elif type -p apt-get &> /dev/null; then
     	$SUDOCMD apt-get update
     	$SUDOCMD apt-get dist-upgrade
     }
-    function rmk () {
-    	echo "Removing old kernels."
-    	$SUDOCMD apt-get purge $(ls -tr /boot/vmlinuz-* | head -n -2 | grep -v $(uname -r) | cut -d- -f2- | awk '{{print "linux-image-" $0 "\\nlinux-headers-" $0}}')
-    }
 elif type dnf &> /dev/null || type yum &> /dev/null; then
     if type dnf &> /dev/null; then
         PKGMGR=dnf
@@ -563,10 +559,6 @@ else if type -q apt-get
     	echo "Updating and Dist-upgrading system."
     	sudo apt-get update
     	sudo apt-get dist-upgrade
-    end
-    function rmk
-    	echo "Removing old kernels."
-    	sudo apt-get purge (ls -tr /boot/vmlinuz-* | head -n -2 | grep -v (uname -r) | cut -d- -f2- | awk '{{print "linux-image-" $0 "\\nlinux-headers-" $0}}')
     end
 
 else if type -q dnf; or type -q yum
