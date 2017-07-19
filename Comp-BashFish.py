@@ -240,6 +240,8 @@ elif type -p apt-get &> /dev/null; then
     	apt-cache policy $@
     }
     function cln () {
+        echo "Auto-cleaning cache."
+        $SUDOCMD apt-get autoclean
     	echo "Auto-removing packages."
     	$SUDOCMD apt-get autoremove --purge
     }
@@ -556,6 +558,8 @@ else if type -q apt-get
     	apt-cache policy $argv
     end
     function cln
+        echo "Auto-cleaning cache."
+        sudo apt-get autoclean
     	echo "Auto-removing packages."
     	sudo apt-get autoremove --purge
     end
