@@ -84,9 +84,6 @@ echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com
 # Fish Shell
 dnf config-manager --add-repo "http://download.opensuse.org/repositories/shells:fish:release:2/Fedora_$(rpm -E %fedora)/shells:fish:release:2.repo"
 
-# Syncthing
-dnf copr enable -y decathorpe/syncthing
-
 # Update
 dnf update -y
 """
@@ -140,7 +137,12 @@ dnf install -y code
 dnf install -y tilix tilix-nautilus
 
 # Syncthing
+dnf copr enable -y decathorpe/syncthing
 dnf install -y syncthing syncthing-inotify
+
+# Adapta
+dnf copr enable -y heikoada/gtk-themes
+dnf install -y adapta-gtk-theme
 
 """
 # Install software for VMs
