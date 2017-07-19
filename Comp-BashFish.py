@@ -25,6 +25,7 @@ else:
 USERGROUP = grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
 # Note: This folder is the root home folder if this script is run as root.
 USERHOME = os.path.expanduser("~")
+ROOTHOME = os.path.expanduser("~root")
 # This folder is the above detected user's home folder if this script is run as root.
 USERVARHOME = os.path.expanduser("~{0}".format(USERNAMEVAR))
 
@@ -312,7 +313,10 @@ if os.access("/opt", os.W_OK):
         subprocess.run("cd /opt/bash-it; git checkout -f; git pull", shell=True)
     subprocess.run("chmod a+rwx -R /opt/bash-it", shell=True)
 if os.path.isdir("/opt/bash-it"):
-    subprocess.run("/opt/bash-it/install.sh --silent", shell=True)
+    subprocess.run("""
+    [ "$(id -u)" = "0" ] &&	HOME={0}
+    /opt/bash-it/install.sh --silent
+    """.format(ROOTHOME), shell=True)
     subprocess.run("""sed -i "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTPATH), shell=True)
     if os.geteuid() is 0:
         subprocess.run('su {0} -s {1} -c "/opt/bash-it/install.sh --silent"'.format(USERNAMEVAR, shutil.which("bash")), shell=True)
@@ -631,12 +635,13 @@ end
         subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, os.path.dirname(FISHSCRIPTUSERPATH)), shell=True)
 
     # Install fish utilities and plugins
-    fish_testcmd = 'fish -c "omf update"'
+    fish_testcmd = '''
+    [ "$(id -u)" = "0" ] &&	HOME={0}
+    fish -c "omf update"
+    '''.format(ROOTHOME)
     fish_installplugins = """
     # Install oh-my-fish
-    if [ "$(id -u)" = "0" ]; then
-    	HOME=/root
-    fi
+    [ "$(id -u)" = "0" ] &&	HOME={0}
     cd /tmp
     git clone https://github.com/oh-my-fish/oh-my-fish
     cd oh-my-fish
@@ -645,7 +650,7 @@ end
     rm -rf oh-my-fish
     # Install bobthefish theme
     fish -c "omf install bobthefish"
-    """
+    """.format(ROOTHOME)
     status = subprocess.run(fish_testcmd, shell=True)
     if status.returncode is not 0:
         print("Installing omf.")
