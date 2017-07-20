@@ -131,7 +131,7 @@ systemctl enable updatecs.service
 cat >"/etc/xdg/autostart/matesettings.desktop" <<"EOL"
 [Desktop Entry]
 Name=MATE Settings Script
-Exec=/CustomScripts/DSet.sh
+Exec=/CustomScripts/Dset.sh
 Terminal=false
 Type=Application
 EOL
