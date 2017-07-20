@@ -67,8 +67,9 @@ yum install -y python34 python34-pip python36u python36u-pip
 yum install -y nano fish tmux iotop rsync openssh-clients p7zip p7zip-plugins zip unzip
 yum swap -y git git2u
 
-# Bash/Fish Script in background
+# Background scripts
 python3.6 $SCRIPTDIR/Comp-BashFish.py &
+python3.6 $SCRIPTDIR/Comp-zram.py &
 
 # Install kernel
 yum install -y kernel-ml kernel-ml-devel
@@ -87,7 +88,7 @@ timedatectl set-ntp 1
 ##### CentOS Configuration #####
 
 # Selinux
-sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/sysconfig/selinux
+sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/sysconfig/selinux /etc/selinux/config
 
 # Grub configuration
 sed -i 's/GRUB_TIMEOUT=.*$/GRUB_TIMEOUT=1/g' /etc/default/grub
