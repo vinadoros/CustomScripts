@@ -142,7 +142,7 @@ dnf install -y syncthing syncthing-inotify
 
 # Adapta
 dnf copr enable -y heikoada/gtk-themes
-dnf install -y adapta-gtk-theme
+dnf install -y gnome-shell-theme-adapta adapta-gtk-theme-metacity adapta-gtk-theme-gtk2 adapta-gtk-theme-gtk3 adapta-gtk-theme-gtk4
 
 """
 # Install software for VMs
