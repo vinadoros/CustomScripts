@@ -84,6 +84,9 @@ echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com
 # Fish Shell
 dnf config-manager --add-repo "http://download.opensuse.org/repositories/shells:fish:release:2/Fedora_$(rpm -E %fedora)/shells:fish:release:2.repo"
 
+# Adapta
+dnf copr enable -y heikoada/gtk-themes
+
 # Update
 dnf update -y
 """
@@ -140,10 +143,6 @@ dnf install -y tilix tilix-nautilus
 dnf copr enable -y decathorpe/syncthing
 dnf install -y syncthing syncthing-inotify
 
-# Adapta
-dnf copr enable -y heikoada/gtk-themes
-dnf install -y gnome-shell-theme-adapta adapta-gtk-theme-metacity adapta-gtk-theme-gtk2 adapta-gtk-theme-gtk3 adapta-gtk-theme-gtk4
-
 """
 # Install software for VMs
 if QEMUGUEST is True:
@@ -165,6 +164,8 @@ systemctl enable -f gdm
 dnf install -y gnome-terminal-nautilus gnome-tweak-tool dconf-editor
 dnf install -y gnome-shell-extension-gpaste gnome-shell-extension-media-player-indicator gnome-shell-extension-topicons-plus
 {0}/DExtGnome.sh -d -v
+# Adapta
+dnf install -y gnome-shell-theme-adapta adapta-gtk-theme-metacity adapta-gtk-theme-gtk2 adapta-gtk-theme-gtk3 adapta-gtk-theme-gtk4
 """.format(SCRIPTDIR)
 elif args.desktop is 3:
     DESKTOPSCRIPT += """
