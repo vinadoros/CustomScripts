@@ -227,6 +227,13 @@ if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
         shutil.copy2("/usr/share/applications/synergy.desktop", "/etc/xdg/autostart/synergy.desktop")
     # Install virtualbox
     subprocess.run("dnf install -y VirtualBox", shell=True)
+    subprocess.run("""#!/bin/bash
+	VBOXVER=$(vboxmanage -v)
+	VBOXVER2=$(echo $VBOXVER | cut -d 'r' -f 1)
+	wget -P ~/ http://download.virtualbox.org/virtualbox/$VBOXVER2/Oracle_VM_VirtualBox_Extension_Pack-$VBOXVER2.vbox-extpack
+	yes | VBoxManage extpack install --replace ~/Oracle_VM_VirtualBox_Extension_Pack-$VBOXVER2.vbox-extpack
+	rm ~/Oracle_VM_VirtualBox_Extension_Pack-$VBOXVER2.vbox-extpack
+    """, shell=True)
 
 # Use atom unofficial repo
 # https://github.com/alanfranz/atom-text-editor-repository
