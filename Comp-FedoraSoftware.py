@@ -138,6 +138,9 @@ dnf install -y code
 # Tilix
 dnf install -y tilix tilix-nautilus
 
+# Remote access
+dnf install -y remmina remmina-plugins-vnc remmina-plugins-rdp remmina-plugins-gnome
+
 # Syncthing
 dnf copr enable -y decathorpe/syncthing
 dnf install -y syncthing syncthing-inotify
