@@ -70,8 +70,8 @@ with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
 # Set up Fedora Repos
 REPOSCRIPT = """#!/bin/bash
 
-# Fedy installer (including RPMFusion)
-curl https://www.folkswithhats.org/installer | bash
+# RPMFusion
+dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 
 # Adobe Flash
 dnf -y install http://linuxdownload.adobe.com/adobe-release/adobe-release-$(uname -i)-1.0-1.noarch.rpm
@@ -131,7 +131,6 @@ dnf install -y pulseaudio-module-zeroconf pulseaudio-utils paprefs ladspa-swh-pl
 dnf install -y gstreamer1-libav gstreamer1-vaapi gstreamer1-plugins-ugly gstreamer1-plugins-bad-freeworld gstreamer1-plugins-bad-nonfree
 dnf install -y youtube-dl ffmpeg vlc smplayer mpv
 dnf install -y audacious audacious-plugins-freeworld
-dnf install -y fedy-multimedia-codecs
 
 # Editors
 dnf install -y code
