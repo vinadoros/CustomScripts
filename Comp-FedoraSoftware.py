@@ -139,7 +139,7 @@ dnf install -y code
 dnf install -y tilix tilix-nautilus
 
 # Remote access
-dnf install -y remmina remmina-plugins-vnc remmina-plugins-rdp remmina-plugins-gnome
+dnf install -y remmina remmina-plugins-vnc remmina-plugins-rdp
 
 # Syncthing
 dnf copr enable -y decathorpe/syncthing
@@ -168,6 +168,8 @@ dnf install -y gnome-shell-extension-gpaste gnome-shell-extension-media-player-i
 {0}/DExtGnome.sh -d -v
 # Adapta
 dnf install -y gnome-shell-theme-adapta adapta-gtk-theme-metacity adapta-gtk-theme-gtk2 adapta-gtk-theme-gtk3 adapta-gtk-theme-gtk4
+# Remmina Gnome integration
+dnf install -y remmina-plugins-gnome
 """.format(SCRIPTDIR)
 elif args.desktop is 3:
     DESKTOPSCRIPT += """
