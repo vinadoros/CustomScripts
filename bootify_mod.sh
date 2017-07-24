@@ -128,8 +128,13 @@ function install_grub_mbr()
 {
 	echo "Installing grub to ${DEV}"
 	USBUUID=$(blkid -s UUID -o value "${DEV}1")
-	grub-install --debug --target=i386-pc --boot-directory="${WORKINGFOLDER}/boot" "$DEV"
-	cat >"${WORKINGFOLDER}/boot/grub/grub.cfg"<<EOF
+	$GRUBINSTALLCMD --debug --target=i386-pc --boot-directory="${WORKINGFOLDER}/boot" "$DEV"
+	if [ -d ${WORKINGFOLDER}/boot/grub2 ]; then
+		GRUBFOLDER="${WORKINGFOLDER}/boot/grub2"
+	else
+		GRUBFOLDER="${WORKINGFOLDER}/boot/grub"
+	fi
+	cat >"${GRUBFOLDER}/grub.cfg"<<EOF
 default=0
 timeout=3
 color_normal=light-cyan/dark-gray
@@ -258,19 +263,18 @@ fi
 
 # Check if dependencies are met
 
-
-DEP="dd isoinfo lsblk mkfs.ntfs mkfs.vfat parted sha1sum stat 7z grub-install file blkid"
-for D in $DEP
-do
-    if ! type $D > /dev/null 2>&1; then
-		[ $(type -P pacman) ] && pacman -S --needed --noconfirm cdrkit
-	fi
-done
+DEP="dd isoinfo lsblk mkfs.ntfs mkfs.vfat parted sha1sum stat 7z file blkid"
 for D in $DEP
 do
     type $D > /dev/null 2>&1 || { echo "$D is not ready" 1>&2; exit 1; }
 done
-
+if type "grub-install" > /dev/null 2>&1; then
+	GRUBINSTALLCMD="grub-install"
+elif type "grub2-install" > /dev/null 2>&1; then
+	GRUBINSTALLCMD="grub2-install"
+else
+	echo "grub-install is not ready" 1>&2; exit 1;
+fi
 
 
 # Make sure bootify runs as root
