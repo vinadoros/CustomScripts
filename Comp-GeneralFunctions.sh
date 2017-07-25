@@ -270,6 +270,9 @@ grub_update () {
 	elif [[ -d /boot/grub/ ]]; then
 		echo "Updating grub config using mkconfig grub."
 		$SUDOCMD grub-mkconfig -o /boot/grub/grub.cfg
+	elif [[ -f /boot/efi/EFI/fedora/grub.cfg ]]; then
+		echo "Update fedora efi grub config."
+		$SUDOCMD grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
 	fi
 
 }
