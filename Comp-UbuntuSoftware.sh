@@ -271,7 +271,6 @@ if [[ $VBOXGUEST = 0 && $QEMUGUEST = 0 && $VMWGUEST = 0 ]]; then
 
 	# Synergy
 	apt-get install -y synergy
-	cp /usr/share/applications/synergy.desktop /etc/xdg/autostart/
 fi
 
 ###############################################################################

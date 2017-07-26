@@ -252,8 +252,6 @@ if os.path.isdir('/etc/sudoers.d'):
 
 # Run only on real machine
 if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
-    # Copy synergy to global startup folder
-    shutil.copy2("/usr/share/applications/qsynergy.desktop", "/etc/xdg/autostart/qsynergy.desktop")
     # Install virtualbox
     subprocess.run("zypper in -yl virtualbox", shell=True)
 

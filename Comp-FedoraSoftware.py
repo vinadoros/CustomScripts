@@ -227,9 +227,6 @@ if os.path.isdir('/etc/sudoers.d'):
 
 # Run only on real machine
 if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
-    # Copy synergy to global startup folder
-    if os.path.isfile("/usr/share/applications/synergy.desktop"):
-        shutil.copy2("/usr/share/applications/synergy.desktop", "/etc/xdg/autostart/synergy.desktop")
     # Install virtualbox
     subprocess.run("dnf install -y VirtualBox", shell=True)
     subprocess.run("""#!/bin/bash
