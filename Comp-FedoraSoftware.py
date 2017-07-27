@@ -230,11 +230,17 @@ if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
     # Install virtualbox
     subprocess.run("dnf install -y VirtualBox", shell=True)
     subprocess.run("""#!/bin/bash
-	VBOXVER=$(vboxmanage -v)
-	VBOXVER2=$(echo $VBOXVER | cut -d 'r' -f 1)
-	wget -P ~/ http://download.virtualbox.org/virtualbox/$VBOXVER2/Oracle_VM_VirtualBox_Extension_Pack-$VBOXVER2.vbox-extpack
-	yes | VBoxManage extpack install --replace ~/Oracle_VM_VirtualBox_Extension_Pack-$VBOXVER2.vbox-extpack
-	rm ~/Oracle_VM_VirtualBox_Extension_Pack-$VBOXVER2.vbox-extpack
+    if type vboxmanage; then
+        VBOXVER=$(vboxmanage -v)
+        VBOXVER2=$(echo $VBOXVER | cut -d 'r' -f 1)
+    else
+        echo "vboxmanage not found, not installing vbox extensions."
+    fi
+    if [ ! -z $VBOXVER2 ]; then
+        wget -P ~/ "http://download.virtualbox.org/virtualbox/$VBOXVER2/Oracle_VM_VirtualBox_Extension_Pack-$VBOXVER2.vbox-extpack"
+        yes | VBoxManage extpack install --replace ~/Oracle_VM_VirtualBox_Extension_Pack-$VBOXVER2.vbox-extpack
+        rm ~/Oracle_VM_VirtualBox_Extension_Pack-$VBOXVER2.vbox-extpack
+    fi
     """, shell=True)
 
 # Use atom unofficial repo
