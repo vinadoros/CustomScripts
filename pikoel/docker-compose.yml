@@ -1,0 +1,25 @@
+version: '2.1'
+
+services:
+  mariadb:
+    image: 'lsioarmhf/mariadb'
+    volumes:
+      - "${KOEL_DBVOL}:/config"
+    ports:
+      - '3306:3306'
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DBPASSWD}
+      - TZ=America/New_York
+    restart: unless-stopped
+  koel:
+    build:
+      context: .
+      args:
+        PORT: ${PORT:-443}
+    image: 'vinadoros/koel'
+    volumes:
+      - "${KOEL_FILESPATH}:/files"
+      - "${KOEL_WWWPATH}:/var/www"
+    ports:
+      - "${PORT:-443}:${PORT:-443}"
+    restart: unless-stopped
