@@ -1,1 +1,2 @@
-*/*.env
+**/*.env
+**/qemu-*-static
