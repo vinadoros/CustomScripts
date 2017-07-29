@@ -28,7 +28,7 @@ RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
 
 # Configuration
 RUN	a2enmod rewrite && a2enmod ssl && \
-		openssl req -x509 -nodes -days 3000 -newkey rsa:2048 -keyout /etc/ssl/private/apache-selfsigned.key -out /etc/ssl/certs/apache-selfsigned.crt -subj "/C=US/ST=State/L=City/O=None/CN=www.example.org" && \
+		openssl req -x509 -nodes -days 3000 -newkey rsa:2048 -keyout /etc/ssl/selfsigned.key -out /etc/ssl/selfsigned.crt -subj "/C=US/ST=State/L=City/O=None/CN=www.example.org" && \
 		sed -i 's@^upload_max_filesize =.*@upload_max_filesize = 4096M@' /etc/php/7.0/apache2/php.ini
 
 # Add scripts
