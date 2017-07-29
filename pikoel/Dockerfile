@@ -23,7 +23,7 @@ RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
 		curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
 		echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
 		apt-get update && \
-		apt-get install -y nodejs yarn build-essential g++
+		apt-get install -y nodejs yarn build-essential g++ python
 
 # Configuration
 RUN	openssl req -x509 -nodes -days 3000 -newkey rsa:2048 -keyout /etc/ssl/selfsigned.key -out /etc/ssl/selfsigned.crt -subj "/C=US/ST=State/L=City/O=None/CN=www.example.org" && \
