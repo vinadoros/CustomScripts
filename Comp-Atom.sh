@@ -22,6 +22,9 @@ elif type zypper; then
   sudo zypper in -yl python3-jedi ShellCheck python3-pylama python-pylama_pylint
 elif type apt-get; then
 	sudo apt-get install -y shellcheck python3-jedi python3-pylama pylama pycodestyle
+elif type dnf; then
+	sudo dnf install -y ShellCheck python3-jedi
+	sudo -H pip3 install pylama pylama-pylint
 fi
 
 # Update existing plugins
@@ -51,5 +54,22 @@ apm install language-powershell
 apm install language-vhdl language-verilog
 # Docker
 apm install language-docker
+
+# Configuration
+PYLAMAPATH=$(which pylama)
+cat >"$HOME/.atom/config.cson" <<EOL
+"*":
+  core:
+    telemetryConsent: "no"
+  editor:
+    showIndentGuide: true
+    showInvisibles: true
+    softWrap: true
+  welcome:
+    showOnStartup: false
+  "linter-python":
+    executablePath: "$PYLAMAPATH"
+    withPylint: true
+EOL
 
 echo "Be sure to install php, gcc, python3-jedi, pylama, pylama-pylint, shellcheck"
