@@ -11,7 +11,7 @@ echo "Installing Chocolatey"
 iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 echo "Installing Chocolatey packages"
 choco upgrade -y dotnet4.7 powershell
-choco upgrade -y googlechrome javaruntime notepadplusplus git tortoisegit ccleaner putty chocolateygui conemu visualstudiocode winmerge libreoffice sumatrapdf pdfcreator 7zip
+choco upgrade -y googlechrome javaruntime notepadplusplus git tortoisegit ccleaner putty chocolateygui conemu visualstudiocode winmerge libreoffice sumatrapdf 7zip
 # Install for Windows 8 or above.
 if ([Environment]::OSVersion.Version.Major -ge 8){
   choco upgrade -y classic-shell
