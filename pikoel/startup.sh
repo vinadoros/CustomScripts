@@ -54,7 +54,7 @@ if [ ! -f ./updated ]; then
   # Update composer packages
   composer install
   # Build node-sass (which doesn't have an arm package)
-  npm rebuild node-sass
+  npm install
   # Init database
   php artisan koel:init
   # Create file to say repo has been set up.
