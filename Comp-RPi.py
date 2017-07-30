@@ -65,7 +65,7 @@ if args.noprompt is False:
 # cliutils section
 if args.cliutils is True:
     print("Installing command line utilities.")
-    subprocess.run("apt-get update; apt-get install -y avahi-daemon wget curl ca-certificates build-essential", shell=True)
+    subprocess.run("apt-get update; apt-get install -y nano tmux avahi-daemon wget curl ca-certificates build-essential", shell=True)
     groupscript = """
     # Add normal user to all reasonable groups
     # Get all groups
