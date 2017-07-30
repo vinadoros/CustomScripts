@@ -270,10 +270,12 @@ elif type dnf &> /dev/null || type yum &> /dev/null; then
     	$SUDOCMD $PKGMGR remove $@
     }
     function se () {
-    	echo "Searching for $@."
+    	echo -e "\nSearching for $@."
     	$SUDOCMD $PKGMGR search "$@"
-    	echo "Searching installed packages for $@."
-    	$PKGMGR list installed | grep -i "$@"
+    	echo -e "\nSearching installed packages for $@."
+    	$SUDOCMD $PKGMGR list installed | grep -i "$@"
+        echo -e "\nInfo for $@."
+        $SUDOCMD $PKGMGR info "$@"
     }
     function cln () {
     	echo "Auto-removing packages."
@@ -589,10 +591,12 @@ else if type -q dnf; or type -q yum
     	sudo $PKGMGR remove $argv
     end
     function se
-    	echo "Searching for $argv."
+    	echo -e "\nSearching for $argv."
     	sudo $PKGMGR search $argv
-    	echo "Searching installed packages for $argv."
+    	echo -e "\nSearching installed packages for $argv."
     	sudo $PKGMGR list installed | grep -i $argv
+        echo -e "\nInfo for $argv."
+        sudo $PKGMGR info $argv
     end
     function cln
     	echo "Auto-removing packages."
