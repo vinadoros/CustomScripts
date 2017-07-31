@@ -11,7 +11,7 @@ echo "Installing Chocolatey"
 iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 echo "Installing Chocolatey packages"
 choco upgrade -y dotnet4.7 powershell
-choco upgrade -y googlechrome javaruntime notepadplusplus git tortoisegit ccleaner putty chocolateygui conemu visualstudiocode winmerge libreoffice sumatrapdf 7zip
+choco upgrade -y googlechrome javaruntime notepadplusplus git tortoisegit ccleaner putty chocolateygui conemu visualstudiocode winmerge libreoffice sumatrapdf 7zip tablacus
 # Install for Windows 8 or above.
 if ([Environment]::OSVersion.Version.Major -ge 8){
   choco upgrade -y classic-shell
@@ -21,11 +21,21 @@ if ([Environment]::OSVersion.Version.Major -lt 8){
   choco upgrade -y ie11
 }
 
-# Get Ninite
-#echo "Getting ninite"
-#$url = "https://ninite.com/.net4.6.2-7zip-chrome-classicstart-java8-libreoffice-notepadplusplus-pdfcreator-sumatrapdf-vscode-winmerge/ninite.exe"
-#$ninitefile = "$ENV:UserProfile\Desktop\ninite.exe"
-#(New-Object System.Net.WebClient).DownloadFile($url, $ninitefile)
+# Tablacus
+$pathtotablacus = "$env:PROGRAMDATA\chocolatey\lib\tablacus\tools\"
+if(Test-Path -Path $pathtotablacus){
+  # Set rwx everyone permissions for tablacus folder
+  $Acl = Get-ACL $pathtotablacus
+  $AccessRule= New-Object System.Security.AccessControl.FileSystemAccessRule("everyone","full","ContainerInherit,Objectinherit","none","Allow")
+  $Acl.AddAccessRule($AccessRule)
+  Set-Acl $pathtotablacus $Acl
+  # Create shortcut for tablacus
+  $WshShell = New-Object -comObject WScript.Shell
+  $Shortcut = $WshShell.CreateShortcut("$env:PUBLIC\Desktop\Tablacus.lnk")
+  $Shortcut.TargetPath = "$pathtotablacus\TE64.exe"
+  $Shortcut.WorkingDirectory = "$pathtotablacus"
+  $Shortcut.Save()
+}
 
 # Handle VMTools
 $winiso = "C:\Windows\Temp\windows.iso"
