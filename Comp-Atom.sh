@@ -27,8 +27,6 @@ elif type dnf; then
 	sudo -H pip3 install pylama pylama-pylint
 fi
 
-# Update existing plugins
-apm update -c false
 # Install atom plugins
 # Python plugins
 apm install autocomplete-python
@@ -54,6 +52,9 @@ apm install language-powershell
 apm install language-vhdl language-verilog
 # Docker
 apm install language-docker
+
+# Update existing plugins
+apm update -c false
 
 # Configuration
 PYLAMAPATH=$(which pylama)
