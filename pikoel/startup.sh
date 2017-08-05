@@ -60,7 +60,7 @@ if [ $DBEMPTY = 1 ]; then
   # Update composer packages
   composer install
   # Build node-sass (which doesn't have an arm package)
-  npm install
+  npm rebuild node-sass
   # Init database
   php artisan koel:init
   # Restart mariadb if db was clean
