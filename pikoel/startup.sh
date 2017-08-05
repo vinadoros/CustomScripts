@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 
-# Perform if database folder is empty.
+# Set flag if database folder is empty.
 if [ ! -f /var/lib/mysql/ibdata1 ]; then
+  DBEMPTY=1
+else
+  DBEMPTY=0
+fi
+
+if [ $DBEMPTY = 1 ]; then
   # Create mysql tables
   mysql_install_db
   # Load mysql in safe mode
@@ -50,15 +56,15 @@ sed -i 's/^DB_HOST=.*/DB_HOST=localhost/g' .env
 sed -i 's/^DB_DATABASE=.*/DB_DATABASE=koel/g' .env
 sed -i 's/^DB_USERNAME=.*/DB_USERNAME=koel-user/g' .env
 sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$DBPASSWD/g" .env
-if [ ! -f ./updated ]; then
+if [ $DBEMPTY = 1 ]; then
   # Update composer packages
   composer install
   # Build node-sass (which doesn't have an arm package)
   npm install
   # Init database
   php artisan koel:init
-  # Create file to say repo has been set up.
-  touch ./updated
+  # Restart mariadb if db was clean
+  /etc/init.d/mysql restart
 fi
 
 # Start php-fpm
