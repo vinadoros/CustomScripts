@@ -14,7 +14,7 @@ choco upgrade -y dotnet4.7 powershell
 choco upgrade -y googlechrome javaruntime notepadplusplus git tortoisegit ccleaner putty chocolateygui conemu visualstudiocode winmerge libreoffice sumatrapdf 7zip tablacus
 # Install for Windows 8 or above.
 if ([Environment]::OSVersion.Version.Major -ge 8){
-  choco upgrade -y classic-shell
+  choco upgrade -y classic-shell ShutUp10
 }
 # Install for lower than Windows 8
 if ([Environment]::OSVersion.Version.Major -lt 8){
@@ -107,15 +107,16 @@ if ([Environment]::OSVersion.Version.Major -lt 8){
   New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name DisableThumbnailCache -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
 }
 
+# Set EST as timezone
+tzutil /s "Eastern Standard Time"
 # Set system clock to UTC
-#write-host "Setting up NTP..."
-#W32tm /register
-#start-service w32time
-#w32tm /config /manualpeerlist:uk.pool.ntp.org
-#restart-service w32time
-#Set-Service W32Time -StartupType Automatic
-#sc triggerinfo w32time start/networkon stop/networkoff
-#sc config W32Time start=auto
+W32tm /register
+start-service w32time
+w32tm /config /manualpeerlist:pool.ntp.org
+restart-service w32time
+Set-Service W32Time -StartupType Automatic
+sc triggerinfo w32time start/networkon stop/networkoff
+sc config W32Time start=auto
 
 # Disable telemetry
 #New-ItemProperty -Path Registry::HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection -Name AllowTelemetry -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
