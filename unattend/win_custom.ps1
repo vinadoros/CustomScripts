@@ -12,6 +12,8 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/in
 echo "Installing Chocolatey packages"
 choco upgrade -y dotnet4.7 powershell
 choco upgrade -y googlechrome javaruntime notepadplusplus git tortoisegit ccleaner putty chocolateygui conemu visualstudiocode winmerge libreoffice sumatrapdf 7zip tablacus
+# VC Redistributables
+choco upgrade -y vcredist2005 vcredist2008 vcredist2010 vcredist2012 vcredist2013 vcredist2015 vcredist2017
 # Install for Windows 8 or above.
 if ([Environment]::OSVersion.Version.Major -ge 8){
   choco upgrade -y classic-shell ShutUp10
