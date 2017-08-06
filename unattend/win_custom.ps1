@@ -109,14 +109,6 @@ if ([Environment]::OSVersion.Version.Major -lt 8){
 
 # Set EST as timezone
 tzutil /s "Eastern Standard Time"
-# Set system clock to UTC
-W32tm /register
-start-service w32time
-w32tm /config /manualpeerlist:pool.ntp.org
-restart-service w32time
-Set-Service W32Time -StartupType Automatic
-sc triggerinfo w32time start/networkon stop/networkoff
-sc config W32Time start=auto
 
 # Disable telemetry
 #New-ItemProperty -Path Registry::HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection -Name AllowTelemetry -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
