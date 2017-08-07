@@ -1,10 +1,40 @@
 $temppath = "C:\Windows\Temp"
 
+# Check if Virtual Machine
+$VMstring = gwmi -q "select * from win32_computersystem"
+if ( $VMstring.Model -imatch "vmware" -Or $VMstring.Model -imatch "virtualbox" ) {
+  $IsVM = $true
+}
+else {
+  $IsVM = $false
+}
+
 # Power customizations
+if ( $IsVM -eq $true ) {
+  # Set the High Performance mode for VMs.
+  # powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+  powercfg -Change -monitor-timeout-ac 0
+  powercfg -Change -monitor-timeout-dc 0
+}
+else {
+  powercfg -Change -monitor-timeout-ac 10
+  powercfg -Change -monitor-timeout-dc 10
+}
+# Set other timeouts (as listed in "powercfg /?" )
 powercfg /hibernate off
-powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
-powercfg -Change -monitor-timeout-ac 0
-powercfg -Change -monitor-timeout-dc 0
+powercfg -Change -disk-timeout-ac 0
+powercfg -Change -disk-timeout-dc 0
+powercfg -Change -standby-timeout-ac 0
+powercfg -Change -standby-timeout-dc 0
+powercfg -Change -hibernate-timeout-ac 0
+powercfg -Change -hibernate-timeout-dc 0
+# https://superuser.com/questions/874849/change-what-closing-the-lid-does-from-the-commandline
+# Set the lid close to do nothing for high performance profile.
+powercfg -setdcvalueindex 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c 4f971e89-eebd-4455-a8de-9e59040e7347 5ca83367-6e45-459f-a27b-476b1d01c936 000
+powercfg -setacvalueindex 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c 4f971e89-eebd-4455-a8de-9e59040e7347 5ca83367-6e45-459f-a27b-476b1d01c936 000
+# Set the lid close to do nothing for balanced profile.
+powercfg -setdcvalueindex 381b4222-f694-41f0-9685-ff5bb260df2e 4f971e89-eebd-4455-a8de-9e59040e7347 5ca83367-6e45-459f-a27b-476b1d01c936 000
+powercfg -setacvalueindex 381b4222-f694-41f0-9685-ff5bb260df2e 4f971e89-eebd-4455-a8de-9e59040e7347 5ca83367-6e45-459f-a27b-476b1d01c936 000
 
 # Chocolatey section
 echo "Installing Chocolatey"
@@ -111,12 +141,7 @@ if ([Environment]::OSVersion.Version.Major -lt 8){
 
 # Set EST as timezone
 tzutil /s "Eastern Standard Time"
-
-# Disable telemetry
-#New-ItemProperty -Path Registry::HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection -Name AllowTelemetry -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
-#Stop-Service diagtrack
-#Set-Service diagtrack -startuptype disabled
-#Stop-Service dmwappushsvc
-#Set-Service dmwappushsvc -startuptype disabled
+# Set system clock as UTC
+New-ItemProperty -Path Registry::HKLM\System\CurrentControlSet\Control\TimeZoneInformation -Name RealTimeIsUniversal -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
 
 exit 0
