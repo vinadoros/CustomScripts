@@ -130,7 +130,7 @@ elif args.ostype == 11:
     vmprovision_defopts = "-n -e {1} -s {0}".format(args.vmpass, args.desktopenv)
     kvm_os = "linux"
     kvm_variant = "ubuntu16.04"
-    isourl = "http://releases.ubuntu.com/16.04/ubuntu-16.04.2-server-amd64.iso"
+    isourl = "http://releases.ubuntu.com/16.04/ubuntu-16.04.3-server-amd64.iso"
 elif args.ostype == 20:
     vmname = "Packer-OpenSuseTW-{0}".format(hvname)
     vboxosid = "OpenSUSE_64"
