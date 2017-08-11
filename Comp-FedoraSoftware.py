@@ -171,6 +171,13 @@ dnf install -y gnome-shell-theme-adapta adapta-gtk-theme-metacity adapta-gtk-the
 # Remmina Gnome integration
 dnf install -y remmina-plugins-gnome
 """.format(SCRIPTDIR)
+elif args.desktop is 2:
+    DESKTOPSCRIPT += """
+# KDE
+dnf install -y @kde-desktop-environment
+dnf install -y ark latte-dock
+systemctl enable -f sddm
+"""
 elif args.desktop is 3:
     DESKTOPSCRIPT += """
 # MATE
