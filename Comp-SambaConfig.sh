@@ -27,7 +27,7 @@ USERHOME="$(eval echo ~$USERNAMEVAR)"
 # Samba password location
 SAMBAFILEPASS="/var/tmp/sambapass.txt"
 if [ -f $SAMBAFILEPASS ]; then
-	SMBPASS="\$(<$SAMBAFILEPASS)"
+	SMBPASS="$(<$SAMBAFILEPASS)"
 fi
 
 if [ "$(id -u)" != "0" ]; then
