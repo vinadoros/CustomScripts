@@ -7,9 +7,6 @@ SCRIPTDIR="$(dirname "$FLWSOURCE")"
 SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
-# Disable error handlingss
-set +eu
-
 # Set user folders.
 if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then
 	export USERNAMEVAR=$SUDO_USER
@@ -20,6 +17,9 @@ else
 fi
 USERGROUP=$(id 1000 -gn)
 USERHOME="$(eval echo ~$USERNAMEVAR)"
+
+# Enable error handling
+set -e
 
 ##### Centos Repositories #####
 
@@ -47,7 +47,7 @@ yum install -y centos-release-scl
 
 # EL Repo
 # https://elrepo.org
-yum install -y http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm
+yum install -y http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
 yum-config-manager --enable elrepo-extras elrepo-kernel
 
 # Fish
@@ -78,7 +78,7 @@ yum swap -y kernel-tools-libs kernel-ml-tools-libs kernel-ml-tools
 # Install docker
 yum install -y docker-ce
 systemctl enable docker
-curl -L https://github.com/docker/compose/releases/download/1.14.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+curl -L https://github.com/docker/compose/releases/download/1.15.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
 chmod a+x /usr/local/bin/docker-compose
 
 # NTP configuration
