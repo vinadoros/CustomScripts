@@ -95,7 +95,7 @@ subprocess.run(REPOSCRIPT, shell=True)
 # Install Fedora Software
 SOFTWARESCRIPT="""
 # Install cli tools
-dnf install -y fish nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils xdg-user-dirs util-linux-user fuse-sshfs redhat-lsb-core openssh-server openssh-clients
+dnf install -y fish nano tmux iotop rsync p7zip p7zip-plugins zip unzip unrar xdg-utils xdg-user-dirs util-linux-user fuse-sshfs redhat-lsb-core openssh-server openssh-clients
 systemctl enable sshd
 
 # Install GUI packages
