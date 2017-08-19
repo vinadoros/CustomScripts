@@ -37,7 +37,10 @@ while true; do
 			sudo usermod -aG libvirt $USERNAMEVAR
 			sudo usermod -aG libvirt-qemu $USERNAMEVAR
 		elif type dnf; then
-			echo "none"
+			sudo dnf install -y @virtualization
+			sudo systemctl enable libvirtd
+			sudo systemctl start libvirtd
+			sudo usermod -aG libvirt $USERNAMEVAR
 		fi
 
 		# Set network info
@@ -111,7 +114,9 @@ EOL
 	elif type apt-get; then
 		sudo apt-get --purge remove virt-manager qemu-kvm
 	elif type dnf; then
-		echo "none"
+		sudo systemctl stop libvirtd
+		sudo systemctl disable libvirtd
+		sudo dnf remove -y qemu-kvm virt-install virt-viewer libvirt-daemon-config-network libvirt-daemon-kvm virt-manager
 	fi
 	sudo rm -f /etc/polkit-1/rules.d/80-libvirt.rules
 	break;;
