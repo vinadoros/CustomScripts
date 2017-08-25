@@ -23,6 +23,7 @@ parser.add_argument("-i", "--grubpartition", help='Grub Custom Parition (if auto
 parser.add_argument("-t", "--type", help='OS Type (debian, ubuntu, etc)', default="debian")
 parser.add_argument("-r", "--release", help='Release Distribution', default="unstable")
 parser.add_argument("-a", "--architecture", help='Architecture (amd64, i386, armhf, etc)', default="amd64")
+parser.add_argument("-z", "--zch", help='Use zch instead of systemd-nspawn', action="store_true")
 parser.add_argument("installpath", help='Path of Installation')
 
 # Save arguments.
@@ -58,8 +59,12 @@ if os.geteuid() is not 0:
     sys.exit("\nError: Please run this script as root.\n")
 
 # Ensure that certain commands exist.
-cmdcheck = ["debootstrap", "systemd-nspawn"]
+cmdcheck = ["debootstrap"]
 for cmd in cmdcheck:
+    if not shutil.which(cmd):
+        sys.exit("\nError, ensure command {0} is installed.".format(cmd))
+if args.zch is False:
+    cmd = "systemd-nspawn"
     if not shutil.which(cmd):
         sys.exit("\nError, ensure command {0} is installed.".format(cmd))
 
@@ -321,7 +326,10 @@ os.chmod(GRUBSCRIPT_PATH, 0o777)
 if os.path.exists("{0}/etc/resolv.conf".format(absinstallpath)):
     os.remove("{0}/etc/resolv.conf".format(absinstallpath))
 # Run the setup script.
-subprocess.run("systemd-nspawn -D {0} /setupscript.sh".format(absinstallpath), shell=True)
+if args.zch is True:
+    subprocess.run("{1}/zch.py {0} -c /setupscript.sh".format(absinstallpath, SCRIPTDIR), shell=True)
+else:
+    subprocess.run("systemd-nspawn -D {0} /setupscript.sh".format(absinstallpath), shell=True)
 # Copy resolv.conf into chroot (needed for chroot)
 shutil.copy2("/etc/resolv.conf", "{0}/etc/resolv.conf".format(absinstallpath))
 # Run the grub script.

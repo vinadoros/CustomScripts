@@ -6,19 +6,11 @@
 
 FROM ubuntu:rolling
 
-RUN apt update && apt install -y nano git build-essential debhelper devscripts live-build syslinux isolinux rsync bzr gdebi-core
-# Get and build live-build from source
-RUN bzr branch lp:livecd-rootfs && \
-   cd livecd-rootfs && \
-   dpkg-buildpackage -b -uc -us && \
-   cd .. && \
-   gdebi -n livecd-rootfs_*.deb && \
-   mkdir /ububuild
+RUN apt update && apt install -y python3 nano git build-essential syslinux squashfs-tools debootstrap
 
 VOLUME ["/opt/CustomScripts"]
 
 VOLUME ["/ububuild"]
 WORKDIR /ububuild
 
-CMD ["/opt/CustomScripts/Aubuiso.sh"]
 # CMD ["/opt/CustomScripts/Aubuiso.py","-n","-w","/ububuild","-o","/ububuild"]
