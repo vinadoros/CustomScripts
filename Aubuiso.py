@@ -54,8 +54,17 @@ subprocess.run("{0}/BDebian.py -t ubuntu -r {1} -nz -g 1 {2}".format(SCRIPTDIR, 
 CHROOTSCRIPT = """#!/bin/bash -ex
 export DEBIAN_FRONTEND=noninteractive
 
-apt install -y linux-image-generic linux-headers-generic
+# Install kernel and firmware.
+apt install -y linux-image-generic linux-headers-generic linux-firmware memtest86+
+
+# Livecd packages
+apt install -y lupin-casper casper
+
+# Install extra packages.
 apt install -y mate-desktop-environment
+
+# Clean up
+apt-get clean
 
 """
 chrootscriptfile = chrootfolder+"/livescript.sh"
@@ -65,3 +74,64 @@ with open(chrootscriptfile, 'w') as chrootscriptfile_write:
 os.chmod(chrootscriptfile, 0o777)
 # Run chroot script
 subprocess.run("{0}/zch.py {1} -c {2}".format(SCRIPTDIR, chrootfolder, "/livescript.sh"), shell=True)
+
+
+# Live CD Preperation
+subprocess.run("""#!/bin/bash -ex
+cd {0}
+mkdir -p {0}/image/{casper,isolinux,install}
+
+# Copy the kernel and initrd
+cp -a {0}/chroot/boot/vmlinuz-*-generic {0}/image/casper/vmlinuz
+cp -a {0}/chroot/boot/initrd.img-*-generic {0}/image/casper/initrd.lz
+cp /usr/lib/ISOLINUX/isolinux.bin {0}/image/isolinux/
+cp {0}/chroot/boot/memtest86+.bin {0}/image/install/memtest
+
+# Create manifset
+chroot {0}/chroot dpkg-query -W --showformat='${Package} ${Version}\n' | tee {0}/image/casper/filesystem.manifest
+
+# Create squash image
+mksquashfs {0}/chroot {0}/image/casper/filesystem.squashfs -e boot
+printf $(du -sx --block-size=1 {0}/chroot | cut -f1) > image/casper/filesystem.size
+
+touch {0}/image/ubuntu
+mkdir {0}/image/.disk
+cd {0}/image/.disk
+touch base_installable
+echo "full_cd/single" > cd_type
+echo "Ubuntu Remix 14.04" > info  # Update version number to match your OS version
+echo "http//your-release-notes-url.com" > release_notes_url
+cd {0}
+
+# Generate md5sum
+cd image && find . -type f -print0 | xargs -0 md5sum | grep -v "\./md5sum.txt" > md5sum.txt
+
+""".format(buildfolder), shell=True)
+
+
+# Bootloader configuration
+BLCONFIG = """DEFAULT live
+LABEL live
+  menu label ^Start or install Ubuntu Remix
+  kernel /casper/vmlinuz
+  append  file=/cdrom/preseed/ubuntu.seed boot=casper initrd=/casper/initrd.lz quiet splash --
+LABEL check
+  menu label ^Check CD for defects
+  kernel /casper/vmlinuz
+  append  boot=casper integrity-check initrd=/casper/initrd.lz quiet splash --
+LABEL memtest
+  menu label ^Memory test
+  kernel /install/memtest
+  append -
+LABEL hd
+  menu label ^Boot from first hard disk
+  localboot 0x80
+  append -
+DISPLAY isolinux.txt
+TIMEOUT 20
+PROMPT 1
+"""
+blconfigfile = buildfolder+"/image/isolinux/isolinux.cfg"
+print("Writing {0}".format(blconfigfile))
+with open(blconfigfile, 'w') as blconfigfile_write:
+    blconfigfile_write.write(BLCONFIG)

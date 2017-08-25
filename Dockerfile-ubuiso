@@ -6,7 +6,7 @@
 
 FROM ubuntu:rolling
 
-RUN apt update && apt install -y python3 nano git build-essential syslinux squashfs-tools debootstrap
+RUN apt update && apt install -y python3 nano git build-essential syslinux isolinux squashfs-tools genisoimage debootstrap
 
 VOLUME ["/opt/CustomScripts"]
 
