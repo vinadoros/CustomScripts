@@ -61,7 +61,7 @@ apt install -y linux-image-generic linux-headers-generic linux-firmware memtest8
 apt install -y lupin-casper casper
 
 # Install extra packages.
-apt install -y mate-desktop-environment
+apt install -y mate-desktop-environment lightdm network-manager-gnome caja-open-terminal caja-gksu dconf-editor gnome-keyring dconf-cli leafpad chromium-browser gvfs avahi-daemon avahi-discover sudo ssh tmux nano curl rsync less iotop git whois clonezilla gparted fsarchiver gnome-disk-utility btrfs-tools f2fs-tools xfsprogs dmraid mdadm chntpw debootstrap dkms spice-vdagent qemu-guest-agent open-vm-tools open-vm-tools-dkms open-vm-tools-desktop virtualbox-guest-utils virtualbox-guest-dkms
 
 # Clean up
 apt-get clean
@@ -79,23 +79,24 @@ subprocess.run("{0}/zch.py {1} -c {2}".format(SCRIPTDIR, chrootfolder, "/livescr
 # Live CD Preperation
 subprocess.run("""#!/bin/bash -ex
 cd {0}
-mkdir -p {0}/image/{casper,isolinux,install}
+mkdir -p {0}/image/casper {0}/image/isolinux {0}/image/install
 
 # Copy the kernel and initrd
 cp -a {0}/chroot/boot/vmlinuz-*-generic {0}/image/casper/vmlinuz
 cp -a {0}/chroot/boot/initrd.img-*-generic {0}/image/casper/initrd.lz
 cp /usr/lib/ISOLINUX/isolinux.bin {0}/image/isolinux/
+cp -R /usr/lib/syslinux/modules/bios/. {0}/image/isolinux/
 cp {0}/chroot/boot/memtest86+.bin {0}/image/install/memtest
 
 # Create manifset
-chroot {0}/chroot dpkg-query -W --showformat='${Package} ${Version}\n' | tee {0}/image/casper/filesystem.manifest
+chroot {0}/chroot dpkg-query -W --showformat='${{Package}} ${{Version}}\n' > {0}/image/casper/filesystem.manifest
 
 # Create squash image
-mksquashfs {0}/chroot {0}/image/casper/filesystem.squashfs -e boot
+mksquashfs {0}/chroot {0}/image/casper/filesystem.squashfs -noappend -e boot
 printf $(du -sx --block-size=1 {0}/chroot | cut -f1) > image/casper/filesystem.size
 
 touch {0}/image/ubuntu
-mkdir {0}/image/.disk
+mkdir -p {0}/image/.disk
 cd {0}/image/.disk
 touch base_installable
 echo "full_cd/single" > cd_type
@@ -104,7 +105,7 @@ echo "http//your-release-notes-url.com" > release_notes_url
 cd {0}
 
 # Generate md5sum
-cd image && find . -type f -print0 | xargs -0 md5sum | grep -v "\./md5sum.txt" > md5sum.txt
+cd image && find . -type f -print0 | xargs -0 md5sum | grep -v isolinux/boot.cat | grep -v "\./md5sum.txt" > md5sum.txt
 
 """.format(buildfolder), shell=True)
 
@@ -127,11 +128,15 @@ LABEL hd
   menu label ^Boot from first hard disk
   localboot 0x80
   append -
-DISPLAY isolinux.txt
-TIMEOUT 20
+# DISPLAY isolinux.txt
+TIMEOUT 10
 PROMPT 1
 """
 blconfigfile = buildfolder+"/image/isolinux/isolinux.cfg"
 print("Writing {0}".format(blconfigfile))
 with open(blconfigfile, 'w') as blconfigfile_write:
     blconfigfile_write.write(BLCONFIG)
+
+
+# Create iso
+subprocess.run("cd {0}/image; mkisofs -r -V 'name' -cache-inodes -J -l -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o {0}/ubuntu-remix.iso .".format(buildfolder), shell=True)
