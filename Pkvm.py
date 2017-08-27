@@ -113,6 +113,15 @@ elif args.ostype is 2:
     kvm_os = "linux"
     kvm_variant = "fedora22"
     isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1611.iso"
+elif args.ostype is 3:
+    vmname = "Packer-CentOSOrig-{0}".format(hvname)
+    vboxosid = "Fedora_64"
+    vmwareid = "fedora-64"
+    vmprovisionscript = "Comp-CentOS.sh"
+    vmprovision_defopts = " "
+    kvm_os = "linux"
+    kvm_variant = "fedora22"
+    isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1611.iso"
 elif args.ostype == 10:
     vmname = "Packer-Ubuntu1704-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
@@ -339,7 +348,7 @@ if args.ostype is 1:
     data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/fedora.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "dnf install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
-if args.ostype is 2:
+if 2 <= args.ostype <= 3:
     data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos7-ks.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "yum install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
