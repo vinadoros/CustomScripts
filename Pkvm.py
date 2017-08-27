@@ -95,7 +95,7 @@ elif args.vmtype == 3:
 
 # Set OS options.
 # KVM os options can be found by running "osinfo-query os"
-if args.ostype is 1:
+if args.ostype == 1:
     vmname = "Packer-Fedora-{0}".format(hvname)
     vmprovisionscript = "MFedora.sh"
     vmprovision_defopts = "-n -e {1} -s {0}".format(args.vmpass, args.desktopenv)
@@ -104,25 +104,19 @@ if args.ostype is 1:
     kvm_os = "linux"
     kvm_variant = "fedora25"
     isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/26/Server/x86_64/iso/Fedora-Server-dvd-x86_64-26-1.5.iso"
-elif args.ostype is 2:
+if 2 <= args.ostype <= 3:
     vmname = "Packer-CentOS-{0}".format(hvname)
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
-    vmprovisionscript = "Comp-CentOS.sh"
-    vmprovision_defopts = " "
     kvm_os = "linux"
     kvm_variant = "fedora22"
     isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1611.iso"
-elif args.ostype is 3:
-    vmname = "Packer-CentOSOrig-{0}".format(hvname)
-    vboxosid = "Fedora_64"
-    vmwareid = "fedora-64"
     vmprovisionscript = "Comp-CentOS.sh"
+if args.ostype == 2:
     vmprovision_defopts = " "
-    kvm_os = "linux"
-    kvm_variant = "fedora22"
-    isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1611.iso"
-elif args.ostype == 10:
+if args.ostype == 3:
+    vmprovision_defopts = " "
+if args.ostype == 10:
     vmname = "Packer-Ubuntu1704-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
     vmwareid = "ubuntu-64"
@@ -131,7 +125,7 @@ elif args.ostype == 10:
     kvm_os = "linux"
     kvm_variant = "ubuntu16.04"
     isourl = "http://releases.ubuntu.com/17.04/ubuntu-17.04-server-amd64.iso"
-elif args.ostype == 11:
+if args.ostype == 11:
     vmname = "Packer-Ubuntu1604-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
     vmwareid = "ubuntu-64"
@@ -140,7 +134,7 @@ elif args.ostype == 11:
     kvm_os = "linux"
     kvm_variant = "ubuntu16.04"
     isourl = "http://releases.ubuntu.com/16.04/ubuntu-16.04.3-server-amd64.iso"
-elif args.ostype == 20:
+if args.ostype == 20:
     vmname = "Packer-OpenSuseTW-{0}".format(hvname)
     vboxosid = "OpenSUSE_64"
     vmwareid = "ubuntu-64"
@@ -149,7 +143,7 @@ elif args.ostype == 20:
     kvm_os = "linux"
     kvm_variant = "opensusetumbleweed"
     isourl = "http://download.opensuse.org/tumbleweed/iso/openSUSE-Tumbleweed-DVD-x86_64-Current.iso"
-elif args.ostype == 40:
+if args.ostype == 40:
     vmname = "Packer-FreeBSD-{0}".format(hvname)
     vboxosid = "FreeBSD_64"
     vmwareid = "freebsd-64"
@@ -158,7 +152,7 @@ elif args.ostype == 40:
     kvm_os = "freebsd"
     kvm_variant = "freebsd11.0"
     isourl = "https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/11.0/FreeBSD-11.0-RELEASE-amd64-disc1.iso"
-elif args.ostype == 50:
+if args.ostype == 50:
     vmname = "Packer-Windows10-{0}".format(hvname)
     vboxosid = "Windows10_64"
     vmwareid = "windows9-64"
@@ -166,7 +160,7 @@ elif args.ostype == 50:
     kvm_variant = "win10"
     vmprovision_defopts = " "
     isourl = None
-elif args.ostype == 51:
+if args.ostype == 51:
     vmname = "Packer-Windows7-{0}".format(hvname)
     vboxosid = "Windows7_64"
     vmwareid = "windows7-64"
@@ -174,7 +168,7 @@ elif args.ostype == 51:
     kvm_variant = "win7"
     vmprovision_defopts = " "
     isourl = None
-elif args.ostype == 52:
+if args.ostype == 52:
     vmname = "Packer-Windows2016-{0}".format(hvname)
     vboxosid = "Windows2012_64"
     vmwareid = "windows9srv-64"
@@ -182,7 +176,7 @@ elif args.ostype == 52:
     kvm_variant = "win10"
     vmprovision_defopts = " "
     isourl = None
-elif args.ostype == 60:
+if args.ostype == 60:
     vmname = "Packer-CoreOS-{0}".format(hvname)
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
