@@ -167,7 +167,7 @@ dnf install -y gnome-terminal-nautilus gnome-tweak-tool dconf-editor
 dnf install -y gnome-shell-extension-gpaste gnome-shell-extension-media-player-indicator gnome-shell-extension-topicons-plus
 {0}/DExtGnome.sh -d -v
 # Adapta
-dnf install -y gnome-shell-theme-adapta adapta-gtk-theme-metacity adapta-gtk-theme-gtk2 adapta-gtk-theme-gtk3 adapta-gtk-theme-gtk4
+dnf install -y gnome-shell-theme-adapta adapta-gtk-theme-metacity adapta-gtk-theme-gtk2 adapta-gtk-theme-gtk3
 # Remmina Gnome integration
 dnf install -y remmina-plugins-gnome
 """.format(SCRIPTDIR)
