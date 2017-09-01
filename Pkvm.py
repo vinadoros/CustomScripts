@@ -39,8 +39,8 @@ CPUCORES = multiprocessing.cpu_count() if multiprocessing.cpu_count() <= 4 else 
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Create a VM using packer.')
-parser.add_argument("-m", "--noprompt",help='Do not prompt to continue.', action="store_true")
-parser.add_argument("-n", "--vmname",help="Name of Virtual Machine")
+parser.add_argument("-m", "--noprompt", help='Do not prompt to continue.', action="store_true")
+parser.add_argument("-n", "--vmname", help="Name of Virtual Machine")
 parser.add_argument("-t", "--vmtype", type=int, help="Virtual Machine type (1=Virtualbox, 2=libvirt, 3=VMWare)", default="1")
 parser.add_argument("-a", "--ostype", type=int, help="OS type", default="1")
 parser.add_argument("-f", "--fullname", help="Full Name", default="User Name")
@@ -111,9 +111,9 @@ if 2 <= args.ostype <= 3:
     kvm_os = "linux"
     kvm_variant = "fedora22"
     isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1611.iso"
-    vmprovisionscript = "Comp-CentOS.sh"
+    vmprovisionscript = "Comp-CentOS.py"
 if args.ostype == 2:
-    vmprovision_defopts = " "
+    vmprovision_defopts = "-d -r"
 if args.ostype == 3:
     vmprovision_defopts = " "
 if args.ostype == 10:
