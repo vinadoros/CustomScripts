@@ -105,7 +105,6 @@ if args.ostype == 1:
     kvm_variant = "fedora25"
     isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/26/Server/x86_64/iso/Fedora-Server-dvd-x86_64-26-1.5.iso"
 if 2 <= args.ostype <= 3:
-    vmname = "Packer-CentOS-{0}".format(hvname)
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
     kvm_os = "linux"
@@ -113,8 +112,10 @@ if 2 <= args.ostype <= 3:
     isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1611.iso"
     vmprovisionscript = "Comp-CentOS.py"
 if args.ostype == 2:
+    vmname = "Packer-CentOS-{0}".format(hvname)
     vmprovision_defopts = "-d -r"
 if args.ostype == 3:
+    vmname = "Packer-CentOSOrig-{0}".format(hvname)
     vmprovision_defopts = " "
 if args.ostype == 10:
     vmname = "Packer-Ubuntu1704-{0}".format(hvname)
