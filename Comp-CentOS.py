@@ -96,7 +96,7 @@ else:
     subprocess.check_output("yum install -y git", shell=True)
 
 # Zram
-subprocess.check_output("{0}/Comp-zram.py", shell=True)
+subprocess.check_output("{0}/Comp-zram.py".format(SCRIPTDIR), shell=True)
 
 # Docker
 if args.docker is True:
