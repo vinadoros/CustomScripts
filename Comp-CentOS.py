@@ -123,4 +123,5 @@ sed -i 's/GRUB_DEFAULT=.*$/GRUB_DEFAULT=0/g' /etc/default/grub
 grub2-mkconfig -o /boot/grub2/grub.cfg""", shell=True)
 
 # Wait for processes to finish before exiting.
-bashfish.wait()
+if args.replace is True:
+    bashfish.wait()
