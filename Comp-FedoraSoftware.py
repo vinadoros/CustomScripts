@@ -249,8 +249,8 @@ if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
         rm ~/Oracle_VM_VirtualBox_Extension_Pack-$VBOXVER2.vbox-extpack
     fi
     """, shell=True)
-    # TLP
-    subprocess.run("dnf install -y tlp smartmontools", shell=True)
+    # Powertop
+    subprocess.run("dnf install -y powertop smartmontools; systemctl enable powertop", shell=True)
 
 # Use atom unofficial repo
 # https://github.com/alanfranz/atom-text-editor-repository
