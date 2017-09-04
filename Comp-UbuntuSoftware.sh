@@ -109,7 +109,7 @@ if ! grep -iq "$FISHPATH" /etc/shells; then
 fi
 
 # For general desktop
-apt-get install -y synaptic gdebi gparted xdg-utils leafpad nano p7zip-full unrar
+apt-get install -y synaptic gdebi gparted xdg-utils leafpad nano p7zip-full p7zip-rar unrar
 apt-get install -y gnome-disk-utility btrfs-tools f2fs-tools xfsprogs dmraid mdadm
 DEBIAN_FRONTEND=noninteractive apt-get install -y nbd-client
 
