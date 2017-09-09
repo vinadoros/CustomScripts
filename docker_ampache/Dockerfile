@@ -1,13 +1,12 @@
 #
 # Usage:
 # docker build -t vinadoros/ampache .
-# docker run -d -t -u 1000 --name ampache  -e 'PORT=443' -v /path:/files -v /path:/var/www vinadoros/ampache
+# docker run -d -t --name ampache  -e 'PORT=443' -v /path:/files -v /path:/var/www vinadoros/ampache
 #
 
-FROM arm32v7/debian:latest
+FROM debian:latest
 
 # ENV DBPASSWD asdf
-ENV PORT 443
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && \
@@ -23,6 +22,6 @@ VOLUME ["/var/www"]
 
 WORKDIR /var/www
 
-EXPOSE $PORT
+EXPOSE 443
 
 CMD ["apache2ctl","-D","FOREGROUND"]
