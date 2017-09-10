@@ -17,7 +17,7 @@ services:
     build: .
     ports:
       - "${WEB_PORT}:443"
-    environment:
+    volumes:
       - "${WEB_FILES}:/files"
       - "${WEB_SITE}:/var/www"
     restart: always
