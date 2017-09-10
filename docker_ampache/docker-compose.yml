@@ -21,3 +21,5 @@ services:
       - "${WEB_FILES}:/files"
       - "${WEB_SITE}:/var/www"
     restart: always
+    links:
+      - db
