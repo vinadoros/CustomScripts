@@ -1,7 +1,7 @@
 #
 # Usage:
 # docker build -t vinadoros/ampache .
-# docker run -d -t --name ampache  -e 'PORT=443' -v /path:/files -v /path:/var/www vinadoros/ampache
+# docker run -d -t --restart=always --name ampache -v /path:/files -v /path:/var/www vinadoros/ampache
 #
 
 FROM debian:latest

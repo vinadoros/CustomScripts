@@ -1,0 +1,23 @@
+# Sample .env file
+# DBPASSWD=asdf
+# WEB_PORT=64000
+# WEB_FILES=/path
+# WEB_SITE=/path
+
+version: '2'
+services:
+  db:
+    image: mariadb
+    environment:
+      - "MYSQL_USER=ampache"
+      - "MYSQL_PASSWORD=${DBPASSWD}"
+      - "MYSQL_ROOT_PASSWORD=${DBPASSWD}"
+    restart: always
+  web:
+    build: .
+    ports:
+      - "${WEB_PORT}:443"
+    environment:
+      - "${WEB_FILES}:/files"
+      - "${WEB_SITE}:/var/www"
+    restart: always
