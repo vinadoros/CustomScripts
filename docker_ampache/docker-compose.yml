@@ -20,6 +20,9 @@ services:
     build: .
     environment:
       - PROXY_PORT
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_ROOT_PASSWORD
     ports:
       - "${WEB_PORT}:443"
     volumes:
