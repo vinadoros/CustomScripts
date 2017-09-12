@@ -27,8 +27,12 @@ if [ ! -f /var/www/ampache/config/ampache.cfg.php ]; then
   sed -i "s@^secret_key =.*@secret_key = \"$SECRETKEY\"@g" /var/www/ampache/config/ampache.cfg.php
   mysql -h db -u root -p$DBPASSWD -e "CREATE DATABASE IF NOT EXISTS ampache;"
   mysql -h db -u root -p$DBPASSWD ampache < /var/www/ampache/sql/ampache.sql
-  # Create an admin user
+  # Alternative method to initialize database
+  # php install_db.inc -U root -P $DBPASSWD -h db -d ampache -u root -p $DBPASSWD -w "/ampache"
   cd /var/www/ampache/bin/install/
+  # Update the database
+  php update_db.inc -u
+  # Create an admin user
   php add_user.inc -u user -l admin -p $ADMINPASS
 fi
 
