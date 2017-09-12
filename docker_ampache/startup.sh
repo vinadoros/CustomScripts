@@ -29,7 +29,7 @@ if [ ! -f /var/www/ampache/config/ampache.cfg.php ]; then
   mysql -h db -u root -p$DBPASSWD ampache < /var/www/ampache/sql/ampache.sql
   # Create an admin user
   cd /var/www/ampache/bin/install/
-  php add_user.inc -u user -l admin -p asdf
+  php add_user.inc -u user -l admin -p $ADMINPASS
 fi
 
 # Setup htaccess files

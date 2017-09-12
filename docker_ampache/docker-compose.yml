@@ -1,9 +1,10 @@
 # Sample .env file
-# DBPASSWD=asdf
+# DBPASSWD=password
 # WEB_PORT=64801
 # WEB_FILES=/path
 # WEB_SITE=/path
 # PROXY_PORT=443
+# ADMINPASS=password
 
 # Bring up with docker-compose up --build -d
 
@@ -21,6 +22,7 @@ services:
     environment:
       - PROXY_PORT
       - DBPASSWD
+      - ADMINPASS
     ports:
       - "${WEB_PORT}:443"
     volumes:
