@@ -1,10 +1,13 @@
 #!/bin/bash
 
 # Setup ampache
-cd /var/www
 if [ ! -d /var/www/ampache ]; then
   git clone https://github.com/ampache/ampache /var/www/ampache
+  cd /var/www/ampache
+  composer install
+  composer update
 fi
+cd /var/www
 chmod a+rw -R /var/www/ampache
 
 # Setup ampache.config
