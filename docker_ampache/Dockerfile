@@ -18,6 +18,8 @@ RUN apt-get update && \
 	sed -i 's@^post_max_size =.*@post_max_size = 4096M@' /etc/php/7.0/apache2/php.ini
 
 ADD ./ampache_ssl.conf /etc/apache2/sites-enabled/ampache_ssl.conf
+ADD ./startup.sh /startup.sh
+RUN chmod a+rwx /startup.sh
 
 VOLUME ["/files"]
 VOLUME ["/var/www"]
