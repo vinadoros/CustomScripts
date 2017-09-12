@@ -5,6 +5,8 @@
 # WEB_SITE=/path
 # PROXY_PORT=443
 
+# Bring up with docker-compose up --build -d
+
 version: '2'
 services:
   db:
