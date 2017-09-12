@@ -28,4 +28,4 @@ WORKDIR /var/www
 
 EXPOSE 443
 
-CMD ["/startup"]
+CMD ["/startup.sh"]
