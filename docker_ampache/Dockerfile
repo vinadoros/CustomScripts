@@ -6,9 +6,7 @@
 
 FROM debian:latest
 
-# ENV DBPASSWD asdf
-ENV DEBIAN_FRONTEND noninteractive
-ENV PROXY_PORT 443
+ENV DEBIAN_FRONTEND="noninteractive" PROXY_PORT="443" ADMINPASS="password"
 
 RUN apt-get update && \
 	apt-get install -y nano git unzip curl apache2 php libapache2-mod-php php-mysql php-curl php-xml php-cli php-curl php-json php-gd php-zip composer openssl mariadb-client && \
