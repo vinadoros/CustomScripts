@@ -8,6 +8,7 @@ FROM debian:latest
 
 # ENV DBPASSWD asdf
 ENV DEBIAN_FRONTEND noninteractive
+ENV PROXY_PORT 443
 
 RUN apt-get update && \
 	apt-get install -y nano git curl apache2 php libapache2-mod-php php-mysql php-curl php-xml php-cli php-curl php-json php-gd composer openssl && \
@@ -25,4 +26,4 @@ WORKDIR /var/www
 
 EXPOSE 443
 
-CMD ["apache2ctl","-D","FOREGROUND"]
+CMD ["/startup"]

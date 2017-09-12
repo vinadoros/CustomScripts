@@ -1,8 +1,9 @@
 # Sample .env file
 # DBPASSWD=asdf
-# WEB_PORT=64000
+# WEB_PORT=64801
 # WEB_FILES=/path
 # WEB_SITE=/path
+# PROXY_PORT=443
 
 version: '2'
 services:
@@ -15,6 +16,8 @@ services:
     restart: always
   web:
     build: .
+    environment:
+      - PROXY_PORT
     ports:
       - "${WEB_PORT}:443"
     volumes:
