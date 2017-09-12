@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # Setup ampache
 if [ ! -d /var/www/ampache ]; then
@@ -8,7 +8,6 @@ if [ ! -d /var/www/ampache ]; then
   composer update
 fi
 cd /var/www
-chmod a+rw -R /var/www/ampache
 
 # Setup ampache.config
 if [ ! -f /var/www/ampache/config/ampache.cfg.php ]; then
@@ -23,11 +22,11 @@ if [ ! -f /var/www/ampache/config/ampache.cfg.php ]; then
   sed -i 's@^web_path.*@web_path = "/ampache"@g' /var/www/ampache/config/ampache.cfg.php
   sed -i 's@^database_hostname =.*@database_hostname = db@g' /var/www/ampache/config/ampache.cfg.php
   sed -i 's@^database_username =.*@database_username = root@g' /var/www/ampache/config/ampache.cfg.php
-  sed -i "s@^database_password =.*@database_password = $MYSQL_ROOT_PASSWORD@g" /var/www/ampache/config/ampache.cfg.php
+  sed -i "s@^database_password =.*@database_password = $DBPASSWD@g" /var/www/ampache/config/ampache.cfg.php
   SECRETKEY=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 64 | head -n 1)
   sed -i "s@^secret_key =.*@secret_key = \"$SECRETKEY\"@g" /var/www/ampache/config/ampache.cfg.php
-  mysql -h db -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS ampache;"
-  mysql -h db -u root -p$MYSQL_ROOT_PASSWORD ampache < /var/www/ampache/sql/ampache.sql
+  mysql -h db -u root -p$DBPASSWD -e "CREATE DATABASE IF NOT EXISTS ampache;"
+  mysql -h db -u root -p$DBPASSWD ampache < /var/www/ampache/sql/ampache.sql
 fi
 
 # Setup htaccess files
@@ -36,6 +35,10 @@ fi
 [ ! -f /var/www/ampache/play/.htaccess ] && cp -a /var/www/ampache/play/.htaccess.dist /var/www/ampache/play/.htaccess
 # Set webpath to /ampache in htaccess
 sed -i 's@ /@ /ampache/@g' /var/www/ampache/rest/.htaccess /var/www/ampache/channel/.htaccess /var/www/ampache/play/.htaccess
+
+# Set permissions
+chmod a+rw -R /var/www/ampache
+chown www-data:www-data -R /var/www/ampache
 
 # Run apache
 apache2ctl -D FOREGROUND
