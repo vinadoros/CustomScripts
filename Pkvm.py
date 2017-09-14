@@ -71,7 +71,7 @@ print("Desktop Environment:", args.desktopenv)
 if not shutil.which("packer") or args.getpacker is True:
     print("Getting packer binary.")
     packer_zipfile = "/tmp/packer.zip"
-    packer_zipurl = "https://releases.hashicorp.com/packer/1.0.4/packer_1.0.4_linux_amd64.zip"
+    packer_zipurl = "https://releases.hashicorp.com/packer/1.1.0/packer_1.1.0_linux_amd64.zip"
     urllib.request.urlretrieve(packer_zipurl, packer_zipfile)
     subprocess.run("unzip -o {0} -d /usr/local/bin".format(packer_zipfile), shell=True)
     os.chmod("/usr/local/bin/packer", 0o777)
@@ -109,7 +109,7 @@ if 2 <= args.ostype <= 3:
     vmwareid = "fedora-64"
     kvm_os = "linux"
     kvm_variant = "fedora22"
-    isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1611.iso"
+    isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1708.iso"
     vmprovisionscript = "Comp-CentOS.py"
 if args.ostype == 2:
     vmname = "Packer-CentOS-{0}".format(hvname)
@@ -207,6 +207,13 @@ elif args.vmtype == 3:
     print("Delete vmware image.")
 
 
+# dlProgress function
+def dlProgress(count, blockSize, totalSize):
+  percent = int(count*blockSize*100/totalSize)
+  sys.stdout.write("\r" + "Progress...%d%%" % percent)
+  sys.stdout.flush()
+
+
 # Check iso
 if args.iso is not None:
     isopath = os.path.abspath(args.iso)
@@ -221,7 +228,7 @@ else:
     if os.path.isfile(isopath) is False:
         # Download the file if it doesn't exist.
         print("Downloading",filename,"from",isourl)
-        urllib.request.urlretrieve(isourl, filename)
+        urllib.request.urlretrieve(isourl, filename, reporthook=dlProgress)
 if os.path.isfile(isopath) is True:
     print("Path to ISO is {0}".format(isopath))
 else:
