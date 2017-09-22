@@ -1,7 +1,7 @@
 #
 # Usage:
 # docker build -t vinadoros/bondscript -f Dockerfile-bondscr .
-# docker run -d -t -u 1000 --name bondscript -v /path:/privscript -v /path:/tempfiles vinadoros/bondscript
+# docker run -d -t -u 1000 --name bondscript -v /path:/script.py -v /path:/tempfiles vinadoros/bondscript
 #
 
 FROM debian:latest
@@ -10,9 +10,8 @@ RUN apt-get update && apt-get install -y bash python3 python3-pip libfontconfig1
 RUN pip3 install selenium
 RUN wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 -O /var/tmp/phantomjs.tar.bz2; tar xvpf /var/tmp/phantomjs.tar.bz2 -C /usr/local/bin phantomjs-2.1.1-linux-x86_64/bin/phantomjs --strip-components=2 ; chmod a+rwx /usr/local/bin/phantomjs
 
-VOLUME ["/privscript"]
 VOLUME ["/tempfiles"]
 
 WORKDIR /tempfiles
 
-CMD ["python3","/privscript/combined.py","-e"]
+CMD ["python3","/script.py"]
