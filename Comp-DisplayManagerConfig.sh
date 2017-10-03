@@ -183,16 +183,14 @@ EOL
 # Detect gdm folders
 if [[ $(type -P gdm) || $(type -P gdm3) ]]; then
 	if type -P gdm3; then
-		GDMUID="$(id -u Debian-gdm)"
-		GDMGID="$(id -g Debian-gdm)"
 		GDMPATH="/var/lib/gdm3"
 		GDMETCPATH="/etc/gdm3"
 	elif type -P gdm; then
-		GDMUID="$(id -u gdm)"
-		GDMGID="$(id -g gdm)"
 		GDMPATH="/var/lib/gdm"
 		GDMETCPATH="/etc/gdm"
 	fi
+	GDMUID="$(id -u gdm)"
+	GDMGID="$(id -g gdm)"
 
 	# Enable gdm autologin for virtual machines. Does not currently work.
 	if [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 || $DMAUTO = 1 ]]; then
@@ -232,8 +230,8 @@ if [[ $(type -P gdm) || $(type -P gdm3) ]]; then
 
 	# Disable Wayland in GDM
 	if [ -f "$GDMETCPATH/custom.conf" ]; then
-		sed -i '/^#WaylandEnable=.*/s/^#//' "/etc/gdm/custom.conf"
-		sed -i 's/^WaylandEnable=.*/WaylandEnable=false/g' "/etc/gdm/custom.conf"
+		sed -i '/^#WaylandEnable=.*/s/^#//' "$GDMETCPATH/custom.conf"
+		sed -i 's/^WaylandEnable=.*/WaylandEnable=false/g' "$GDMETCPATH/custom.conf"
 	fi
 
 	# Start xvnc and synergy
