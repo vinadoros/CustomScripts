@@ -212,6 +212,17 @@ print("VM Name is {0}".format(vmname))
 if args.noprompt == False:
     input("Press Enter to continue.")
 
+# Set up VM hypervisor settings
+if args.vmtype == 1:
+    subprocess.run('vboxmanage setproperty machinefolder "{0}"'.format(vmpath), shell=True, check=True)
+    status = subprocess.run('vboxmanage list hostonlyifs | grep -i vboxnet0', shell=True)
+    if status.returncode is not 0:
+        print("Creating vboxnet0 hostonlyif.")
+        subprocess.run("vboxmanage hostonlyif create", shell=True, check=True)
+        # Set DHCP active on created adapter
+        subprocess.run("vboxmanage hostonlyif ipconfig vboxnet0 --ip 192.168.253.1", shell=True, check=True)
+        subprocess.run("vboxmanage dhcpserver modify --ifname vboxnet0 --ip 192.168.253.1 --netmask 255.255.255.0 --lowerip 192.168.253.2 --upperip 192.168.253.253 --enable", shell=True, check=True)
+
 # Delete leftover VMs
 if args.vmtype == 1:
     DELETESCRIPT="""#!/bin/bash
@@ -309,9 +320,16 @@ if args.vmtype is 1:
     data['builders'][0]["vboxmanage"][0]= ["modifyvm", "{{.Name}}", "--memory", "{0}".format(args.memory)]
     data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--vram", "40"])
     data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--cpus", "{0}".format(CPUCORES)])
+    data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--nic2", "hostonly"])
+    data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--hostonlyadapter2", "vboxnet0"])
     data['builders'][0]["vboxmanage_post"] = ['']
     data['builders'][0]["vboxmanage_post"][0]= ["sharedfolder", "add", "{{.Name}}", "--name", "root", "--hostpath", "/", "--automount"]
+    data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--clipboard", "bidirectional"])
+    data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--accelerate3d", "on"])
     data['builders'][0]["post_shutdown_delay"] = "30s"
+    if 1 <= args.ostype <= 39:
+        data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--nictype1", "virtio"])
+        data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--nictype2", "virtio"])
     if 50 <= args.ostype <= 59:
         # https://hodgkins.io/best-practices-with-packer-and-windows#use-headless-mode
         data['builders'][0]["headless"] = "true"
