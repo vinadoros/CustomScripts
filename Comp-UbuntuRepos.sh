@@ -78,13 +78,8 @@ if [ ! -f /etc/apt/sources.list.d/syncthing-release.list ]; then
 fi
 
 # Getdeb
-# if [ ! -f /etc/apt/sources.list.d/getdeb.list ]; then
-# 	wget http://archive.getdeb.net/install_deb/getdeb-repository_0.1-1~getdeb1_all.deb -O /tmp/getdeb.deb
-# 	apt-get install /tmp/getdeb.deb
-# 	[ -f /tmp/getdeb.deb ] && rm /tmp/getdeb.deb
-# fi
-add-apt-repository "deb http://mirrors.dotsrc.org/getdeb/ubuntu ${DEBRELEASE}-getdeb apps games"
-apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A8A515F046D7E7CF
+# add-apt-repository "deb http://mirrors.dotsrc.org/getdeb/ubuntu ${DEBRELEASE}-getdeb apps games"
+# apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A8A515F046D7E7CF
 
 # Add timeouts for repository connections
 cat >"/etc/apt/apt.conf.d/99timeout" <<'EOL'
