@@ -46,6 +46,7 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # Install software
+set -e
 
 # Set up import missing keys.
 KEYMISSSCRIPT="/usr/local/bin/keymissing"
@@ -201,7 +202,7 @@ case $SETDE in
 [1]* )
 		# GNOME
 		echo "GNOME stuff."
-		apt-get install -y ubuntu-gnome-desktop
+		apt-get install -y ubuntu-desktop
 		apt-get install -y gnome-clocks
 		apt-get install -y gnome-shell-extension-dashtodock gnome-shell-extension-mediaplayer gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste
 		$SCRIPTDIR/DExtGnome.sh -v

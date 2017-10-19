@@ -71,7 +71,7 @@ print("Desktop Environment:", args.desktopenv)
 if not shutil.which("packer") or args.getpacker is True:
     print("Getting packer binary.")
     packer_zipfile = "/tmp/packer.zip"
-    packer_zipurl = "https://releases.hashicorp.com/packer/1.1.0/packer_1.1.0_linux_amd64.zip"
+    packer_zipurl = "https://releases.hashicorp.com/packer/1.1.1/packer_1.1.1_linux_amd64.zip"
     urllib.request.urlretrieve(packer_zipurl, packer_zipfile)
     subprocess.run("unzip -o {0} -d /usr/local/bin".format(packer_zipfile), shell=True)
     os.chmod("/usr/local/bin/packer", 0o777)
@@ -118,14 +118,14 @@ if args.ostype == 3:
     vmname = "Packer-CentOSOrig-{0}".format(hvname)
     vmprovision_defopts = " "
 if args.ostype == 10:
-    vmname = "Packer-Ubuntu1704-{0}".format(hvname)
+    vmname = "Packer-Ubuntu1710-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
     vmwareid = "ubuntu-64"
     vmprovisionscript = "MUbuntu.sh"
     vmprovision_defopts = "-n -e {1} -s {0}".format(args.vmpass, args.desktopenv)
     kvm_os = "linux"
     kvm_variant = "ubuntu16.04"
-    isourl = "http://releases.ubuntu.com/17.04/ubuntu-17.04-server-amd64.iso"
+    isourl = "http://releases.ubuntu.com/17.10/ubuntu-17.10-server-amd64.iso"
 if args.ostype == 11:
     vmname = "Packer-Ubuntu1604-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
