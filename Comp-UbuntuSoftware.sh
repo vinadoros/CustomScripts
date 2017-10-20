@@ -186,10 +186,10 @@ apt-get install -y default-jre
 apt-get install -y network-manager network-manager-ssh resolvconf
 sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf
 # https://askubuntu.com/questions/882806/ethernet-device-not-managed
-if [ -f /etc/NetworkManager/conf.d/10-globally-managed-devices.conf ]; then
-	rm /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
-fi
-touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
+cat > "/etc/NetworkManager/conf.d/10-globally-managed-devices.conf" <<'EOL'
+[keyfile]
+unmanaged-devices=none
+EOL
 # Ensure DNS resolution is working
 dpkg-reconfigure --frontend=noninteractive resolvconf
 
@@ -247,7 +247,7 @@ apt-get install -y adapta-gtk-theme
 ###############################################################################
 # Install virtualbox guest utils
 if [ $VBOXGUEST = 1 ]; then
-	apt-get install -y virtualbox-guest-utils virtualbox-guest-dkms dkms
+	apt-get install -y virtualbox-guest-utils virtualbox-guest-x11 virtualbox-guest-dkms dkms
 	# Add the user to the vboxsf group, so that the shared folders can be accessed.
 	gpasswd -a $USERNAMEVAR vboxsf
 fi
