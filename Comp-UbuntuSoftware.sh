@@ -101,8 +101,11 @@ visudo -c
 # Install openssh
 apt-get install -y ssh tmux
 
+# Install ppa only if lts
+if [ "$DEBRELEASE" = "xenial" ]; then
+	ppa ppa:fish-shell/release-2
+fi
 # Install fish
-ppa ppa:fish-shell/release-2
 apt-get install -y fish
 FISHPATH=$(which fish)
 if ! grep -iq "$FISHPATH" /etc/shells; then
