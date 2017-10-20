@@ -89,6 +89,7 @@ dmraid
 mdadm
 chntpw
 debootstrap
+efibootmgr
 # VM Utilities
 dkms
 spice-vdagent
