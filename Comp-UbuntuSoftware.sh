@@ -184,6 +184,7 @@ apt-get install -y default-jre
 
 # Network manager
 apt-get install -y network-manager network-manager-ssh resolvconf
+apt-get install -y network-manager-config-connectivity-ubuntu || true
 sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf
 # https://askubuntu.com/questions/882806/ethernet-device-not-managed
 cat > "/etc/NetworkManager/conf.d/10-globally-managed-devices.conf" <<'EOL'
