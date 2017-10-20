@@ -183,7 +183,7 @@ apt-get install -y code
 apt-get install -y default-jre
 
 # Network manager
-apt-get install -y network-manager network-manager-ssh
+apt-get install -y network-manager network-manager-ssh resolvconf
 sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf
 # https://askubuntu.com/questions/882806/ethernet-device-not-managed
 if [ -f /etc/NetworkManager/conf.d/10-globally-managed-devices.conf ]; then
