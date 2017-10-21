@@ -70,6 +70,8 @@ cat >"$HOME/.atom/config.cson" <<EOL
     showOnStartup: false
   "linter-python":
     executablePath: "$PYLAMAPATH"
+		ignoreCodes: "C0301"
+		lintTrigger: "File saved or modified"
     withPylint: true
 EOL
 
