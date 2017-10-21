@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
+"""Install Ubuntu Software"""
 
 # Python includes.
 import argparse
-from datetime import datetime, timedelta
 import grp
 import os
 import platform
@@ -10,7 +10,6 @@ import pwd
 import shutil
 import subprocess
 import sys
-import urllib.request
 
 print("Running {0}".format(__file__))
 
@@ -23,7 +22,7 @@ parser.add_argument("-d", "--desktop", dest="desktop", type=int, help='Desktop E
 
 # Save arguments.
 args = parser.parse_args()
-print("Desktop Environment:",args.desktop)
+print("Desktop Environment:", args.desktop)
 
 # Exit if not root.
 if os.geteuid() is not 0:
@@ -45,8 +44,8 @@ print("Username is:", USERNAMEVAR)
 print("Group Name is:", USERGROUP)
 
 # Select ubuntu url
-UBUNTUURL="http://archive.ubuntu.com/ubuntu/"
-UBUNTUARMURL="http://ports.ubuntu.com/ubuntu-ports/"
+UBUNTUURL = "http://archive.ubuntu.com/ubuntu/"
+UBUNTUARMURL = "http://ports.ubuntu.com/ubuntu-ports/"
 if MACHINEARCH is "armhf":
     URL = UBUNTUARMURL
 else:
@@ -56,46 +55,37 @@ print("Ubuntu URL is "+URL)
 # Get VM State
 # Detect QEMU
 with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
-    DATA=VAR.read().replace('\n', '')
-    if "QEMU" in DATA:
-        QEMUGUEST=True
-    else:
-        QEMUGUEST=False
+    DATA = VAR.read().replace('\n', '')
+    QEMUGUEST = bool("QEMU" in DATA)
 # Detect Virtualbox
 with open('/sys/devices/virtual/dmi/id/product_name', 'r') as VAR:
-    DATA=VAR.read().replace('\n', '')
-    if "VirtualBox" in DATA:
-        VBOXGUEST=True
-    else:
-        VBOXGUEST=False
+    DATA = VAR.read().replace('\n', '')
+    VBOXGUEST = bool("VirtualBox" in DATA)
 # Detect VMWare
 with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
-    DATA=VAR.read().replace('\n', '')
-    if "VMware" in DATA:
-        VMWGUEST=True
-    else:
-        VMWGUEST=False
+    DATA = VAR.read().replace('\n', '')
+    VMWGUEST = bool("VMware" in DATA)
 
 
 ### Functions ###
-# Update sources
 def update():
+    """Update apt sources"""
     subprocess.run("apt-get update", shell=True)
-# Upgrade distro
 def distupg():
+    """Upgrade/Dist-Upgrade system"""
     update()
     subprocess.run("apt-get upgrade -y", shell=True)
     subprocess.run("apt-get dist-upgrade -y", shell=True)
-# Install applications
 def install(apps):
+    """Install application(s)"""
     print("\nInstalling {0}".format(apps))
     subprocess.run("apt-get install -y {0}".format(apps), shell=True)
-# Get output from subprocess
 def subpout(cmd):
+    """Get output from subprocess"""
     output = subprocess.run("{0}".format(cmd), shell=True, stdout=subprocess.PIPE, universal_newlines=True).stdout.strip()
     return output
-# Add ppa
 def ppa(ppasource):
+    """Add a ppa"""
     subprocess.run("add-apt-repository -y '{0}'".format(ppasource), shell=True)
     update()
     subprocess.run("/usr/local/bin/keymissing", shell=True)
@@ -135,7 +125,7 @@ add-apt-repository multiverse
 
 # Add updates, security, and backports.
 with open('/etc/apt/sources.list', 'r') as VAR:
-    DATA=VAR.read()
+    DATA = VAR.read()
     # Updates
     if not "{0}-updates main".format(debrelease) in DATA:
         print("\nAdding updates to sources.list")
@@ -185,7 +175,7 @@ if debrelease is "xenial":
 install("fish")
 # Add fish to shells
 with open('/etc/shells', 'r') as VAR:
-    DATA=VAR.read()
+    DATA = VAR.read()
     FISHPATH = shutil.which("fish")
     if not FISHPATH in DATA:
         print("\nAdding fish to /etc/shells")
@@ -298,7 +288,7 @@ install("adapta-gtk-theme")
 
 # Install guest software for VMs
 if QEMUGUEST is True:
-    insatll("spice-vdagent qemu-guest-agent")
+    install("spice-vdagent qemu-guest-agent")
 if VBOXGUEST is True:
     install("virtualbox-guest-utils virtualbox-guest-x11 virtualbox-guest-dkms dkms")
     subprocess.run("gpasswd -a {0} vboxsf".format(USERNAMEVAR), shell=True)
@@ -328,7 +318,7 @@ if MACHINEARCH is not "armv7l":
     subprocess.run("apt-get install -y --no-install-recommends tlp smartmontools ethtool", shell=True)
 
 # Add normal user to all reasonable groups
-GROUPSCRIPT="""
+GROUPSCRIPT = """
 # Get all groups
 LISTOFGROUPS="$(cut -d: -f1 /etc/group)"
 # Remove some groups
