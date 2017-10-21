@@ -320,16 +320,16 @@ if args.vmtype is 1:
     data['builders'][0]["vboxmanage"][0]= ["modifyvm", "{{.Name}}", "--memory", "{0}".format(args.memory)]
     data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--vram", "40"])
     data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--cpus", "{0}".format(CPUCORES)])
+    data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--nic2", "hostonly"])
+    data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--hostonlyadapter2", "vboxnet0"])
     data['builders'][0]["vboxmanage_post"] = ['']
-    data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--nic2", "hostonly"])
-    data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--hostonlyadapter2", "vboxnet0"])
     data['builders'][0]["vboxmanage_post"][0]= ["sharedfolder", "add", "{{.Name}}", "--name", "root", "--hostpath", "/", "--automount"]
     data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--clipboard", "bidirectional"])
     data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--accelerate3d", "on"])
     data['builders'][0]["post_shutdown_delay"] = "30s"
     if 1 <= args.ostype <= 39:
         data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--nictype1", "virtio"])
-        data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--nictype2", "virtio"])
+        data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--nictype2", "virtio"])
     if 50 <= args.ostype <= 59:
         # https://hodgkins.io/best-practices-with-packer-and-windows#use-headless-mode
         data['builders'][0]["headless"] = "true"
@@ -385,7 +385,7 @@ if 2 <= args.ostype <= 3:
 if 10 <= args.ostype <= 11:
     data['builders'][0]["boot_command"] = ["<enter><wait><f6><wait><esc><home>url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu.cfg hostname=ubuntu locale=en_US keyboard-configuration/modelcode=SKIP netcfg/choose_interface=auto <enter>"]
     data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "apt install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
+    data['provisioners'][0]["inline"] = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:{vmuser} -R ~{vmuser}; apt install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser)
 if 20 <= args.ostype <= 21:
     data['builders'][0]["boot_command"] = ["<wait><down><wait><f4><wait><esc><wait>autoyast2=http://{{ .HTTPIP }}:{{ .HTTPPort }}/opensuse.cfg textmode=1<enter>"]
     data['provisioners'][0]["type"] = "shell"

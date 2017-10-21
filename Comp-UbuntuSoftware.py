@@ -44,6 +44,15 @@ MACHINEARCH = platform.machine()
 print("Username is:", USERNAMEVAR)
 print("Group Name is:", USERGROUP)
 
+# Select ubuntu url
+UBUNTUURL="http://archive.ubuntu.com/ubuntu/"
+UBUNTUARMURL="http://ports.ubuntu.com/ubuntu-ports/"
+if MACHINEARCH is "armhf":
+    URL = UBUNTUARMURL
+else:
+    URL = UBUNTUURL
+print("Ubuntu URL is "+URL)
+
 # Get VM State
 # Detect QEMU
 with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
@@ -67,11 +76,80 @@ with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
     else:
         VMWGUEST=False
 
-# Get Ubuntu Release
-subprocess.run("apt-get update; apt-get install -y lsb-release", shell=True)
-debrelease = subprocess.run("lsb_release -sc", shell=True, stdout=subprocess.PIPE, universal_newlines=True)
 
-# Set up Ubuntu Repos
+### Functions ###
+# Update sources
+def update():
+    subprocess.run("apt-get update", shell=True)
+# Upgrade distro
+def distupg():
+    update()
+    subprocess.run("apt-get upgrade -y", shell=True)
+    subprocess.run("apt-get dist-upgrade -y", shell=True)
+# Install applications
+def install(apps):
+    subprocess.run("apt-get install -y {0}".format(apps), shell=True)
+# Get output from subprocess
+def subpout(cmd):
+    output = subprocess.run("{0}".format(cmd), shell=True, stdout=subprocess.PIPE, universal_newlines=True).stdout.strip()
+    return output
+
+
+# Get Ubuntu Release
+update()
+install("lsb-release software-properties-common apt-transport-https")
+debrelease = subpout("lsb_release -sc")
+print("Release is {0}.".format(debrelease))
+
+### Set up Ubuntu Repos ###
+# Main, Restricted, universe, and multiverse for Ubuntu.
+subprocess.run("""
+add-apt-repository main
+add-apt-repository restricted
+add-apt-repository universe
+add-apt-repository multiverse
+""", shell=True)
+
+# Add updates, security, and backports.
+with open('/etc/apt/sources.list', 'r') as VAR:
+    DATA=VAR.read()
+    # Updates
+    if not "{0}-updates multiverse".format(debrelease) in DATA:
+        print("Adding updates to sources.list")
+        subprocess.run('add-apt-repository "deb {URL} {DEBRELEASE}-updates main restricted universe multiverse"'.format(URL=URL, DEBRELEASE=debrelease), shell=True)
+    # Security
+    if not "{0}-security multiverse".format(debrelease) in DATA:
+        print("Adding security to sources.list")
+        subprocess.run('add-apt-repository "deb {URL} {DEBRELEASE}-security main restricted universe multiverse"'.format(URL=URL, DEBRELEASE=debrelease), shell=True)
+    # Backports
+    if not "{0}-backports multiverse".format(debrelease) in DATA:
+        print("Adding backports to sources.list")
+        subprocess.run('add-apt-repository "deb {URL} {DEBRELEASE}-backports main restricted universe multiverse"'.format(URL=URL, DEBRELEASE=debrelease), shell=True)
+
+# Comment out lines containing httpredir.
+subprocess.run("sed -i '/httpredir/ s/^#*/#/' /etc/apt/sources.list", shell=True)
+
+# Add timeouts for repository connections
+with open('/etc/apt/apt.conf.d/99timeout', 'w') as writefile:
+    writefile.write('''Acquire::http::Timeout "5";
+Acquire::https::Timeout "5";
+Acquire::ftp::Timeout "5";''')
+
+# Update and upgrade with new base repositories
+update()
+distupg()
+
+### Software ###
+
+# Syncthing
+if os.path.isfile("/etc/apt/sources.list.d/syncthing-release.list") is False:
+    subprocess.run("wget -qO- https://syncthing.net/release-key.txt | apt-key add -", shell=True)
+    # Write syncthing sources list
+    with open('/etc/apt/sources.list.d/syncthing-release.list', 'w') as stapt_writefile:
+        stapt_writefile.write("deb http://apt.syncthing.net/ syncthing release")
+    # Update and install syncthing:
+    update()
+    install("syncthing syncthing-inotify")
 
 # Install software for VMs
 if QEMUGUEST is True:
