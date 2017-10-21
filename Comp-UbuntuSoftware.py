@@ -261,7 +261,9 @@ if args.desktop is 1:
     print("\n Installing gnome desktop")
     install("ubuntu-desktop ubuntu-session gnome-session")
     install("gnome-clocks")
-    install("gnome-shell-extensions gnome-shell-extension-mediaplayer gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste")
+    # Remove ubuntu dock in order to install dashtodock
+    subprocess.run("apt-get remove -y gnome-shell-extension-ubuntu-dock", shell=True, check=False)
+    install("gnome-shell-extensions gnome-shell-extension-dashtodock gnome-shell-extension-mediaplayer gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste")
     subprocess.run("{0}/DExtGnome.sh -v".format(SCRIPTDIR), shell=True)
 elif args.desktop is 2:
     print("\n Installing kde desktop")
