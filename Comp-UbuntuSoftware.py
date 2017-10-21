@@ -261,7 +261,7 @@ if args.desktop is 1:
     print("\n Installing gnome desktop")
     install("ubuntu-desktop ubuntu-session gnome-session")
     install("gnome-clocks")
-    install("gnome-shell-extension-mediaplayer gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste")
+    install("gnome-shell-extensions gnome-shell-extension-mediaplayer gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste")
     subprocess.run("{0}/DExtGnome.sh -v".format(SCRIPTDIR), shell=True)
 elif args.desktop is 2:
     print("\n Installing kde desktop")
