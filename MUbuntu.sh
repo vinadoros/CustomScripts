@@ -91,9 +91,7 @@ if [[ $NOPROMPT != 1 ]]; then
 fi
 set -eu
 
-source "$SCRIPTDIR/Comp-UbuntuRepos.sh"
-
-source "$SCRIPTDIR/Comp-UbuntuSoftware.sh"
+$SCRIPTDIR/Comp-UbuntuSoftware.py -d $SETDE
 
 source "$SCRIPTDIR/Comp-sdtimers.sh"
 
