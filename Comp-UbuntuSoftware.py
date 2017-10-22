@@ -319,25 +319,33 @@ WantedBy=multi-user.target'''.format(shutil.which("powertop")))
         subprocess.run("systemctl daemon-reload; systemctl enable powertop", shell=True)
 
 # Add normal user to all reasonable groups
-GROUPSCRIPT = """
-# Get all groups
-LISTOFGROUPS="$(cut -d: -f1 /etc/group)"
-# Remove some groups
-CUTGROUPS=$(sed -e "/^users/d; /^root/d; /^nobody/d; /^nogroup/d; /^$USERGROUP/d" <<< $LISTOFGROUPS)
-echo Groups to Add: $CUTGROUPS
-for grp in $CUTGROUPS; do
-    usermod -aG $grp {0}
-done
-""".format(USERNAMEVAR)
-subprocess.run(GROUPSCRIPT, shell=True)
+with open("/etc/group", 'r') as groups:
+    grparray = []
+    # Split the grouplist into lines
+    grouplist = groups.readlines()
+    # Iterate through all groups in grouplist
+    for line in grouplist:
+        # Remove portion after :
+        splitline = line.split(":")[0]
+        # Check group before adding it.
+        if splitline != "root" and \
+            splitline != "users" and \
+            splitline != "nobody" and \
+            splitline != "nogroup" and \
+            splitline != USERGROUP:
+            # Add group to array.
+            grparray.append(line.split(":")[0])
+# Add all detected groups to the current user.
+for grp in grparray:
+    print("Adding {0} to group {1}.".format(USERNAMEVAR, grp))
+    subprocess.run("usermod -aG {1} {0}".format(USERNAMEVAR, grp), shell=True, check=True)
 
 # Edit sudoers to add apt.
 if os.path.isdir('/etc/sudoers.d'):
     CUSTOMSUDOERSPATH = "/etc/sudoers.d/pkmgt"
     print("Writing {0}".format(CUSTOMSUDOERSPATH))
     with open(CUSTOMSUDOERSPATH, 'w') as sudoers_writefile:
-        sudoers_writefile.write("{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt")))
-        sudoers_writefile.write("{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt-get")))
+        sudoers_writefile.write("{0} ALL=(ALL) NOPASSWD: {1}\n{0} ALL=(ALL) NOPASSWD: {2}\n".format(USERNAMEVAR, shutil.which("apt"), shutil.which("apt-get")))
     os.chmod(CUSTOMSUDOERSPATH, 0o440)
     status = subprocess.run('visudo -c', shell=True)
     if status.returncode is not 0:
