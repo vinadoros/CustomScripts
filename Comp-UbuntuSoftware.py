@@ -298,19 +298,7 @@ if VMWGUEST is True:
     install("open-vm-tools open-vm-tools-dkms open-vm-tools-desktop")
 
 # Run only on real machine
-if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
-    # Install virtualbox
-    subprocess.run("""#!/bin/bash
-# Virtualbox Host
-wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | apt-key add -
-add-apt-repository "deb http://download.virtualbox.org/virtualbox/debian $(lsb_release -sc) contrib"
-apt-get update
-apt-get install -y virtualbox-5.2
-VBOXVER=$(vboxmanage -v)
-VBOXVER2=$(echo $VBOXVER | cut -d 'r' -f 1)
-wget -P ~/ http://download.virtualbox.org/virtualbox/$VBOXVER2/Oracle_VM_VirtualBox_Extension_Pack-$VBOXVER2.vbox-extpack
-yes | VBoxManage extpack install --replace ~/Oracle_VM_VirtualBox_Extension_Pack-$VBOXVER2.vbox-extpack
-rm ~/Oracle_VM_VirtualBox_Extension_Pack-$VBOXVER2.vbox-extpack""", shell=True, check=False)
+if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:)
     # Synergy
     install("synergy")
 
