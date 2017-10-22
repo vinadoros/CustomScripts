@@ -171,7 +171,7 @@ if args.ostype == 51:
     isourl = None
 if args.ostype == 52:
     vmname = "Packer-Windows2016-{0}".format(hvname)
-    vboxosid = "Windows2012_64"
+    vboxosid = "Windows2016_64"
     vmwareid = "windows9srv-64"
     kvm_os = "windows"
     kvm_variant = "win10"
