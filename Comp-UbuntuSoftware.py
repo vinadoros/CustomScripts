@@ -46,7 +46,7 @@ print("Group Name is:", USERGROUP)
 # Select ubuntu url
 UBUNTUURL = "http://archive.ubuntu.com/ubuntu/"
 UBUNTUARMURL = "http://ports.ubuntu.com/ubuntu-ports/"
-if MACHINEARCH is "armhf":
+if MACHINEARCH == "armhf":
     URL = UBUNTUARMURL
 else:
     URL = UBUNTUURL
@@ -170,7 +170,7 @@ visudo -c""", shell=True)
 install("ssh tmux")
 # Fish Shell
 # Install ppa only if lts
-if debrelease is "xenial":
+if debrelease == "xenial":
     ppa("ppa:fish-shell/release-2")
 install("fish")
 # Add fish to shells
@@ -257,7 +257,7 @@ if os.path.isfile("/etc/default/apport"):
     subprocess.run("sed -i 's/^enabled=.*/enabled=0/g' /etc/default/apport", shell=True)
 
 # Install Desktop Software
-if args.desktop is 1:
+if args.desktop == 1:
     print("\n Installing gnome desktop")
     install("ubuntu-desktop ubuntu-session gnome-session")
     install("gnome-clocks")
@@ -265,14 +265,14 @@ if args.desktop is 1:
     subprocess.run("apt-get remove -y gnome-shell-extension-ubuntu-dock", shell=True, check=False)
     install("gnome-shell-extensions gnome-shell-extension-dashtodock gnome-shell-extension-mediaplayer gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste")
     subprocess.run("{0}/DExtGnome.sh -v".format(SCRIPTDIR), shell=True)
-elif args.desktop is 2:
+elif args.desktop == 2:
     print("\n Installing kde desktop")
     install("kubuntu-desktop")
-elif args.desktop is 3:
+elif args.desktop == 3:
     print("\n Installing mate desktop")
     install("ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop")
     install("ubuntu-mate-lightdm-theme dconf-cli")
-elif args.desktop is 4:
+elif args.desktop == 4:
     print("\n Installing xfce desktop")
     install("xubuntu-desktop")
 
@@ -314,10 +314,21 @@ rm ~/Oracle_VM_VirtualBox_Extension_Pack-$VBOXVER2.vbox-extpack""", shell=True, 
     # Synergy
     install("synergy")
 
+    ### Architecture Specific Section ###
+    if MACHINEARCH != "armv7l":
+        subprocess.run("apt-get install -y --no-install-recommends powertop smartmontools ethtool", shell=True)
+        # Write and enable powertop systemd-unit file.
+        with open('/etc/systemd/system/powertop.service', 'w') as writefile:
+            writefile.write('''[Unit]
+Description=Powertop tunings
 
-### Architecture Specific Section ###
-if MACHINEARCH is not "armv7l":
-    subprocess.run("apt-get install -y --no-install-recommends tlp smartmontools ethtool", shell=True)
+[Service]
+ExecStart=/usr/bin/powertop --auto-tune
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target'''.format(shutil.which("powertop")))
+        subprocess.run("systemctl daemon-reload; systemctl enable powertop", shell=True)
 
 # Add normal user to all reasonable groups
 GROUPSCRIPT = """
