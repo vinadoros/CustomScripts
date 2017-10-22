@@ -21,7 +21,8 @@ elif type zypper; then
 	sudo zypper --non-interactive --gpg-auto-import-keys refresh
   sudo zypper in -yl python3-jedi ShellCheck python3-pylama python-pylama_pylint
 elif type apt-get; then
-	sudo apt-get install -y shellcheck python3-jedi python3-pylama pylama pycodestyle
+	sudo apt-get install -y shellcheck python3-jedi python3-pip
+	sudo -H pip3 install pylama pylama-pylint
 elif type dnf; then
 	sudo dnf install -y ShellCheck python3-jedi
 	sudo -H pip3 install pylama pylama-pylint
