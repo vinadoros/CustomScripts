@@ -298,7 +298,7 @@ if VMWGUEST is True:
     install("open-vm-tools open-vm-tools-dkms open-vm-tools-desktop")
 
 # Run only on real machine
-if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:)
+if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
     # Synergy
     install("synergy")
 
