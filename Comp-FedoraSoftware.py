@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
+"""Install Fedora Software"""
 
 # Python includes.
 import argparse
-from datetime import datetime, timedelta
 import grp
 import os
 import platform
@@ -10,7 +10,6 @@ import pwd
 import shutil
 import subprocess
 import sys
-import urllib.request
 
 print("Running {0}".format(__file__))
 
@@ -23,7 +22,7 @@ parser.add_argument("-d", "--desktop", dest="desktop", type=int, help='Desktop E
 
 # Save arguments.
 args = parser.parse_args()
-print("Desktop Environment:",args.desktop)
+print("Desktop Environment:", args.desktop)
 
 # Exit if not root.
 if os.geteuid() is not 0:
@@ -47,25 +46,16 @@ print("Group Name is:", USERGROUP)
 # Get VM State
 # Detect QEMU
 with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
-    DATA=VAR.read().replace('\n', '')
-    if "QEMU" in DATA:
-        QEMUGUEST=True
-    else:
-        QEMUGUEST=False
+    DATA = VAR.read().replace('\n', '')
+    QEMUGUEST = bool("QEMU" in DATA)
 # Detect Virtualbox
 with open('/sys/devices/virtual/dmi/id/product_name', 'r') as VAR:
-    DATA=VAR.read().replace('\n', '')
-    if "VirtualBox" in DATA:
-        VBOXGUEST=True
-    else:
-        VBOXGUEST=False
+    DATA = VAR.read().replace('\n', '')
+    VBOXGUEST = bool("VirtualBox" in DATA)
 # Detect VMWare
 with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
-    DATA=VAR.read().replace('\n', '')
-    if "VMware" in DATA:
-        VMWGUEST=True
-    else:
-        VMWGUEST=False
+    DATA = VAR.read().replace('\n', '')
+    VMWGUEST = bool("VMware" in DATA)
 
 # Set up Fedora Repos
 REPOSCRIPT = """#!/bin/bash
@@ -93,7 +83,7 @@ dnf update -y
 subprocess.run(REPOSCRIPT, shell=True)
 
 # Install Fedora Software
-SOFTWARESCRIPT="""
+SOFTWARESCRIPT = """
 # Install cli tools
 dnf install -y fish nano tmux iotop rsync p7zip p7zip-plugins zip unzip unrar xdg-utils xdg-user-dirs util-linux-user fuse-sshfs redhat-lsb-core openssh-server openssh-clients
 systemctl enable sshd
@@ -157,7 +147,7 @@ subprocess.run(SOFTWARESCRIPT, shell=True)
 
 # Install Desktop Software
 DESKTOPSCRIPT = """"""
-if args.desktop is 1:
+if args.desktop == 1:
     DESKTOPSCRIPT += """
 # Gnome
 dnf install -y @workstation-product @gnome-desktop
@@ -171,14 +161,14 @@ dnf install -y gnome-shell-theme-adapta adapta-gtk-theme-metacity adapta-gtk-the
 # Remmina Gnome integration
 dnf install -y remmina-plugins-gnome
 """.format(SCRIPTDIR)
-elif args.desktop is 2:
+elif args.desktop == 2:
     DESKTOPSCRIPT += """
 # KDE
 dnf install -y @kde-desktop-environment
 dnf install -y ark latte-dock
 systemctl enable -f sddm
 """
-elif args.desktop is 3:
+elif args.desktop == 3:
     DESKTOPSCRIPT += """
 # MATE
 dnf install -y @mate-desktop @mate-applications
@@ -206,17 +196,26 @@ visudo -c
 subprocess.run(DESKTOPSCRIPT, shell=True)
 
 # Add normal user to all reasonable groups
-GROUPSCRIPT="""
-# Get all groups
-LISTOFGROUPS="$(cut -d: -f1 /etc/group)"
-# Remove some groups
-CUTGROUPS=$(sed -e "/^users/d; /^root/d; /^nobody/d; /^nogroup/d" <<< $LISTOFGROUPS)
-echo Groups to Add: $CUTGROUPS
-for grp in $CUTGROUPS; do
-    usermod -aG $grp {0}
-done
-""".format(USERNAMEVAR)
-subprocess.run(GROUPSCRIPT, shell=True)
+with open("/etc/group", 'r') as groups:
+    grparray = []
+    # Split the grouplist into lines
+    grouplist = groups.readlines()
+    # Iterate through all groups in grouplist
+    for line in grouplist:
+        # Remove portion after :
+        splitline = line.split(":")[0]
+        # Check group before adding it.
+        if splitline != "root" and \
+            splitline != "users" and \
+            splitline != "nobody" and \
+            splitline != "nogroup" and \
+            splitline != USERGROUP:
+            # Add group to array.
+            grparray.append(line.split(":")[0])
+# Add all detected groups to the current user.
+for grp in grparray:
+    print("Adding {0} to group {1}.".format(USERNAMEVAR, grp))
+    subprocess.run("usermod -aG {1} {0}".format(USERNAMEVAR, grp), shell=True, check=True)
 
 # Edit sudoers to add dnf.
 if os.path.isdir('/etc/sudoers.d'):
