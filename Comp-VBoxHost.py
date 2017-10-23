@@ -25,7 +25,6 @@ VBOXMAJORVERSION = "5.2"
 parser = argparse.ArgumentParser(description='Install Virtualbox Host Software.')
 parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
 parser.add_argument("-r", "--release", help='Force operating system release. Set this if a particular release should be forced.')
-parser.add_argument("-s", "--substitute", help='If a default release is used, find and replace this string with the release string.')
 
 # Save arguments.
 args = parser.parse_args()
@@ -81,13 +80,15 @@ print("Release is {0}.".format(release))
 if args.noprompt is False:
     input("Press Enter to continue.")
 
+### Install Virtualbox ###
 if distro == "Ubuntu":
     # Import keyfile
     key = downloadfile("https://www.virtualbox.org/download/oracle_vbox_2016.asc", "/tmp")
     subprocess.run("apt-key add {0}".format(key[0]), shell=True, check=True)
     os.remove(key[0])
-    # Add source.
-    subprocess.run('add-apt-repository "deb http://download.virtualbox.org/virtualbox/debian {0} contrib"'.format(release), shell=True)
+    # Write virtualbox sources list
+    with open('/etc/apt/sources.list.d/virtualbox.list', 'w') as stapt_writefile:
+        stapt_writefile.write("deb http://download.virtualbox.org/virtualbox/debian {0} contrib".format(release))
     # Install virtualbox.
     subprocess.run('apt-get update; apt-get install -y virtualbox-{0}'.format(VBOXMAJORVERSION), shell=True)
 elif distro == "Fedora":
@@ -95,10 +96,16 @@ elif distro == "Fedora":
     key = downloadfile("https://www.virtualbox.org/download/oracle_vbox.asc", "/tmp")
     subprocess.run("rpm --import {0}".format(key[0]), shell=True, check=True)
     os.remove(key[0])
-    # Install virtualbox.
+    # Add repo file.
     subprocess.run("""
 dnf install -y dkms
 dnf config-manager --add-repo "http://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo"
+""", shell=True)
+    # Modify repo file.
+    if release.isdigit() is True:
+        subprocess.run("sed -i 's/$releasever/{0}/g' /etc/yum.repos.d/virtualbox.repo".format(release))
+    # Install.
+    subprocess.run("""
 dnf install -y VirtualBox-{0}
 usermod -aG vboxusers {1}
 """.format(VBOXMAJORVERSION, USERNAMEVAR), shell=True, check=True)
