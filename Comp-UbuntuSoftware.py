@@ -281,7 +281,7 @@ ppa("ppa:numix/ppa")
 install("numix-icon-theme-circle")
 
 # Emulator ppa
-ppa("ppa:random-stuff/ppa")
+# ppa("ppa:random-stuff/ppa")
 
 # Adapta
 ppa("ppa:tista/adapta")
