@@ -6,6 +6,7 @@ import crypt
 from datetime import datetime
 import grp
 import json
+import hashlib
 import multiprocessing
 import os
 import pwd
@@ -239,9 +240,20 @@ elif args.vmtype == 3:
 
 # dlProgress function
 def dlProgress(count, blockSize, totalSize):
-  percent = int(count*blockSize*100/totalSize)
-  sys.stdout.write("\r" + "Progress...%d%%" % percent)
-  sys.stdout.flush()
+    """Get the progress of a download"""
+    percent = int(count*blockSize*100/totalSize)
+    sys.stdout.write("\r" + "Progress...%d%%" % percent)
+    sys.stdout.flush()
+def md5sum(filename, blocksize=65536):
+    """
+    Calculate the MD5Sum of a file
+    https://stackoverflow.com/a/21565932
+    """
+    hashmd5 = hashlib.md5()
+    with open(filename, "rb") as f:
+        for block in iter(lambda: f.read(blocksize), b""):
+            hashmd5.update(block)
+    return hashmd5.hexdigest()
 
 
 # Check iso
@@ -305,7 +317,7 @@ if os.path.isdir(SCRIPTDIR+"/unattend"):
 
 # Get hash for iso.
 print("Generating Checksum of {0}".format(isopath))
-md5 = subprocess.run("md5sum {0} | awk -F' ' '{{ print $1 }}'".format(isopath), shell=True, stdout=subprocess.PIPE, universal_newlines=True)
+md5 = md5sum(isopath)
 
 # Create Packer json configuration
 # Packer Builder Configuration
@@ -362,7 +374,7 @@ elif args.vmtype is 3:
         data['builders'][0]["tools_upload_path"] = "c:/Windows/Temp/windows.iso"
 data['builders'][0]["shutdown_command"] = "shutdown -P now"
 data['builders'][0]["iso_url"] = "file://"+isopath
-data['builders'][0]["iso_checksum"] = "{0}".format(md5.stdout.strip())
+data['builders'][0]["iso_checksum"] = md5
 data['builders'][0]["iso_checksum_type"] = "md5"
 data['builders'][0]["output_directory"] = "{0}".format(vmname)
 data['builders'][0]["http_directory"] = "unattend"
