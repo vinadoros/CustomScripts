@@ -218,6 +218,8 @@ if type gnome-session; then
   gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type nothing
   gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 1800
   gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type nothing
+	gsettings set org.gnome.settings-daemon.plugins.power lid-close-ac-action 'blank'
+	gsettings set org.gnome.settings-daemon.plugins.power lid-close-battery-action 'blank'
   gsettings set org.gnome.desktop.screensaver lock-enabled false
   if [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 ]]; then
   	gsettings set org.gnome.desktop.session idle-delay 0
