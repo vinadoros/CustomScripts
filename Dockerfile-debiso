@@ -6,7 +6,7 @@
 
 FROM debian:sid
 
-RUN apt update && apt install -y nano git build-essential debhelper devscripts live-build syslinux isolinux rsync
+RUN apt update && apt install -y nano git build-essential debhelper devscripts live-build syslinux isolinux rsync po4a
 # Get and build live-build from source
 RUN git clone http://anonscm.debian.org/git/debian-live/live-build.git && \
     cd live-build && \
