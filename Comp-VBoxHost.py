@@ -17,10 +17,6 @@ print("Running {0}".format(__file__))
 # Folder of this script
 SCRIPTDIR = sys.path[0]
 
-# Global Variables
-# Virtualbox Major Version
-VBOXMAJORVERSION = "5.2"
-
 # Get arguments
 parser = argparse.ArgumentParser(description='Install Virtualbox Host Software.')
 parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
@@ -67,6 +63,19 @@ def downloadfile(url, localpath):
         sys.exit("File {0} not downloaded. Exiting.".format(filename))
     return (fullpath, filename)
 
+
+# Detect major virtualbox version
+vboxver_url = "http://download.virtualbox.org/virtualbox/LATEST.TXT"
+vboxver_data = urllib.request.urlopen(vboxver_url)
+vboxfullver = vboxver_data.read().decode().strip().split(".")
+# Save the version if both split items are digits.
+if vboxfullver[0].isdigit() and vboxfullver[1].isdigit():
+    VBOXMAJORVERSION = vboxfullver[0] + "." + vboxfullver[1]
+else:
+    # Default to a fixed version if detection failed.
+    print("\nAutodetect of Virtualbox version failed. Defaulting to fixed value.")
+    VBOXMAJORVERSION = "5.2"
+print("Virtualbox major version is {0}.".format(VBOXMAJORVERSION))
 
 # Detect OS information
 distro = subpout("lsb_release -si")
