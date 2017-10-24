@@ -86,7 +86,7 @@ subprocess.call("yum install -y python34 python34-pip python36u python36u-pip na
 if args.replace is True:
     subprocess.call("yum swap -y git git2u", shell=True)
     # Bashfish script
-    bashfish = subprocess.Popen("python3.6 {0}/Comp-BashFish.py".format(SCRIPTDIR), shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+    bashfish = subprocess.Popen("python3.6 {0}/CBashFish.py".format(SCRIPTDIR), shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
     # Install kernel
     subprocess.check_output("""
     yum install -y kernel-ml kernel-ml-devel
@@ -96,7 +96,7 @@ else:
     subprocess.check_output("yum install -y git", shell=True)
 
 # Zram
-subprocess.check_output("python3.6 {0}/Comp-zram.py".format(SCRIPTDIR), shell=True)
+subprocess.check_output("python3.6 {0}/Czram.py".format(SCRIPTDIR), shell=True)
 
 # Docker
 if args.docker is True:

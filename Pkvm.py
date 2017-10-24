@@ -111,7 +111,7 @@ if 2 <= args.ostype <= 3:
     kvm_os = "linux"
     kvm_variant = "fedora22"
     isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1708.iso"
-    vmprovisionscript = "Comp-CentOS.py"
+    vmprovisionscript = "CCentOS.py"
 if args.ostype == 2:
     vmname = "Packer-CentOS-{0}".format(hvname)
     vmprovision_defopts = "-d -r"
@@ -149,7 +149,7 @@ if args.ostype == 40:
     vmname = "Packer-FreeBSD-{0}".format(hvname)
     vboxosid = "FreeBSD_64"
     vmwareid = "freebsd-64"
-    vmprovisionscript = "Comp-FreeBSD.sh"
+    vmprovisionscript = "CFreeBSD.sh"
     vmprovision_defopts = " "
     kvm_os = "freebsd"
     kvm_variant = "freebsd11.0"

@@ -87,12 +87,12 @@ if args.scripts is True:
     subprocess.run("""
     apt-get update
     apt-get install -y fish
-    {0}/Comp-BashFish.py
-    {0}/Comp-sdtimers.sh
+    {0}/CBashFish.py
+    {0}/Csdtimers.sh
     systemctl disable cron
-    {0}/Comp-zram.py -c 1
-    {0}/Comp-sshconfig.sh
-    {0}/Comp-CSClone.sh
+    {0}/Czram.py -c 1
+    {0}/Csshconfig.sh
+    {0}/CCSClone.sh
     """.format(SCRIPTDIR), shell=True)
 
 # upscript section

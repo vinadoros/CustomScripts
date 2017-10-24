@@ -16,7 +16,7 @@ SCRIPTDIR="$(dirname "$FLWSOURCE")"
 SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
-source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
+source "$SCRIPTDIR/CGeneralFunctions.sh"
 
 ###############################################################################
 #########################        Compose Script      ##########################
@@ -66,7 +66,7 @@ do
 	esac
 done
 
-source "$SCRIPTDIR/Comp-InitVars.sh"
+source "$SCRIPTDIR/CInitVars.sh"
 
 # Install a desktop environment. 0=do nothing, 1=KDE, 2=cinnamon, 3=GNOME, 4=xfce, 5=MATE
 if [ -z "$SETDE" ]; then
@@ -102,33 +102,33 @@ if [[ ! -d $USERHOME/.config/autostart/ ]]; then
 	chown -R $USERNAMEVAR:$USERGROUP $USERHOME/.config
 fi
 
-"$SCRIPTDIR/Comp-ArchAUR.py"
+"$SCRIPTDIR/CArchAUR.py"
 
-source "$SCRIPTDIR/Comp-ArchSoftware.sh"
+source "$SCRIPTDIR/CArchSoftware.sh"
 
-source "$SCRIPTDIR/Comp-sdtimers.sh"
+source "$SCRIPTDIR/Csdtimers.sh"
 
-source "$SCRIPTDIR/Comp-ArchCron.sh"
+source "$SCRIPTDIR/CArchCron.sh"
 
-source "$SCRIPTDIR/Comp-ArchVMGuest.sh"
+source "$SCRIPTDIR/CArchVMGuest.sh"
 
-source "$SCRIPTDIR/Comp-VMGeneral.sh"
+source "$SCRIPTDIR/CVMGeneral.sh"
 
-source "$SCRIPTDIR/Comp-sshconfig.sh"
+source "$SCRIPTDIR/Csshconfig.sh"
 
-"$SCRIPTDIR/Comp-BashFish.py"
+"$SCRIPTDIR/CBashFish.py"
 
-source "$SCRIPTDIR/Comp-CSClone.sh"
+source "$SCRIPTDIR/CCSClone.sh"
 
-source "$SCRIPTDIR/Comp-DisplayManagerConfig.sh"
+source "$SCRIPTDIR/CDisplayManagerConfig.sh"
 
-source "$SCRIPTDIR/Comp-SambaConfig.sh"
+source "$SCRIPTDIR/CSambaConfig.sh"
 
-source "$SCRIPTDIR/Comp-xdgdirs.sh"
+source "$SCRIPTDIR/Cxdgdirs.sh"
 
-"$SCRIPTDIR/Comp-zram.py"
+"$SCRIPTDIR/Czram.py"
 
-source "$SCRIPTDIR/Comp-SysConfig.sh"
+source "$SCRIPTDIR/CSysConfig.sh"
 
 sleep 1
 echo ""

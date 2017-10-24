@@ -9,7 +9,7 @@ SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
 # Add general functions if they don't exist.
-type -t grepadd &> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
+type -t grepadd &> /dev/null || source "$SCRIPTDIR/CGeneralFunctions.sh"
 
 # Set user folders.
 if [[ ! -z "$SUDO_USER" && "$SUDO_USER" != "root" ]]; then

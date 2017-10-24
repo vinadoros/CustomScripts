@@ -8,7 +8,7 @@ SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
 # Add general functions if they don't exist.
-type -t grepadd &> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
+type -t grepadd &> /dev/null || source "$SCRIPTDIR/CGeneralFunctions.sh"
 
 if [ "$(id -u)" != "0" ]; then
 	echo "Not running as root. Please run the script with sudo or root privledges."

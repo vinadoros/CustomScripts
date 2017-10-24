@@ -16,7 +16,7 @@ SCRIPTDIR="$(dirname "$FLWSOURCE")"
 SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
-source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
+source "$SCRIPTDIR/CGeneralFunctions.sh"
 
 ###############################################################################
 #########################        Compose Script      ##########################
@@ -64,7 +64,7 @@ do
 	esac
 done
 
-source "$SCRIPTDIR/Comp-InitVars.sh"
+source "$SCRIPTDIR/CInitVars.sh"
 
 # Unlock root account first
 ROOTACCTSTATUS=$(passwd -S root | awk '{print $2}')
@@ -91,27 +91,27 @@ if [[ $NOPROMPT != 1 ]]; then
 fi
 set -eu
 
-$SCRIPTDIR/Comp-UbuntuSoftware.py -d $SETDE
+$SCRIPTDIR/CUbuntuSoftware.py -d $SETDE
 
-source "$SCRIPTDIR/Comp-sdtimers.sh"
+source "$SCRIPTDIR/Csdtimers.sh"
 
-source "$SCRIPTDIR/Comp-sshconfig.sh"
+source "$SCRIPTDIR/Csshconfig.sh"
 
-"$SCRIPTDIR/Comp-BashFish.py"
+"$SCRIPTDIR/CBashFish.py"
 
-source "$SCRIPTDIR/Comp-CSClone.sh"
+source "$SCRIPTDIR/CCSClone.sh"
 
-source "$SCRIPTDIR/Comp-DisplayManagerConfig.sh"
+source "$SCRIPTDIR/CDisplayManagerConfig.sh"
 
-source "$SCRIPTDIR/Comp-SambaConfig.sh"
+source "$SCRIPTDIR/CSambaConfig.sh"
 
-source "$SCRIPTDIR/Comp-VMGeneral.sh"
+source "$SCRIPTDIR/CVMGeneral.sh"
 
-source "$SCRIPTDIR/Comp-xdgdirs.sh"
+source "$SCRIPTDIR/Cxdgdirs.sh"
 
-"$SCRIPTDIR/Comp-zram.py"
+"$SCRIPTDIR/Czram.py"
 
-source "$SCRIPTDIR/Comp-SysConfig.sh"
+source "$SCRIPTDIR/CSysConfig.sh"
 
 sleep 1
 echo ""

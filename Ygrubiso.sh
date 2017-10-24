@@ -15,7 +15,7 @@ SCRNAME="$(basename $SCRIPTSOURCE)"
 echo "Executing ${SCRNAME}."
 
 # Add general functions if they don't exist.
-type -t grepadd >> /dev/null || source "$SCRIPTDIR/Comp-GeneralFunctions.sh"
+type -t grepadd >> /dev/null || source "$SCRIPTDIR/CGeneralFunctions.sh"
 
 ISOFOLDER="$(readlink -f $1)"
 if [ ! -d "$ISOFOLDER" ]; then
