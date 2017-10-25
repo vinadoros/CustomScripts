@@ -46,16 +46,13 @@ print("Group Name is:", USERGROUP)
 # Get VM State
 # Detect QEMU
 with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
-    DATA = VAR.read().replace('\n', '')
-    QEMUGUEST = bool("QEMU" in DATA)
+    QEMUGUEST = bool("QEMU" in VAR.read().strip())
 # Detect Virtualbox
 with open('/sys/devices/virtual/dmi/id/product_name', 'r') as VAR:
-    DATA = VAR.read().replace('\n', '')
-    VBOXGUEST = bool("VirtualBox" in DATA)
+    VBOXGUEST = bool("VirtualBox" in VAR.read().strip())
 # Detect VMWare
 with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
-    DATA = VAR.read().replace('\n', '')
-    VMWGUEST = bool("VMware" in DATA)
+    VMWGUEST = bool("VMware" in VAR.read().strip())
 
 # Set up Fedora Repos
 REPOSCRIPT = """#!/bin/bash
