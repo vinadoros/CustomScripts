@@ -179,14 +179,13 @@ with open('/etc/shells', 'r') as VAR:
         subprocess.run('echo "{0}" >> /etc/shells'.format(FISHPATH), shell=True)
 
 # Syncthing
-if os.path.isfile("/etc/apt/sources.list.d/syncthing-release.list") is False:
-    subprocess.run("wget -qO- https://syncthing.net/release-key.txt | apt-key add -", shell=True)
-    # Write syncthing sources list
-    with open('/etc/apt/sources.list.d/syncthing-release.list', 'w') as stapt_writefile:
-        stapt_writefile.write("deb http://apt.syncthing.net/ syncthing release")
-    # Update and install syncthing:
-    update()
-    install("syncthing syncthing-inotify")
+subprocess.run("wget -qO- https://syncthing.net/release-key.txt | apt-key add -", shell=True)
+# Write syncthing sources list
+with open('/etc/apt/sources.list.d/syncthing-release.list', 'w') as stapt_writefile:
+    stapt_writefile.write("deb http://apt.syncthing.net/ syncthing release")
+# Update and install syncthing:
+update()
+install("syncthing syncthing-inotify")
 
 # General GUI software
 install("synaptic gdebi gparted xdg-utils leafpad nano p7zip-full p7zip-rar unrar")
