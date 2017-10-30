@@ -3,6 +3,7 @@
 
 # Python includes.
 import argparse
+import getpass
 import grp
 import os
 import platform
@@ -69,6 +70,8 @@ if SAMBAPASS == "asdf":
 
 
 if args.noprompt is False:
+    if SAMBAPASS == "asdf" or SAMBAPASS is None:
+        SAMBAPASS = getpass.getpass(prompt='Please enter a samba password:')
     input("Press Enter to continue.")
 
 
