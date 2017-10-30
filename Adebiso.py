@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 import time
+import urllib.request
 
 print("Running {0}".format(__file__))
 
@@ -16,7 +17,8 @@ print("Running {0}".format(__file__))
 if os.geteuid() is not 0:
     sys.exit("\nError: Please run this script as root.\n")
 
-USERHOME = "/root"
+# Get the root user's home folder.
+USERHOME = os.path.expanduser("~root")
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Build Debian LiveCD.')
@@ -38,6 +40,27 @@ if not os.path.isdir(outfolder):
 if args.noprompt is False:
     input("Press Enter to continue.")
 
+
+### Functions ###
+def subpout(cmd):
+    """Get output from subprocess"""
+    output = subprocess.run("{0}".format(cmd), shell=True, stdout=subprocess.PIPE, universal_newlines=True).stdout.strip()
+    return output
+def downloadfile(download_url, download_localpath):
+    """Retrieve a file and return its fullpath and filename"""
+    # Get filename for extensions
+    download_fileinfo = urllib.parse.urlparse(download_url)
+    download_filename = urllib.parse.unquote(os.path.basename(download_fileinfo.path))
+    download_fullpath = download_localpath + "/" + download_filename
+    # Download the file.
+    print("Downloading {0}.".format(download_filename))
+    urllib.request.urlretrieve(download_url, download_fullpath)
+    if not os.path.isfile(download_fullpath):
+        sys.exit("File {0} not downloaded. Exiting.".format(download_filename))
+    return (download_fullpath, download_filename)
+
+
+### Begin Prep Work ###
 # Make the build folder if it doesn't exist
 os.makedirs(buildfolder, 0o777, exist_ok=True)
 
@@ -90,6 +113,9 @@ mdadm
 chntpw
 debootstrap
 efibootmgr
+# Weresync
+python3-pkg-resources
+weresync
 # VM Utilities
 dkms
 spice-vdagent
@@ -99,6 +125,8 @@ open-vm-tools-dkms
 open-vm-tools-desktop
 virtualbox-guest-utils
 virtualbox-guest-dkms
+#virtualbox-guest-x11
+build-essential
 """
 pkgfolder=buildfolder+"/config/package-lists"
 pkgfile=pkgfolder+"/custom.list.chroot"
@@ -119,6 +147,13 @@ with open(pkgfile, 'w') as pkgfile_write:
 # print("Writing {0}".format(chrootrepofile))
 # with open(chrootrepofile, 'w') as chrootrepofile_write:
 #     chrootrepofile_write.write(REPOLIST)
+
+# Add packages
+PACKAGEFOLDER = buildfolder+"/config/packages.chroot"
+os.makedirs(PACKAGEFOLDER, exist_ok=True)
+# qt5-fsarchiver
+qtfsfile = downloadfile("https://downloads.sourceforge.net/project/qt4-fsarchiver/qt5-fsarchiver/deb-Pakete/Debian9.0/qt5-fsarchiver-0.8.1-1-amd64.deb", PACKAGEFOLDER)
+subprocess.run("dpkg-name -o {0}".format(qtfsfile[0]), shell=True)
 
 # # Add bootloader config
 if os.path.isdir(buildfolder+"/config/bootloaders"):
@@ -205,6 +240,9 @@ if ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf; then
 	echo 'HandleLidSwitch=lock' >> /etc/systemd/logind.conf
 fi
 
+# VM services
+systemctl enable virtualbox-guest-utils
+
 """
 chroothookfolder=buildfolder+"/config/hooks/normal"
 chroothookfile=chroothookfolder+"/custom.hook.chroot"
@@ -251,6 +289,7 @@ with open(boothookfile, 'w') as boothookfile_write:
     boothookfile_write.write(BOOTHOOKSCRIPT)
 os.chmod(boothookfile, 0o755)
 
+### Begin Actual Build ###
 # Build the live build
 beforetime = datetime.now()
 subprocess.run("cd {0}; lb build".format(buildfolder), shell=True)
