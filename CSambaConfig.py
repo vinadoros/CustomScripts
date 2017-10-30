@@ -51,6 +51,15 @@ def subpout(cmd):
     """Get output from subprocess"""
     output = subprocess.run("{0}".format(cmd), shell=True, stdout=subprocess.PIPE, universal_newlines=True).stdout.strip()
     return output
+def inputpassword():
+    """Get password from user"""
+    pprompt = lambda: (getpass.getpass(), getpass.getpass('Retype password: '))
+    p1, p2 = pprompt()
+    while p1 != p2:
+        print('Passwords do not match. Try again')
+        p1, p2 = pprompt()
+    return p1
+
 
 # Temp code write password to file
 with open(args.passfilepath, 'w') as VAR:
@@ -71,7 +80,8 @@ if SAMBAPASS == "asdf":
 
 if args.noprompt is False:
     if SAMBAPASS == "asdf" or SAMBAPASS is None:
-        SAMBAPASS = getpass.getpass(prompt='Please enter a samba password:')
+        print("\nPlease enter a samba password.")
+        SAMBAPASS = inputpassword()
     input("Press Enter to continue.")
 
 
