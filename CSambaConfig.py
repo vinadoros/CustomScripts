@@ -8,8 +8,10 @@ import grp
 import os
 import platform
 import pwd
+import shutil
 import subprocess
 import sys
+import time
 
 print("Running {0}".format(__file__))
 
@@ -59,6 +61,36 @@ def inputpassword():
         print('Passwords do not match. Try again')
         p1, p2 = pprompt()
     return p1
+def addsambatext(smbconfpath, folderpath):
+    """Add folder path to file handle smbf"""
+    if os.path.isdir(folderpath) and os.path.isfile(smbconfpath):
+        abs_path = os.path.abspath(folderpath)
+        basename_path = os.path.basename(abs_path)
+        # Special case of "/" for root filesystem
+        if abs_path == "/" and basename_path == "":
+            basename_path = "rootfs"
+        # Check if smbconf contains the path already as a share
+        with open(smbconfpath, 'r') as smbconf_readonly:
+            smbconf_lines = smbconf_readonly.readlines()
+            foundtext = False
+            for line in smbconf_lines:
+                if "[{0}]".format(basename_path) in line:
+                    foundtext = True
+        # Add the share if not found.
+        if foundtext is False:
+            print("Adding Path {0} to {1}.".format(abs_path, smbconfpath))
+            with open(smbconfpath, 'a') as smbconf_write:
+                smbconf_write.write("""
+    [{0}]
+    	force user = {2}
+    	write list = {2}
+    	writeable = yes
+    	force group = {3}
+    	valid users = {2}
+    	path = {1}
+    	delete readonly = yes""".format(basename_path, abs_path, USERNAMEVAR, USERGROUP))
+        else:
+            print("Path {0} was detected. Skipping.".format(abs_path))
 
 
 # Temp code write password to file
@@ -85,6 +117,7 @@ if args.noprompt is False:
     input("Press Enter to continue.")
 
 
+### Samba Password ###
 # Set samba password for given user.
 pdbout = subpout("pdbedit -L")
 if USERNAMEVAR not in pdbout or args.force is True:
@@ -98,3 +131,44 @@ else:
 # Remove sambapass file if it exists
 if os.path.exists(args.passfilepath) and os.path.isfile(args.passfilepath):
     os.remove(args.passfilepath)
+
+
+### Add Samba share entries ###
+smbconf = "/etc/samba/smb.conf"
+if os.path.isfile(smbconf):
+    # Backup smb.conf
+    currentdatetime = time.strftime("%Y-%m-%d_%H:%M")
+    shutil.copy2(smbconf, smbconf+".backup_"+currentdatetime)
+    # Add home folder of non-root user.
+    addsambatext(smbconf, USERHOME)
+    # Add root of filesystem.
+    addsambatext(smbconf, "/")
+    # Add detected folders under mnt.
+    mntfolder = "/mnt"
+    mntitems = os.listdir(mntfolder)
+    for item in mntitems:
+        mntabspathitem = os.path.abspath(mntfolder+"/"+item)
+        if os.path.isdir(mntabspathitem):
+            print("Detected {0}".format(mntabspathitem))
+            addsambatext(smbconf, mntabspathitem)
+
+
+### Avahi and nsswitch changes ###
+nsswitchconf = "/etc/nsswitch.conf"
+if os.path.isfile(nsswitchconf) is True:
+    status = subprocess.run('grep -iq "^hosts:.*mdns_minimal" {0}'.format(nsswitchconf), shell=True)
+    if status.returncode is not 0:
+        print("Adding mdns_minimal to {0}.".format(nsswitchconf))
+        subprocess.run("sed -i '/^hosts:/ s=files=files mdns_minimal=' {0}".format(nsswitchconf), shell=True, check=True)
+    else:
+        print("{0} already modified. Skipping.".format(nsswitchconf))
+else:
+    print("{0} not found.".format(nsswitchconf))
+
+avahidaemonconf = "/etc/avahi/avahi-daemon.conf"
+if os.path.isfile(avahidaemonconf):
+    print("Modifying {0}".format(avahidaemonconf))
+    subprocess.run("sed -i 's/^use-ipv6=.*$/use-ipv6=yes/' {0}".format(avahidaemonconf), shell=True, check=True)
+    subprocess.run("sed -i 's/^publish-workstation=.*$/publish-workstation=yes/' {0}".format(avahidaemonconf), shell=True, check=True)
+else:
+    print("{0} not found.".format(avahidaemonconf))
