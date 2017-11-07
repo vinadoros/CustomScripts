@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
+"""Install OpenSUSE Software"""
 
 # Python includes.
 import argparse
-from datetime import datetime, timedelta
 import grp
 import os
 import platform
@@ -10,17 +10,20 @@ import pwd
 import shutil
 import subprocess
 import sys
-import urllib.request
 
 print("Running {0}".format(__file__))
 
+# Folder of this script
+SCRIPTDIR = sys.path[0]
+
 # Get arguments
 parser = argparse.ArgumentParser(description='Install OpenSUSE Software.')
-parser.add_argument("-d", "--desktop", dest="desktop", type=int, help='Desktop Environment', default="0")
+parser.add_argument("-d", "--desktop", type=int, help='Desktop Environment', default="0")
+parser.add_argument("-a", "--allextra", help='Run Extra Scripts', action="store_true")
 
 # Save arguments.
 args = parser.parse_args()
-print("Desktop Environment:",args.desktop)
+print("Desktop Environment:", args.desktop)
 
 # Exit if not root.
 if os.geteuid() is not 0:
@@ -35,37 +38,25 @@ else:
     # https://docs.python.org/3/library/pwd.html
     USERNAMEVAR = pwd.getpwuid(1000)[0]
 # https://docs.python.org/3/library/grp.html
-USERGROUP=grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
-USERHOME=os.path.expanduser("~{0}".format(USERNAMEVAR))
+USERGROUP = grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
+USERHOME = os.path.expanduser("~{0}".format(USERNAMEVAR))
 MACHINEARCH = platform.machine()
-print("Username is:",USERNAMEVAR)
-print("Group Name is:",USERGROUP)
+print("Username is:", USERNAMEVAR)
+print("Group Name is:", USERGROUP)
 
 # Get VM State
 # Detect QEMU
 with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
-    DATA=VAR.read().replace('\n', '')
-    if "QEMU" in DATA:
-        QEMUGUEST=True
-    else:
-        QEMUGUEST=False
+    QEMUGUEST = bool("QEMU" in VAR.read().strip())
 # Detect Virtualbox
 with open('/sys/devices/virtual/dmi/id/product_name', 'r') as VAR:
-    DATA=VAR.read().replace('\n', '')
-    if "VirtualBox" in DATA:
-        VBOXGUEST=True
-    else:
-     	VBOXGUEST=False
+    VBOXGUEST = bool("VirtualBox" in VAR.read().strip())
 # Detect VMWare
 with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
-    DATA=VAR.read().replace('\n', '')
-    if "VMware" in DATA:
-        VMWGUEST=True
-    else:
-     	VMWGUEST=False
+    VMWGUEST = bool("VMware" in VAR.read().strip())
 
 # Set up OpenSUSE Repos
-REPOSCRIPT="""#!/bin/bash
+REPOSCRIPT = """#!/bin/bash
 
 # Remove existing CD repo
 source /etc/os-release
@@ -100,7 +91,7 @@ zypper --non-interactive --gpg-auto-import-keys refresh
 subprocess.run(REPOSCRIPT, shell=True)
 
 # Install Software
-SOFTWARESCRIPT="""
+SOFTWARESCRIPT = """
 # Install cli tools
 zypper in -yl fish nano tmux iotop rsync p7zip zip unzip xdg-utils xdg-user-dirs
 
@@ -170,24 +161,24 @@ systemctl enable NetworkManager
 """.format(USERNAMEVAR)
 # Install software for VMs
 if QEMUGUEST is True:
-    SOFTWARESCRIPT+="""
+    SOFTWARESCRIPT += """
 # Guest Agent
 zypper in -yl spice-vdagent qemu-guest-agent
 """
 if VBOXGUEST is True:
-    SOFTWARESCRIPT+="""
+    SOFTWARESCRIPT += """
 """
 if VMWGUEST is True:
-    SOFTWARESCRIPT+="""
+    SOFTWARESCRIPT += """
 # VM tools
 zypper in -yl open-vm-tools open-vm-tools-desktop
 """
 subprocess.run(SOFTWARESCRIPT, shell=True)
 
 # Install Desktop Software
-DESKTOPSCRIPT=""""""
-if args.desktop is 1:
-    DESKTOPSCRIPT+="""
+DESKTOPSCRIPT = """"""
+if args.desktop == 1:
+    DESKTOPSCRIPT += """
 # Gnome
 zypper in -yl -t pattern gnome_admin gnome_basis gnome_basis_opt gnome_imaging gnome_utilities gnome_laptop gnome_yast sw_management_gnome
 zypper in -yl eog gedit gedit-plugins dconf-editor caribou evince gnome-disk-utility gnome-logs gnome-system-monitor nautilus-evince mousetweaks
@@ -198,8 +189,8 @@ zypper in -yl gnome-shell-extension-gpaste gnome-shell-classic
 zypper in -yl gdm
 sed -i 's/DISPLAYMANAGER=.*$/DISPLAYMANAGER="gdm"/g' /etc/sysconfig/displaymanager
 """
-elif args.desktop is 2:
-    DESKTOPSCRIPT+="""
+elif args.desktop == 2:
+    DESKTOPSCRIPT += """
 # KDE
 if rpm -iq patterns-yast-x11_yast; then
     zypper rm -y patterns-yast-x11_yast
@@ -212,8 +203,8 @@ zypper in -yl libappindicator1 libappindicator3-1 sni-qt sni-qt-32bit
 zypper in -yl sddm
 sed -i 's/DISPLAYMANAGER=.*$/DISPLAYMANAGER="sddm"/g' /etc/sysconfig/displaymanager
 """
-elif args.desktop is 3:
-    DESKTOPSCRIPT+="""
+elif args.desktop == 3:
+    DESKTOPSCRIPT += """
 # MATE
 zypper in -yl -t pattern mate_basis mate_admin mate_utilities
 # Applications
@@ -223,7 +214,7 @@ zypper in -yl lightdm lightdm-gtk-greeter
 sed -i 's/DISPLAYMANAGER=.*$/DISPLAYMANAGER="lightdm"/g' /etc/sysconfig/displaymanager
 """
 
-DESKTOPSCRIPT+="""
+DESKTOPSCRIPT += """
 systemctl set-default graphical.target
 
 # Delete defaults in sudoers.
@@ -238,7 +229,7 @@ subprocess.run(DESKTOPSCRIPT, shell=True)
 
 # Edit sudoers to add zypper.
 if os.path.isdir('/etc/sudoers.d'):
-    CUSTOMSUDOERSPATH="/etc/sudoers.d/pkmgt"
+    CUSTOMSUDOERSPATH = "/etc/sudoers.d/pkmgt"
     print("Writing {0}".format(CUSTOMSUDOERSPATH))
     with open(CUSTOMSUDOERSPATH, 'w') as sudoers_writefile:
         sudoers_writefile.write("""%wheel ALL=(ALL) ALL
@@ -256,7 +247,7 @@ if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
     subprocess.run("zypper in -yl virtualbox", shell=True)
 
 # Configure Fonts
-FONTSCRIPT="""
+FONTSCRIPT = """
 sed -i 's/^VERBOSITY=.*$/VERBOSITY="1"/g' /etc/sysconfig/fonts-config
 sed -i 's/^FORCE_HINTSTYLE=.*$/FORCE_HINTSTYLE="hintfull"/g' /etc/sysconfig/fonts-config
 sed -i 's/^USE_LCDFILTER=.*$/USE_LCDFILTER="lcddefault"/g' /etc/sysconfig/fonts-config
@@ -267,7 +258,7 @@ sed -i 's/^USE_RGBA=.*$/USE_RGBA="rgb"/g' /etc/sysconfig/fonts-config
 subprocess.run(FONTSCRIPT, shell=True)
 
 # Add to cron
-ZYPPERCRONSCRIPT="/etc/cron.daily/updclnscript"
+ZYPPERCRONSCRIPT = "/etc/cron.daily/updclnscript"
 if os.path.isdir('/etc/cron.daily'):
     print("Writing {0}".format(ZYPPERCRONSCRIPT))
     with open(ZYPPERCRONSCRIPT, 'w') as zyppercron_writefile:
@@ -280,7 +271,7 @@ purge-kernels
     os.chmod(ZYPPERCRONSCRIPT, 0o777)
 
 # Add normal user to all reasonable groups
-GROUPSCRIPT="""
+GROUPSCRIPT = """
 # Get all groups
 LISTOFGROUPS="$(cut -d: -f1 /etc/group)"
 # Remove some groups
@@ -291,3 +282,17 @@ for grp in $CUTGROUPS; do
 done
 """.format(USERNAMEVAR)
 subprocess.run(GROUPSCRIPT, shell=True)
+
+# Extra scripts
+if args.allextra is True:
+    subprocess.run("{0}/Csdtimers.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CBashFish.py".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CCSClone.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CDisplayManagerConfig.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CVMGeneral.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/Cxdgdirs.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
+
+print("\nScript End")

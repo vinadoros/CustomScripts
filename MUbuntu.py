@@ -18,7 +18,8 @@ SCRIPTDIR = sys.path[0]
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Install Ubuntu Software.')
-parser.add_argument("-d", "--desktop", dest="desktop", type=int, help='Desktop Environment', default="0")
+parser.add_argument("-d", "--desktop", type=int, help='Desktop Environment', default="0")
+parser.add_argument("-a", "--allextra", help='Run Extra Scripts', action="store_true")
 
 # Save arguments.
 args = parser.parse_args()
@@ -42,26 +43,6 @@ USERHOME = os.path.expanduser("~{0}".format(USERNAMEVAR))
 MACHINEARCH = platform.machine()
 print("Username is:", USERNAMEVAR)
 print("Group Name is:", USERGROUP)
-
-# Select ubuntu url
-UBUNTUURL = "http://archive.ubuntu.com/ubuntu/"
-UBUNTUARMURL = "http://ports.ubuntu.com/ubuntu-ports/"
-if MACHINEARCH == "armhf":
-    URL = UBUNTUARMURL
-else:
-    URL = UBUNTUURL
-print("Ubuntu URL is "+URL)
-
-# Get VM State
-# Detect QEMU
-with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
-    QEMUGUEST = bool("QEMU" in VAR.read().strip())
-# Detect Virtualbox
-with open('/sys/devices/virtual/dmi/id/product_name', 'r') as VAR:
-    VBOXGUEST = bool("VirtualBox" in VAR.read().strip())
-# Detect VMWare
-with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
-    VMWGUEST = bool("VMware" in VAR.read().strip())
 
 
 ### Functions ###
@@ -87,6 +68,33 @@ def ppa(ppasource):
     update()
     subprocess.run("/usr/local/bin/keymissing", shell=True)
 
+# Check if root password is set.
+rootacctstatus = subpout("passwd -S root | awk '{{print $2}}'")
+if "P" not in rootacctstatus:
+    print("Please set the root password.")
+    subprocess.run("passwd root", shell=True)
+    print("Please rerun this script now that the root account is unlocked.")
+    sys.exit(1)
+
+# Select ubuntu url
+UBUNTUURL = "http://archive.ubuntu.com/ubuntu/"
+UBUNTUARMURL = "http://ports.ubuntu.com/ubuntu-ports/"
+if MACHINEARCH == "armhf":
+    URL = UBUNTUARMURL
+else:
+    URL = UBUNTUURL
+print("Ubuntu URL is "+URL)
+
+# Get VM State
+# Detect QEMU
+with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
+    QEMUGUEST = bool("QEMU" in VAR.read().strip())
+# Detect Virtualbox
+with open('/sys/devices/virtual/dmi/id/product_name', 'r') as VAR:
+    VBOXGUEST = bool("VirtualBox" in VAR.read().strip())
+# Detect VMWare
+with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
+    VMWGUEST = bool("VMware" in VAR.read().strip())
 
 # Keymissing script
 with open('/usr/local/bin/keymissing', 'w') as writefile:
@@ -348,3 +356,17 @@ if os.path.isdir('/etc/sudoers.d'):
     if status.returncode is not 0:
         print("Visudo status not 0, removing sudoers file.")
         os.remove(CUSTOMSUDOERSPATH)
+
+# Extra scripts
+if args.allextra is True:
+    subprocess.run("{0}/Csdtimers.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CBashFish.py".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CCSClone.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CDisplayManagerConfig.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CVMGeneral.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/Cxdgdirs.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
+
+print("\nScript End")

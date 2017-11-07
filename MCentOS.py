@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+"""Install CentOS Software"""
 
 # Includes
 import argparse

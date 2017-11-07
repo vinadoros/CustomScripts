@@ -98,8 +98,8 @@ elif args.vmtype == 3:
 # KVM os options can be found by running "osinfo-query os"
 if args.ostype == 1:
     vmname = "Packer-Fedora-{0}".format(hvname)
-    vmprovisionscript = "MFedora.sh"
-    vmprovision_defopts = "-n -e {1} -s {0}".format(args.vmpass, args.desktopenv)
+    vmprovisionscript = "MFedora.py"
+    vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
     kvm_os = "linux"
@@ -111,7 +111,7 @@ if 2 <= args.ostype <= 3:
     kvm_os = "linux"
     kvm_variant = "fedora22"
     isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1708.iso"
-    vmprovisionscript = "CCentOS.py"
+    vmprovisionscript = "MCentOS.py"
 if args.ostype == 2:
     vmname = "Packer-CentOS-{0}".format(hvname)
     vmprovision_defopts = "-d -r"
@@ -122,8 +122,8 @@ if args.ostype == 10:
     vmname = "Packer-Ubuntu1710-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
     vmwareid = "ubuntu-64"
-    vmprovisionscript = "MUbuntu.sh"
-    vmprovision_defopts = "-n -e {1} -s {0}".format(args.vmpass, args.desktopenv)
+    vmprovisionscript = "MUbuntu.py"
+    vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
     kvm_os = "linux"
     kvm_variant = "ubuntu16.04"
     isourl = "http://releases.ubuntu.com/17.10/ubuntu-17.10-server-amd64.iso"
@@ -131,8 +131,8 @@ if args.ostype == 11:
     vmname = "Packer-Ubuntu1604-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
     vmwareid = "ubuntu-64"
-    vmprovisionscript = "MUbuntu.sh"
-    vmprovision_defopts = "-n -e {1} -s {0}".format(args.vmpass, args.desktopenv)
+    vmprovisionscript = "MUbuntu.py"
+    vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
     kvm_os = "linux"
     kvm_variant = "ubuntu16.04"
     isourl = "http://releases.ubuntu.com/16.04/ubuntu-16.04.3-server-amd64.iso"
@@ -140,8 +140,8 @@ if args.ostype == 20:
     vmname = "Packer-OpenSuseTW-{0}".format(hvname)
     vboxosid = "OpenSUSE_64"
     vmwareid = "ubuntu-64"
-    vmprovisionscript = "Mopensuse.sh"
-    vmprovision_defopts = "-n -e {1} -s {0}".format(args.vmpass, args.desktopenv)
+    vmprovisionscript = "MOpensuse.py"
+    vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
     kvm_os = "linux"
     kvm_variant = "opensusetumbleweed"
     isourl = "http://download.opensuse.org/tumbleweed/iso/openSUSE-Tumbleweed-DVD-x86_64-Current.iso"

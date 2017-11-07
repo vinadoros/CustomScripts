@@ -18,7 +18,8 @@ SCRIPTDIR = sys.path[0]
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Install Fedora Software.')
-parser.add_argument("-d", "--desktop", dest="desktop", type=int, help='Desktop Environment', default="0")
+parser.add_argument("-d", "--desktop", type=int, help='Desktop Environment', default="0")
+parser.add_argument("-a", "--allextra", help='Run Extra Scripts', action="store_true")
 
 # Save arguments.
 args = parser.parse_args()
@@ -54,6 +55,19 @@ with open('/sys/devices/virtual/dmi/id/product_name', 'r') as VAR:
 with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
     VMWGUEST = bool("VMware" in VAR.read().strip())
 
+### Functions ###
+def update():
+    """Update system"""
+    subprocess.run("dnf update -y", shell=True)
+def install(apps):
+    """Install application(s)"""
+    print("\nInstalling {0}".format(apps))
+    subprocess.run("dnf install -y {0}".format(apps), shell=True)
+def subpout(cmd):
+    """Get output from subprocess"""
+    output = subprocess.run("{0}".format(cmd), shell=True, stdout=subprocess.PIPE, universal_newlines=True).stdout.strip()
+    return output
+
 # Set up Fedora Repos
 REPOSCRIPT = """#!/bin/bash
 
@@ -73,74 +87,56 @@ dnf config-manager --add-repo "http://download.opensuse.org/repositories/shells:
 
 # Adapta
 dnf copr enable -y heikoada/gtk-themes
-
-# Update
-dnf update -y
 """
 subprocess.run(REPOSCRIPT, shell=True)
 
-# Install Fedora Software
-SOFTWARESCRIPT = """
-# Install cli tools
-dnf install -y fish nano tmux iotop rsync p7zip p7zip-plugins zip unzip unrar xdg-utils xdg-user-dirs util-linux-user fuse-sshfs redhat-lsb-core openssh-server openssh-clients
-systemctl enable sshd
+# Update system after enabling repos.
+update()
 
-# Install GUI packages
-dnf install -y @fonts @base-x @networkmanager-submodules avahi
-dnf install -y powerline-fonts google-roboto-fonts google-noto-sans-fonts
-
+### Install Fedora Software ###
+# Cli tools
+install("fish nano tmux iotop rsync p7zip p7zip-plugins zip unzip unrar xdg-utils xdg-user-dirs util-linux-user fuse-sshfs redhat-lsb-core openssh-server openssh-clients")
+subprocess.run("systemctl enable sshd", shell=True)
+# GUI Packages
+install("@fonts @base-x @networkmanager-submodules avahi")
+install("powerline-fonts google-roboto-fonts google-noto-sans-fonts")
 # Management tools
-dnf install -y yumex-dnf dnfdragora dnfdragora-gui gparted
-
-# Install browsers
-# dnf install -y chromium
-dnf install -y https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
-dnf install -y @firefox freshplayerplugin
-dnf install -y flash-plugin
-
+install("yumex-dnf dnfdragora dnfdragora-gui gparted")
+# Browsers
+install("https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm")
+install("@firefox freshplayerplugin")
+install("flash-plugin")
 # Samba
-dnf install -y samba
-systemctl enable smb
-
-# NTP configuration
-systemctl enable systemd-timesyncd
-timedatectl set-local-rtc false
-timedatectl set-ntp 1
-
+install("samba")
+subprocess.run("systemctl enable smb", shell=True)
+# NTP Configuration
+subprocess.run("systemctl enable systemd-timesyncd; timedatectl set-local-rtc false; timedatectl set-ntp 1", shell=True)
 # Cups
-dnf install -y cups-pdf
-
+install("cups-pdf")
 # Wine
-dnf install -y wine playonlinux
-
+install("wine playonlinux")
 # Audio/video
-dnf install -y pulseaudio-module-zeroconf pulseaudio-utils paprefs ladspa-swh-plugins
-dnf install -y gstreamer1-libav gstreamer1-vaapi gstreamer1-plugins-ugly gstreamer1-plugins-bad-freeworld gstreamer1-plugins-bad-nonfree
-dnf install -y youtube-dl ffmpeg vlc smplayer mpv
-dnf install -y audacious audacious-plugins-freeworld
-
+install("pulseaudio-module-zeroconf pulseaudio-utils paprefs ladspa-swh-plugins")
+install("gstreamer1-libav gstreamer1-vaapi gstreamer1-plugins-ugly gstreamer1-plugins-bad-freeworld gstreamer1-plugins-bad-nonfree")
+install("youtube-dl ffmpeg vlc smplayer mpv")
+install("audacious audacious-plugins-freeworld")
 # Editors
-dnf install -y code
-
+install("code")
 # Tilix
-dnf install -y tilix tilix-nautilus
-
+install("tilix tilix-nautilus")
 # Remote access
-dnf install -y remmina remmina-plugins-vnc remmina-plugins-rdp
-
+install("remmina remmina-plugins-vnc remmina-plugins-rdp")
 # Syncthing
-dnf copr enable -y decathorpe/syncthing
-dnf install -y syncthing syncthing-inotify
+subprocess.run("dnf copr enable -y decathorpe/syncthing", shell=True)
+install("syncthing syncthing-inotify")
 
-"""
 # Install software for VMs
 if QEMUGUEST is True:
-    SOFTWARESCRIPT += "\ndnf install -y spice-vdagent qemu-guest-agent"
+    install("spice-vdagent qemu-guest-agent")
 if VBOXGUEST is True:
-    SOFTWARESCRIPT += "\ndnf install -y VirtualBox-guest-additions kmod-VirtualBox"
+    install("VirtualBox-guest-additions kmod-VirtualBox")
 if VMWGUEST is True:
-    SOFTWARESCRIPT += "\ndnf install -y open-vm-tools open-vm-tools-desktop"
-subprocess.run(SOFTWARESCRIPT, shell=True)
+    install("open-vm-tools open-vm-tools-desktop")
 
 # Install Desktop Software
 DESKTOPSCRIPT = """"""
@@ -231,7 +227,7 @@ if os.path.isdir('/etc/sudoers.d'):
 # Run only on real machine
 if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
     # Powertop
-    subprocess.run("dnf install -y powertop smartmontools hdparm; systemctl enable powertop", shell=True)
+    install("powertop smartmontools hdparm; systemctl enable powertop")
 
 # Use atom unofficial repo
 # https://github.com/alanfranz/atom-text-editor-repository
@@ -245,9 +241,23 @@ gpgcheck=0
 enabled=1
 gpgkey=https://www.franzoni.eu/keys/D401AB61.txt""")
 # Install Atom
-subprocess.run("dnf install -y atom", shell=True)
+install("atom")
 
 # Disable Selinux
 # To get selinux status: sestatus, getenforce
 # To enable or disable selinux temporarily: setenforce 1 (to enable), setenforce 0 (to disable)
 subprocess.run("sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /etc/sysconfig/selinux", shell=True)
+
+# Extra scripts
+if args.allextra is True:
+    subprocess.run("{0}/Csdtimers.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CBashFish.py".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CCSClone.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CDisplayManagerConfig.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CVMGeneral.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/Cxdgdirs.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
+
+print("\nScript End")
