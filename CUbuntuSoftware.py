@@ -290,6 +290,7 @@ if QEMUGUEST is True:
 if VBOXGUEST is True:
     install("virtualbox-guest-utils virtualbox-guest-x11 virtualbox-guest-dkms dkms")
     subprocess.run("gpasswd -a {0} vboxsf".format(USERNAMEVAR), shell=True)
+    subprocess.run("systemctl enable virtualbox-guest-utils", shell=True)
 if VMWGUEST is True:
     install("open-vm-tools open-vm-tools-dkms open-vm-tools-desktop")
 
