@@ -149,7 +149,7 @@ if args.ostype == 40:
     vmname = "Packer-FreeBSD-{0}".format(hvname)
     vboxosid = "FreeBSD_64"
     vmwareid = "freebsd-64"
-    vmprovisionscript = "CFreeBSD.sh"
+    vmprovisionscript = "MFreeBSD.sh"
     vmprovision_defopts = " "
     kvm_os = "freebsd"
     kvm_variant = "freebsd11.0"
