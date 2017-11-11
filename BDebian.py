@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Install Debian in a Chroot"""
 
 # Python includes.
 import argparse
@@ -251,7 +252,7 @@ chmod a+rwx "/opt/CustomScripts"
 """.format(DEBARCH=args.architecture)
 
 # Init grub script
-GRUBSCRIPT="""#!/bin/bash
+GRUBSCRIPT = """#!/bin/bash
 
 # Debian Grub Script
 
@@ -290,7 +291,7 @@ else:
 # Use autodetected or specified grub partition.
 if args.grubtype == 2:
     # Add if partition is a block device
-    if stat.S_ISBLK(os.stat(grubpart).st_mode) == True:
+    if stat.S_ISBLK(os.stat(grubpart).st_mode) is True:
         GRUBSCRIPT += """
 DEBIAN_FRONTEND=noninteractive apt install -y grub-pc
 update-grub2
@@ -301,14 +302,14 @@ grub-install --target=i386-pc --recheck --debug {0}
 # Use efi partitioning
 elif args.grubtype == 3:
     # Add if /boot/efi is mounted, and partition is a block device.
-    if os.path.ismount("{0}/boot/efi".format(absinstallpath)) == True and stat.S_ISBLK(os.stat(grubpart).st_mode) == True:
+    if os.path.ismount("{0}/boot/efi".format(absinstallpath)) is True and stat.S_ISBLK(os.stat(grubpart).st_mode) is True:
         GRUBSCRIPT += """
 DEBIAN_FRONTEND=noninteractive apt install -y grub-efi-amd64
 update-grub2
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id={0} --recheck --debug
 """.format(args.type)
     else:
-        print("ERROR Grub Mode 3, {0}/boot/efi isn't a mount point or {0} is not a block device.".format(absinstallpath, grubpart))
+        print("ERROR Grub Mode 3, {0}/boot/efi isn't a mount point or {1} is not a block device.".format(absinstallpath, grubpart))
 
 # Close the setup script.
 SETUPSCRIPT_PATH = absinstallpath+"/setupscript.sh"
