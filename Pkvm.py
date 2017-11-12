@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Create a virtual machine image using Packer"""
 
 # Python includes.
 import argparse
@@ -20,6 +21,27 @@ print("Running {0}".format(__file__))
 
 # Folder of this script
 SCRIPTDIR = sys.path[0]
+
+### Functions ###
+def subpout(subpcmd):
+    """Get output from subprocess"""
+    output = subprocess.run("{0}".format(subpcmd), shell=True, stdout=subprocess.PIPE, universal_newlines=True).stdout.strip()
+    return output
+def dlProgress(count, blockSize, totalSize):
+    """Get the progress of a download"""
+    percent = int(count*blockSize*100/totalSize)
+    sys.stdout.write("\r" + "Progress...%d%%" % percent)
+    sys.stdout.flush()
+def md5sum(md5_filename, blocksize=65536):
+    """
+    Calculate the MD5Sum of a file
+    https://stackoverflow.com/a/21565932
+    """
+    hashmd5 = hashlib.md5()
+    with open(md5_filename, "rb") as f:
+        for block in iter(lambda: f.read(blocksize), b""):
+            hashmd5.update(block)
+    return hashmd5.hexdigest()
 
 # Exit if root.
 if os.geteuid() is 0:
@@ -210,7 +232,7 @@ if args.vmname is not None:
     vmname = args.vmname
 print("VM Name is {0}".format(vmname))
 
-if args.noprompt == False:
+if args.noprompt is False:
     input("Press Enter to continue.")
 
 # Set up VM hypervisor settings
@@ -226,35 +248,13 @@ if args.vmtype == 1:
 
 # Delete leftover VMs
 if args.vmtype == 1:
-    DELETESCRIPT="""#!/bin/bash
-    if VBoxManage list vms | grep -i "{0}"; then
-      VBoxManage unregistervm "{0}" --delete
-    fi
-    """.format(vmname)
-    subprocess.run(DELETESCRIPT, shell=True)
+    vboxvmlist = subpout("VBoxManage list vms")
+    if vmname in vboxvmlist:
+        subprocess.run('VBoxManage unregistervm "{0}" --delete'.format(vmname), shell=True)
 elif args.vmtype == 2:
     print("Delete KVM image.")
 elif args.vmtype == 3:
     print("Delete vmware image.")
-
-
-# dlProgress function
-def dlProgress(count, blockSize, totalSize):
-    """Get the progress of a download"""
-    percent = int(count*blockSize*100/totalSize)
-    sys.stdout.write("\r" + "Progress...%d%%" % percent)
-    sys.stdout.flush()
-def md5sum(filename, blocksize=65536):
-    """
-    Calculate the MD5Sum of a file
-    https://stackoverflow.com/a/21565932
-    """
-    hashmd5 = hashlib.md5()
-    with open(filename, "rb") as f:
-        for block in iter(lambda: f.read(blocksize), b""):
-            hashmd5.update(block)
-    return hashmd5.hexdigest()
-
 
 # Check iso
 if args.iso is not None:
@@ -269,7 +269,7 @@ else:
     isopath = vmpath+"/"+filename
     if os.path.isfile(isopath) is False:
         # Download the file if it doesn't exist.
-        print("Downloading",filename,"from",isourl)
+        print("Downloading", filename, "from", isourl)
         urllib.request.urlretrieve(isourl, filename, reporthook=dlProgress)
 if os.path.isfile(isopath) is True:
     print("Path to ISO is {0}".format(isopath))
@@ -287,10 +287,10 @@ os.chdir(packer_temp_folder)
 # Detect root ssh key.
 if args.sshkey is not None:
     sshkey = args.rootsshkey
-elif os.path.isfile(USERHOME+"/.ssh/id_ed25519.pub") == True:
+elif os.path.isfile(USERHOME+"/.ssh/id_ed25519.pub") is True:
     with open(USERHOME+"/.ssh/id_ed25519.pub", 'r') as sshfile:
         sshkey = sshfile.read().replace('\n', '')
-elif os.path.isfile(USERHOME+"/.ssh/id_rsa.pub") == True:
+elif os.path.isfile(USERHOME+"/.ssh/id_rsa.pub") is True:
     with open(USERHOME+"/.ssh/id_rsa.pub", 'r') as sshfile:
         sshkey = sshfile.read().replace('\n', '')
 else:
@@ -304,7 +304,7 @@ sha512_password = crypt.crypt(args.vmpass, crypt.mksalt(crypt.METHOD_SHA512))
 
 # Copy unattend script folder
 if os.path.isdir(SCRIPTDIR+"/unattend"):
-    tempunattendfolder=packer_temp_folder+"/unattend"
+    tempunattendfolder = packer_temp_folder+"/unattend"
     shutil.copytree(SCRIPTDIR+"/unattend", tempunattendfolder)
     # Set usernames and passwords
     subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's/INSERTUSERHERE/{1}/g'".format(tempunattendfolder, args.vmuser), shell=True)
@@ -322,20 +322,20 @@ md5 = md5sum(isopath)
 # Create Packer json configuration
 # Packer Builder Configuration
 data = {}
-data['builders']=['']
-data['builders'][0]={}
-if args.vmtype is 1:
+data['builders'] = ['']
+data['builders'][0] = {}
+if args.vmtype == 1:
     data['builders'][0]["type"] = "virtualbox-iso"
     data['builders'][0]["guest_os_type"] = "{0}".format(vboxosid)
     data['builders'][0]["vm_name"] = "{0}".format(vmname)
     data['builders'][0]["vboxmanage"] = ['']
-    data['builders'][0]["vboxmanage"][0]= ["modifyvm", "{{.Name}}", "--memory", "{0}".format(args.memory)]
+    data['builders'][0]["vboxmanage"][0] = ["modifyvm", "{{.Name}}", "--memory", "{0}".format(args.memory)]
     data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--vram", "40"])
     data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--cpus", "{0}".format(CPUCORES)])
     data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--nic2", "hostonly"])
     data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--hostonlyadapter2", "vboxnet0"])
     data['builders'][0]["vboxmanage_post"] = ['']
-    data['builders'][0]["vboxmanage_post"][0]= ["sharedfolder", "add", "{{.Name}}", "--name", "root", "--hostpath", "/", "--automount"]
+    data['builders'][0]["vboxmanage_post"][0] = ["sharedfolder", "add", "{{.Name}}", "--name", "root", "--hostpath", "/", "--automount"]
     data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--clipboard", "bidirectional"])
     data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--accelerate3d", "on"])
     data['builders'][0]["post_shutdown_delay"] = "30s"
@@ -347,7 +347,7 @@ if args.vmtype is 1:
         data['builders'][0]["headless"] = "true"
         data['builders'][0]["guest_additions_mode"] = "upload"
         data['builders'][0]["guest_additions_path"] = "c:/Windows/Temp/windows.iso"
-elif args.vmtype is 2:
+elif args.vmtype == 2:
     data['builders'][0]["type"] = "qemu"
     data['builders'][0]["accelerator"] = "kvm"
     if 50 <= args.ostype <= 59:
@@ -358,17 +358,17 @@ elif args.vmtype is 2:
         data['builders'][0]["disk_interface"] = "virtio"
         data['builders'][0]["net_device"] = "virtio-net"
     data['builders'][0]["vm_name"] = "{0}.qcow2".format(vmname)
-    data['builders'][0]["qemuargs"]=['']
-    data['builders'][0]["qemuargs"][0]= ["-m", "{0}M".format(args.memory)]
+    data['builders'][0]["qemuargs"] = ['']
+    data['builders'][0]["qemuargs"][0] = ["-m", "{0}M".format(args.memory)]
     data['builders'][0]["qemuargs"].append(["--cpu", "host"])
     data['builders'][0]["qemuargs"].append(["--smp", "cores={0}".format(CPUCORES)])
-elif args.vmtype is 3:
+elif args.vmtype == 3:
     data['builders'][0]["type"] = "vmware-iso"
     data['builders'][0]["version"] = "12"
     data['builders'][0]["vm_name"] = "{0}".format(vmname)
     data['builders'][0]["vmdk_name"] = "{0}".format(vmname)
-    data['builders'][0]["vmx_data"] = { "virtualhw.version": "12", "memsize": "{0}".format(args.memory), "numvcpus": "{0}".format(CPUCORES), "cpuid.coresPerSocket": "{0}".format(CPUCORES), "guestos": "{0}".format(vmwareid), "usb.present": "TRUE", "scsi0.virtualDev": "lsisas1068" }
-    data['builders'][0]["vmx_data_post"] = { "sharedFolder0.present": "TRUE", "sharedFolder0.enabled": "TRUE", "sharedFolder0.readAccess": "TRUE", "sharedFolder0.writeAccess": "TRUE", "sharedFolder0.hostPath": "/", "sharedFolder0.guestName": "root", "sharedFolder0.expiration": "never", "sharedFolder.maxNum": "1", "isolation.tools.hgfs.disable": "FALSE" }
+    data['builders'][0]["vmx_data"] = {"virtualhw.version": "12", "memsize": "{0}".format(args.memory), "numvcpus": "{0}".format(CPUCORES), "cpuid.coresPerSocket": "{0}".format(CPUCORES), "guestos": "{0}".format(vmwareid), "usb.present": "TRUE", "scsi0.virtualDev": "lsisas1068"}
+    data['builders'][0]["vmx_data_post"] = {"sharedFolder0.present": "TRUE", "sharedFolder0.enabled": "TRUE", "sharedFolder0.readAccess": "TRUE", "sharedFolder0.writeAccess": "TRUE", "sharedFolder0.hostPath": "/", "sharedFolder0.guestName": "root", "sharedFolder0.expiration": "never", "sharedFolder.maxNum": "1", "isolation.tools.hgfs.disable": "FALSE"}
     if 50 <= args.ostype <= 59:
         data['builders'][0]["tools_upload_flavor"] = "windows"
         data['builders'][0]["tools_upload_path"] = "c:/Windows/Temp/windows.iso"
@@ -384,8 +384,8 @@ data['builders'][0]["ssh_username"] = "root"
 data['builders'][0]["ssh_password"] = "{0}".format(args.vmpass)
 data['builders'][0]["ssh_wait_timeout"] = "90m"
 # Packer Provisioning Configuration
-data['provisioners']=['']
-data['provisioners'][0]={}
+data['provisioners'] = ['']
+data['provisioners'][0] = {}
 if args.ostype is 1:
     data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/fedora.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
@@ -419,8 +419,8 @@ if 50 <= args.ostype <= 59:
     data['builders'][0]["communicator"] = "ssh"
     data['builders'][0]["ssh_username"] = "{0}".format(args.vmuser)
     data['builders'][0]["floppy_files"] = ["unattend/autounattend.xml",
-    "unattend/win_initial.bat",
-    "unattend/win_openssh.bat"]
+                                           "unattend/win_initial.bat",
+                                           "unattend/win_openssh.bat"]
     # Provision with generic windows script
     data['provisioners'][0]["script"] = packer_temp_folder+"/unattend/win_custom.ps1"
 if args.ostype == 50:
@@ -453,22 +453,19 @@ if os.path.isdir(output_folder):
     if os.path.isdir(vmpath+"/"+vmname):
         shutil.rmtree(vmpath+"/"+vmname)
     # Remove existing VMs in KVM
-    if args.vmtype is 2:
-        DESTROYSCRIPT_KVM="""#!/bin/bash
-        if virsh --connect qemu:///system -q list --all | grep -i "{vmname}"; then
-            virsh --connect qemu:///system destroy {vmname}
-            virsh --connect qemu:///system undefine {vmname}
-        fi
-        """.format(vmname=vmname)
-        subprocess.run(DESTROYSCRIPT_KVM, shell=True)
+    if args.vmtype == 2:
+        kvmlist = subpout("virsh --connect qemu:///system -q list --all")
+        if vmname.lower() in kvmlist.lower():
+            subprocess.run('virsh --connect qemu:///system destroy "{0}"'.format(vmname), shell=True)
+            subprocess.run('virsh --connect qemu:///system undefine "{0}"'.format(vmname), shell=True)
     # Remove previous file for kvm.
-    if args.vmtype is 2 and os.path.isfile(vmpath+"/"+vmname+".qcow2"):
+    if args.vmtype == 2 and os.path.isfile(vmpath+"/"+vmname+".qcow2"):
         os.remove(vmpath+"/"+vmname+".qcow2")
     print("\nCopying {0} to {1}.".format(output_folder, vmpath))
-    if args.vmtype is not 2:
+    if args.vmtype != 2:
         shutil.copytree(output_folder, vmpath+"/"+vmname)
     # Copy the qcow2 file, and remove the folder entirely for kvm.
-    if args.vmtype is 2 and os.path.isfile(output_folder+"/"+vmname+".qcow2"):
+    if args.vmtype == 2 and os.path.isfile(output_folder+"/"+vmname+".qcow2"):
         shutil.copy2(output_folder+"/"+vmname+".qcow2", vmpath+"/"+vmname+".qcow2")
 print("Removing {0}".format(packer_temp_folder))
 shutil.rmtree(packer_temp_folder)
@@ -477,13 +474,10 @@ print("VM successfully output to {0}".format(vmpath+"/"+vmname))
 fullfinishtime = datetime.now()
 
 # Attach VM to libvirt
-if args.vmtype is 2:
-    CREATESCRIPT_KVM = """virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg}.qcow2,bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model=virtio --filesystem source=/,target=root,mode=mapped --os-type={kvm_os} --os-variant={kvm_variant} --import --noautoconsole --video=virtio --channel unix,target_type=virtio,name=org.qemu.guest_agent.0""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=vmpath+"/"+vmname, imgsize=args.imgsize, kvm_os=kvm_os, kvm_variant=kvm_variant)
+if args.vmtype == 2:
+    CREATESCRIPT_KVM = """virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg}.qcow2,bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model=virtio --filesystem source=/,target=root,mode=mapped --os-type={kvm_os} --os-variant={kvm_variant} --import --noautoconsole --video=virtio --channel unix,target_type=virtio,name=org.qemu.guest_agent.0""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=vmpath+"/"+vmname, kvm_os=kvm_os, kvm_variant=kvm_variant)
     print(CREATESCRIPT_KVM)
     subprocess.run(CREATESCRIPT_KVM, shell=True)
-    subprocess.run("""echo 'Running "virsh net-dhcp-leases default" soon to print ip leases.'
-sleep 40
-virsh net-dhcp-leases default""", shell=True)
 
 # Print finish times
 print("Packer completed in :", packerfinishtime - beforetime)
