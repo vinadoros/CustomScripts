@@ -24,6 +24,7 @@ parser.add_argument("-a", "--allextra", help='Run Extra Scripts', action="store_
 # Save arguments.
 args = parser.parse_args()
 print("Desktop Environment:", args.desktop)
+print("Run extra scripts:", args.allextra)
 
 # Exit if not root.
 if os.geteuid() is not 0:
