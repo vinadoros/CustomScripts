@@ -141,7 +141,7 @@ if args.ostype == 3:
     vmname = "Packer-CentOSOrig-{0}".format(hvname)
     vmprovision_defopts = " "
 if args.ostype == 10:
-    vmname = "Packer-Ubuntu1710-{0}".format(hvname)
+    vmname = "Packer-Ubuntu-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
     vmwareid = "ubuntu-64"
     vmprovisionscript = "MUbuntu.py"
@@ -150,11 +150,11 @@ if args.ostype == 10:
     kvm_variant = "ubuntu16.04"
     isourl = "http://releases.ubuntu.com/17.10/ubuntu-17.10-server-amd64.iso"
 if args.ostype == 11:
-    vmname = "Packer-Ubuntu1604-{0}".format(hvname)
+    vmname = "Packer-UbuntuLTS-{0}".format(hvname)
     vboxosid = "Ubuntu_64"
     vmwareid = "ubuntu-64"
-    vmprovisionscript = "MUbuntu.py"
-    vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
+    vmprovisionscript = "MUbuntuLTS.py"
+    vmprovision_defopts = "-d -a"
     kvm_os = "linux"
     kvm_variant = "ubuntu16.04"
     isourl = "http://releases.ubuntu.com/16.04/ubuntu-16.04.3-server-amd64.iso"
