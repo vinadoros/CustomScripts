@@ -70,8 +70,6 @@ rpmimport("/etc/pki/rpm-gpg/RPM-GPG-KEY-adobe-linux")
 rpmimport("https://packages.microsoft.com/keys/microsoft.asc")
 with open("/etc/yum.repos.d/vscode.repo", 'w') as vscoderepofile_write:
     vscoderepofile_write.write('[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc"')
-# Fish shell
-subprocess.run('dnf config-manager --add-repo "http://download.opensuse.org/repositories/shells:fish:release:2/Fedora_$(rpm -E %fedora)/shells:fish:release:2.repo"', shell=True)
 # Adapta
 subprocess.run('dnf copr enable -y heikoada/gtk-themes', shell=True)
 
