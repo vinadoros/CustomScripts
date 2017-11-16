@@ -1,2 +1,3 @@
 **/*.env
 **/qemu-*-static
+**/__pycache__

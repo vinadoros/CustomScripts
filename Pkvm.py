@@ -16,6 +16,8 @@ import subprocess
 import sys
 import urllib.parse
 import urllib.request
+# Custom includes
+import CFunc
 
 print("Running {0}".format(__file__))
 
@@ -23,15 +25,6 @@ print("Running {0}".format(__file__))
 SCRIPTDIR = sys.path[0]
 
 ### Functions ###
-def subpout(subpcmd):
-    """Get output from subprocess"""
-    output = subprocess.run("{0}".format(subpcmd), shell=True, stdout=subprocess.PIPE, universal_newlines=True).stdout.strip()
-    return output
-def dlProgress(count, blockSize, totalSize):
-    """Get the progress of a download"""
-    percent = int(count*blockSize*100/totalSize)
-    sys.stdout.write("\r" + "Progress...%d%%" % percent)
-    sys.stdout.flush()
 def md5sum(md5_filename, blocksize=65536):
     """
     Calculate the MD5Sum of a file
@@ -93,9 +86,8 @@ print("Desktop Environment:", args.desktopenv)
 # Get Packer
 if not shutil.which("packer") or args.getpacker is True:
     print("Getting packer binary.")
-    packer_zipfile = "/tmp/packer.zip"
-    packer_zipurl = "https://releases.hashicorp.com/packer/1.1.1/packer_1.1.1_linux_amd64.zip"
-    urllib.request.urlretrieve(packer_zipurl, packer_zipfile)
+    packer_zipurl = "https://releases.hashicorp.com/packer/1.1.2/packer_1.1.2_linux_amd64.zip"
+    packer_zipfile = CFunc.downloadfile(packer_zipurl, "/tmp")[0]
     subprocess.run("unzip -o {0} -d /usr/local/bin".format(packer_zipfile), shell=True)
     os.chmod("/usr/local/bin/packer", 0o777)
     if os.path.isfile(packer_zipfile):
@@ -126,7 +118,7 @@ if args.ostype == 1:
     vmwareid = "fedora-64"
     kvm_os = "linux"
     kvm_variant = "fedora25"
-    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/26/Server/x86_64/iso/Fedora-Server-dvd-x86_64-26-1.5.iso"
+    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/27/Server/x86_64/iso/Fedora-Server-dvd-x86_64-27-1.6.iso"
 if 2 <= args.ostype <= 3:
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
@@ -248,7 +240,7 @@ if args.vmtype == 1:
 
 # Delete leftover VMs
 if args.vmtype == 1:
-    vboxvmlist = subpout("VBoxManage list vms")
+    vboxvmlist = CFunc.subpout("VBoxManage list vms")
     if vmname in vboxvmlist:
         subprocess.run('VBoxManage unregistervm "{0}" --delete'.format(vmname), shell=True)
 elif args.vmtype == 2:
@@ -260,17 +252,7 @@ elif args.vmtype == 3:
 if args.iso is not None:
     isopath = os.path.abspath(args.iso)
 else:
-    print("Retrieving ISO")
-    # Get the filename from the URL.
-    fileinfo = urllib.parse.urlparse(isourl)
-    filename = urllib.parse.unquote(os.path.basename(fileinfo.path))
-    # Check if the file already exists.
-    os.chdir(vmpath)
-    isopath = vmpath+"/"+filename
-    if os.path.isfile(isopath) is False:
-        # Download the file if it doesn't exist.
-        print("Downloading", filename, "from", isourl)
-        urllib.request.urlretrieve(isourl, filename, reporthook=dlProgress)
+    isopath = CFunc.downloadfile(isourl, vmpath)[0]
 if os.path.isfile(isopath) is True:
     print("Path to ISO is {0}".format(isopath))
 else:
@@ -387,7 +369,7 @@ data['builders'][0]["ssh_wait_timeout"] = "90m"
 data['provisioners'] = ['']
 data['provisioners'][0] = {}
 if args.ostype is 1:
-    data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/fedora.cfg<enter><wait>"]
+    data['builders'][0]["boot_command"] = ["<tab> inst.text inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/fedora.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "dnf install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
 if 2 <= args.ostype <= 3:
@@ -454,7 +436,7 @@ if os.path.isdir(output_folder):
         shutil.rmtree(vmpath+"/"+vmname)
     # Remove existing VMs in KVM
     if args.vmtype == 2:
-        kvmlist = subpout("virsh --connect qemu:///system -q list --all")
+        kvmlist = CFunc.subpout("virsh --connect qemu:///system -q list --all")
         if vmname.lower() in kvmlist.lower():
             subprocess.run('virsh --connect qemu:///system destroy "{0}"'.format(vmname), shell=True)
             subprocess.run('virsh --connect qemu:///system undefine "{0}"'.format(vmname), shell=True)
