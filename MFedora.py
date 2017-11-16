@@ -5,11 +5,11 @@
 import argparse
 import grp
 import os
-import platform
-import pwd
 import shutil
 import subprocess
 import sys
+# Custom includes
+import CFunc
 
 print("Running {0}".format(__file__))
 
@@ -31,17 +31,8 @@ if os.geteuid() is not 0:
     sys.exit("\nError: Please run this script as root.\n")
 
 # Get non-root user information.
-if os.getenv("SUDO_USER") not in ["root", None]:
-    USERNAMEVAR = os.getenv("SUDO_USER")
-elif os.getenv("USER") not in ["root", None]:
-    USERNAMEVAR = os.getenv("USER")
-else:
-    # https://docs.python.org/3/library/pwd.html
-    USERNAMEVAR = pwd.getpwuid(1000)[0]
-# https://docs.python.org/3/library/grp.html
-USERGROUP = grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
-USERHOME = os.path.expanduser("~{0}".format(USERNAMEVAR))
-MACHINEARCH = platform.machine()
+USERNAMEVAR, USERGROUP, USERHOME = CFunc.getnormaluser()
+MACHINEARCH = CFunc.machinearch()
 print("Username is:", USERNAMEVAR)
 print("Group Name is:", USERGROUP)
 
@@ -64,32 +55,26 @@ def install(apps):
     """Install application(s)"""
     print("\nInstalling {0}".format(apps))
     subprocess.run("dnf install -y {0}".format(apps), shell=True)
-def subpout(cmd):
-    """Get output from subprocess"""
-    output = subprocess.run("{0}".format(cmd), shell=True, stdout=subprocess.PIPE, universal_newlines=True).stdout.strip()
-    return output
+def rpmimport(keyurl):
+    """Import a gpg key for rpm."""
+    subprocess.run("rpm --import {0}".format(keyurl), shell=True)
 
-# Set up Fedora Repos
-REPOSCRIPT = """#!/bin/bash
 
+### Fedora Repos ###
 # RPMFusion
-dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-
+install("https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm")
 # Adobe Flash
-dnf -y install http://linuxdownload.adobe.com/adobe-release/adobe-release-$(uname -i)-1.0-1.noarch.rpm
-rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-adobe-linux
-
+install("http://linuxdownload.adobe.com/adobe-release/adobe-release-$(uname -i)-1.0-1.noarch.rpm")
+rpmimport("/etc/pki/rpm-gpg/RPM-GPG-KEY-adobe-linux")
 # Visual Studio Code
-rpm --import https://packages.microsoft.com/keys/microsoft.asc
-echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo
-
-# Fish Shell
-dnf config-manager --add-repo "http://download.opensuse.org/repositories/shells:fish:release:2/Fedora_$(rpm -E %fedora)/shells:fish:release:2.repo"
-
+rpmimport("https://packages.microsoft.com/keys/microsoft.asc")
+with open("/etc/yum.repos.d/vscode.repo", 'w') as vscoderepofile_write:
+    vscoderepofile_write.write('[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc"')
+# Fish shell
+subprocess.run('dnf config-manager --add-repo "http://download.opensuse.org/repositories/shells:fish:release:2/Fedora_$(rpm -E %fedora)/shells:fish:release:2.repo"', shell=True)
 # Adapta
-dnf copr enable -y heikoada/gtk-themes
-"""
-subprocess.run(REPOSCRIPT, shell=True)
+subprocess.run('dnf copr enable -y heikoada/gtk-themes', shell=True)
+
 
 # Update system after enabling repos.
 update()
@@ -102,7 +87,7 @@ subprocess.run("systemctl enable sshd", shell=True)
 install("@fonts @base-x @networkmanager-submodules avahi")
 install("powerline-fonts google-roboto-fonts google-noto-sans-fonts")
 # Management tools
-install("yumex-dnf dnfdragora dnfdragora-gui gparted")
+install("dnf-plugin-system-upgrade yumex-dnf dnfdragora dnfdragora-gui gparted")
 # Browsers
 install("https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm")
 install("@firefox freshplayerplugin")
