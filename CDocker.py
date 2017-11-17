@@ -3,14 +3,12 @@
 
 # Python includes.
 import argparse
-import grp
 import os
-import platform
-import pwd
 import shutil
 import subprocess
 import sys
-import urllib.request
+# Custom includes
+import CFunc
 
 print("Running {0}".format(__file__))
 
@@ -30,44 +28,16 @@ if os.geteuid() is not 0:
     sys.exit("\nError: Please run this script as root.\n")
 
 # Get non-root user information.
-if os.getenv("SUDO_USER") not in ["root", None]:
-    USERNAMEVAR = os.getenv("SUDO_USER")
-elif os.getenv("USER") not in ["root", None]:
-    USERNAMEVAR = os.getenv("USER")
-else:
-    # https://docs.python.org/3/library/pwd.html
-    USERNAMEVAR = pwd.getpwuid(1000)[0]
-# https://docs.python.org/3/library/grp.html
-USERGROUP = grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
-USERHOME = os.path.expanduser("~{0}".format(USERNAMEVAR))
-MACHINEARCH = platform.machine()
+USERNAMEVAR, USERGROUP, USERHOME = CFunc.getnormaluser()
+MACHINEARCH = CFunc.machinearch()
 print("Username is:", USERNAMEVAR)
 print("Group Name is:", USERGROUP)
 
 
-### Functions ###
-def subpout(cmd):
-    """Get output from subprocess"""
-    output = subprocess.run("{0}".format(cmd), shell=True, stdout=subprocess.PIPE, universal_newlines=True).stdout.strip()
-    return output
-def downloadfile(url, localpath):
-    """Retrieve a file and return its fullpath and filename"""
-    # Get filename for extensions
-    fileinfo = urllib.parse.urlparse(url)
-    filename = urllib.parse.unquote(os.path.basename(fileinfo.path))
-    fullpath = localpath + "/" + filename
-    # Download the file.
-    print("Downloading {0}.".format(filename))
-    urllib.request.urlretrieve(url, fullpath)
-    if not os.path.isfile(fullpath):
-        sys.exit("File {0} not downloaded. Exiting.".format(filename))
-    return (fullpath, filename)
-
-
 # Detect OS information
-distro = subpout("lsb_release -si")
+distro = CFunc.subpout("lsb_release -si")
 if args.release is None:
-    release = subpout("lsb_release -sc")
+    release = CFunc.subpout("lsb_release -sc")
 else:
     release = args.release
 print("Distro is {0}.".format(distro))
@@ -79,7 +49,7 @@ if args.noprompt is False:
 ### Install Docker ###
 if distro == "Ubuntu":
     # Import keyfile
-    key = downloadfile("https://download.docker.com/linux/ubuntu/gpg", "/tmp")
+    key = CFunc.downloadfile("https://download.docker.com/linux/ubuntu/gpg", "/tmp")
     subprocess.run("apt-key add {0}".format(key[0]), shell=True, check=True)
     os.remove(key[0])
     # Write sources list
@@ -97,7 +67,7 @@ dnf config-manager --set-enabled docker-ce-edge
 """, shell=True, check=True)
     # Modify repo file
     if release.isdigit() is True:
-        subprocess.run("sed -i 's/$releasever/{0}/g' /etc/yum.repos.d/docker-ce.repo".format(release))
+        subprocess.run("sed -i 's/$releasever/{0}/g' /etc/yum.repos.d/docker-ce.repo".format(release), shell=True)
     # Install
     subprocess.run("dnf install -y docker-ce", shell=True)
     subprocess.run("usermod -aG docker {0}".format(USERNAMEVAR), shell=True)
