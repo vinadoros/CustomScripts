@@ -39,8 +39,8 @@ def dlProgress(count, blockSize, totalSize):
     """Get the progress of a download"""
     percent = int(count*blockSize*100/totalSize)
     sys.stdout.write("\r" + "Progress...%d%%" % percent)
-    # If the progress is 100, print a newline.
-    if percent == 100:
+    # If the progress is 100 (or more), print a newline.
+    if percent >= 100:
         sys.stdout.write("\n")
     sys.stdout.flush()
 def downloadfile(url, localpath):
