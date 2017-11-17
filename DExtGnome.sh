@@ -49,6 +49,10 @@ function mediaplayer {
 	./autogen.sh
 	make
 	sudo make install
+	# Compile schemas
+	if [ -d "/usr/share/gnome-shell/extensions/mediaplayer@patapon.info/schemas/" ]; then
+		sudo glib-compile-schemas /usr/share/gnome-shell/extensions/mediaplayer@patapon.info/	schemas/
+	fi
 	cd ..
 	rm -rf "$TEMPFOLDER"
 }

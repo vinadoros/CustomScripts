@@ -59,6 +59,30 @@ def downloadfile(url, localpath):
     else:
         print("File {0} already exists. Skipping download.".format(fullpath))
     return (fullpath, filename)
+### Package Manager Specific Functions ###
+# Apt
+def aptupdate():
+    """Update apt sources"""
+    subprocess.run("apt-get update", shell=True)
+def aptdistupg():
+    """Upgrade/Dist-Upgrade system using apt"""
+    aptupdate()
+    print("\nPerforming (dist)upgrade.")
+    subprocess.run("apt-get upgrade -y", shell=True)
+    subprocess.run("apt-get dist-upgrade -y", shell=True)
+def aptinstall(aptapps):
+    """Install application(s) using apt"""
+    print("\nInstalling {0} using apt.".format(aptapps))
+    subprocess.run("apt-get install -y {0}".format(aptapps), shell=True)
+# DNF
+def dnfupdate():
+    """Update system"""
+    print("\nPerforming system update.")
+    subprocess.run("dnf update -y", shell=True)
+def dnfinstall(dnfapps):
+    """Install application(s)"""
+    print("\nInstalling {0} using dnf.".format(dnfapps))
+    subprocess.run("dnf install -y {0}".format(dnfapps), shell=True)
 
 
 if __name__ == '__main__':
