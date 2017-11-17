@@ -21,7 +21,7 @@ function installdeps {
 	elif type -p apt-get &> /dev/null; then
 		sudo apt-get install -y git build-essential zip gnome-common libglib2.0-dev
 	elif type -p dnf &> /dev/null; then
-		sudo dnf install -y gnome-common intltool glib2-devel zip unzip
+		sudo dnf install -y meson gnome-common intltool glib2-devel gettext zip unzip
 	fi
 }
 
@@ -46,13 +46,7 @@ function mediaplayer {
 	# MediaPlayer
 	git clone https://github.com/eonpatapon/gnome-shell-extensions-mediaplayer.git "$TEMPFOLDER"
 	cd "$TEMPFOLDER"
-	./autogen.sh
-	make
-	sudo make install
-	# Compile schemas
-	if [ -d "/usr/share/gnome-shell/extensions/mediaplayer@patapon.info/schemas/" ]; then
-		sudo glib-compile-schemas /usr/share/gnome-shell/extensions/mediaplayer@patapon.info/	schemas/
-	fi
+	./build
 	cd ..
 	rm -rf "$TEMPFOLDER"
 }
