@@ -10,7 +10,7 @@ print("Running {0}".format(__file__))
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Install zram script.')
-parser.add_argument("-c", "--cputhreads", type=int, help='Number of zram partitions to create (0 is autodetect)', default="0")
+parser.add_argument("-c", "--cputhreads", type=int, help='Number of zram partitions to create (0 is autodetect)', default="1")
 
 # Save arguments.
 args = parser.parse_args()
@@ -51,9 +51,8 @@ if os.path.isdir(systemdfolder):
 
 FRACTION=75
 
-MEMORY=`perl -ne'/^MemTotal:\s+(\d+)/ && print $1*1024;' < /proc/meminfo`
-CPUS=`grep -c processor /proc/cpuinfo`
-# Alternative: CPUS=`nproc`
+MEMORY="$(free -tb | awk '/Mem\\:/ {{ print $2 }}')"
+# CPUS=`nproc`
 # If CPUs greater than 4, reduce to 4.
 # [[ $CPUS -gt 4 ]] && CPUS=4
 CPUS={0}
