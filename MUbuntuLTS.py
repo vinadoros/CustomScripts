@@ -295,7 +295,7 @@ if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
 Description=Powertop tunings
 
 [Service]
-ExecStart=/usr/bin/powertop --auto-tune
+ExecStart={0} --auto-tune
 RemainAfterExit=true
 
 [Install]
