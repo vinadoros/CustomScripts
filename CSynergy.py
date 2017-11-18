@@ -69,13 +69,16 @@ if args.compile is True:
     RepoClonePath = RepoClonePathRoot + "/synergy-core"
     subprocess.run('su {0} -c "git clone https://github.com/symless/synergy-core {1}"'.format(USERNAMEVAR, RepoClonePath), shell=True, check=True)
     # Compile and install synergy-core
-    subprocess.run("""cd {0}
+    subprocess.run("""cd {1}
     mkdir -m 777 -p build
     cd build
     su {0} -c "cmake .."
     su {0} -c "make"
     install -m 755 -t /usr/local/bin bin/synergy-core bin/synergys bin/synergyc
-    """.format(RepoClonePath), shell=True, check=True)
+    """.format(USERNAMEVAR, RepoClonePath), shell=True, check=True)
+    # Remove git folder.
+    if os.path.isdir(RepoClonePath):
+        shutil.rmtree(RepoClonePath)
 
 # https://github.com/symless/synergy-core/wiki/Command-Line
 # https://github.com/symless/synergy-core/wiki/Text-Config
