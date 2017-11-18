@@ -67,9 +67,9 @@ if args.compile is True:
     # Clone synergy-core repository
     RepoClonePathRoot = "/var/tmp"
     RepoClonePath = RepoClonePathRoot + "/synergy-core"
-    subprocess.run('su {0} -c "git clone https://github.com/symless/synergy-core {2}"'.format(USERNAMEVAR, RepoClonePath), shell=True, check=True)
+    subprocess.run('su {0} -c "git clone https://github.com/symless/synergy-core {1}"'.format(USERNAMEVAR, RepoClonePath), shell=True, check=True)
     # Compile and install synergy-core
-    subprocess.run("""cd {2}
+    subprocess.run("""cd {0}
     mkdir -m 777 -p build
     cd build
     su {0} -c "cmake .."
