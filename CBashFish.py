@@ -457,16 +457,16 @@ function dr
 end
 function resu
 	echo "Restarting systemd service $argv for user."
-	sudo systemctl --user restart $argv
-	sudo systemctl --user status -l $argv
+	systemctl --user restart $argv
+	systemctl --user status -l $argv
 end
 function stu
 	echo "Getting status for systemd service $argv for user."
-	sudo systemctl --user status -l $argv
+	systemctl --user status -l $argv
 end
 function dru
 	echo "Executing systemd daemon-reload for user."
-	sudo systemctl --user daemon-reload
+	systemctl --user daemon-reload
 end
 
 # Set package manager functions
