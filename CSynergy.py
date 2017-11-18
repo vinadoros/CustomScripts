@@ -54,14 +54,14 @@ if args.noprompt is False:
 ### Compile from source ###
 if args.compile is True:
     print("Compiling synergy-core from source.")
-    if shutil.which("zypper") is True:
+    if shutil.which("zypper"):
         # TODO: Fill in the opensuse requirements.
         print("Installing opensuse requirements.")
         # CFunc.zpinstall("")
-    elif shutil.which("dnf") is True:
+    elif shutil.which("dnf"):
         print("Installing Fedora requirements.")
         CFunc.dnfinstall("cmake make gcc-c++ libX11-devel libXtst-devel libXext-devel libXinerama-devel libcurl-devel qt-devel avahi-compat-libdns_sd-devel openssl-devel rpm-build rpmlint")
-    elif shutil.which("apt-get") is True:
+    elif shutil.which("apt-get"):
         print("Installing Ubuntu requirements.")
         CFunc.aptinstall("cmake make g++ xorg-dev libqt4-dev libcurl4-openssl-dev libavahi-compat-libdnssd-dev libssl-dev libx11-dev")
     # Clone synergy-core repository
