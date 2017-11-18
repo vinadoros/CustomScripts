@@ -1,7 +1,7 @@
 #
 # Usage:
 # docker build -t vinadoros/ampache .
-# docker run -d -t --restart=always --name ampache -v /path:/files -v /path:/var/www vinadoros/ampache
+# docker run -d -t --restart=always --name ampache -v /path:/files vinadoros/ampache
 #
 
 FROM debian:latest
@@ -20,7 +20,6 @@ ADD ./startup.sh /startup.sh
 RUN chmod a+rwx /startup.sh
 
 VOLUME ["/files"]
-VOLUME ["/var/www"]
 
 WORKDIR /var/www
 
