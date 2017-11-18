@@ -1,0 +1,33 @@
+# Sample .env file
+# DBPASSWD=password
+# WEB_PORT=64801
+# WEB_FILES=/path
+# WEB_SITE=/path
+# PROXY_PORT=443
+# ADMINPASS=password
+
+# Bring up with docker-compose up --build -d
+
+version: '2'
+services:
+  db:
+    image: mariadb
+    environment:
+      - "MYSQL_USER=koel"
+      - "MYSQL_PASSWORD=${DBPASSWD}"
+      - "MYSQL_ROOT_PASSWORD=${DBPASSWD}"
+    restart: always
+  web:
+    build: .
+    environment:
+      - PROXY_PORT
+      - DBPASSWD
+      - ADMINPASS
+    ports:
+      - "${WEB_PORT}:443"
+    volumes:
+      - "${WEB_FILES}:/files"
+      - "${WEB_SITE}:/var/www"
+    restart: always
+    links:
+      - db

@@ -16,7 +16,7 @@ ENV DEBIAN_FRONTEND="noninteractive" DBPASSWD="pass" ADMINPASS="pass"
 
 # Install stock packages.
 RUN apt-get update && \
-	apt-get install -y nano git curl gnupg nginx php-fpm php-sqlite3 php-curl php-xml php-cli php-curl php-json php-gd php-mbstring php-zip composer openssl
+	apt-get install -y nano git curl gnupg nginx php-fpm php-sqlite3 php-curl php-xml php-cli php-curl php-json php-gd php-mbstring php-zip composer openssl sqlite3
 
 # Install external packages
 RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
