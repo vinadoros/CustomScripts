@@ -124,6 +124,19 @@ function dr () {
 	echo "Executing systemd daemon-reload."
 	$SUDOCMD systemctl daemon-reload
 }
+function resu () {
+	echo "Restarting systemd service $@ for user."
+	systemctl --user restart "$@"
+	systemctl --user status -l "$@"
+}
+function stu () {
+	echo "Getting status for systemd service $@ for user."
+	systemctl --user status -l "$@"
+}
+function dru () {
+	echo "Executing systemd daemon-reload for user."
+	systemctl --user daemon-reload
+}
 
 # Set package manager functions
 if type -p yaourt &> /dev/null; then
@@ -291,9 +304,9 @@ fi
 # https://docs.python.org/3/library/stdtypes.html#old-string-formatting
 
 # Set bash script
-BASHSCRIPTPATH=USERHOME+"/.bashrc"
+BASHSCRIPTPATH = USERHOME+"/.bashrc"
 if os.geteuid() is 0:
-    BASHSCRIPTUSERPATH="{0}/.bashrc".format(USERVARHOME)
+    BASHSCRIPTUSERPATH = "{0}/.bashrc".format(USERVARHOME)
 
 # Remove existing bash scripts and copy skeleton.
 if os.path.isfile(BASHSCRIPTPATH):
@@ -441,6 +454,19 @@ end
 function dr
 	echo "Executing systemd daemon-reload."
 	sudo systemctl daemon-reload
+end
+function resu
+	echo "Restarting systemd service $argv for user."
+	sudo systemctl --user restart $argv
+	sudo systemctl --user status -l $argv
+end
+function stu
+	echo "Getting status for systemd service $argv for user."
+	sudo systemctl --user status -l $argv
+end
+function dru
+	echo "Executing systemd daemon-reload for user."
+	sudo systemctl --user daemon-reload
 end
 
 # Set package manager functions
