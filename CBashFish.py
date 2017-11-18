@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Install bash and fish scripts to enhance the shell."""
 
 # Python includes.
 import os
@@ -39,7 +40,7 @@ for cmd in cmdcheck:
 ######### Bash Section #########
 
 # Generate bash script
-BASHSCRIPT="""
+BASHSCRIPT = """
 # Set root and non-root cmds.
 if [ $(id -u) != "0" ]; then
     SUDOCMD="sudo"
@@ -363,7 +364,7 @@ if shutil.which('fish'):
             subprocess.run('chsh -s {FISHPATH} {USERNAMEVAR}'.format(USERNAMEVAR=USERNAMEVAR, FISHPATH=FISHPATH), shell=True)
 
     # Generate fish script.
-    FISHSCRIPT="""
+    FISHSCRIPT = """
 # Set bobthefish options
 set -g theme_display_user yes
 # Set root and non-root cmds.
@@ -637,14 +638,14 @@ end
 """.format(SCRIPTDIR=SCRIPTDIR)
 
     # Set fish script
-    FISHSCRIPTPATH=USERHOME+"/.config/fish/config.fish"
+    FISHSCRIPTPATH = USERHOME+"/.config/fish/config.fish"
     if os.geteuid() is 0:
-        FISHSCRIPTUSERPATH="{0}/.config/fish/config.fish".format(USERVARHOME)
+        FISHSCRIPTUSERPATH = "{0}/.config/fish/config.fish".format(USERVARHOME)
 
     # Create path if it doesn't existing
-    os.makedirs(os.path.dirname(FISHSCRIPTPATH),exist_ok=True)
+    os.makedirs(os.path.dirname(FISHSCRIPTPATH), exist_ok=True)
     if os.geteuid() is 0:
-        os.makedirs(os.path.dirname(FISHSCRIPTUSERPATH),exist_ok=True)
+        os.makedirs(os.path.dirname(FISHSCRIPTUSERPATH), exist_ok=True)
         subprocess.run("chown -R {0}:{1} {2}/.config".format(USERNAMEVAR, USERGROUP, USERVARHOME), shell=True)
 
     # Remove existing fish scripts.
