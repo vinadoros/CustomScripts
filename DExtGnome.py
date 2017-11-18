@@ -30,9 +30,9 @@ print("Group Name is:", USERGROUP)
 
 
 # Install packages
-if shutil.("zypper") is True:
+if shutil.which("zypper") is True:
     CFunc.zpinstall("git gnome-common intltool glib2-devel zip unzip gcc make")
-else if shutil.which("dnf") is True:
+elif shutil.which("dnf") is True:
     CFunc.dnfinstall("meson gnome-common intltool glib2-devel gettext zip unzip")
-else if shutil.which("apt-get") is True:
+elif shutil.which("apt-get") is True:
     CFunc.aptinstall("git meson build-essential zip gnome-common gettext libglib2.0-dev")
