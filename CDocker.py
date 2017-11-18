@@ -75,7 +75,7 @@ dnf config-manager --set-enabled docker-ce-edge
 ### Docker Configuration ###
 if shutil.which("docker"):
     # Check for portainer.
-    if subprocess.run("docker ps -q -f name=portainer", shell=True).returncode is not 0:
+    if "portainer" not in CFunc.subpout("docker ps -a"):
         # Install portainer.
         subprocess.run("docker run -d --name portainer --restart=always -p 61234:9000 -v /var/run/docker.sock:/var/run/docker.sock portainer/portainer", shell=True)
     else:
