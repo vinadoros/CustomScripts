@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Create zram startup script"""
 
 import argparse
 import multiprocessing
