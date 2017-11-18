@@ -109,18 +109,16 @@ else:
 if SAMBAPASS == "asdf":
     print("\nWARNING: Insecure default password is used. Ensure this is what you really want.")
 
-
-if args.noprompt is False:
-    if SAMBAPASS == "asdf" or SAMBAPASS is None:
-        print("\nPlease enter a samba password.")
-        SAMBAPASS = inputpassword()
-    input("Press Enter to continue.")
-
-
 ### Samba Password ###
 # Set samba password for given user.
 pdbout = subpout("pdbedit -L")
 if USERNAMEVAR not in pdbout or args.force is True:
+    # Ask user for samba password if password is insecure default.
+    if args.noprompt is False:
+        if SAMBAPASS == "asdf" or SAMBAPASS is None:
+            print("\nPlease enter a samba password.")
+            SAMBAPASS = inputpassword()
+        input("Press Enter to continue.")
     print("Setting samba password for {0}.".format(USERNAMEVAR))
     # Use a subprocess pipe to feed the password in.
     pdbproc = subprocess.run(['pdbedit', '-a', '-u', USERNAMEVAR, '-t'], stdout=subprocess.PIPE, input=SAMBAPASS+"\n"+SAMBAPASS, encoding='ascii')
