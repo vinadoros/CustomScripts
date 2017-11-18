@@ -83,6 +83,11 @@ def dnfinstall(dnfapps):
     """Install application(s)"""
     print("\nInstalling {0} using dnf.".format(dnfapps))
     subprocess.run("dnf install -y {0}".format(dnfapps), shell=True)
+# Zypper
+def zpinstall(zpapps):
+    """Install application(s)"""
+    print("\nInstalling {0} using zypper.".format(zpapps))
+    subprocess.run("zypper in -yl {0}".format(zpapps), shell=True)
 
 
 if __name__ == '__main__':
