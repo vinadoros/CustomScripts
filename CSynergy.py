@@ -4,7 +4,9 @@
 # Python includes.
 import argparse
 import os
+import platform
 import shutil
+import subprocess
 import sys
 # Custom includes
 import CFunc
@@ -22,6 +24,7 @@ parser.add_argument("-l", "--serverleftclient", help='Hostname of client to the 
 parser.add_argument("-r", "--serverrightclient", help='Hostname of client to the right of the server.', default="RightClient")
 parser.add_argument("-c", "--client", help='Install configuration on startup as a client.', action="store_true")
 parser.add_argument("-d", "--clienthost", help='Connect to this host when configured as a client.', default="InsertHostHere")
+parser.add_argument("-z", "--compile", help='Compile synergy-core from source.', action="store_true")
 
 # Save arguments.
 args = parser.parse_args()
@@ -43,15 +46,36 @@ if args.server is True:
 print("Client config flag is", args.client)
 if args.client is True:
     print("Client host is", args.clienthost)
-# Configure systemd paths
-SystemdSystemUnitPath = "/etc/systemd/system/"
-if not os.path.isdir(SystemdSystemUnitPath):
-    sys.exit("\nError: Systemd system unit path {0} does not exist.\n".format(SystemdSystemUnitPath))
-SystemdUserUnitPath = USERHOME + "/"
 
 
 if args.noprompt is False:
     input("Press Enter to continue.")
+
+### Compile from source ###
+if args.compile is True:
+    print("Compiling synergy-core from source.")
+    if shutil.which("zypper") is True:
+        # TODO: Fill in the opensuse requirements.
+        print("Installing opensuse requirements.")
+        # CFunc.zpinstall("")
+    elif shutil.which("dnf") is True:
+        print("Installing Fedora requirements.")
+        CFunc.dnfinstall("cmake make gcc-c++ libX11-devel libXtst-devel libXext-devel libXinerama-devel libcurl-devel qt-devel avahi-compat-libdns_sd-devel openssl-devel rpm-build rpmlint")
+    elif shutil.which("apt-get") is True:
+        print("Installing Ubuntu requirements.")
+        CFunc.aptinstall("cmake make g++ xorg-dev libqt4-dev libcurl4-openssl-dev libavahi-compat-libdnssd-dev libssl-dev libx11-dev")
+    # Clone synergy-core repository
+    RepoClonePathRoot = "/var/tmp"
+    RepoClonePath = RepoClonePathRoot + "/synergy-core"
+    subprocess.run('su {0} -c "git clone https://github.com/symless/synergy-core {2}"'.format(USERNAMEVAR, RepoClonePath), shell=True, check=True)
+    # Compile and install synergy-core
+    subprocess.run("""cd {2}
+    mkdir -m 777 -p build
+    cd build
+    su {0} -c "cmake .."
+    su {0} -c "make"
+    install -m 755 -t /usr/local/bin bin/synergy-core bin/synergys bin/synergyc
+    """.format(RepoClonePath), shell=True, check=True)
 
 # https://github.com/symless/synergy-core/wiki/Command-Line
 # https://github.com/symless/synergy-core/wiki/Text-Config
@@ -64,7 +88,7 @@ Description=Synergy Server service
 
 [Service]
 Type=simple
-ExecStart={0} --server
+ExecStart={0} --server --no-daemon
 Restart=on-failure
 RestartSec=5s
 TimeoutStopSec=7s
@@ -90,13 +114,16 @@ section: links
 		left(0,100)  = LeftScreen
 	# ServerScreen is to the right of LeftScreen
 	LeftScreen:
-		right = ServerScreen, userenable=False
+		right = ServerScreen
 	# ServerScreen is to the left of RightScreen
 	RightScreen:
 		left  = ServerScreen
 end
 
 section: aliases
+    ServerScreen:
+        # Insert hostname here.
+        {2}
 	LeftScreen:
 		{0}
     RightScreen:
@@ -107,7 +134,7 @@ section: options
     screenSaverSync = true
     win32KeepForeground = true
 end
-""".format(args.serverleftclient, args.serverrightclient)
+""".format(args.serverleftclient, args.serverrightclient, platform.node())
     # Write the config file.
     with open(Server_SynConfig, 'w') as synconf_write:
         synconf_write.write(Server_SynConfig_Text)
