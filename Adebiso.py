@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Create a debian live-cd using live-build."""
 
 # Python includes.
 import argparse
@@ -22,7 +23,7 @@ USERHOME = os.path.expanduser("~root")
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Build Debian LiveCD.')
-parser.add_argument("-n", "--noprompt",help='Do not prompt.', action="store_true")
+parser.add_argument("-n", "--noprompt", help='Do not prompt.', action="store_true")
 parser.add_argument("-w", "--workfolderroot", help='Location of Working Folder (i.e. {0})'.format(USERHOME), default=USERHOME)
 parser.add_argument("-o", "--output", help='Output Location of ISO (i.e. {0})'.format(USERHOME), default=USERHOME)
 
@@ -31,9 +32,9 @@ args = parser.parse_args()
 
 # Process variables
 buildfolder = os.path.abspath(args.workfolderroot+"/debiso_buildfolder")
-print("Root of Working Folder:",buildfolder)
+print("Root of Working Folder:", buildfolder)
 outfolder = os.path.abspath(args.output)
-print("ISO Output Folder:",outfolder)
+print("ISO Output Folder:", outfolder)
 if not os.path.isdir(outfolder):
     sys.exit("\nError, ensure {0} is a folder.".format(outfolder))
 
@@ -73,7 +74,7 @@ if os.path.isdir(buildfolder+"/auto"):
 shutil.copytree("/usr/share/doc/live-build/examples/auto", buildfolder+"/auto")
 
 # Add packages
-PACKAGELIST="""
+PACKAGELIST = """
 # Desktop utils
 mate-desktop-environment
 lightdm
@@ -125,11 +126,11 @@ open-vm-tools-dkms
 open-vm-tools-desktop
 virtualbox-guest-utils
 virtualbox-guest-dkms
-#virtualbox-guest-x11
+virtualbox-guest-x11
 build-essential
 """
-pkgfolder=buildfolder+"/config/package-lists"
-pkgfile=pkgfolder+"/custom.list.chroot"
+pkgfolder = buildfolder+"/config/package-lists"
+pkgfile = pkgfolder+"/custom.list.chroot"
 os.makedirs(pkgfolder, 0o777, exist_ok=True)
 print("Writing {0}".format(pkgfile))
 with open(pkgfile, 'w') as pkgfile_write:
@@ -165,7 +166,7 @@ shutil.copytree("/usr/share/live/build/bootloaders/isolinux", buildfolder+"/conf
 subprocess.run("sed -i 's/^timeout .*/timeout 10/g' {0}".format(buildfolder+"/config/bootloaders/isolinux/isolinux.cfg"), shell=True)
 
 # Add chroot script
-CHROOTSCRIPT="""#!/bin/bash -x
+CHROOTSCRIPT = """#!/bin/bash -x
 
 # Modify ssh config
 echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
@@ -244,15 +245,15 @@ fi
 systemctl enable virtualbox-guest-utils
 
 """
-chroothookfolder=buildfolder+"/config/hooks/normal"
-chroothookfile=chroothookfolder+"/custom.hook.chroot"
+chroothookfolder = buildfolder+"/config/hooks/normal"
+chroothookfile = chroothookfolder+"/custom.hook.chroot"
 os.makedirs(chroothookfolder, 0o777, exist_ok=True)
 print("Writing {0}".format(chroothookfile))
 with open(chroothookfile, 'w') as chroothookfile_write:
     chroothookfile_write.write(CHROOTSCRIPT)
 
 # Boot-time hooks
-BOOTHOOKSCRIPT="""#!/bin/bash -x
+BOOTHOOKSCRIPT = """#!/bin/bash -x
 echo "live-config: 2000-usercustomization"
 
 # Set root password
@@ -281,8 +282,8 @@ fi
 EOLBASH
 fi
 """
-boothookfolder=buildfolder+"/config/includes.chroot/lib/live/config"
-boothookfile=boothookfolder+"/2000-usercustomization"
+boothookfolder = buildfolder+"/config/includes.chroot/lib/live/config"
+boothookfile = boothookfolder+"/2000-usercustomization"
 os.makedirs(boothookfolder, 0o777, exist_ok=True)
 print("Writing {0}".format(boothookfile))
 with open(boothookfile, 'w') as boothookfile_write:
