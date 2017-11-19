@@ -91,6 +91,8 @@ Description=Synergy Server service
 
 [Service]
 Type=simple
+# Use Pre-hook to ensure Xorg is started.
+ExecStartPre={1}
 ExecStart={0} --server --no-daemon
 Restart=on-failure
 RestartSec=5s
@@ -98,7 +100,7 @@ TimeoutStopSec=7s
 
 [Install]
 WantedBy=default.target
-""".format(shutil.which("synergy-core"))
+""".format(shutil.which("synergy-core"), shutil.which("xhost"))
     CFunc.systemd_createuserunit("synserv.service", Server_SystemdUnitText)
     # Global server config
     Server_SynConfig = "/etc/synergy.conf"
@@ -149,6 +151,8 @@ Description=Synergy Client service
 
 [Service]
 Type=simple
+# Use Pre-hook to ensure Xorg is started.
+ExecStartPre={2}
 ExecStart={0} --client --no-daemon {1}
 Restart=on-failure
 RestartSec=5s
@@ -156,5 +160,5 @@ TimeoutStopSec=7s
 
 [Install]
 WantedBy=default.target
-""".format(shutil.which("synergy-core"), args.clienthost)
+""".format(shutil.which("synergy-core"), args.clienthost, shutil.which("xhost"))
     CFunc.systemd_createuserunit("syncli.service", Client_SystemdUnitText)
