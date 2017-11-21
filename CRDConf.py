@@ -167,7 +167,7 @@ if args.x2go is True:
         CFunc.dnfinstall("x2goserver fuse-sshfs")
     elif shutil.which("apt-get"):
         CFunc.addppa("ppa:x2go/stable")
-        CFunc.aptinstall("x2goserver x2goserver-xsession")
+        CFunc.aptinstall("x2goserver x2goserver-xsession sshfs")
 
 # Ensure ownerships are correct
 if os.path.isdir(VncUserFolder):
