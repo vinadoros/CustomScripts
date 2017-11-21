@@ -310,6 +310,9 @@ if args.vmtype == 1:
     data['builders'][0]["type"] = "virtualbox-iso"
     data['builders'][0]["guest_os_type"] = "{0}".format(vboxosid)
     data['builders'][0]["vm_name"] = "{0}".format(vmname)
+    data['builders'][0]["hard_drive_interface"] = "sata"
+    data['builders'][0]["sata_port_count"] = 2
+    data['builders'][0]["iso_interface"] = "sata"
     data['builders'][0]["vboxmanage"] = ['']
     data['builders'][0]["vboxmanage"][0] = ["modifyvm", "{{.Name}}", "--memory", "{0}".format(args.memory)]
     data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--vram", "40"])
@@ -320,6 +323,7 @@ if args.vmtype == 1:
     data['builders'][0]["vboxmanage_post"][0] = ["sharedfolder", "add", "{{.Name}}", "--name", "root", "--hostpath", "/", "--automount"]
     data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--clipboard", "bidirectional"])
     data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--accelerate3d", "on"])
+
     data['builders'][0]["post_shutdown_delay"] = "30s"
     if 1 <= args.ostype <= 39:
         data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--nictype1", "virtio"])
