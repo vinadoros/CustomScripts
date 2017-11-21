@@ -125,6 +125,16 @@ function dr () {
 	echo "Executing systemd daemon-reload."
 	$SUDOCMD systemctl daemon-reload
 }
+function startu () {
+	echo "Starting systemd service $@ for user."
+	systemctl --user start "$@"
+	systemctl --user status -l "$@"
+}
+function stopu () {
+	echo "Stopping systemd service $@ for user."
+	systemctl --user stop "$@"
+	systemctl --user status -l "$@"
+}
 function resu () {
 	echo "Restarting systemd service $@ for user."
 	systemctl --user restart "$@"
@@ -455,6 +465,16 @@ end
 function dr
 	echo "Executing systemd daemon-reload."
 	sudo systemctl daemon-reload
+end
+function startu
+	echo "Starting systemd service $argv for user."
+	systemctl --user start $argv
+	systemctl --user status -l $argv
+end
+function stopu
+	echo "Stopping systemd service $argv for user."
+	systemctl --user stop $argv
+	systemctl --user status -l $argv
 end
 function resu
 	echo "Restarting systemd service $argv for user."

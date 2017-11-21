@@ -76,6 +76,8 @@ def systemd_createsystemunit(sysunitname, sysunittext, sysenable=False):
     if sysenable is True:
         subprocess.run("systemctl daemon-reload", shell=True)
         subprocess.run("systemctl enable {0}".format(sysunitname), shell=True)
+    else:
+        print("{0} not enabled. Enable with systemctl enable {0}.".format(sysunitname))
     return 0
 def systemd_createuserunit(userunitname, userunittext):
     """Create a systemd user unit."""

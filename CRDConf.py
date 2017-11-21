@@ -142,7 +142,7 @@ WantedBy=multi-user.target""".format(username=USERNAMEVAR, userhome=USERHOME, vn
     CFunc.systemd_createsystemunit("vncuser.service", VncSystemUnitText)
 
 # Config for x0vnc
-if args.vncx0vnc is True:
+if args.x0vnc is True:
     X0VncUserUnitText = """[Unit]
 Description=TigerVNC server for user session.
 
