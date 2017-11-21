@@ -159,6 +159,15 @@ WantedBy=default.target
     CFunc.systemd_createuserunit("vncx0.service", X0VncUserUnitText)
 
 # Config for x2go
+if args.x2go is True:
+    print("Installing x2go.")
+    if shutil.which("zypper"):
+        CFunc.zpinstall("x2goserver")
+    elif shutil.which("dnf"):
+        CFunc.dnfinstall("x2goserver fuse-sshfs")
+    elif shutil.which("apt-get"):
+        CFunc.addppa("ppa:x2go/stable")
+        CFunc.aptinstall("x2goserver x2goserver-xsession")
 
 # Ensure ownerships are correct
 if os.path.isdir(VncUserFolder):

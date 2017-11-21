@@ -131,6 +131,10 @@ def aptinstall(aptapps):
     """Install application(s) using apt"""
     print("\nInstalling {0} using apt.".format(aptapps))
     subprocess.run("apt-get install -y {0}".format(aptapps), shell=True)
+def addppa(ppasource):
+    """Add a ppa"""
+    subprocess.run("add-apt-repository -y '{0}'".format(ppasource), shell=True)
+    aptupdate()
 # DNF
 def dnfupdate():
     """Update system"""
