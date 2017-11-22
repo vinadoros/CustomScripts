@@ -67,7 +67,7 @@ parser.add_argument("-y", "--vmuser", help="VM Username", default="user")
 parser.add_argument("-z", "--vmpass", help="VM Password", default="asdf")
 parser.add_argument("-b", "--getpacker", help="Force refresh packer", action="store_true")
 parser.add_argument("-x", "--sshkey", help="SSH authorizaiton key")
-parser.add_argument("-d", "--desktopenv", type=int, help="Desktop Environment (defaults to 3/MATE)", default=3)
+parser.add_argument("-d", "--desktopenv", help="Desktop Environment (defaults to mate)", default="mate")
 parser.add_argument("--memory", help="Memory for VM", default="4096")
 parser.add_argument("--vmprovision", help="""Override provision options. Enclose options in double backslashes and quotes. Example: \\\\"-n -e 3\\\\" """)
 

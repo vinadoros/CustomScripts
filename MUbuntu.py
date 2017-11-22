@@ -5,11 +5,11 @@
 import argparse
 import grp
 import os
-import platform
-import pwd
 import shutil
 import subprocess
 import sys
+# Custom includes
+import CFunc
 
 print("Running {0}".format(__file__))
 
@@ -18,7 +18,7 @@ SCRIPTDIR = sys.path[0]
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Install Ubuntu Software.')
-parser.add_argument("-d", "--desktop", type=int, help='Desktop Environment', default="0")
+parser.add_argument("-d", "--desktop", help='Desktop Environment (i.e. gnome, kde, mate, etc)')
 parser.add_argument("-a", "--allextra", help='Run Extra Scripts', action="store_true")
 
 # Save arguments.
@@ -31,46 +31,14 @@ if os.geteuid() is not 0:
     sys.exit("\nError: Please run this script as root.\n")
 
 # Get non-root user information.
-if os.getenv("SUDO_USER") not in ["root", None]:
-    USERNAMEVAR = os.getenv("SUDO_USER")
-elif os.getenv("USER") not in ["root", None]:
-    USERNAMEVAR = os.getenv("USER")
-else:
-    # https://docs.python.org/3/library/pwd.html
-    USERNAMEVAR = pwd.getpwuid(1000)[0]
-# https://docs.python.org/3/library/grp.html
-USERGROUP = grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
-USERHOME = os.path.expanduser("~{0}".format(USERNAMEVAR))
-MACHINEARCH = platform.machine()
+USERNAMEVAR, USERGROUP, USERHOME = CFunc.getnormaluser()
+MACHINEARCH = CFunc.machinearch()
 print("Username is:", USERNAMEVAR)
 print("Group Name is:", USERGROUP)
 
 
-### Functions ###
-def update():
-    """Update apt sources"""
-    subprocess.run("apt-get update", shell=True)
-def distupg():
-    """Upgrade/Dist-Upgrade system"""
-    update()
-    subprocess.run("apt-get upgrade -y", shell=True)
-    subprocess.run("apt-get dist-upgrade -y", shell=True)
-def install(apps):
-    """Install application(s)"""
-    print("\nInstalling {0}".format(apps))
-    subprocess.run("apt-get install -y {0}".format(apps), shell=True)
-def subpout(cmd):
-    """Get output from subprocess"""
-    output = subprocess.run("{0}".format(cmd), shell=True, stdout=subprocess.PIPE, universal_newlines=True).stdout.strip()
-    return output
-def ppa(ppasource):
-    """Add a ppa"""
-    subprocess.run("add-apt-repository -y '{0}'".format(ppasource), shell=True)
-    update()
-    subprocess.run("/usr/local/bin/keymissing", shell=True)
-
 # Check if root password is set.
-rootacctstatus = subpout("passwd -S root | awk '{{print $2}}'")
+rootacctstatus = CFunc.subpout("passwd -S root | awk '{{print $2}}'")
 if "P" not in rootacctstatus:
     print("Please set the root password.")
     subprocess.run("passwd root", shell=True)
@@ -115,9 +83,11 @@ os.chmod('/usr/local/bin/keymissing', 0o777)
 
 
 # Get Ubuntu Release
-update()
-install("lsb-release software-properties-common apt-transport-https")
-debrelease = subpout("lsb_release -sc")
+CFunc.aptupdate()
+CFunc.aptinstall("lsb-release software-properties-common apt-transport-https")
+# Detect OS information
+distro, debrelease = CFunc.detectdistro()
+print("Distro is {0}.".format(distro))
 print("Release is {0}.".format(debrelease))
 
 ### Set up Ubuntu Repos ###
@@ -155,12 +125,12 @@ Acquire::https::Timeout "5";
 Acquire::ftp::Timeout "5";''')
 
 # Update and upgrade with new base repositories
-update()
-distupg()
+CFunc.aptupdate()
+CFunc.aptdistupg()
 
 ### Software ###
 
-install("sudo")
+CFunc.aptinstall("sudo")
 subprocess.run("usermod -aG sudo {0}".format(USERNAMEVAR), shell=True)
 subprocess.run("""
 # Delete defaults in sudoers for Debian.
@@ -173,12 +143,12 @@ if grep -iq '^Defaults\tenv_reset' /etc/sudoers; then
 fi
 visudo -c""", shell=True)
 
-install("ssh tmux")
+CFunc.aptinstall("ssh tmux")
 # Fish Shell
 # Install ppa only if lts
 if debrelease == "xenial":
-    ppa("ppa:fish-shell/release-2")
-install("fish")
+    CFunc.addppa("ppa:fish-shell/release-2")
+CFunc.aptinstall("fish")
 # Add fish to shells
 with open('/etc/shells', 'r') as VAR:
     DATA = VAR.read()
@@ -193,61 +163,61 @@ subprocess.run("wget -qO- https://syncthing.net/release-key.txt | apt-key add -"
 with open('/etc/apt/sources.list.d/syncthing-release.list', 'w') as stapt_writefile:
     stapt_writefile.write("deb http://apt.syncthing.net/ syncthing release")
 # Update and install syncthing:
-update()
-install("syncthing syncthing-inotify")
+CFunc.aptupdate()
+CFunc.aptinstall("syncthing syncthing-inotify")
 
 # General GUI software
-install("synaptic gdebi gparted xdg-utils leafpad nano p7zip-full p7zip-rar unrar")
-install("gnome-disk-utility btrfs-tools f2fs-tools xfsprogs dmraid mdadm")
+CFunc.aptinstall("synaptic gdebi gparted xdg-utils leafpad nano p7zip-full p7zip-rar unrar")
+CFunc.aptinstall("gnome-disk-utility btrfs-tools f2fs-tools xfsprogs dmraid mdadm")
 # Timezone stuff
 subprocess.run("dpkg-reconfigure -f noninteractive tzdata", shell=True)
 # CLI and system utilities
-install("curl rsync less iotop sshfs")
+CFunc.aptinstall("curl rsync less iotop sshfs")
 # Needed for systemd user sessions.
-install("dbus-user-session")
+CFunc.aptinstall("dbus-user-session")
 # Samba
-install("samba cifs-utils")
+CFunc.aptinstall("samba cifs-utils")
 # NTP
 subprocess.run("""systemctl enable systemd-timesyncd
 timedatectl set-local-rtc false
 timedatectl set-ntp 1""", shell=True)
 # Avahi
-install("avahi-daemon avahi-discover libnss-mdns")
+CFunc.aptinstall("avahi-daemon avahi-discover libnss-mdns")
 # Cups-pdf
-install("printer-driver-cups-pdf")
+CFunc.aptinstall("printer-driver-cups-pdf")
 # Media Playback
-install("vlc audacious ffmpeg youtube-dl smplayer")
-install("alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pulseaudio-module-bluetooth swh-plugins")
-install("gstreamer1.0-vaapi")
+CFunc.aptinstall("vlc audacious ffmpeg youtube-dl smplayer")
+CFunc.aptinstall("alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pulseaudio-module-bluetooth swh-plugins")
+CFunc.aptinstall("gstreamer1.0-vaapi")
 # Wine
-install("playonlinux wine64-development wine32-development-preloader")
+CFunc.aptinstall("playonlinux wine64-development wine32-development-preloader")
 # For Office 2010
-install("winbind")
-install("fonts-powerline fonts-noto fonts-roboto")
+CFunc.aptinstall("winbind")
+CFunc.aptinstall("fonts-powerline fonts-noto fonts-roboto")
 # Browsers
-install("chromium-browser firefox flashplugin-installer pepperflashplugin-nonfree")
+CFunc.aptinstall("chromium-browser firefox flashplugin-installer pepperflashplugin-nonfree")
 # Tilix
-ppa("ppa:webupd8team/terminix")
-install("tilix")
+CFunc.addppa("ppa:webupd8team/terminix")
+CFunc.aptinstall("tilix")
 # Cron
-install("cron anacron")
+CFunc.aptinstall("cron anacron")
 subprocess.run("systemctl disable cron; systemctl disable anacron", shell=True)
 # Java
-install("default-jre")
+CFunc.aptinstall("default-jre")
 # Atom Editor
-ppa("ppa:webupd8team/atom")
-install("atom")
+CFunc.addppa("ppa:webupd8team/atom")
+CFunc.aptinstall("atom")
 
 # Visual Studio Code
 subprocess.run("""curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
 mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg""", shell=True)
 # Install repo
 subprocess.run('echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list', shell=True)
-update()
-install("code")
+CFunc.aptupdate()
+CFunc.aptinstall("code")
 
 # Network Manager
-install("network-manager network-manager-ssh resolvconf")
+CFunc.aptinstall("network-manager network-manager-ssh resolvconf")
 subprocess.run("apt-get install -y network-manager-config-connectivity-ubuntu", shell=True, check=False)
 subprocess.run("sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf", shell=True)
 # https://askubuntu.com/questions/882806/ethernet-device-not-managed
@@ -262,52 +232,49 @@ if os.path.isfile("/etc/default/apport"):
     subprocess.run("sed -i 's/^enabled=.*/enabled=0/g' /etc/default/apport", shell=True)
 
 # Install Desktop Software
-if args.desktop == 1:
+if args.desktop == "gnome":
     print("\n Installing gnome desktop")
-    install("ubuntu-desktop ubuntu-session gnome-session")
-    install("gnome-clocks")
+    CFunc.aptinstall("ubuntu-desktop ubuntu-session gnome-session")
+    CFunc.aptinstall("gnome-clocks")
     # Remove ubuntu dock in order to install dashtodock
     subprocess.run("apt-get remove -y gnome-shell-extension-ubuntu-dock", shell=True, check=False)
-    install("gnome-shell-extensions gnome-shell-extension-dashtodock gnome-shell-extension-mediaplayer gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste")
+    CFunc.aptinstall("gnome-shell-extensions gnome-shell-extension-dashtodock gnome-shell-extension-mediaplayer gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste")
     subprocess.run("{0}/DExtGnome.sh -v".format(SCRIPTDIR), shell=True)
-elif args.desktop == 2:
+elif args.desktop == "kde":
     print("\n Installing kde desktop")
-    install("kubuntu-desktop")
-elif args.desktop == 3:
+    CFunc.aptinstall("kubuntu-desktop")
+elif args.desktop == "mate":
     print("\n Installing mate desktop")
-    install("ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop")
-    install("ubuntu-mate-lightdm-theme dconf-cli")
-elif args.desktop == 4:
+    CFunc.aptinstall("ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop")
+    CFunc.aptinstall("ubuntu-mate-lightdm-theme dconf-cli")
+elif args.desktop == "xfce":
     print("\n Installing xfce desktop")
-    install("xubuntu-desktop")
+    CFunc.aptinstall("xubuntu-desktop")
 
 # Numix
-ppa("ppa:numix/ppa")
-install("numix-icon-theme-circle")
+CFunc.addppa("ppa:numix/ppa")
+CFunc.aptinstall("numix-icon-theme-circle")
 
 # Emulator ppa
-# ppa("ppa:random-stuff/ppa")
+# CFunc.addppa("ppa:random-stuff/ppa")
 
 # Adapta
-ppa("ppa:tista/adapta")
-install("adapta-gtk-theme")
+CFunc.addppa("ppa:tista/adapta")
+CFunc.aptinstall("adapta-gtk-theme")
 
 
 # Install guest software for VMs
 if QEMUGUEST is True:
-    install("spice-vdagent qemu-guest-agent")
+    CFunc.aptinstall("spice-vdagent qemu-guest-agent")
 if VBOXGUEST is True:
-    install("virtualbox-guest-utils virtualbox-guest-x11 virtualbox-guest-dkms dkms")
+    CFunc.aptinstall("virtualbox-guest-utils virtualbox-guest-x11 virtualbox-guest-dkms dkms")
     subprocess.run("gpasswd -a {0} vboxsf".format(USERNAMEVAR), shell=True)
     subprocess.run("systemctl enable virtualbox-guest-utils", shell=True)
 if VMWGUEST is True:
-    install("open-vm-tools open-vm-tools-dkms open-vm-tools-desktop")
+    CFunc.aptinstall("open-vm-tools open-vm-tools-dkms open-vm-tools-desktop")
 
 # Run only on real machine
 if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
-    # Synergy
-    install("synergy")
-
     ### Architecture Specific Section ###
     if MACHINEARCH != "armv7l":
         subprocess.run("apt-get install -y --no-install-recommends powertop smartmontools ethtool", shell=True)
@@ -325,26 +292,7 @@ WantedBy=multi-user.target'''.format(shutil.which("powertop")))
         subprocess.run("systemctl daemon-reload; systemctl enable powertop", shell=True)
 
 # Add normal user to all reasonable groups
-with open("/etc/group", 'r') as groups:
-    grparray = []
-    # Split the grouplist into lines
-    grouplist = groups.readlines()
-    # Iterate through all groups in grouplist
-    for line in grouplist:
-        # Remove portion after :
-        splitline = line.split(":")[0]
-        # Check group before adding it.
-        if splitline != "root" and \
-            splitline != "users" and \
-            splitline != "nobody" and \
-            splitline != "nogroup" and \
-            splitline != USERGROUP:
-            # Add group to array.
-            grparray.append(line.split(":")[0])
-# Add all detected groups to the current user.
-for grp in grparray:
-    print("Adding {0} to group {1}.".format(USERNAMEVAR, grp))
-    subprocess.run("usermod -aG {1} {0}".format(USERNAMEVAR, grp), shell=True, check=True)
+CFunc.AddUserAllGroups()
 
 # Edit sudoers to add apt.
 if os.path.isdir('/etc/sudoers.d'):

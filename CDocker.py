@@ -34,18 +34,16 @@ MACHINEARCH = CFunc.machinearch()
 print("Username is:", USERNAMEVAR)
 print("Group Name is:", USERGROUP)
 
-
 # Detect OS information
-distro = CFunc.subpout("lsb_release -si")
-if args.release is None:
-    release = CFunc.subpout("lsb_release -sc")
-else:
+distro, release = CFunc.detectdistro()
+if args.release is not None:
     release = args.release
 print("Distro is {0}.".format(distro))
 print("Release is {0}.".format(release))
 
 if args.noprompt is False:
     input("Press Enter to continue.")
+
 
 ### Install Docker ###
 if distro == "Ubuntu":

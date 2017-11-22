@@ -49,10 +49,8 @@ else:
 print("Virtualbox major version is {0}.".format(VBOXMAJORVERSION))
 
 # Detect OS information
-distro = CFunc.subpout("lsb_release -si")
-if args.release is None:
-    release = CFunc.subpout("lsb_release -sc")
-else:
+distro, release = CFunc.detectdistro()
+if args.release is not None:
     release = args.release
 print("Distro is {0}.".format(distro))
 print("Release is {0}.".format(release))
@@ -74,13 +72,11 @@ if distro == "Ubuntu":
 elif distro == "Fedora":
     # Import keyfile
     key = CFunc.downloadfile("https://www.virtualbox.org/download/oracle_vbox.asc", "/tmp")
-    subprocess.run("rpm --import {0}".format(key[0]), shell=True, check=True)
+    CFunc.rpmimport(key[0])
     os.remove(key[0])
     # Add repo file.
-    subprocess.run("""
-dnf install -y dkms
-dnf config-manager --add-repo "http://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo"
-""", shell=True)
+    CFunc.dnfinstall("dkms")
+    subprocess.run('dnf config-manager --add-repo "http://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo"', shell=True)
     # Modify repo file.
     if release.isdigit() is True:
         subprocess.run("sed -i 's/$releasever/{0}/g' /etc/yum.repos.d/virtualbox.repo".format(release), shell=True)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install Ubuntu Software"""
+"""General Python Functions"""
 
 # Python includes.
 import grp
@@ -15,8 +15,14 @@ SCRIPTDIR = sys.path[0]
 
 
 ### Functions ###
+def getuserdetails(username):
+    """Get group and home folder info about a particular user."""
+    # https://docs.python.org/3/library/grp.html
+    usergroup = grp.getgrgid(pwd.getpwnam(username)[3])[0]
+    userhome = os.path.expanduser("~{0}".format(username))
+    return usergroup, userhome
 def getnormaluser():
-    """Get non-root user information."""
+    """Auto-detect non-root user information."""
     if os.getenv("SUDO_USER") not in ["root", None]:
         usernamevar = os.getenv("SUDO_USER")
     elif os.getenv("USER") not in ["root", None]:
@@ -24,9 +30,7 @@ def getnormaluser():
     else:
         # https://docs.python.org/3/library/pwd.html
         usernamevar = pwd.getpwuid(1000)[0]
-    # https://docs.python.org/3/library/grp.html
-    usergroup = grp.getgrgid(pwd.getpwnam(usernamevar)[3])[0]
-    userhome = os.path.expanduser("~{0}".format(usernamevar))
+    userhome, usergroup = getuserdetails(usernamevar)
     return usernamevar, usergroup, userhome
 def machinearch():
     """Get the machine arch."""
@@ -116,7 +120,41 @@ AllowIsolate=true""")
         # Run daemon-reload if not running as root.
         subprocess.run("systemctl --user daemon-reload", shell=True)
     return 0
-### Package Manager Specific Functions ###
+### Distro and Package Manager Specific Functions ###
+# General Distro Functions
+def detectdistro():
+    """Detect Distribution and Release from LSB info"""
+    lsb_distro = subpout("lsb_release -si")
+    lsb_release = subpout("lsb_release -sc")
+    return (lsb_distro, lsb_release)
+def AddUserAllGroups(username=None):
+    """Add a given user to all reasonable groups."""
+    # Detect user if not passed.
+    if username is None:
+        usertuple = getnormaluser()
+        USERNAMEVAR = usertuple[0]
+        USERGROUP = usertuple[1]
+    # Add normal user to all reasonable groups
+    with open("/etc/group", 'r') as groups:
+        grparray = []
+        # Split the grouplist into lines
+        grouplist = groups.readlines()
+        # Iterate through all groups in grouplist
+        for line in grouplist:
+            # Remove portion after :
+            splitline = line.split(":")[0]
+            # Check group before adding it.
+            if splitline != "root" and \
+                splitline != "users" and \
+                splitline != "nobody" and \
+                splitline != "nogroup" and \
+                splitline != USERGROUP:
+                # Add group to array.
+                grparray.append(line.split(":")[0])
+    # Add all detected groups to the current user.
+    for group in grparray:
+        print("Adding {0} to group {1}.".format(USERNAMEVAR, group))
+        subprocess.run("usermod -aG {1} {0}".format(USERNAMEVAR, group), shell=True, check=True)
 # Apt
 def aptupdate():
     """Update apt sources"""
@@ -144,6 +182,9 @@ def dnfinstall(dnfapps):
     """Install application(s)"""
     print("\nInstalling {0} using dnf.".format(dnfapps))
     subprocess.run("dnf install -y {0}".format(dnfapps), shell=True)
+def rpmimport(keyurl):
+    """Import a gpg key for rpm."""
+    subprocess.run("rpm --import {0}".format(keyurl), shell=True, check=True)
 # Zypper
 def zpinstall(zpapps):
     """Install application(s)"""

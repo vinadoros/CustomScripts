@@ -10,6 +10,8 @@ import pwd
 import shutil
 import subprocess
 import sys
+# Custom includes
+import CFunc
 
 print("Running {0}".format(__file__))
 
@@ -18,7 +20,7 @@ SCRIPTDIR = sys.path[0]
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Install OpenSUSE Software.')
-parser.add_argument("-d", "--desktop", type=int, help='Desktop Environment', default="0")
+parser.add_argument("-d", "--desktop", help='Desktop Environment (i.e. gnome, kde, mate, etc)')
 parser.add_argument("-a", "--allextra", help='Run Extra Scripts', action="store_true")
 
 # Save arguments.
@@ -31,17 +33,8 @@ if os.geteuid() is not 0:
     sys.exit("\nError: Please run this script as root.\n")
 
 # Get non-root user information.
-if os.getenv("SUDO_USER") not in ["root", None]:
-    USERNAMEVAR = os.getenv("SUDO_USER")
-elif os.getenv("USER") not in ["root", None]:
-    USERNAMEVAR = os.getenv("USER")
-else:
-    # https://docs.python.org/3/library/pwd.html
-    USERNAMEVAR = pwd.getpwuid(1000)[0]
-# https://docs.python.org/3/library/grp.html
-USERGROUP = grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
-USERHOME = os.path.expanduser("~{0}".format(USERNAMEVAR))
-MACHINEARCH = platform.machine()
+USERNAMEVAR, USERGROUP, USERHOME = CFunc.getnormaluser()
+MACHINEARCH = CFunc.machinearch()
 print("Username is:", USERNAMEVAR)
 print("Group Name is:", USERGROUP)
 
@@ -160,25 +153,19 @@ systemctl daemon-reload
 systemctl disable wicked
 systemctl enable NetworkManager
 """.format(USERNAMEVAR)
+subprocess.run(SOFTWARESCRIPT, shell=True)
+
 # Install software for VMs
 if QEMUGUEST is True:
-    SOFTWARESCRIPT += """
-# Guest Agent
-zypper in -yl spice-vdagent qemu-guest-agent
-"""
+    CFunc.zpinstall("spice-vdagent qemu-guest-agent")
 if VBOXGUEST is True:
-    SOFTWARESCRIPT += """
-"""
+    CFunc.zpinstall("virtualbox-guest-tools virtualbox-guest-x11")
 if VMWGUEST is True:
-    SOFTWARESCRIPT += """
-# VM tools
-zypper in -yl open-vm-tools open-vm-tools-desktop
-"""
-subprocess.run(SOFTWARESCRIPT, shell=True)
+    CFunc.zpinstall("open-vm-tools open-vm-tools-desktop")
 
 # Install Desktop Software
 DESKTOPSCRIPT = """"""
-if args.desktop == 1:
+if args.desktop == "gnome":
     DESKTOPSCRIPT += """
 # Gnome
 zypper in -yl -t pattern gnome_admin gnome_basis gnome_basis_opt gnome_imaging gnome_utilities gnome_laptop gnome_yast sw_management_gnome
@@ -190,7 +177,7 @@ zypper in -yl gnome-shell-extension-gpaste gnome-shell-classic
 zypper in -yl gdm
 sed -i 's/DISPLAYMANAGER=.*$/DISPLAYMANAGER="gdm"/g' /etc/sysconfig/displaymanager
 """
-elif args.desktop == 2:
+elif args.desktop == "kde":
     DESKTOPSCRIPT += """
 # KDE
 if rpm -iq patterns-yast-x11_yast; then
@@ -204,7 +191,7 @@ zypper in -yl libappindicator1 libappindicator3-1 sni-qt sni-qt-32bit
 zypper in -yl sddm
 sed -i 's/DISPLAYMANAGER=.*$/DISPLAYMANAGER="sddm"/g' /etc/sysconfig/displaymanager
 """
-elif args.desktop == 3:
+elif args.desktop == "mate":
     DESKTOPSCRIPT += """
 # MATE
 zypper in -yl -t pattern mate_basis mate_admin mate_utilities
@@ -242,11 +229,6 @@ if os.path.isdir('/etc/sudoers.d'):
         print("Visudo status not 0, removing sudoers file.")
         os.remove(CUSTOMSUDOERSPATH)
 
-# Run only on real machine
-if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
-    # Install virtualbox
-    subprocess.run("zypper in -yl virtualbox", shell=True)
-
 # Configure Fonts
 FONTSCRIPT = """
 sed -i 's/^VERBOSITY=.*$/VERBOSITY="1"/g' /etc/sysconfig/fonts-config
@@ -272,17 +254,7 @@ purge-kernels
     os.chmod(ZYPPERCRONSCRIPT, 0o777)
 
 # Add normal user to all reasonable groups
-GROUPSCRIPT = """
-# Get all groups
-LISTOFGROUPS="$(cut -d: -f1 /etc/group)"
-# Remove some groups
-CUTGROUPS=$(sed -e "/^users/d; /^root/d; /^nobody/d; /^nogroup/d" <<< $LISTOFGROUPS)
-echo Groups to Add: $CUTGROUPS
-for grp in $CUTGROUPS; do
-    usermod -aG $grp {0}
-done
-""".format(USERNAMEVAR)
-subprocess.run(GROUPSCRIPT, shell=True)
+CFunc.AddUserAllGroups()
 
 # Extra scripts
 if args.allextra is True:
