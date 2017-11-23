@@ -63,6 +63,23 @@ def downloadfile(url, localpath):
     else:
         print("File {0} already exists. Skipping download.".format(fullpath))
     return (fullpath, filename)
+def getvmstate():
+    """Determine what Virtual Machine guest is running under."""
+    # Default state.
+    vmstatus = None
+    # Detect QEMU
+    with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
+        if bool("QEMU" in VAR.read().strip()):
+            vmstatus = "kvm"
+    # Detect Virtualbox
+    with open('/sys/devices/virtual/dmi/id/product_name', 'r') as VAR:
+        if bool("VirtualBox" in VAR.read().strip()):
+            vmstatus = "vbox"
+    # Detect VMWare
+    with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
+        if bool("VMware" in VAR.read().strip()):
+            vmstatus = "vmware"
+    return vmstatus
 ### Systemd Functions ###
 def systemd_createsystemunit(sysunitname, sysunittext, sysenable=False):
     """Create a systemd system unit."""

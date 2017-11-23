@@ -132,24 +132,34 @@ if args.ostype == 2:
 if args.ostype == 3:
     vmname = "Packer-CentOSOrig-{0}".format(hvname)
     vmprovision_defopts = " "
-if args.ostype == 10:
-    vmname = "Packer-Ubuntu-{0}".format(hvname)
+if 10 <= args.ostype <= 19:
     vboxosid = "Ubuntu_64"
     vmwareid = "ubuntu-64"
     vmprovisionscript = "MUbuntu.py"
-    vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
     kvm_os = "linux"
-    kvm_variant = "ubuntu16.04"
+# Ubuntu latest
+if 10 <= args.ostype <= 14:
+    kvm_variant = "ubuntu17.04"
     isourl = "http://releases.ubuntu.com/17.10/ubuntu-17.10-server-amd64.iso"
-if args.ostype == 11:
-    vmname = "Packer-UbuntuLTS-{0}".format(hvname)
-    vboxosid = "Ubuntu_64"
-    vmwareid = "ubuntu-64"
-    vmprovisionscript = "MUbuntuLTS.py"
-    vmprovision_defopts = "-d -a"
-    kvm_os = "linux"
+# Ubuntu LTS
+if 15 <= args.ostype <= 19:
     kvm_variant = "ubuntu16.04"
     isourl = "http://releases.ubuntu.com/16.04/ubuntu-16.04.3-server-amd64.iso"
+if args.ostype == 10:
+    vmname = "Packer-Ubuntu-{0}".format(hvname)
+    vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
+if args.ostype == 11:
+    vmname = "Packer-UbuntuCLI-{0}".format(hvname)
+    vmprovision_defopts = "-a -x"
+if args.ostype == 15:
+    vmname = "Packer-UbuntuLTS-{0}".format(hvname)
+    vmprovision_defopts = "-l -d {0} -a".format(args.desktopenv)
+if args.ostype == 16:
+    vmname = "Packer-UbuntuLTSCLI-{0}".format(hvname)
+    vmprovision_defopts = "-l -a -x"
+if args.ostype == 17:
+    vmname = "Packer-UbuntuLTSBare-{0}".format(hvname)
+    vmprovision_defopts = "-l -b -x"
 if args.ostype == 20:
     vmname = "Packer-OpenSuseTW-{0}".format(hvname)
     vboxosid = "OpenSUSE_64"

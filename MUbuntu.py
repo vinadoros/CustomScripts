@@ -3,7 +3,6 @@
 
 # Python includes.
 import argparse
-import grp
 import os
 import shutil
 import subprocess
@@ -20,11 +19,17 @@ SCRIPTDIR = sys.path[0]
 parser = argparse.ArgumentParser(description='Install Ubuntu Software.')
 parser.add_argument("-d", "--desktop", help='Desktop Environment (i.e. gnome, kde, mate, etc)')
 parser.add_argument("-a", "--allextra", help='Run Extra Scripts', action="store_true")
+parser.add_argument("-l", "--lts", help='Configure script to run for an LTS release.', action="store_true")
+parser.add_argument("-b", "--bare", help='Configure script to set up a bare-minimum environment.', action="store_true")
+parser.add_argument("-x", "--nogui", help='Configure script to disable GUI.', action="store_true")
 
 # Save arguments.
 args = parser.parse_args()
 print("Desktop Environment:", args.desktop)
 print("Run extra scripts:", args.allextra)
+print("LTS Mode:", args.bare)
+print("Bare install:", args.bare)
+print("No GUI:", args.nogui)
 
 # Exit if not root.
 if os.geteuid() is not 0:
@@ -55,15 +60,7 @@ else:
 print("Ubuntu URL is "+URL)
 
 # Get VM State
-# Detect QEMU
-with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
-    QEMUGUEST = bool("QEMU" in VAR.read().strip())
-# Detect Virtualbox
-with open('/sys/devices/virtual/dmi/id/product_name', 'r') as VAR:
-    VBOXGUEST = bool("VirtualBox" in VAR.read().strip())
-# Detect VMWare
-with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
-    VMWGUEST = bool("VMware" in VAR.read().strip())
+vmstatus = CFunc.getvmstate()
 
 # Keymissing script
 with open('/usr/local/bin/keymissing', 'w') as writefile:
@@ -81,6 +78,8 @@ then
 fi''')
 os.chmod('/usr/local/bin/keymissing', 0o777)
 
+
+### Begin Code ###
 
 # Get Ubuntu Release
 CFunc.aptupdate()
@@ -143,12 +142,21 @@ if grep -iq '^Defaults\tenv_reset' /etc/sudoers; then
 fi
 visudo -c""", shell=True)
 
-CFunc.aptinstall("ssh tmux")
-# Fish Shell
-# Install ppa only if lts
-if debrelease == "xenial":
+# Syncthing
+if not args.bare:
+    subprocess.run("wget -qO- https://syncthing.net/release-key.txt | apt-key add -", shell=True)
+    # Write syncthing sources list
+    with open('/etc/apt/sources.list.d/syncthing-release.list', 'w') as stapt_writefile:
+        stapt_writefile.write("deb http://apt.syncthing.net/ syncthing release")
+    # Update and install syncthing:
+    CFunc.aptupdate()
+    CFunc.aptinstall("syncthing syncthing-inotify")
+
+# Fish Shell, install ppa only if lts
+if args.lts is True:
     CFunc.addppa("ppa:fish-shell/release-2")
-CFunc.aptinstall("fish")
+# Cli Software
+CFunc.aptinstall("ssh tmux fish btrfs-tools f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs")
 # Add fish to shells
 with open('/etc/shells', 'r') as VAR:
     DATA = VAR.read()
@@ -156,23 +164,8 @@ with open('/etc/shells', 'r') as VAR:
     if not FISHPATH in DATA:
         print("\nAdding fish to /etc/shells")
         subprocess.run('echo "{0}" >> /etc/shells'.format(FISHPATH), shell=True)
-
-# Syncthing
-subprocess.run("wget -qO- https://syncthing.net/release-key.txt | apt-key add -", shell=True)
-# Write syncthing sources list
-with open('/etc/apt/sources.list.d/syncthing-release.list', 'w') as stapt_writefile:
-    stapt_writefile.write("deb http://apt.syncthing.net/ syncthing release")
-# Update and install syncthing:
-CFunc.aptupdate()
-CFunc.aptinstall("syncthing syncthing-inotify")
-
-# General GUI software
-CFunc.aptinstall("synaptic gdebi gparted xdg-utils leafpad nano p7zip-full p7zip-rar unrar")
-CFunc.aptinstall("gnome-disk-utility btrfs-tools f2fs-tools xfsprogs dmraid mdadm")
 # Timezone stuff
 subprocess.run("dpkg-reconfigure -f noninteractive tzdata", shell=True)
-# CLI and system utilities
-CFunc.aptinstall("curl rsync less iotop sshfs")
 # Needed for systemd user sessions.
 CFunc.aptinstall("dbus-user-session")
 # Samba
@@ -183,38 +176,44 @@ timedatectl set-local-rtc false
 timedatectl set-ntp 1""", shell=True)
 # Avahi
 CFunc.aptinstall("avahi-daemon avahi-discover libnss-mdns")
-# Cups-pdf
-CFunc.aptinstall("printer-driver-cups-pdf")
-# Media Playback
-CFunc.aptinstall("vlc audacious ffmpeg youtube-dl smplayer")
-CFunc.aptinstall("alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pulseaudio-module-bluetooth swh-plugins")
-CFunc.aptinstall("gstreamer1.0-vaapi")
-# Wine
-CFunc.aptinstall("playonlinux wine64-development wine32-development-preloader")
-# For Office 2010
-CFunc.aptinstall("winbind")
-CFunc.aptinstall("fonts-powerline fonts-noto fonts-roboto")
-# Browsers
-CFunc.aptinstall("chromium-browser firefox flashplugin-installer pepperflashplugin-nonfree")
-# Tilix
-CFunc.addppa("ppa:webupd8team/terminix")
-CFunc.aptinstall("tilix")
-# Cron
-CFunc.aptinstall("cron anacron")
-subprocess.run("systemctl disable cron; systemctl disable anacron", shell=True)
 # Java
 CFunc.aptinstall("default-jre")
-# Atom Editor
-CFunc.addppa("ppa:webupd8team/atom")
-CFunc.aptinstall("atom")
 
-# Visual Studio Code
-subprocess.run("""curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg""", shell=True)
-# Install repo
-subprocess.run('echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list', shell=True)
-CFunc.aptupdate()
-CFunc.aptinstall("code")
+# Non-bare CLI stuff.
+if not args.bare:
+    # Cron
+    CFunc.aptinstall("cron anacron")
+    subprocess.run("systemctl disable cron; systemctl disable anacron", shell=True)
+
+# General GUI software
+if not args.nogui or not args.bare:
+    CFunc.aptinstall("synaptic gnome-disk-utility gdebi gparted xdg-utils leafpad")
+    # Cups-pdf
+    CFunc.aptinstall("printer-driver-cups-pdf")
+    # Media Playback
+    CFunc.aptinstall("vlc audacious ffmpeg youtube-dl smplayer")
+    CFunc.aptinstall("alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pulseaudio-module-bluetooth swh-plugins")
+    CFunc.aptinstall("gstreamer1.0-vaapi")
+    # Wine
+    CFunc.aptinstall("playonlinux wine64-development wine32-development-preloader")
+    # For Office 2010
+    CFunc.aptinstall("winbind")
+    CFunc.aptinstall("fonts-powerline fonts-noto fonts-roboto")
+    # Browsers
+    CFunc.aptinstall("chromium-browser firefox flashplugin-installer pepperflashplugin-nonfree")
+    # Tilix
+    CFunc.addppa("ppa:webupd8team/terminix")
+    CFunc.aptinstall("tilix")
+    # Atom Editor
+    CFunc.addppa("ppa:webupd8team/atom")
+    CFunc.aptinstall("atom")
+    # Visual Studio Code
+    subprocess.run("""curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+    mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg""", shell=True)
+    # Install repo
+    subprocess.run('echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list', shell=True)
+    CFunc.aptupdate()
+    CFunc.aptinstall("code")
 
 # Network Manager
 CFunc.aptinstall("network-manager network-manager-ssh resolvconf")
@@ -251,36 +250,34 @@ elif args.desktop == "xfce":
     print("\n Installing xfce desktop")
     CFunc.aptinstall("xubuntu-desktop")
 
-# Numix
-CFunc.addppa("ppa:numix/ppa")
-CFunc.aptinstall("numix-icon-theme-circle")
-
-# Emulator ppa
-# CFunc.addppa("ppa:random-stuff/ppa")
-
-# Adapta
-CFunc.addppa("ppa:tista/adapta")
-CFunc.aptinstall("adapta-gtk-theme")
+# Post DE install stuff.
+if not args.nogui or not args.bare:
+    # Numix
+    CFunc.addppa("ppa:numix/ppa")
+    CFunc.aptinstall("numix-icon-theme-circle")
+    # Adapta
+    CFunc.addppa("ppa:tista/adapta")
+    CFunc.aptinstall("adapta-gtk-theme")
 
 
 # Install guest software for VMs
-if QEMUGUEST is True:
+if vmstatus == "kvm":
     CFunc.aptinstall("spice-vdagent qemu-guest-agent")
-if VBOXGUEST is True:
-    CFunc.aptinstall("virtualbox-guest-utils virtualbox-guest-x11 virtualbox-guest-dkms dkms")
+if vmstatus == "vbox":
+    CFunc.aptinstall("virtualbox-guest-utils virtualbox-guest-dkms dkms")
+    if not args.nogui:
+        CFunc.aptinstall("virtualbox-guest-x11")
     subprocess.run("gpasswd -a {0} vboxsf".format(USERNAMEVAR), shell=True)
     subprocess.run("systemctl enable virtualbox-guest-utils", shell=True)
-if VMWGUEST is True:
-    CFunc.aptinstall("open-vm-tools open-vm-tools-dkms open-vm-tools-desktop")
+if vmstatus == "vmware":
+    CFunc.aptinstall("open-vm-tools open-vm-tools-dkms")
+    if not args.nogui:
+        CFunc.aptinstall("open-vm-tools-desktop")
 
-# Run only on real machine
-if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
-    ### Architecture Specific Section ###
-    if MACHINEARCH != "armv7l":
-        subprocess.run("apt-get install -y --no-install-recommends powertop smartmontools ethtool", shell=True)
-        # Write and enable powertop systemd-unit file.
-        with open('/etc/systemd/system/powertop.service', 'w') as writefile:
-            writefile.write('''[Unit]
+
+subprocess.run("apt-get install -y --no-install-recommends powertop smartmontools", shell=True)
+# Write and enable powertop systemd-unit file.
+Powertop_SystemdServiceText = '''[Unit]
 Description=Powertop tunings
 
 [Service]
@@ -288,34 +285,35 @@ ExecStart={0} --auto-tune
 RemainAfterExit=true
 
 [Install]
-WantedBy=multi-user.target'''.format(shutil.which("powertop")))
-        subprocess.run("systemctl daemon-reload; systemctl enable powertop", shell=True)
+WantedBy=multi-user.target'''.format(shutil.which("powertop"))
+CFunc.systemd_createsystemunit("powertop.service", Powertop_SystemdServiceText, True)
 
-# Add normal user to all reasonable groups
-CFunc.AddUserAllGroups()
+if args.bare is False:
+    # Add normal user to all reasonable groups
+    CFunc.AddUserAllGroups()
 
-# Edit sudoers to add apt.
-if os.path.isdir('/etc/sudoers.d'):
-    CUSTOMSUDOERSPATH = "/etc/sudoers.d/pkmgt"
-    print("Writing {0}".format(CUSTOMSUDOERSPATH))
-    with open(CUSTOMSUDOERSPATH, 'w') as sudoers_writefile:
-        sudoers_writefile.write("{0} ALL=(ALL) NOPASSWD: {1}\n{0} ALL=(ALL) NOPASSWD: {2}\n".format(USERNAMEVAR, shutil.which("apt"), shutil.which("apt-get")))
-    os.chmod(CUSTOMSUDOERSPATH, 0o440)
-    status = subprocess.run('visudo -c', shell=True)
-    if status.returncode is not 0:
-        print("Visudo status not 0, removing sudoers file.")
-        os.remove(CUSTOMSUDOERSPATH)
+    # Edit sudoers to add apt.
+    if os.path.isdir('/etc/sudoers.d'):
+        CUSTOMSUDOERSPATH = "/etc/sudoers.d/pkmgt"
+        print("Writing {0}".format(CUSTOMSUDOERSPATH))
+        with open(CUSTOMSUDOERSPATH, 'w') as sudoers_writefile:
+            sudoers_writefile.write("{0} ALL=(ALL) NOPASSWD: {1}\n{0} ALL=(ALL) NOPASSWD: {2}\n".format(USERNAMEVAR, shutil.which("apt"), shutil.which("apt-get")))
+        os.chmod(CUSTOMSUDOERSPATH, 0o440)
+        status = subprocess.run('visudo -c', shell=True)
+        if status.returncode is not 0:
+            print("Visudo status not 0, removing sudoers file.")
+            os.remove(CUSTOMSUDOERSPATH)
 
-# Extra scripts
-if args.allextra is True:
-    subprocess.run("{0}/Csdtimers.sh".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CBashFish.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CCSClone.sh".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CDisplayManagerConfig.sh".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CVMGeneral.sh".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/Cxdgdirs.sh".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
+    # Extra scripts
+    if args.allextra is True:
+        subprocess.run("{0}/Csdtimers.sh".format(SCRIPTDIR), shell=True)
+        subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
+        subprocess.run("{0}/CBashFish.py".format(SCRIPTDIR), shell=True)
+        subprocess.run("{0}/CCSClone.sh".format(SCRIPTDIR), shell=True)
+        subprocess.run("{0}/CDisplayManagerConfig.sh".format(SCRIPTDIR), shell=True)
+        subprocess.run("{0}/CVMGeneral.sh".format(SCRIPTDIR), shell=True)
+        subprocess.run("{0}/Cxdgdirs.sh".format(SCRIPTDIR), shell=True)
+        subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True)
+        subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
 
 print("\nScript End")
