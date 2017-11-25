@@ -170,14 +170,14 @@ if args.ostype == 20:
     kvm_variant = "opensusetumbleweed"
     isourl = "http://download.opensuse.org/tumbleweed/iso/openSUSE-Tumbleweed-DVD-x86_64-Current.iso"
 if args.ostype == 40:
-    vmname = "Packer-FreeBSD-{0}".format(hvname)
+    vmname = "Packer-TrueOS-{0}".format(hvname)
     vboxosid = "FreeBSD_64"
     vmwareid = "freebsd-64"
     vmprovisionscript = "MFreeBSD.sh"
     vmprovision_defopts = " "
     kvm_os = "freebsd"
     kvm_variant = "freebsd11.0"
-    isourl = "https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/11.0/FreeBSD-11.0-RELEASE-amd64-disc1.iso"
+    isourl = "https://download.trueos.org/master/amd64/latest.iso"
 if args.ostype == 50:
     vmname = "Packer-Windows10-{0}".format(hvname)
     vboxosid = "Windows10_64"
@@ -307,6 +307,13 @@ if os.path.isdir(SCRIPTDIR+"/unattend"):
     subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's/INSERTSSHKEYHERE/{1}/g'".format(tempunattendfolder, sshkey), shell=True)
 
 
+# Modify ISOs prior to hashing.
+if 40 <= args.ostype <= 44:
+    TrueosisoInjectedPath = vmpath + "/trueos_injected.iso"
+    # Inject the iso with unattend scripts.
+    subprocess.run("sudo {0}/Ytrueosiso.py {1} {2}".format(SCRIPTDIR, isopath, TrueosisoInjectedPath), shell=True, check=True)
+    isopath = TrueosisoInjectedPath
+
 # Get hash for iso.
 print("Generating Checksum of {0}".format(isopath))
 md5 = md5sum(isopath)
@@ -399,11 +406,11 @@ if 20 <= args.ostype <= 21:
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = 'while ! zypper install -yl --no-recommends git; do sleep 5; done; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}'.format(vmprovisionscript, vmprovision_opts)
 if 40 <= args.ostype <= 41:
-    data['builders'][0]["boot_command"] = ["<wait><enter><wait10><wait10><right><enter><wait>dhclient -b vtnet0<enter><wait>dhclient -b em0<enter><wait10>fetch -o /tmp/installerconfig http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd<wait><enter><wait>bsdinstall script /tmp/installerconfig<wait><enter>"]
+    data['builders'][0]["boot_command"] = ["<wait10>"]
     data['provisioners'][0]["type"] = "shell"
     # Needed for freebsd: https://www.packer.io/docs/provisioners/shell.html#execute_command
     data['provisioners'][0]["execute_command"] = "chmod +x {{ .Path }}; env {{ .Vars }} {{ .Path }}"
-    data['provisioners'][0]["inline"] = 'export ASSUME_ALWAYS_YES=yes; pkg update -f; pkg install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}'.format(vmprovisionscript, vmprovision_opts)
+    data['provisioners'][0]["inline"] = 'export ASSUME_ALWAYS_YES=yes; pkg update -f; pkg install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; ls'
     data['builders'][0]["shutdown_command"] = "shutdown -p now"
 if 50 <= args.ostype <= 59:
     data['provisioners'][0]["type"] = "powershell"
