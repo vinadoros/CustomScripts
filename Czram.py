@@ -50,7 +50,7 @@ if os.path.isdir(systemdfolder):
 # Author: Antonio Galea <antonio.galea@gmail.com>
 # Thanks to Przemysław Tomczyk for suggesting swapoff parallelization
 
-FRACTION=75
+FRACTION=150
 
 MEMORY="$(free -tb | awk '/Mem\\:/ {{ print $2 }}')"
 # CPUS=`nproc`
