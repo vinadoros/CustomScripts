@@ -30,7 +30,7 @@ def getnormaluser():
     else:
         # https://docs.python.org/3/library/pwd.html
         usernamevar = pwd.getpwuid(1000)[0]
-    userhome, usergroup = getuserdetails(usernamevar)
+    usergroup, userhome = getuserdetails(usernamevar)
     return usernamevar, usergroup, userhome
 def machinearch():
     """Get the machine arch."""
