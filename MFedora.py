@@ -3,7 +3,6 @@
 
 # Python includes.
 import argparse
-import grp
 import os
 import shutil
 import subprocess
@@ -20,6 +19,8 @@ SCRIPTDIR = sys.path[0]
 parser = argparse.ArgumentParser(description='Install Fedora Software.')
 parser.add_argument("-d", "--desktop", help='Desktop Environment (i.e. gnome, kde, mate, etc)')
 parser.add_argument("-a", "--allextra", help='Run Extra Scripts', action="store_true")
+parser.add_argument("-b", "--bare", help='Configure script to set up a bare-minimum environment.', action="store_true")
+parser.add_argument("-x", "--nogui", help='Configure script to disable GUI.', action="store_true")
 
 # Save arguments.
 args = parser.parse_args()
@@ -37,29 +38,21 @@ print("Username is:", USERNAMEVAR)
 print("Group Name is:", USERGROUP)
 
 # Get VM State
-# Detect QEMU
-with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
-    QEMUGUEST = bool("QEMU" in VAR.read().strip())
-# Detect Virtualbox
-with open('/sys/devices/virtual/dmi/id/product_name', 'r') as VAR:
-    VBOXGUEST = bool("VirtualBox" in VAR.read().strip())
-# Detect VMWare
-with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
-    VMWGUEST = bool("VMware" in VAR.read().strip())
-
+vmstatus = CFunc.getvmstate()
 
 ### Fedora Repos ###
-# RPMFusion
-CFunc.dnfinstall("https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm")
-# Adobe Flash
-CFunc.dnfinstall("http://linuxdownload.adobe.com/adobe-release/adobe-release-$(uname -i)-1.0-1.noarch.rpm")
-CFunc.rpmimport("/etc/pki/rpm-gpg/RPM-GPG-KEY-adobe-linux")
-# Visual Studio Code
-CFunc.rpmimport("https://packages.microsoft.com/keys/microsoft.asc")
-with open("/etc/yum.repos.d/vscode.repo", 'w') as vscoderepofile_write:
-    vscoderepofile_write.write('[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc"')
-# Adapta
-subprocess.run('dnf copr enable -y heikoada/gtk-themes', shell=True)
+if not args.bare:
+    # RPMFusion
+    CFunc.dnfinstall("https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm")
+    # Adobe Flash
+    CFunc.dnfinstall("http://linuxdownload.adobe.com/adobe-release/adobe-release-$(uname -i)-1.0-1.noarch.rpm")
+    CFunc.rpmimport("/etc/pki/rpm-gpg/RPM-GPG-KEY-adobe-linux")
+    # Visual Studio Code
+    CFunc.rpmimport("https://packages.microsoft.com/keys/microsoft.asc")
+    with open("/etc/yum.repos.d/vscode.repo", 'w') as vscoderepofile_write:
+        vscoderepofile_write.write('[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc"')
+    # Adapta
+    subprocess.run('dnf copr enable -y heikoada/gtk-themes', shell=True)
 
 
 # Update system after enabling repos.
@@ -67,48 +60,52 @@ CFunc.dnfupdate()
 
 ### Install Fedora Software ###
 # Cli tools
-CFunc.dnfinstall("fish nano tmux iotop rsync p7zip p7zip-plugins zip unzip unrar xdg-utils xdg-user-dirs util-linux-user fuse-sshfs redhat-lsb-core openssh-server openssh-clients")
+CFunc.dnfinstall("fish nano tmux iotop rsync p7zip p7zip-plugins zip unzip unrar xdg-utils xdg-user-dirs util-linux-user fuse-sshfs redhat-lsb-core openssh-server openssh-clients avahi dnf-plugin-system-upgrade")
 subprocess.run("systemctl enable sshd", shell=True)
-# GUI Packages
-CFunc.dnfinstall("@fonts @base-x @networkmanager-submodules avahi")
 CFunc.dnfinstall("powerline-fonts google-roboto-fonts google-noto-sans-fonts")
-# Management tools
-CFunc.dnfinstall("dnf-plugin-system-upgrade yumex-dnf dnfdragora dnfdragora-gui gparted")
-# Browsers
-CFunc.dnfinstall("https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm")
-CFunc.dnfinstall("@firefox freshplayerplugin")
-CFunc.dnfinstall("flash-plugin")
 # Samba
 CFunc.dnfinstall("samba")
 subprocess.run("systemctl enable smb", shell=True)
 # NTP Configuration
 subprocess.run("systemctl enable systemd-timesyncd; timedatectl set-local-rtc false; timedatectl set-ntp 1", shell=True)
-# Cups
-CFunc.dnfinstall("cups-pdf")
-# Wine
-CFunc.dnfinstall("wine playonlinux")
-# Audio/video
-CFunc.dnfinstall("pulseaudio-module-zeroconf pulseaudio-utils paprefs ladspa-swh-plugins")
-CFunc.dnfinstall("gstreamer1-libav gstreamer1-vaapi gstreamer1-plugins-ugly gstreamer1-plugins-bad-freeworld gstreamer1-plugins-bad-nonfree")
-CFunc.dnfinstall("youtube-dl ffmpeg vlc smplayer mpv")
-CFunc.dnfinstall("audacious audacious-plugins-freeworld")
-# Editors
-CFunc.dnfinstall("code")
-# Tilix
-CFunc.dnfinstall("tilix tilix-nautilus")
-# Remote access
-CFunc.dnfinstall("remmina remmina-plugins-vnc remmina-plugins-rdp")
-# Syncthing
-subprocess.run("dnf copr enable -y decathorpe/syncthing", shell=True)
-CFunc.dnfinstall("syncthing syncthing-inotify")
+# GUI Packages
+if not args.nogui:
+    CFunc.dnfinstall("@fonts @base-x @networkmanager-submodules")
+    # Management tools
+    CFunc.dnfinstall("yumex-dnf dnfdragora dnfdragora-gui gparted")
+    # Browsers
+    CFunc.dnfinstall("https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm")
+    CFunc.dnfinstall("@firefox freshplayerplugin")
+    CFunc.dnfinstall("flash-plugin")
+    # Cups
+    CFunc.dnfinstall("cups-pdf")
+    # Wine
+    CFunc.dnfinstall("wine playonlinux")
+    # Audio/video
+    CFunc.dnfinstall("pulseaudio-module-zeroconf pulseaudio-utils paprefs ladspa-swh-plugins")
+    # Remote access
+    CFunc.dnfinstall("remmina remmina-plugins-vnc remmina-plugins-rdp")
+    if not args.bare:
+        CFunc.dnfinstall("gstreamer1-libav gstreamer1-vaapi gstreamer1-plugins-ugly gstreamer1-plugins-bad-freeworld gstreamer1-plugins-bad-nonfree")
+        CFunc.dnfinstall("youtube-dl ffmpeg vlc smplayer mpv")
+        CFunc.dnfinstall("audacious audacious-plugins-freeworld")
+        # Editors
+        CFunc.dnfinstall("code")
+        # Tilix
+        CFunc.dnfinstall("tilix tilix-nautilus")
+        # Syncthing
+        subprocess.run("dnf copr enable -y decathorpe/syncthing", shell=True)
+        CFunc.dnfinstall("syncthing syncthing-inotify")
 
 # Install software for VMs
-if QEMUGUEST is True:
+if vmstatus == "kvm":
     CFunc.dnfinstall("spice-vdagent qemu-guest-agent")
-if VBOXGUEST is True:
+if vmstatus == "vbox":
     CFunc.dnfinstall("VirtualBox-guest-additions kmod-VirtualBox")
-if VMWGUEST is True:
-    CFunc.dnfinstall("open-vm-tools open-vm-tools-desktop")
+if vmstatus == "vmware":
+    CFunc.dnfinstall("open-vm-tools")
+    if not args.nogui:
+        CFunc.dnfinstall("open-vm-tools-desktop")
 
 # Install Desktop Software
 DESKTOPSCRIPT = """"""
@@ -177,24 +174,23 @@ if os.path.isdir('/etc/sudoers.d'):
         print("Visudo status not 0, removing sudoers file.")
         os.remove(CUSTOMSUDOERSPATH)
 
-# Run only on real machine
-if QEMUGUEST is not True and VBOXGUEST is not True and VMWGUEST is not True:
-    # Powertop
-    CFunc.dnfinstall("powertop smartmontools hdparm; systemctl enable powertop")
+# Powertop
+CFunc.dnfinstall("powertop smartmontools hdparm; systemctl enable powertop")
 
-# Use atom unofficial repo
-# https://github.com/alanfranz/atom-text-editor-repository
-ATOMREPOFILE = "/etc/yum.repos.d/atom.repo"
-with open(ATOMREPOFILE, 'w') as atomrepo_writefile:
-    atomrepo_writefile.write("""[atom]
-name=atom
-baseurl=https://dl.bintray.com/alanfranz/atom-yum
-repo_gpgcheck=1
-gpgcheck=0
-enabled=1
-gpgkey=https://www.franzoni.eu/keys/D401AB61.txt""")
-# Install Atom
-CFunc.dnfinstall("atom")
+if not args.bare and not args.nogui:
+    # Use atom unofficial repo
+    # https://github.com/alanfranz/atom-text-editor-repository
+    ATOMREPOFILE = "/etc/yum.repos.d/atom.repo"
+    with open(ATOMREPOFILE, 'w') as atomrepo_writefile:
+        atomrepo_writefile.write("""[atom]
+    name=atom
+    baseurl=https://dl.bintray.com/alanfranz/atom-yum
+    repo_gpgcheck=1
+    gpgcheck=0
+    enabled=1
+    gpgkey=https://www.franzoni.eu/keys/D401AB61.txt""")
+    # Install Atom
+    CFunc.dnfinstall("atom")
 
 # Disable Selinux
 # To get selinux status: sestatus, getenforce

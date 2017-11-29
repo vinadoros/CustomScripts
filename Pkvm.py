@@ -110,26 +110,33 @@ elif args.vmtype == 3:
 
 # Set OS options.
 # KVM os options can be found by running "osinfo-query os"
-if args.ostype == 1:
-    vmname = "Packer-Fedora-{0}".format(hvname)
+if 1 <= args.ostype <= 4:
     vmprovisionscript = "MFedora.py"
-    vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
     kvm_os = "linux"
     kvm_variant = "fedora25"
     isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/27/Server/x86_64/iso/Fedora-Server-dvd-x86_64-27-1.6.iso"
-if 2 <= args.ostype <= 3:
+if args.ostype == 1:
+    vmname = "Packer-Fedora-{0}".format(hvname)
+    vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
+if args.ostype == 2:
+    vmname = "Packer-FedoraBare-{0}".format(hvname)
+    vmprovision_defopts = "-d {0} -b".format(args.desktopenv)
+if args.ostype == 3:
+    vmname = "Packer-FedoraCLI-{0}".format(hvname)
+    vmprovision_defopts = "-x -a"
+if 5 <= args.ostype <= 9:
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
     kvm_os = "linux"
     kvm_variant = "fedora22"
     isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1708.iso"
     vmprovisionscript = "MCentOS.py"
-if args.ostype == 2:
+if args.ostype == 5:
     vmname = "Packer-CentOS-{0}".format(hvname)
     vmprovision_defopts = "-d -r"
-if args.ostype == 3:
+if args.ostype == 6:
     vmname = "Packer-CentOSOrig-{0}".format(hvname)
     vmprovision_defopts = " "
 if 10 <= args.ostype <= 19:
@@ -389,11 +396,11 @@ data['builders'][0]["ssh_wait_timeout"] = "90m"
 # Packer Provisioning Configuration
 data['provisioners'] = ['']
 data['provisioners'][0] = {}
-if args.ostype is 1:
+if 1 <= args.ostype <= 4:
     data['builders'][0]["boot_command"] = ["<tab> inst.text inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/fedora.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "dnf install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
-if 2 <= args.ostype <= 3:
+if 5 <= args.ostype <= 9:
     data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos7-ks.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "yum install -y git; git clone https://github.com/vinadoros/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
