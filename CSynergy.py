@@ -136,7 +136,7 @@ section: aliases
 end
 
 section: options
-    screenSaverSync = true
+    screenSaverSync = false
     win32KeepForeground = true
 end
 """.format(args.serverleftclient, args.serverrightclient, platform.node())
