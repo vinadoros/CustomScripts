@@ -101,52 +101,49 @@ if not args.nogui:
 if vmstatus == "kvm":
     CFunc.dnfinstall("spice-vdagent qemu-guest-agent")
 if vmstatus == "vbox":
-    CFunc.dnfinstall("VirtualBox-guest-additions kmod-VirtualBox")
+    CFunc.dnfinstall("kmod-VirtualBox")
+    if not args.nogui:
+        CFunc.dnfinstall("VirtualBox-guest-additions")
 if vmstatus == "vmware":
     CFunc.dnfinstall("open-vm-tools")
     if not args.nogui:
         CFunc.dnfinstall("open-vm-tools-desktop")
 
 # Install Desktop Software
-DESKTOPSCRIPT = """"""
 if args.desktop == "gnome":
-    DESKTOPSCRIPT += """
-# Gnome
-dnf install -y @workstation-product @gnome-desktop
-systemctl enable -f gdm
-# Some Gnome Extensions
-dnf install -y gnome-terminal-nautilus gnome-tweak-tool dconf-editor
-dnf install -y gnome-shell-extension-gpaste gnome-shell-extension-media-player-indicator gnome-shell-extension-topicons-plus
-{0}/DExtGnome.sh -d -v
-# Adapta
-dnf install -y gnome-shell-theme-adapta adapta-gtk-theme-metacity adapta-gtk-theme-gtk2 adapta-gtk-theme-gtk3
-# Remmina Gnome integration
-dnf install -y remmina-plugins-gnome
-""".format(SCRIPTDIR)
+    # Gnome
+    CFunc.dnfinstall("@workstation-product @gnome-desktop")
+    subprocess.run("systemctl enable -f gdm", shell=True)
+    # Some Gnome Extensions
+    CFunc.dnfinstall("gnome-terminal-nautilus gnome-tweak-tool dconf-editor")
+    CFunc.dnfinstall("gnome-shell-extension-gpaste gnome-shell-extension-media-player-indicator gnome-shell-extension-topicons-plus")
+    subprocess.run("{0}/DExtGnome.sh -d -v".format(SCRIPTDIR), shell=True)
+    # Adapta
+    CFunc.dnfinstall("gnome-shell-theme-adapta adapta-gtk-theme-metacity adapta-gtk-theme-gtk2 adapta-gtk-theme-gtk3")
+    # Remmina Gnome integration
+    CFunc.dnfinstall("remmina-plugins-gnome")
 elif args.desktop == "kde":
-    DESKTOPSCRIPT += """
-# KDE
-dnf install -y @kde-desktop-environment
-dnf install -y ark latte-dock
-systemctl enable -f sddm
-"""
+    # KDE
+    CFunc.dnfinstall("@kde-desktop-environment")
+    CFunc.dnfinstall("ark latte-dock")
+    subprocess.run("systemctl enable -f sddm", shell=True)
 elif args.desktop == "mate":
-    DESKTOPSCRIPT += """
-# MATE
-dnf install -y @mate-desktop @mate-applications
-systemctl enable -f lightdm
-# Applications
-dnf install -y dconf-editor
-"""
+    # MATE
+    CFunc.dnfinstall("@mate-desktop @mate-applications")
+    subprocess.run("systemctl enable -f lightdm", shell=True)
+    # Applications
+    CFunc.dnfinstall("dconf-editor")
 
-DESKTOPSCRIPT += """
-# Numix
-dnf install -y numix-icon-theme-circle
-# Update pixbuf cache after installing icons (for some reason doesn't do this automatically).
-gdk-pixbuf-query-loaders-64 --update-cache
+if not args.nogui and not args.bare:
+    # Numix
+    CFunc.dnfinstall("numix-icon-theme-circle")
+    # Update pixbuf cache after installing icons (for some reason doesn't do this automatically).
+    subprocess.run("gdk-pixbuf-query-loaders-64 --update-cache", shell=True)
 
-systemctl set-default graphical.target
+if not args.nogui:
+    subprocess.run("systemctl set-default graphical.target", shell=True)
 
+sudoers_script = """
 # Delete defaults in sudoers.
 if grep -iq $'^Defaults    secure_path' /etc/sudoers; then
     sed -e 's/^Defaults    env_reset$/Defaults    !env_reset/g' -i /etc/sudoers
@@ -155,7 +152,7 @@ if grep -iq $'^Defaults    secure_path' /etc/sudoers; then
 fi
 visudo -c
 """
-subprocess.run(DESKTOPSCRIPT, shell=True)
+subprocess.run(sudoers_script, shell=True)
 
 # Add normal user to all reasonable groups
 CFunc.AddUserAllGroups()
