@@ -1,3 +1,4 @@
 **/*.env
 **/qemu-*-static
 **/__pycache__
+**/.vscode
