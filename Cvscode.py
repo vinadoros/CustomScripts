@@ -35,22 +35,41 @@ def ce_ins(extension):
     subprocess.run("code --install-extension {0}".format(extension), shell=True)
 
 
+### Distro Specific Packages ###
+
+
+### Language Specific packages ###
+if shutil.which("gem"):
+    print("Installing ruby gems.")
+    subprocess.run("sudo -H gem install rubocop rcodetools", shell=True)
+else:
+    print("Ruby/gem not detected. Not installing ruby gems.")
+
+
 ### Extensions ###
+print("\nInstalling VS Code extensions.")
 ce_ins("ms-python.python")
 ce_ins("ms-vscode.cpptools")
 ce_ins("PeterJausovec.vscode-docker")
+ce_ins("rebornix.Ruby")
 
 
 ### Configuration ###
 data = {}
+data["workbench.startupEditor"] = "newUntitledFile"
 data["editor.renderWhitespace"] = "all"
 data["editor.wordWrap"] = "on"
+# Python Config
 data["python.pythonPath"] = "python3"
 data["python.linting.maxNumberOfProblems"] = 500
 # data["python.linting.pylintArgs"] = ["--disable="]
 data["python.linting.pylamaEnabled"] = True
 data["python.linting.pylamaArgs"] = ["-i", "E501,E266"]
 # data["python.linting.pylintPath"] = "{0}".format(shutil.which("pylint"))
+# Ruby Config
+data["ruby.lint"] = {}
+data["ruby.lint"]["ruby"] = True
+data["ruby.lint"]["rubocop"] = True
 
 # Print the json data for debugging purposes.
 # print(json.dumps(data, indent=2))
