@@ -21,7 +21,6 @@ parser = argparse.ArgumentParser(description='Install Ubuntu Software.')
 parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
 parser.add_argument("-x", "--xz", help='Use tar with xz.', action="store_true")
 parser.add_argument("-s", "--squash", help='Use squashfs with xz.', action="store_true")
-parser.add_argument("-m", "--mount", help='Mount the image.', action="store_true")
 parser.add_argument("-b", "--backup", help='Backup the given block device.', action="store_true")
 parser.add_argument("-r", "--restore", help='Restore the image to the given block device.', action="store_true")
 parser.add_argument("-d", "--blockdevice", help='A block device for use with backup and restore.')
@@ -40,6 +39,8 @@ elif args.backup:
     print("Backup Mode.")
 elif args.restore:
     print("Restore Mode.")
+elif not args.backup and not args.restore:
+    sys.exit("\nERROR: No mode (backup, restore) selected. Exiting.")
 if args.backup or args.restore:
     if stat.S_ISBLK(os.stat(args.blockdevice).st_mode) is True:
         print("Using block device {0}.".format(args.blockdevice))
@@ -47,14 +48,6 @@ if args.restore and os.path.isfile(args.image):
     print("Restoring file {0} to {1}.".format(args.image, args.blockdevice))
 elif args.restore and not os.path.isfile(args.image):
     sys.exit("\nERROR: Restore mode does not have a valid file selected. Exiting.")
-# Mount options
-if (args.mount and args.backup) or (args.mount and args.restore):
-    sys.exit("\nERROR: Both mount and backup/restore mode selected. Exiting.")
-if args.mount and os.path.isfile(args.image):
-    if args.squash:
-        print("Mounting file {0} as squash image.".format(args.image))
-    else:
-        print("Mounting file {0} as raw image.".format(args.image))
 # Check the compression settings.
 if not args.xz and not args.squash:
     print("Using raw mode. No squashfs or tar.xz.")
@@ -64,9 +57,6 @@ elif args.xz:
     print("Using tar.xz mode.")
 elif args.squash:
     print("Using squash mode.")
-# Final mode checks.
-if not args.backup and not args.restore and not args.mount:
-    sys.exit("\nERROR: No mode (backup, restore, mount) selected. Exiting.")
 # Prompt before proceeding.
 if args.noprompt is False:
     input("Press Enter to continue.")
@@ -96,8 +86,6 @@ try:
     ### Backup Section ###
 
     ### Restore Section ###
-
-    ### Mount Section ###
 
 finally:
     cleanup()
