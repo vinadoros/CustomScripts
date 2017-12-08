@@ -71,6 +71,15 @@ dnf config-manager --set-enabled docker-ce-edge
     subprocess.run("dnf install -y docker-ce", shell=True)
     subprocess.run("usermod -aG docker {0}".format(USERNAMEVAR), shell=True)
 
+### Docker Compose Install ###
+# For now, hardcode version.
+if shutil.which("docker") and (not shutil.which("docker-compose") or args.force is True):
+    subprocess.run("wget https://github.com/docker/compose/releases/download/1.17.1/docker-compose-Linux-x86_64 -O /usr/local/bin/docker-compose; chmod a+x /usr/local/bin/docker-compose", shell=True)
+
+
+# Version autodetection here.
+# https://api.github.com/repos/docker/compose/releases
+
 ### Docker Configuration ###
 if shutil.which("docker"):
     # Command to install portainer.
