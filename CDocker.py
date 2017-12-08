@@ -3,10 +3,12 @@
 
 # Python includes.
 import argparse
+import json
 import os
 import shutil
 import subprocess
 import sys
+import urllib.request
 # Custom includes
 import CFunc
 
@@ -72,13 +74,26 @@ dnf config-manager --set-enabled docker-ce-edge
     subprocess.run("usermod -aG docker {0}".format(USERNAMEVAR), shell=True)
 
 ### Docker Compose Install ###
-# For now, hardcode version.
+# Get the docker-compose version information from GitHub.
 if shutil.which("docker") and (not shutil.which("docker-compose") or args.force is True):
-    subprocess.run("wget https://github.com/docker/compose/releases/download/1.17.1/docker-compose-Linux-x86_64 -O /usr/local/bin/docker-compose; chmod a+x /usr/local/bin/docker-compose", shell=True)
+    dc_releasejson_link = "https://api.github.com/repos/docker/compose/releases"
+    # Get the kernel name and machine arch.
+    dc_kernelname = CFunc.subpout("uname -s")
+    dc_machinearch = CFunc.machinearch()
+    # Get the json data from GitHub.
+    with urllib.request.urlopen(dc_releasejson_link) as dc_releasejson_handle:
+        dc_releasejson_data = json.load(dc_releasejson_handle)
+    for release in dc_releasejson_data:
+        # Search for the latest non-rc release.
+        if "-rc" not in release["name"]:
+            # Stop after the first (latest) release is found.
+            dc_latestrelease = (release["name"])
+            break
+    # Download docker-compose
+    dc_dl = CFunc.downloadfile("https://github.com/docker/compose/releases/download/{0}/docker-compose-{1}-{2}".format(dc_latestrelease, dc_kernelname, dc_machinearch), "/usr/local/bin", "docker-compose", True)
+    # Make docker-compose executable
+    os.chmod(dc_dl[0], 0o777)
 
-
-# Version autodetection here.
-# https://api.github.com/repos/docker/compose/releases
 
 ### Docker Configuration ###
 if shutil.which("docker"):

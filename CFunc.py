@@ -47,12 +47,16 @@ def dlProgress(count, blockSize, totalSize):
     if percent >= 100:
         sys.stdout.write("\n")
     sys.stdout.flush()
-def downloadfile(url, localpath):
+def downloadfile(url, localpath, filename=None, overwrite=False):
     """Retrieve a file and return its fullpath and filename"""
     # Get filename for extensions
     fileinfo = urllib.parse.urlparse(url)
-    filename = urllib.parse.unquote(os.path.basename(fileinfo.path))
+    if filename is None:
+        filename = urllib.parse.unquote(os.path.basename(fileinfo.path))
     fullpath = localpath + "/" + filename
+    # Remove the file if overwrite is specified.
+    if overwrite is True and os.path.isfile(fullpath) is True:
+        os.remove(fullpath)
     # Download the file if it doesn't exist.
     if os.path.isfile(fullpath) is False:
         # Download the file.
