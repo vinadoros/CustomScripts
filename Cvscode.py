@@ -62,7 +62,7 @@ data["editor.wordWrap"] = "on"
 # Python Config
 data["python.pythonPath"] = "python3"
 data["python.linting.maxNumberOfProblems"] = 500
-# data["python.linting.pylintArgs"] = ["--disable="]
+data["python.linting.pylintArgs"] = ["--disable=C0301,C0103"]
 data["python.linting.pylamaEnabled"] = True
 data["python.linting.pylamaArgs"] = ["-i", "E501,E266"]
 # data["python.linting.pylintPath"] = "{0}".format(shutil.which("pylint"))
