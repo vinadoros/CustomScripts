@@ -1,6 +1,7 @@
 # Sample .env file
 # DBPASSWD=password
 # WEB_PORT=64802
+# WEB_FILES=/path
 # PROXY_PORT=443
 # ADMINPASS=password
 

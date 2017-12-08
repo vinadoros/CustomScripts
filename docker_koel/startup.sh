@@ -17,7 +17,7 @@ else
 fi
 chown www-data:www-data /var/www/db.sqlite
 chmod a+rw /var/www/db.sqlite
-sed -i 's/^ADMIN_EMAIL=.*/ADMIN_EMAIL=a@l.c/g' .env
+sed -i "s/^ADMIN_EMAIL=.*/ADMIN_EMAIL=$ADMINUSER/g" .env
 sed -i 's/^ADMIN_NAME=.*/ADMIN_NAME=admin/g' .env
 sed -i "s/^ADMIN_PASSWORD=.*/ADMIN_PASSWORD=$ADMINPASS/g" .env
 sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=mysql/g' .env
@@ -29,8 +29,6 @@ if [ $DBEMPTY = 1 ]; then
   # Update composer packages
   composer install
   composer update
-  # Build node-sass (which doesn't have an arm package)
-  npm rebuild node-sass
   # Init database
   php artisan koel:init
 fi
