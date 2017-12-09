@@ -101,12 +101,7 @@ subprocess.check_output("python3.6 {0}/Czram.py".format(SCRIPTDIR), shell=True)
 
 # Docker
 if args.docker is True:
-    subprocess.check_output("""
-    # Install docker
-    yum install -y docker-ce
-    systemctl enable docker
-    curl -L https://github.com/docker/compose/releases/download/1.15.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
-    chmod a+x /usr/local/bin/docker-compose""", shell=True)
+    subprocess.check_output("python3.6 {0}/CDocker.py -n", shell=True)
 
 
 ##### CentOS Configuration #####

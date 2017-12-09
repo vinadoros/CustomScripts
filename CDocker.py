@@ -72,6 +72,18 @@ dnf config-manager --set-enabled docker-ce-edge
     # Install
     subprocess.run("dnf install -y docker-ce", shell=True)
     subprocess.run("usermod -aG docker {0}".format(USERNAMEVAR), shell=True)
+elif distro == "CentOS":
+    # Install repo file.
+    subprocess.run("""
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+yum-config-manager --enable docker-ce-edge
+""", shell=True, check=True)
+    # Modify repo file
+    if release.isdigit() is True:
+        subprocess.run("sed -i 's/$releasever/{0}/g' /etc/yum.repos.d/docker-ce.repo".format(release), shell=True)
+    # Install
+    subprocess.run("yum install -y docker-ce; systemctl enable docker", shell=True)
+    subprocess.run("usermod -aG docker {0}".format(USERNAMEVAR), shell=True)
 
 ### Docker Compose Install ###
 # Get the docker-compose version information from GitHub.
