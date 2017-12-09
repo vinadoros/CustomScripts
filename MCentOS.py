@@ -90,11 +90,11 @@ if args.replace is True:
     bashfish = subprocess.Popen("python3.6 {0}/CBashFish.py".format(SCRIPTDIR), shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
     # Install kernel
     subprocess.check_output("""
-    yum install -y kernel-ml kernel-ml-devel
+    yum install -y kernel-ml kernel-ml-devel kernel-ml-headers
     yum swap -y kernel-tools-libs kernel-ml-tools-libs kernel-ml-tools
     """, shell=True)
 else:
-    subprocess.check_output("yum install -y git", shell=True)
+    subprocess.check_output("yum install -y git kernel-devel kernel-headers", shell=True)
 
 # Zram
 subprocess.check_output("python3.6 {0}/Czram.py".format(SCRIPTDIR), shell=True)
@@ -102,6 +102,9 @@ subprocess.check_output("python3.6 {0}/Czram.py".format(SCRIPTDIR), shell=True)
 # Docker
 if args.docker is True:
     subprocess.check_output("python3.6 {0}/CDocker.py -n".format(SCRIPTDIR), shell=True)
+
+# Virtualbox Additions
+subprocess.call("python3.6 {0}/CVBoxGuest.py".format(SCRIPTDIR), shell=True)
 
 
 ##### CentOS Configuration #####
