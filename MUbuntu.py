@@ -264,7 +264,11 @@ if not args.nogui or not args.bare:
 if vmstatus == "kvm":
     CFunc.aptinstall("spice-vdagent qemu-guest-agent")
 if vmstatus == "vbox":
-    subprocess.run("{0}/CVBoxGuest.py -n".format(SCRIPTDIR), shell=True)
+    CFunc.aptinstall("virtualbox-guest-utils virtualbox-guest-dkms dkms")
+    if not args.nogui:
+        CFunc.aptinstall("virtualbox-guest-x11")
+    subprocess.run("gpasswd -a {0} vboxsf".format(USERNAMEVAR), shell=True)
+    subprocess.run("systemctl enable virtualbox-guest-utils", shell=True)
 if vmstatus == "vmware":
     CFunc.aptinstall("open-vm-tools open-vm-tools-dkms")
     if not args.nogui:
