@@ -1,5 +1,6 @@
 # Sample .env file
 # DBPASSWD=password
+# DBADMINERPORT=64901
 # WEB_PORT=64801
 # WEB_FILES=/path
 # PROXY_PORT=443
@@ -18,6 +19,16 @@ services:
       - "MYSQL_PASSWORD=${DBPASSWD}"
       - "MYSQL_ROOT_PASSWORD=${DBPASSWD}"
     restart: always
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "${DBADMINERPORT}:8080"
+    environment:
+      - ADMINER_DESIGN=lucas-sandery
+      - ADMINER_PLUGINS='tables-filter tinymce'
+    links:
+      - db
   web:
     build: .
     environment:

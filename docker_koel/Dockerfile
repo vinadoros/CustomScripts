@@ -16,7 +16,7 @@ ENV DEBIAN_FRONTEND="noninteractive" DBPASSWD="pass" ADMINPASS="pass"
 
 # Install stock packages.
 RUN apt-get update && \
-	apt-get install -y nano git curl gnupg nginx php-fpm php-sqlite3 php-curl php-xml php-cli php-curl php-json php-gd php-mbstring php-zip php-mysql mysql-client composer openssl sqlite3
+	apt-get install -y nano git curl gnupg nginx php-fpm php-curl php-xml php-cli php-curl php-json php-gd php-mbstring php-zip php-mysql mysql-client composer openssl inetutils-ping
 
 # Install external packages
 RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
@@ -45,5 +45,5 @@ VOLUME ["/files", "/var/www"]
 WORKDIR /var/www
 EXPOSE 443
 
-# CMD ["/startup.sh"]
-CMD ["sleep", "5000"]
+CMD ["/startup.sh"]
+# CMD ["sleep", "5000"]

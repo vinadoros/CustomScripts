@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # Setup koel
 # https://koel.phanan.net/docs
@@ -9,18 +9,17 @@ else
   REPOEMPTY=0
 fi
 cd /var/www/koel
+# Wait until database appears.
+while ! ping -c1 db &>/dev/null; do sleep 5; done
 # Setup env file
 if [ ! -f .env ]; then
   cp .env.example .env
-  # Prepare database
-  mysql -h db -u root -p$DBPASSWD -e "CREATE DATABASE IF NOT EXISTS koel;"
+  # Prepare database (keep trying until successful)
+  while ! mysql -h db -u root -p$DBPASSWD -e "CREATE DATABASE IF NOT EXISTS koel;"; do sleep 5; done
   DBEMPTY=1
 else
   DBEMPTY=0
 fi
-sed -i "s/^ADMIN_EMAIL=.*/ADMIN_EMAIL=$ADMINUSER/g" .env
-sed -i 's/^ADMIN_NAME=.*/ADMIN_NAME=admin/g' .env
-sed -i "s/^ADMIN_PASSWORD=.*/ADMIN_PASSWORD=$ADMINPASS/g" .env
 sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=mysql/g' .env
 sed -i 's/^DB_HOST=.*/DB_HOST=db/g' .env
 sed -i 's/^DB_DATABASE=.*/DB_DATABASE=koel/g' .env
@@ -33,9 +32,15 @@ fi
 
 # Ensure everything is up to date
 composer update
+if [ $DBEMPTY = 1 ]; then
+  echo "Run php artisan koel:init to add an admin user, then restart this server. Hanging here."
+  while true; do
+    sleep 10
+  done
+fi
 php artisan koel:init
 if [ $REPOEMPTY = 0 ]; then
-  php artisan koel:sync
+  php artisan koel:sync &
 fi
 
 # Start php-fpm

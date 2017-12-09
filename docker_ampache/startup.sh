@@ -25,7 +25,7 @@ if [ ! -f /var/www/ampache/config/ampache.cfg.php ]; then
   sed -i "s@^database_password =.*@database_password = $DBPASSWD@g" /var/www/ampache/config/ampache.cfg.php
   SECRETKEY=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 64 | head -n 1)
   sed -i "s@^secret_key =.*@secret_key = \"$SECRETKEY\"@g" /var/www/ampache/config/ampache.cfg.php
-  mysql -h db -u root -p$DBPASSWD -e "CREATE DATABASE IF NOT EXISTS ampache;"
+  while ! mysql -h db -u root -p$DBPASSWD -e "CREATE DATABASE IF NOT EXISTS ampache;"; do sleep 5; done
   mysql -h db -u root -p$DBPASSWD ampache < /var/www/ampache/sql/ampache.sql
   # Alternative method to initialize database
   # php install_db.inc -U root -P $DBPASSWD -h db -d ampache -u root -p $DBPASSWD -w "/ampache"
