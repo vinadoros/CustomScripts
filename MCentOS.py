@@ -69,10 +69,6 @@ yum-config-manager --enable elrepo-extras elrepo-kernel
 # Fish
 yum-config-manager --add-repo http://download.opensuse.org/repositories/shells:fish:release:2/CentOS_7/shells:fish:release:2.repo
 
-# Docker
-yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-yum-config-manager --enable docker-ce-edge
-
 # Update system
 yum update -y
 """, shell=True)
@@ -81,7 +77,7 @@ yum update -y
 ##### Centos Software #####
 
 # Install cli tools
-subprocess.call("yum install -y redhat-lsb-release python34 python34-pip python36u python36u-pip nano fish tmux iotop rsync openssh-clients p7zip p7zip-plugins zip unzip", shell=True)
+subprocess.call("yum install -y redhat-lsb-core python34 python34-pip python36u python36u-pip nano fish tmux iotop rsync openssh-clients p7zip p7zip-plugins zip unzip", shell=True)
 
 # Replace git and kernel
 if args.replace is True:
