@@ -101,7 +101,7 @@ subprocess.check_output("python3.6 {0}/Czram.py".format(SCRIPTDIR), shell=True)
 
 # Docker
 if args.docker is True:
-    subprocess.check_output("python3.6 {0}/CDocker.py -n", shell=True)
+    subprocess.check_output("python3.6 {0}/CDocker.py -n".format(SCRIPTDIR), shell=True)
 
 
 ##### CentOS Configuration #####
