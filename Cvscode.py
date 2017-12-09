@@ -44,6 +44,9 @@ if shutil.which("gem"):
     subprocess.run("sudo -H gem install rubocop rcodetools", shell=True)
 else:
     print("Ruby/gem not detected. Not installing ruby gems.")
+if shutil.which("pip3"):
+    print("Installing python dependencies.")
+    subprocess.run("sudo -H pip3 install pylama pylama-pylint")
 
 
 ### Extensions ###
