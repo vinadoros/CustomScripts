@@ -75,24 +75,27 @@ dnf config-manager --set-enabled docker-ce-edge
 
 ### Docker Compose Install ###
 # Get the docker-compose version information from GitHub.
-if shutil.which("docker") and (not shutil.which("docker-compose") or args.force is True):
-    dc_releasejson_link = "https://api.github.com/repos/docker/compose/releases"
-    # Get the kernel name and machine arch.
-    dc_kernelname = CFunc.subpout("uname -s")
-    dc_machinearch = CFunc.machinearch()
-    # Get the json data from GitHub.
-    with urllib.request.urlopen(dc_releasejson_link) as dc_releasejson_handle:
-        dc_releasejson_data = json.load(dc_releasejson_handle)
-    for release in dc_releasejson_data:
-        # Search for the latest non-rc release.
-        if "-rc" not in release["name"]:
-            # Stop after the first (latest) release is found.
-            dc_latestrelease = (release["name"])
-            break
-    # Download docker-compose
-    dc_dl = CFunc.downloadfile("https://github.com/docker/compose/releases/download/{0}/docker-compose-{1}-{2}".format(dc_latestrelease, dc_kernelname, dc_machinearch), "/usr/local/bin", "docker-compose", True)
-    # Make docker-compose executable
-    os.chmod(dc_dl[0], 0o777)
+if distro == "Fedora":
+    CFunc.dnfinstall("docker-compose")
+else:
+    if shutil.which("docker") and (not shutil.which("docker-compose") or args.force is True):
+        dc_releasejson_link = "https://api.github.com/repos/docker/compose/releases"
+        # Get the kernel name and machine arch.
+        dc_kernelname = CFunc.subpout("uname -s")
+        dc_machinearch = CFunc.machinearch()
+        # Get the json data from GitHub.
+        with urllib.request.urlopen(dc_releasejson_link) as dc_releasejson_handle:
+            dc_releasejson_data = json.load(dc_releasejson_handle)
+        for release in dc_releasejson_data:
+            # Search for the latest non-rc release.
+            if "-rc" not in release["name"]:
+                # Stop after the first (latest) release is found.
+                dc_latestrelease = (release["name"])
+                break
+        # Download docker-compose
+        dc_dl = CFunc.downloadfile("https://github.com/docker/compose/releases/download/{0}/docker-compose-{1}-{2}".format(dc_latestrelease, dc_kernelname, dc_machinearch), "/usr/local/bin", "docker-compose", True)
+        # Make docker-compose executable
+        os.chmod(dc_dl[0], 0o777)
 
 
 ### Docker Configuration ###
