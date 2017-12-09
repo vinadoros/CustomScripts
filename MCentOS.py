@@ -81,7 +81,7 @@ yum update -y
 ##### Centos Software #####
 
 # Install cli tools
-subprocess.call("yum install -y python34 python34-pip python36u python36u-pip nano fish tmux iotop rsync openssh-clients p7zip p7zip-plugins zip unzip", shell=True)
+subprocess.call("yum install -y redhat-lsb-release python34 python34-pip python36u python36u-pip nano fish tmux iotop rsync openssh-clients p7zip p7zip-plugins zip unzip", shell=True)
 
 # Replace git and kernel
 if args.replace is True:
