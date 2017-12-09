@@ -104,7 +104,7 @@ if args.docker is True:
     subprocess.check_output("python3.6 {0}/CDocker.py -n".format(SCRIPTDIR), shell=True)
 
 # Virtualbox Additions
-subprocess.call("python3.6 {0}/CVBoxGuest.py".format(SCRIPTDIR), shell=True)
+subprocess.call("python3.6 {0}/CVBoxGuest.py -n".format(SCRIPTDIR), shell=True)
 
 
 ##### CentOS Configuration #####

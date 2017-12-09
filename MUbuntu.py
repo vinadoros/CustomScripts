@@ -264,7 +264,7 @@ if not args.nogui or not args.bare:
 if vmstatus == "kvm":
     CFunc.aptinstall("spice-vdagent qemu-guest-agent")
 if vmstatus == "vbox":
-    subprocess.run("{0}/CVBoxGuest.py".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CVBoxGuest.py -n".format(SCRIPTDIR), shell=True)
 if vmstatus == "vmware":
     CFunc.aptinstall("open-vm-tools open-vm-tools-dkms")
     if not args.nogui:
