@@ -7,6 +7,7 @@
 # ADMINPASS=password
 
 # Bring up with docker-compose up --build -d
+# Remove with docker-compose stop; docker-compose rm -f
 
 version: '2'
 services:
@@ -28,6 +29,6 @@ services:
       - "${WEB_PORT}:443"
     volumes:
       - "${WEB_FILES}:/files"
-    restart: always
+    # restart: always
     links:
       - db
