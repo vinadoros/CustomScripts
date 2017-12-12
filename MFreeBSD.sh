@@ -1,18 +1,5 @@
 #!/bin/sh
 
-# Set default VM guest variables
-set PRODUCTNAME=`dmidecode -s baseboard-product-name`
-if ($PRODUCTNAME == "VirtualBox") then
-  set VBOXGUEST=1
-else
-  set VBOXGUEST=0
-endif
-if ($PRODUCTNAME == "VMware") then
-  set VMWGUEST=1
-else
-  set VMWGUEST=0
-endif
-
 # Assume yes for pkg.
 export ASSUME_ALWAYS_YES=yes
 
@@ -34,3 +21,17 @@ sysrc moused_enable=yes dbus_enable=yes hald_enable=yes
 pkg install -y slim
 sysrc slim_enable=yes
 echo "exec mate-session" > /root/.xinitrc
+
+# Set default VM guest variables
+pkg install -y dmidecode
+set PRODUCTNAME=`dmidecode -s baseboard-product-name`
+if ($PRODUCTNAME == "VirtualBox") then
+  set VBOXGUEST=1
+else
+  set VBOXGUEST=0
+endif
+if ($PRODUCTNAME == "VMware") then
+  set VMWGUEST=1
+else
+  set VMWGUEST=0
+endif

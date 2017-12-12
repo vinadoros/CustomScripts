@@ -184,7 +184,7 @@ if args.ostype == 40:
     vmprovision_defopts = " "
     kvm_os = "freebsd"
     kvm_variant = "freebsd11.0"
-    isourl = "https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/11.0/FreeBSD-11.0-RELEASE-amd64-disc1.iso"
+    isourl = "https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/11.1/FreeBSD-11.1-RELEASE-amd64-disc1.iso"
 if args.ostype == 50:
     vmname = "Packer-Windows10-{0}".format(hvname)
     vboxosid = "Windows10_64"
