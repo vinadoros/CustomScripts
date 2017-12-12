@@ -29,9 +29,9 @@ if ($PRODUCTNAME == "VirtualBox") then
   set VBOXGUEST=1
 else
   set VBOXGUEST=0
-endif
+fi
 if ($PRODUCTNAME == "VMware") then
   set VMWGUEST=1
 else
   set VMWGUEST=0
-endif
+fi
