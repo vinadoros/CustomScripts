@@ -46,7 +46,7 @@ else:
     print("Ruby/gem not detected. Not installing ruby gems.")
 if shutil.which("pip3"):
     print("Installing python dependencies.")
-    subprocess.run("sudo -H pip3 install pylama pylama-pylint")
+    subprocess.run("sudo -H pip3 install pylama pylama-pylint", shell=True)
 
 
 ### Extensions ###
@@ -73,6 +73,8 @@ data["python.linting.pylamaArgs"] = ["-i", "E501,E266"]
 data["ruby.lint"] = {}
 data["ruby.lint"]["ruby"] = True
 data["ruby.lint"]["rubocop"] = True
+# Docker Config
+data["docker.attachShellCommand.linuxContainer"] = "/bin/bash"
 
 # Print the json data for debugging purposes.
 # print(json.dumps(data, indent=2))
