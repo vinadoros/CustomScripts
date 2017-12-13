@@ -3,10 +3,12 @@
 
 # Python includes.
 import argparse
+import json
 import os
 import shutil
 import subprocess
 import sys
+import urllib.request
 # Custom includes
 import CFunc
 
@@ -54,6 +56,29 @@ if not args.bare:
     # Adapta
     subprocess.run('dnf copr enable -y heikoada/gtk-themes', shell=True)
 
+    ### UnitedRPMS ###
+    # Detect RPM release link.
+    urpm_releasejson_link = "https://api.github.com/repos/UnitedRPMs/unitedrpms/releases"
+    # Get Fedora Release
+    urpm_fedrelease = CFunc.subpout("rpm -E %fedora")
+    # Get the json data from GitHub.
+    with urllib.request.urlopen(urpm_releasejson_link) as urpm_releasejson_handle:
+        urpm_releasejson_data = json.load(urpm_releasejson_handle)
+    # print(urpm_releasejson_data[0]["assets"])
+    for release in urpm_releasejson_data[0]["assets"]:
+        # Search for the latest release for the current running Fedora.
+        if urpm_fedrelease in release["name"]:
+            # Stop after the first (latest) release is found.
+            urpm_latestreleaseurl = release["browser_download_url"]
+            break
+    # Install GPG Key
+    CFunc.rpmimport("https://raw.githubusercontent.com/UnitedRPMs/unitedrpms/master/URPMS-GPG-PUBLICKEY-Fedora-24")
+    # Install repo RPM
+    CFunc.dnfinstall(urpm_latestreleaseurl)
+    # Ensure Priority is set. UnitedRPMs has a default priority of 1, but just make sure it is set to a priority higher than 99.
+    # https://bugzilla.redhat.com/show_bug.cgi?id=1253237
+    subprocess.run("dnf config-manager --save --setopt=priority=1 unitedrpms", shell=True)
+
 
 # Update system after enabling repos.
 CFunc.dnfupdate()
@@ -76,7 +101,8 @@ if not args.nogui:
     # Management tools
     CFunc.dnfinstall("yumex-dnf dnfdragora dnfdragora-gui gparted")
     # Browsers
-    CFunc.dnfinstall("https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm")
+    # CFunc.dnfinstall("https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm")
+    CFunc.dnfinstall("chromium-freeworld")
     CFunc.dnfinstall("@firefox freshplayerplugin")
     CFunc.dnfinstall("flash-plugin")
     # Cups
@@ -147,8 +173,8 @@ sudoers_script = """
 # Delete defaults in sudoers.
 if grep -iq $'^Defaults    secure_path' /etc/sudoers; then
     sed -e 's/^Defaults    env_reset$/Defaults    !env_reset/g' -i /etc/sudoers
-	sed -i $'/^Defaults    mail_badpass/ s/^#*/#/' /etc/sudoers
-	sed -i $'/^Defaults    secure_path/ s/^#*/#/' /etc/sudoers
+    sed -i $'/^Defaults    mail_badpass/ s/^#*/#/' /etc/sudoers
+    sed -i $'/^Defaults    secure_path/ s/^#*/#/' /etc/sudoers
 fi
 visudo -c
 """
