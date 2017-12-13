@@ -65,7 +65,7 @@ if args.noprompt is False:
 if distro == "Ubuntu":
     CFunc.aptinstall("build-essential dkms")
 elif distro == "Fedora":
-    CFunc.dnfinstall("gcc dkms make bzip2 perl")
+    CFunc.dnfinstall("gcc dkms make bzip2 perl kernel-devel")
 elif distro == "CentOS":
     subprocess.run("yum install -y gcc dkms make bzip2 perl", shell=True)
 
