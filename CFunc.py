@@ -189,7 +189,10 @@ def aptdistupg():
 def aptinstall(aptapps):
     """Install application(s) using apt"""
     print("\nInstalling {0} using apt.".format(aptapps))
-    subprocess.run("apt-get install -y {0}".format(aptapps), shell=True)
+    if os.geteuid() is 0:
+        subprocess.run("apt-get install -y {0}".format(aptapps), shell=True)
+    else:
+        subprocess.run("sudo apt-get install -y {0}".format(aptapps), shell=True)
 def addppa(ppasource):
     """Add a ppa"""
     subprocess.run("add-apt-repository -y '{0}'".format(ppasource), shell=True)
@@ -200,15 +203,18 @@ def dnfupdate():
     print("\nPerforming system update.")
     subprocess.run("dnf update -y", shell=True)
 def dnfinstall(dnfapps):
-    """Install application(s)"""
+    """Install application(s) using dnf"""
     print("\nInstalling {0} using dnf.".format(dnfapps))
-    subprocess.run("dnf install -y {0}".format(dnfapps), shell=True)
+    if os.geteuid() is 0:
+        subprocess.run("dnf install -y {0}".format(dnfapps), shell=True)
+    else:
+        subprocess.run("sudo dnf install -y {0}".format(dnfapps), shell=True)
 def rpmimport(keyurl):
     """Import a gpg key for rpm."""
     subprocess.run("rpm --import {0}".format(keyurl), shell=True, check=True)
 # Zypper
 def zpinstall(zpapps):
-    """Install application(s)"""
+    """Install application(s) using zypper"""
     print("\nInstalling {0} using zypper.".format(zpapps))
     subprocess.run("zypper in -yl {0}".format(zpapps), shell=True)
 
