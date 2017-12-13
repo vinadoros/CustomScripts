@@ -206,12 +206,12 @@ if not args.bare and not args.nogui:
     ATOMREPOFILE = "/etc/yum.repos.d/atom.repo"
     with open(ATOMREPOFILE, 'w') as atomrepo_writefile:
         atomrepo_writefile.write("""[atom]
-    name=atom
-    baseurl=https://dl.bintray.com/alanfranz/atom-yum
-    repo_gpgcheck=1
-    gpgcheck=0
-    enabled=1
-    gpgkey=https://www.franzoni.eu/keys/D401AB61.txt""")
+name=atom
+baseurl=https://dl.bintray.com/alanfranz/atom-yum
+repo_gpgcheck=1
+gpgcheck=0
+enabled=1
+gpgkey=https://www.franzoni.eu/keys/D401AB61.txt""")
     # Install Atom
     CFunc.dnfinstall("atom")
 
