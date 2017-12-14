@@ -105,6 +105,9 @@ file_cson_text = '''"*":
     showOnStartup: false
   "file-types":
     "Dockerfile.*$": "source.dockerfile"
+  "split-diff":
+    muteNotifications: true
+    turnOffSoftWrap: true
 '''
 if shutil.which("pylama"):
     file_cson_text += '''  "linter-python":
