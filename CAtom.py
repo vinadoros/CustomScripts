@@ -38,7 +38,7 @@ def atom_ins(extension):
 if shutil.which("dnf"):
     CFunc.dnfinstall("ShellCheck python3-jedi")
 elif shutil.which("apt-get"):
-    CFunc.dnfinstall("shellcheck python3-jedi python3-pip")
+    CFunc.aptinstall("shellcheck python3-jedi python3-pip")
 elif shutil.which("zypper"):
     subprocess.run("""	sudo zypper ar -f http://download.opensuse.org/repositories/devel:/languages:/python3/openSUSE_Tumbleweed/ languages-python3
 sudo zypper ar -f http://download.opensuse.org/repositories/devel:/languages:/python/openSUSE_Tumbleweed/ languages-python
@@ -90,7 +90,7 @@ atom_ins("language-powershell")
 # Hardware languages
 atom_ins("language-vhdl language-verilog")
 # Docker
-atom_ins("language-docker docker")
+atom_ins("language-docker")
 
 ### Configuration ###
 # Write cson file.
