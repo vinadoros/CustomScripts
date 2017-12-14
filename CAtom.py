@@ -69,6 +69,8 @@ atom_ins("git-plus git-time-machine")
 atom_ins("sublime-style-column-selection")
 # File types
 atom_ins("file-types")
+# Split diff
+atom_ins("split-diff")
 
 ### Extensions which require external packages ###
 # Linting
