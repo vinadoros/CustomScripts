@@ -1,0 +1,17 @@
+#
+# Usage:
+# docker build -t vinadoros/fediso -f Dockerfile-fediso .
+# docker run -dt --privileged --name fediso -v /opt/CustomScripts:/opt/CustomScripts -v /path:/fediso vinadoros/fediso
+#
+
+FROM fedora:latest
+
+# Install livecd apps.
+# RUN 
+
+VOLUME ["/opt/CustomScripts"]
+
+VOLUME ["/fediso"]
+WORKDIR /fediso
+
+CMD ["/opt/CustomScripts/Afediso.py","-n","-w","/fediso","-o","/fediso"]
