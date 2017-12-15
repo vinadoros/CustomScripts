@@ -35,6 +35,19 @@ def md5sum(md5_filename, blocksize=65536):
         for block in iter(lambda: f.read(blocksize), b""):
             hashmd5.update(block)
     return hashmd5.hexdigest()
+def packerversion_get():
+    """Get the packer version from github"""
+    releasejson_link = "https://api.github.com/repos/hashicorp/packer/tags"
+    # Get the json data from GitHub.
+    with urllib.request.urlopen(releasejson_link) as releasejson_handle:
+        releasejson_data = json.load(releasejson_handle)
+    for release in releasejson_data:
+        # Stop after the first (latest) release is found.
+        latestrelease = release["name"].strip().replace("v", "")
+        break
+    print("Detected packer version: {0}".format(latestrelease))
+    return latestrelease
+
 
 # Exit if root.
 if os.geteuid() is 0:
@@ -86,7 +99,7 @@ print("Desktop Environment:", args.desktopenv)
 # Get Packer
 if not shutil.which("packer") or args.getpacker is True:
     print("Getting packer binary.")
-    packer_zipurl = "https://releases.hashicorp.com/packer/1.1.2/packer_1.1.2_linux_amd64.zip"
+    packer_zipurl = "https://releases.hashicorp.com/packer/{0}/packer_{0}_linux_amd64.zip".format(packerversion_get())
     packer_zipfile = CFunc.downloadfile(packer_zipurl, "/tmp")[0]
     subprocess.run("unzip -o {0} -d /usr/local/bin".format(packer_zipfile), shell=True)
     os.chmod("/usr/local/bin/packer", 0o777)
