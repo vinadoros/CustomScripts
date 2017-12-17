@@ -219,6 +219,8 @@ enabled=1
 gpgkey=https://www.franzoni.eu/keys/D401AB61.txt""")
     # Install Atom
     CFunc.dnfinstall("atom")
+    # Atom flatpak
+    # subprocess.run("flatpak install -y --from https://flathub.org/repo/appstream/io.atom.Atom.flatpakref", shell=True)
 
 # Disable Selinux
 # To get selinux status: sestatus, getenforce

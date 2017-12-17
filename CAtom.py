@@ -15,9 +15,6 @@ print("Running {0}".format(__file__))
 usernamevar = os.getenv("USER")
 usergroup, userhome = CFunc.getuserdetails(usernamevar)
 
-### Variables ###
-atom_userconfigfolder = userhome + "/.atom"
-atom_userconfig = atom_userconfigfolder + "/config.cson"
 
 # Exit if root.
 if os.geteuid() is 0:
@@ -27,11 +24,24 @@ if os.geteuid() is 0:
 if not shutil.which("apm"):
     sys.exit("\nERROR: atom/apm command not found. Exiting.")
 
+# Check for apm command.
+apm_native = "apm"
+apm_flatpak = "flatpak run --command=apm io.atom.Atom"
+if shutil.which("apm"):
+    print("Detected native apm command.")
+    apm_cmd = apm_native
+    atom_userconfigfolder = userhome + "/.atom"
+    atom_userconfig = atom_userconfigfolder + "/config.cson"
+elif subprocess.run("flatpak run --command=apm io.atom.Atom", shell=True).returncode is 0:
+    print("Detected flatpak apm command.")
+    apm_cmd = apm_flatpak
+    atom_userconfigfolder = userhome + "/.atom"
+    atom_userconfig = atom_userconfigfolder + "/config.cson"
 
 ### Functions ###
 def atom_ins(extension):
     """Install an extension"""
-    subprocess.run("apm install {0}".format(extension), shell=True)
+    subprocess.run("{0} install {1}".format(apm_cmd, extension), shell=True)
 
 
 ### Distro Specific Packages ###
