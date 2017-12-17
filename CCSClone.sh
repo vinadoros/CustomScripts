@@ -32,7 +32,7 @@ if [ -f $PRIVATEVARS ]; then
 	source "$PRIVATEVARS"
 fi
 # Default variables.
-REPO="vinadoros/CustomScripts"
+REPO="ramesh45345/CustomScripts"
 CLONEPATH="/opt"
 
 usage () {
