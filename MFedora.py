@@ -78,7 +78,8 @@ if not args.bare:
     CFunc.dnfinstall(urpm_latestreleaseurl)
     # Ensure Priority is set. UnitedRPMs has a default priority of 1, but just make sure it is set to a priority higher than 99.
     # https://bugzilla.redhat.com/show_bug.cgi?id=1253237
-    subprocess.run("dnf config-manager --save --setopt=priority=1 unitedrpms", shell=True)
+    # Exclude packages newer in fedora repos.
+    subprocess.run('dnf config-manager --save --setopt=priority=1 --setopt="excludepkgs=atom* syncthing*" unitedrpms', shell=True)
 
 
 # Update system after enabling repos.
@@ -114,14 +115,14 @@ if not args.nogui:
     CFunc.dnfinstall("pulseaudio-module-zeroconf pulseaudio-utils paprefs ladspa-swh-plugins")
     # Remote access
     CFunc.dnfinstall("remmina remmina-plugins-vnc remmina-plugins-rdp")
+    # Tilix
+    CFunc.dnfinstall("tilix tilix-nautilus")
     if not args.bare:
         CFunc.dnfinstall("gstreamer1-libav gstreamer1-vaapi gstreamer1-plugins-ugly gstreamer1-plugins-bad-freeworld gstreamer1-plugins-bad-nonfree")
         CFunc.dnfinstall("youtube-dl ffmpeg vlc smplayer mpv")
         CFunc.dnfinstall("audacious audacious-plugins-freeworld")
         # Editors
         CFunc.dnfinstall("code")
-        # Tilix
-        CFunc.dnfinstall("tilix tilix-nautilus")
         # Syncthing
         subprocess.run("dnf copr enable -y decathorpe/syncthing", shell=True)
         CFunc.dnfinstall("syncthing syncthing-inotify")
