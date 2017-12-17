@@ -1,7 +1,7 @@
 #
 # Usage:
-# docker build -t vinadoros/koel .
-# docker run -d -t --restart=always --name koel  -e 'ADMINPASS=asdf' -p 60000:443 -v /path:/files -v /path:/var/www vinadoros/koel
+# docker build -t r/koel .
+# docker run -d -t --restart=always --name koel  -e 'ADMINPASS=asdf' -p 60000:443 -v /path:/files -v /path:/var/www r/koel
 #
 
 FROM ubuntu:latest

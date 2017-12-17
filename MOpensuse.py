@@ -66,9 +66,6 @@ zypper ar -f http://download.opensuse.org/tumbleweed/repo/non-oss/ repo-non-oss
 # Packman
 zypper ar -f -n packman http://ftp.gwdg.de/pub/linux/misc/packman/suse/openSUSE_Tumbleweed/ packman
 
-# Vinadoros repo
-zypper ar -f http://download.opensuse.org/repositories/home:/vinadoros/openSUSE_Tumbleweed/ vinadoros-home
-
 # Numix repo
 zypper ar -f http://download.opensuse.org/repositories/home:/lbssousa:/numix/openSUSE_Tumbleweed/ "lbssousa-numix"
 

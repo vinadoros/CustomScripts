@@ -246,7 +246,7 @@ visudo -c
 
 # Fetch scripts
 apt install -y git
-git clone "https://github.com/vinadoros/CustomScripts.git" "/opt/CustomScripts"
+git clone "https://github.com/ramesh45345/CustomScripts.git" "/opt/CustomScripts"
 chmod a+rwx "/opt/CustomScripts"
 
 """.format(DEBARCH=args.architecture)

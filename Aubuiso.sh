@@ -103,7 +103,7 @@ echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 sed -i '/PasswordAuthentication/d' /etc/ssh/sshd_config
 
 # Install CustomScripts
-git clone "https://github.com/vinadoros/CustomScripts.git" "/CustomScripts"
+git clone "https://github.com/ramesh45345/CustomScripts.git" "/CustomScripts"
 
 # --- BEGIN Update CustomScripts on startup ---
 

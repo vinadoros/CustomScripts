@@ -1,8 +1,8 @@
 #
 # Derived from https://github.com/ConSol/docker-headless-vnc-container
 # Usage:
-# docker build -t vinadoros/armvnc -f Dockerfile-armvnc .
-# docker run -d -t --privileged --name armvnc -p 5901:5901 -v /:/files -e 'VNC_PW=vncpassword' vinadoros/armvnc
+# docker build -t r/armvnc -f Dockerfile-armvnc .
+# docker run -d -t --privileged --name armvnc -p 5901:5901 -v /:/files -e 'VNC_PW=vncpassword' r/armvnc
 #
 
 FROM arm32v7/ubuntu:rolling

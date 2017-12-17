@@ -1,7 +1,7 @@
 #
 # Usage:
-# docker build -t vinadoros/debiso -f Dockerfile-debiso .
-# docker run -d -t --privileged --name debiso -v /opt/CustomScripts:/opt/CustomScripts -v /path:/debbuild vinadoros/debiso
+# docker build -t r/debiso -f Dockerfile-debiso .
+# docker run -d -t --privileged --name debiso -v /opt/CustomScripts:/opt/CustomScripts -v /path:/debbuild r/debiso
 #
 
 FROM debian:sid

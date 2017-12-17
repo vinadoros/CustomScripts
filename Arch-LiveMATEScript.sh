@@ -69,7 +69,7 @@ cp -r /usr/share/archiso/configs/releng/ $ARCHLIVEPATH
 
 # Copy script folder to iso root
 #~ cp -r "$SCRIPTDIR" "$ARCHLIVEPATH/airootfs/"
-git clone "https://github.com/vinadoros/CustomScripts.git" "$ARCHLIVEPATH/airootfs/CustomScripts"
+git clone "https://github.com/ramesh45345/CustomScripts.git" "$ARCHLIVEPATH/airootfs/CustomScripts"
 #~ SCRIPTBASENAME="$(basename $SCRIPTDIR)"
 SCRIPTBASENAME="CustomScripts"
 

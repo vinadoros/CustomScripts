@@ -1,7 +1,7 @@
 #
 # Usage:
-# docker build -t vinadoros/ubuiso -f Dockerfile-ubuiso .
-# docker run -d -t --privileged --name ubuiso -v /opt/CustomScripts:/opt/CustomScripts -v /path:/ububuild vinadoros/ubuiso
+# docker build -t r/ubuiso -f Dockerfile-ubuiso .
+# docker run -d -t --privileged --name ubuiso -v /opt/CustomScripts:/opt/CustomScripts -v /path:/ububuild r/ubuiso
 #
 
 FROM ubuntu:rolling

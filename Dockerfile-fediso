@@ -1,7 +1,7 @@
 #
 # Usage:
-# docker build -t vinadoros/fediso -f Dockerfile-fediso .
-# docker run -dt --privileged --name fediso -v /opt/CustomScripts:/opt/CustomScripts -v /path:/fediso vinadoros/fediso
+# docker build -t r/fediso -f Dockerfile-fediso .
+# docker run -dt --privileged --name fediso -v /opt/CustomScripts:/opt/CustomScripts -v /path:/fediso r/fediso
 #
 
 FROM fedora:latest
