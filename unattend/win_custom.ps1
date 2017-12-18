@@ -40,8 +40,12 @@ powercfg -setacvalueindex 381b4222-f694-41f0-9685-ff5bb260df2e 4f971e89-eebd-445
 echo "Installing Chocolatey"
 iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 echo "Installing Chocolatey packages"
+# Required Basics
 choco upgrade -y dotnet4.7 powershell
-choco upgrade -y vcredist-all googlechrome javaruntime notepadplusplus git tortoisegit ccleaner putty chocolateygui conemu visualstudiocode winmerge libreoffice sumatrapdf 7zip tablacus
+# Libraries
+choco upgrade -y vcredist-all javaruntime git python
+# GUI Apps
+choco upgrade -y googlechrome notepadplusplus tortoisegit ccleaner putty chocolateygui conemu visualstudiocode winmerge libreoffice sumatrapdf 7zip tablacus
 # Install for Windows 8 or above.
 if ([Environment]::OSVersion.Version.Major -ge 8){
   choco upgrade -y classic-shell ShutUp10
