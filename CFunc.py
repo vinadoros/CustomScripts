@@ -4,7 +4,6 @@
 # Python includes.
 import os
 import platform
-import pwd
 import subprocess
 import sys
 import urllib.request
@@ -19,6 +18,7 @@ def is_windows():
 # Exclude imports not available on Windows.
 if not is_windows():
     import grp
+    import pwd
 
 # Folder of this script
 SCRIPTDIR = sys.path[0]
