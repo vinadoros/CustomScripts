@@ -3,7 +3,6 @@
 
 # Python includes.
 import argparse
-import crypt
 from datetime import datetime
 import json
 import hashlib
@@ -313,6 +312,7 @@ if CFunc.is_windows:
     import passlib
     sha512_password = passlib.hash.sha512_crypt.encrypt(args.vmpass, rounds=5000)
 else:
+    import crypt
     sha512_password = crypt.crypt(args.vmpass, crypt.mksalt(crypt.METHOD_SHA512))
 
 

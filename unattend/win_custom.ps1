@@ -50,6 +50,8 @@ if ([Environment]::OSVersion.Version.Major -ge 8){
 if ([Environment]::OSVersion.Version.Major -lt 8){
   choco upgrade -y ie11
 }
+# Chocolatey Configuration
+choco feature enable -n allowGlobalConfirmation
 
 # Tablacus
 $pathtotablacus = "$env:PROGRAMDATA\chocolatey\lib\tablacus\tools\"
