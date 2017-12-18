@@ -308,7 +308,12 @@ print("SSH Key is \"{0}\"".format(sshkey))
 
 # Generate hashed password
 # https://serverfault.com/questions/330069/how-to-create-an-sha-512-hashed-password-for-shadow#330072
-sha512_password = crypt.crypt(args.vmpass, crypt.mksalt(crypt.METHOD_SHA512))
+
+if CFunc.is_windows:
+    import passlib
+    sha512_password = passlib.hash.sha512_crypt.encrypt(args.vmpass, rounds=5000)
+else:
+    sha512_password = crypt.crypt(args.vmpass, crypt.mksalt(crypt.METHOD_SHA512))
 
 
 # Copy unattend script folder
