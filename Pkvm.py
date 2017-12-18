@@ -5,12 +5,10 @@
 import argparse
 import crypt
 from datetime import datetime
-import grp
 import json
 import hashlib
 import multiprocessing
 import os
-import pwd
 import shutil
 import subprocess
 import sys
@@ -53,16 +51,7 @@ def packerversion_get():
 if os.geteuid() is 0:
     sys.exit("\nError: Please run this script as a normal (non root) user.\n")
 
-# Get non-root user information.
-if os.getenv("SUDO_USER") not in ["root", None]:
-    USERNAMEVAR = os.getenv("SUDO_USER")
-elif os.getenv("USER") not in ["root", None]:
-    USERNAMEVAR = os.getenv("USER")
-else:
-    # https://docs.python.org/3/library/pwd.html
-    USERNAMEVAR = pwd.getpwuid(1000)[0]
-# https://docs.python.org/3/library/grp.html
-USERGROUP = grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
+# Get system and user information.
 USERHOME = os.path.expanduser("~")
 CPUCORES = multiprocessing.cpu_count() if multiprocessing.cpu_count() <= 4 else 4
 
@@ -99,7 +88,11 @@ print("Desktop Environment:", args.desktopenv)
 # Get Packer
 if not shutil.which("packer") or args.getpacker is True:
     print("Getting packer binary.")
-    packer_zipurl = "https://releases.hashicorp.com/packer/{0}/packer_{0}_linux_amd64.zip".format(packerversion_get())
+    if CFunc.is_windows():
+        packer_os = "windows"
+    else:
+        packer_os = "linux"
+    packer_zipurl = "https://releases.hashicorp.com/packer/{0}/packer_{0}_{1}_amd64.zip".format(packerversion_get(), packer_os)
     packer_zipfile = CFunc.downloadfile(packer_zipurl, "/tmp")[0]
     subprocess.run("unzip -o {0} -d /usr/local/bin".format(packer_zipfile), shell=True)
     os.chmod("/usr/local/bin/packer", 0o777)
