@@ -94,7 +94,7 @@ if not shutil.which("packer") or args.getpacker is True:
         packer_os = "linux"
     packer_zipurl = "https://releases.hashicorp.com/packer/{0}/packer_{0}_{1}_amd64.zip".format(packerversion_get(), packer_os)
     packer_zipfile = CFunc.downloadfile(packer_zipurl, "/tmp")[0]
-    subprocess.run("unzip -o {0} -d /usr/local/bin".format(packer_zipfile), shell=True)
+    subprocess.run("7z x -aoa -y {0} -o/usr/local/bin".format(packer_zipfile), shell=True)
     os.chmod("/usr/local/bin/packer", 0o777)
     if os.path.isfile(packer_zipfile):
         os.remove(packer_zipfile)
