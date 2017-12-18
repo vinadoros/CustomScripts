@@ -2,13 +2,23 @@
 """General Python Functions"""
 
 # Python includes.
-import grp
 import os
 import platform
 import pwd
 import subprocess
 import sys
 import urllib.request
+
+### Detect Windows Function ###
+def is_windows():
+    """Detect if OS is Windows."""
+    if ("CYGWIN" or "Windows") in platform.system():
+        return True
+    return False
+
+# Exclude imports not available on Windows.
+if not is_windows():
+    import grp
 
 # Folder of this script
 SCRIPTDIR = sys.path[0]
@@ -141,12 +151,6 @@ AllowIsolate=true""")
         # Run daemon-reload if not running as root.
         subprocess.run("systemctl --user daemon-reload", shell=True)
     return 0
-### OS Specific ###
-def is_windows():
-    """Detect if OS is Windows."""
-    if ("CYGWIN" or "Windows") in platform.system():
-        return True
-    return False
 ### Distro and Package Manager Specific Functions ###
 # General Distro Functions
 def detectdistro():
