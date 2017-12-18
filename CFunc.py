@@ -95,6 +95,12 @@ def getvmstate():
         if bool("VMware" in VAR.read().strip()):
             vmstatus = "vmware"
     return vmstatus
+def is_root(checkstate=True):
+    """Check if current user is root or not."""
+    if is_windows() is False:
+        actualstate = bool(os.geteuid() == 0)
+        if actualstate != checkstate:
+            sys.exit("\nError: Actual root state is {0}, expected {1}.\n".format(actualstate, checkstate))
 ### Systemd Functions ###
 def systemd_createsystemunit(sysunitname, sysunittext, sysenable=False):
     """Create a systemd system unit."""
