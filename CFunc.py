@@ -11,12 +11,13 @@ import urllib.request
 ### Detect Windows Function ###
 def is_windows():
     """Detect if OS is Windows."""
-    if ("CYGWIN" or "Windows") in platform.system():
+    pl_types = ["CYGWIN", "Windows"]
+    if any(x in platform.system() for x in pl_types):
         return True
     return False
 
 # Exclude imports not available on Windows.
-if not is_windows():
+if is_windows() is False:
     import grp
     import pwd
 
