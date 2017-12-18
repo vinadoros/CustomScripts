@@ -47,7 +47,7 @@ def packerversion_get():
 
 
 # Exit if root.
-if os.geteuid() is 0:
+if CFunc.is_windows is False and os.geteuid() is 0:
     sys.exit("\nError: Please run this script as a normal (non root) user.\n")
 
 # Get system and user information.
