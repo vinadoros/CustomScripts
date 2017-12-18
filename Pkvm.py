@@ -87,16 +87,14 @@ print("Desktop Environment:", args.desktopenv)
 # Get Packer
 if not shutil.which("packer") or args.getpacker is True:
     print("Getting packer binary.")
-    if CFunc.is_windows():
-        packer_os = "windows"
-    else:
+    if not CFunc.is_windows():
         packer_os = "linux"
-    packer_zipurl = "https://releases.hashicorp.com/packer/{0}/packer_{0}_{1}_amd64.zip".format(packerversion_get(), packer_os)
-    packer_zipfile = CFunc.downloadfile(packer_zipurl, "/tmp")[0]
-    subprocess.run("7z x -aoa -y {0} -o/usr/local/bin".format(packer_zipfile), shell=True)
-    os.chmod("/usr/local/bin/packer", 0o777)
-    if os.path.isfile(packer_zipfile):
-        os.remove(packer_zipfile)
+        packer_zipurl = "https://releases.hashicorp.com/packer/{0}/packer_{0}_{1}_amd64.zip".format(packerversion_get(), packer_os)
+        packer_zipfile = CFunc.downloadfile(packer_zipurl, "/tmp")[0]
+        subprocess.run("7z x -aoa -y {0} -o/usr/local/bin".format(packer_zipfile), shell=True)
+        os.chmod("/usr/local/bin/packer", 0o777)
+        if os.path.isfile(packer_zipfile):
+            os.remove(packer_zipfile)
     subprocess.run("packer -v", shell=True)
 
 # Ensure that certain commands exist.
