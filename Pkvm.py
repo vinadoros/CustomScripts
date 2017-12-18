@@ -255,11 +255,15 @@ if args.vmtype == 1:
     subprocess.run('vboxmanage setproperty machinefolder "{0}"'.format(vmpath), shell=True, check=True)
     status = subprocess.run('vboxmanage list hostonlyifs | grep -i vboxnet0', shell=True)
     if status.returncode is not 0:
-        print("Creating vboxnet0 hostonlyif.")
+        if CFunc.is_windows():
+            vbox_hostonlyif_name = "VirtualBox Host-Only Ethernet Adapter"
+        else:
+            vbox_hostonlyif_name = "vboxnet0"
+        print("Creating {0} hostonlyif.".format(vbox_hostonlyif_name))
         subprocess.run("vboxmanage hostonlyif create", shell=True, check=True)
         # Set DHCP active on created adapter
-        subprocess.run("vboxmanage hostonlyif ipconfig vboxnet0 --ip 192.168.253.1", shell=True, check=True)
-        subprocess.run("vboxmanage dhcpserver modify --ifname vboxnet0 --ip 192.168.253.1 --netmask 255.255.255.0 --lowerip 192.168.253.2 --upperip 192.168.253.253 --enable", shell=True, check=True)
+        subprocess.run('vboxmanage hostonlyif ipconfig "{0}" --ip 192.168.253.1'.format(vbox_hostonlyif_name), shell=True, check=True)
+        subprocess.run('vboxmanage dhcpserver modify --ifname "{0}" --ip 192.168.253.1 --netmask 255.255.255.0 --lowerip 192.168.253.2 --upperip 192.168.253.253 --enable'.format(vbox_hostonlyif_name), shell=True, check=True)
 
 # Delete leftover VMs
 if args.vmtype == 1:
