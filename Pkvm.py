@@ -97,7 +97,7 @@ if not shutil.which("packer") or args.getpacker is True:
     subprocess.run("packer -v", shell=True)
 
 # Ensure that certain commands exist.
-cmdcheck = ["packer", "ssh"]
+cmdcheck = ["packer"]
 for cmd in cmdcheck:
     if not shutil.which(cmd):
         sys.exit("\nError, ensure command {0} is installed.".format(cmd))
