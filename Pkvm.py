@@ -318,7 +318,7 @@ if os.path.isdir(os.path.join(SCRIPTDIR, "unattend")):
     tempscriptbasename = os.path.basename(SCRIPTDIR)
     tempscriptfolderpath = os.path.join(packer_temp_folder, tempscriptbasename)
     tempunattendfolder = os.path.join(tempscriptfolderpath, "unattend")
-    shutil.copytree(SCRIPTDIR, tempscriptfolderpath)
+    shutil.copytree(SCRIPTDIR, tempscriptfolderpath, ignore=shutil.ignore_patterns('.git'))
     # Set usernames and passwords
     CFunc.find_replace(tempunattendfolder, "INSERTUSERHERE", args.vmuser, "*")
     CFunc.find_replace(tempunattendfolder, "INSERTPASSWORDHERE", args.vmpass, "*")
@@ -349,11 +349,12 @@ if args.vmtype == 1:
     data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--vram", "40"])
     data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--cpus", "{0}".format(CPUCORES)])
     data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--nic2", "hostonly"])
-    data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--hostonlyadapter2", "vboxnet0"])
+    data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--hostonlyadapter2", vbox_hostonlyif_name])
     data['builders'][0]["vboxmanage_post"] = ['']
-    data['builders'][0]["vboxmanage_post"][0] = ["sharedfolder", "add", "{{.Name}}", "--name", "root", "--hostpath", "/", "--automount"]
-    data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--clipboard", "bidirectional"])
+    data['builders'][0]["vboxmanage_post"][0] = ["modifyvm", "{{.Name}}", "--clipboard", "bidirectional"]
     data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--accelerate3d", "on"])
+    if CFunc.is_windows() is False:
+        data['builders'][0]["vboxmanage_post"][0].append(["sharedfolder", "add", "{{.Name}}", "--name", "root", "--hostpath", "/", "--automount"])
 
     data['builders'][0]["post_shutdown_delay"] = "30s"
     if 1 <= args.ostype <= 39:
