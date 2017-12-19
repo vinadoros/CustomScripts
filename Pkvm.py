@@ -249,12 +249,12 @@ if args.noprompt is False:
 # Set up VM hypervisor settings
 if args.vmtype == 1:
     subprocess.run('vboxmanage setproperty machinefolder "{0}"'.format(vmpath), shell=True, check=True)
-    status = subprocess.run('vboxmanage list hostonlyifs | grep -i vboxnet0', shell=True)
-    if status.returncode is not 0:
-        if CFunc.is_windows():
-            vbox_hostonlyif_name = "VirtualBox Host-Only Ethernet Adapter"
-        else:
-            vbox_hostonlyif_name = "vboxnet0"
+    if CFunc.is_windows():
+        vbox_hostonlyif_name = "VirtualBox Host-Only Ethernet Adapter"
+    else:
+        vbox_hostonlyif_name = "vboxnet0"
+    vbox_hostonlyifs = CFunc.subpout("vboxmanage list hostonlyifs")
+    if vbox_hostonlyif_name not in vbox_hostonlyifs:
         print("Creating {0} hostonlyif.".format(vbox_hostonlyif_name))
         subprocess.run("vboxmanage hostonlyif create", shell=True, check=True)
         # Set DHCP active on created adapter
@@ -306,8 +306,8 @@ print("SSH Key is \"{0}\"".format(sshkey))
 # https://serverfault.com/questions/330069/how-to-create-an-sha-512-hashed-password-for-shadow#330072
 
 if CFunc.is_windows() is True:
-    import passlib
-    sha512_password = passlib.hash.sha512_crypt.encrypt(args.vmpass, rounds=5000)
+    from passlib import hash
+    sha512_password = hash.sha512_crypt.encrypt(args.vmpass, rounds=5000)
 else:
     import crypt
     sha512_password = crypt.crypt(args.vmpass, crypt.mksalt(crypt.METHOD_SHA512))
