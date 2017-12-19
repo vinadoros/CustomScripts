@@ -48,7 +48,7 @@ def downloadfile(url, localpath, filename=None, overwrite=False):
     fileinfo = urllib.parse.urlparse(url)
     if filename is None:
         filename = urllib.parse.unquote(os.path.basename(fileinfo.path))
-    fullpath = localpath + "/" + filename
+    fullpath = os.path.join(localpath, filename)
     # Remove the file if overwrite is specified.
     if overwrite is True and os.path.isfile(fullpath) is True:
         os.remove(fullpath)
