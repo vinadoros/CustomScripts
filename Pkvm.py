@@ -315,8 +315,10 @@ else:
 
 # Copy unattend script folder
 if os.path.isdir(os.path.join(SCRIPTDIR, "unattend")):
-    tempunattendfolder = os.path.join(packer_temp_folder, "unattend")
-    shutil.copytree(os.path.join(SCRIPTDIR, "unattend"), tempunattendfolder)
+    tempscriptbasename = os.path.basename(SCRIPTDIR)
+    tempscriptfolderpath = os.path.join(packer_temp_folder, tempscriptbasename)
+    tempunattendfolder = os.path.join(tempscriptfolderpath, "unattend")
+    shutil.copytree(SCRIPTDIR, tempscriptfolderpath)
     # Set usernames and passwords
     CFunc.find_replace(tempunattendfolder, "INSERTUSERHERE", args.vmuser, "*")
     CFunc.find_replace(tempunattendfolder, "INSERTPASSWORDHERE", args.vmpass, "*")
@@ -392,7 +394,7 @@ data['builders'][0]["iso_url"] = "{0}".format(isopath)
 data['builders'][0]["iso_checksum"] = md5
 data['builders'][0]["iso_checksum_type"] = "md5"
 data['builders'][0]["output_directory"] = "{0}".format(vmname)
-data['builders'][0]["http_directory"] = "unattend"
+data['builders'][0]["http_directory"] = tempunattendfolder
 data['builders'][0]["disk_size"] = "{0}".format(args.imgsize)
 data['builders'][0]["boot_wait"] = "5s"
 data['builders'][0]["ssh_username"] = "root"
@@ -436,19 +438,20 @@ if 50 <= args.ostype <= 59:
     # Use ssh for communication instead of winrm (which doesn't work for vmware for some reason)
     data['builders'][0]["communicator"] = "ssh"
     data['builders'][0]["ssh_username"] = "{0}".format(args.vmuser)
-    data['builders'][0]["floppy_files"] = [os.path.join("unattend", "autounattend.xml"),
-                                           os.path.join("unattend", "win_initial.bat"),
-                                           os.path.join("unattend", "win_openssh.bat")]
+    data['builders'][0]["floppy_files"] = [os.path.join(tempscriptbasename, "unattend", "autounattend.xml"),
+                                           os.path.join(tempscriptbasename, "unattend", "win_initial.bat"),
+                                           os.path.join(tempscriptbasename, "unattend", "win_openssh.bat")]
     # Provision with generic windows script
-    data['provisioners'][0]["script"] = os.path.join(packer_temp_folder, "unattend", "win_custom.ps1")
+    data['provisioners'][0]["scripts"] = [os.path.join(tempscriptfolderpath, "Win_config.ps1"),
+                                          os.path.join(tempscriptfolderpath, "Win_tablacus.ps1")]
 if args.ostype == 50:
-    shutil.move(os.path.join(packer_temp_folder, "unattend", "windows10.xml"), os.path.join(packer_temp_folder, "unattend", "autounattend.xml"))
+    shutil.move(os.path.join(tempunattendfolder, "windows10.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
 if args.ostype == 51:
-    shutil.move(os.path.join(packer_temp_folder, "unattend", "windows7.xml"), os.path.join(packer_temp_folder, "unattend", "autounattend.xml"))
+    shutil.move(os.path.join(tempunattendfolder, "windows7.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
 if args.ostype == 52:
     # Username is fixed to Administrator in Server 2016
     data['builders'][0]["ssh_username"] = "Administrator"
-    shutil.move(os.path.join(packer_temp_folder, "unattend", "windows2016.xml"), os.path.join(packer_temp_folder, "unattend", "autounattend.xml"))
+    shutil.move(os.path.join(tempunattendfolder, "windows2016.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
 
 
 # Write packer json file.

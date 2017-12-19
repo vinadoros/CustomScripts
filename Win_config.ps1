@@ -45,7 +45,7 @@ choco upgrade -y dotnet4.7 powershell
 # Libraries
 choco upgrade -y vcredist-all javaruntime git python
 # GUI Apps
-choco upgrade -y googlechrome notepadplusplus tortoisegit ccleaner putty chocolateygui conemu visualstudiocode winmerge libreoffice sumatrapdf 7zip tablacus
+choco upgrade -y googlechrome notepadplusplus tortoisegit ccleaner putty chocolateygui conemu visualstudiocode winmerge libreoffice sumatrapdf 7zip
 # Install for Windows 8 or above.
 if ([Environment]::OSVersion.Version.Major -ge 8){
   choco upgrade -y classic-shell ShutUp10
@@ -56,22 +56,6 @@ if ([Environment]::OSVersion.Version.Major -lt 8){
 }
 # Chocolatey Configuration
 choco feature enable -n allowGlobalConfirmation
-
-# Tablacus
-$pathtotablacus = "$env:PROGRAMDATA\chocolatey\lib\tablacus\tools\"
-if(Test-Path -Path $pathtotablacus){
-  # Set rwx everyone permissions for tablacus folder
-  $Acl = Get-ACL $pathtotablacus
-  $AccessRule= New-Object System.Security.AccessControl.FileSystemAccessRule("everyone","full","ContainerInherit,Objectinherit","none","Allow")
-  $Acl.AddAccessRule($AccessRule)
-  Set-Acl $pathtotablacus $Acl
-  # Create shortcut for tablacus
-  $WshShell = New-Object -comObject WScript.Shell
-  $Shortcut = $WshShell.CreateShortcut("$env:PUBLIC\Desktop\Tablacus.lnk")
-  $Shortcut.TargetPath = "$pathtotablacus\TE64.exe"
-  $Shortcut.WorkingDirectory = "$pathtotablacus"
-  $Shortcut.Save()
-}
 
 # Handle VMTools
 $winiso = "C:\Windows\Temp\windows.iso"
