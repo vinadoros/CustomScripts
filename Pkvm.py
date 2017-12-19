@@ -305,7 +305,7 @@ print("SSH Key is \"{0}\"".format(sshkey))
 # Generate hashed password
 # https://serverfault.com/questions/330069/how-to-create-an-sha-512-hashed-password-for-shadow#330072
 
-if CFunc.is_windows:
+if CFunc.is_windows() is True:
     import passlib
     sha512_password = passlib.hash.sha512_crypt.encrypt(args.vmpass, rounds=5000)
 else:
@@ -318,12 +318,12 @@ if os.path.isdir(SCRIPTDIR+"/unattend"):
     tempunattendfolder = packer_temp_folder+"/unattend"
     shutil.copytree(SCRIPTDIR+"/unattend", tempunattendfolder)
     # Set usernames and passwords
-    subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's/INSERTUSERHERE/{1}/g'".format(tempunattendfolder, args.vmuser), shell=True)
-    subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's/INSERTPASSWORDHERE/{1}/g'".format(tempunattendfolder, args.vmpass), shell=True)
-    subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's/INSERTFULLNAMEHERE/{1}/g'".format(tempunattendfolder, args.fullname), shell=True)
-    subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's/INSERTHOSTNAMENAMEHERE/{1}/g'".format(tempunattendfolder, vmname), shell=True)
-    subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's@INSERTHASHEDPASSWORDHERE@{1}@g'".format(tempunattendfolder, sha512_password), shell=True)
-    subprocess.run("find {0} -type f -print0 | xargs -0 sed -i'' -e 's/INSERTSSHKEYHERE/{1}/g'".format(tempunattendfolder, sshkey), shell=True)
+    CFunc.find_replace(tempunattendfolder, "INSERTUSERHERE", args.vmuser, "*")
+    CFunc.find_replace(tempunattendfolder, "INSERTPASSWORDHERE", args.vmpass, "*")
+    CFunc.find_replace(tempunattendfolder, "INSERTFULLNAMEHERE", args.fullname, "*")
+    CFunc.find_replace(tempunattendfolder, "INSERTHOSTNAMENAMEHERE", vmname, "*")
+    CFunc.find_replace(tempunattendfolder, "INSERTHASHEDPASSWORDHERE", sha512_password, "*")
+    CFunc.find_replace(tempunattendfolder, "INSERTSSHKEYHERE", sshkey, "*")
 
 
 # Get hash for iso.

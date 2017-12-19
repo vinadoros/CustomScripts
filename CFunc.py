@@ -2,6 +2,8 @@
 """General Python Functions"""
 
 # Python includes.
+import fileinput
+import fnmatch
 import os
 import platform
 import subprocess
@@ -26,26 +28,8 @@ SCRIPTDIR = sys.path[0]
 
 
 ### Functions ###
-def getuserdetails(username):
-    """Get group and home folder info about a particular user."""
-    # https://docs.python.org/3/library/grp.html
-    usergroup = grp.getgrgid(pwd.getpwnam(username)[3])[0]
-    userhome = os.path.expanduser("~{0}".format(username))
-    return usergroup, userhome
-def getnormaluser():
-    """Auto-detect non-root user information."""
-    if os.getenv("SUDO_USER") not in ["root", None]:
-        usernamevar = os.getenv("SUDO_USER")
-    elif os.getenv("USER") not in ["root", None]:
-        usernamevar = os.getenv("USER")
-    else:
-        # https://docs.python.org/3/library/pwd.html
-        usernamevar = pwd.getpwuid(1000)[0]
-    usergroup, userhome = getuserdetails(usernamevar)
-    return usernamevar, usergroup, userhome
-def machinearch():
-    """Get the machine arch."""
-    return platform.machine()
+
+### General helper functions ###
 def subpout(cmd):
     """Get output from subprocess"""
     output = subprocess.run("{0}".format(cmd), shell=True, stdout=subprocess.PIPE, universal_newlines=True).stdout.strip()
@@ -78,6 +62,40 @@ def downloadfile(url, localpath, filename=None, overwrite=False):
     else:
         print("File {0} already exists. Skipping download.".format(fullpath))
     return (fullpath, filename)
+def find_replace(directory, find, replace, filePattern):
+    """
+    Find and replace recursively.
+    https://stackoverflow.com/questions/4205854/python-way-to-recursively-find-and-replace-string-in-text-files
+    """
+    for walkresult in os.walk(os.path.abspath(directory)):
+        for filename in fnmatch.filter(walkresult[2], filePattern):
+            filepath = os.path.join(walkresult[0], filename)
+            with open(filepath) as f:
+                s = f.read()
+            s = s.replace(find, replace)
+            with open(filepath, "w") as f:
+                f.write(s)
+### OS Functions ###
+def getuserdetails(username):
+    """Get group and home folder info about a particular user."""
+    # https://docs.python.org/3/library/grp.html
+    usergroup = grp.getgrgid(pwd.getpwnam(username)[3])[0]
+    userhome = os.path.expanduser("~{0}".format(username))
+    return usergroup, userhome
+def getnormaluser():
+    """Auto-detect non-root user information."""
+    if os.getenv("SUDO_USER") not in ["root", None]:
+        usernamevar = os.getenv("SUDO_USER")
+    elif os.getenv("USER") not in ["root", None]:
+        usernamevar = os.getenv("USER")
+    else:
+        # https://docs.python.org/3/library/pwd.html
+        usernamevar = pwd.getpwuid(1000)[0]
+    usergroup, userhome = getuserdetails(usernamevar)
+    return usernamevar, usergroup, userhome
+def machinearch():
+    """Get the machine arch."""
+    return platform.machine()
 def getvmstate():
     """Determine what Virtual Machine guest is running under."""
     # Default state.
