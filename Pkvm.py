@@ -282,7 +282,7 @@ else:
     sys.exit("\nError, ensure iso {0} exists.".format(isopath))
 
 # Create temporary folder for packer
-packer_temp_folder = vmpath+"/packertemp"+vmname
+packer_temp_folder = os.path.join(vmpath, "packertemp"+vmname)
 if os.path.isdir(packer_temp_folder):
     print("\nDeleting old VM.")
     shutil.rmtree(packer_temp_folder)
@@ -292,11 +292,11 @@ os.chdir(packer_temp_folder)
 # Detect root ssh key.
 if args.sshkey is not None:
     sshkey = args.rootsshkey
-elif os.path.isfile(USERHOME+"/.ssh/id_ed25519.pub") is True:
-    with open(USERHOME+"/.ssh/id_ed25519.pub", 'r') as sshfile:
+elif os.path.isfile(os.path.join(USERHOME, ".ssh", "id_ed25519.pub")) is True:
+    with open(os.path.join(USERHOME, ".ssh", "id_ed25519.pub"), 'r') as sshfile:
         sshkey = sshfile.read().replace('\n', '')
-elif os.path.isfile(USERHOME+"/.ssh/id_rsa.pub") is True:
-    with open(USERHOME+"/.ssh/id_rsa.pub", 'r') as sshfile:
+elif os.path.isfile(os.path.join(USERHOME, ".ssh", "id_rsa.pub")) is True:
+    with open(os.path.join(USERHOME, ".ssh", "id_rsa.pub"), 'r') as sshfile:
         sshkey = sshfile.read().replace('\n', '')
 else:
     sshkey = " "
@@ -314,9 +314,9 @@ else:
 
 
 # Copy unattend script folder
-if os.path.isdir(SCRIPTDIR+"/unattend"):
-    tempunattendfolder = packer_temp_folder+"/unattend"
-    shutil.copytree(SCRIPTDIR+"/unattend", tempunattendfolder)
+if os.path.isdir(os.path.join(SCRIPTDIR, "unattend")):
+    tempunattendfolder = os.path.join(packer_temp_folder, "unattend")
+    shutil.copytree(os.path.join(SCRIPTDIR, "unattend"), tempunattendfolder)
     # Set usernames and passwords
     CFunc.find_replace(tempunattendfolder, "INSERTUSERHERE", args.vmuser, "*")
     CFunc.find_replace(tempunattendfolder, "INSERTPASSWORDHERE", args.vmpass, "*")
@@ -388,7 +388,7 @@ elif args.vmtype == 3:
         data['builders'][0]["tools_upload_flavor"] = "windows"
         data['builders'][0]["tools_upload_path"] = "c:/Windows/Temp/windows.iso"
 data['builders'][0]["shutdown_command"] = "shutdown -P now"
-data['builders'][0]["iso_url"] = "file://"+isopath
+data['builders'][0]["iso_url"] = "{0}".format(isopath)
 data['builders'][0]["iso_checksum"] = md5
 data['builders'][0]["iso_checksum_type"] = "md5"
 data['builders'][0]["output_directory"] = "{0}".format(vmname)
@@ -436,23 +436,23 @@ if 50 <= args.ostype <= 59:
     # Use ssh for communication instead of winrm (which doesn't work for vmware for some reason)
     data['builders'][0]["communicator"] = "ssh"
     data['builders'][0]["ssh_username"] = "{0}".format(args.vmuser)
-    data['builders'][0]["floppy_files"] = ["unattend/autounattend.xml",
-                                           "unattend/win_initial.bat",
-                                           "unattend/win_openssh.bat"]
+    data['builders'][0]["floppy_files"] = [os.path.join("unattend", "autounattend.xml"),
+                                           os.path.join("unattend", "win_initial.bat"),
+                                           os.path.join("unattend", "win_openssh.bat")]
     # Provision with generic windows script
-    data['provisioners'][0]["script"] = packer_temp_folder+"/unattend/win_custom.ps1"
+    data['provisioners'][0]["script"] = os.path.join(packer_temp_folder, "unattend", "win_custom.ps1")
 if args.ostype == 50:
-    shutil.move(packer_temp_folder+"/unattend/windows10.xml", packer_temp_folder+"/unattend/autounattend.xml")
+    shutil.move(os.path.join(packer_temp_folder, "unattend", "windows10.xml"), os.path.join(packer_temp_folder, "unattend", "autounattend.xml"))
 if args.ostype == 51:
-    shutil.move(packer_temp_folder+"/unattend/windows7.xml", packer_temp_folder+"/unattend/autounattend.xml")
+    shutil.move(os.path.join(packer_temp_folder, "unattend", "windows7.xml"), os.path.join(packer_temp_folder, "unattend", "autounattend.xml"))
 if args.ostype == 52:
     # Username is fixed to Administrator in Server 2016
     data['builders'][0]["ssh_username"] = "Administrator"
-    shutil.move(packer_temp_folder+"/unattend/windows2016.xml", packer_temp_folder+"/unattend/autounattend.xml")
+    shutil.move(os.path.join(packer_temp_folder, "unattend", "windows2016.xml"), os.path.join(packer_temp_folder, "unattend", "autounattend.xml"))
 
 
 # Write packer json file.
-with open(packer_temp_folder+'/file.json', 'w') as file_json_wr:
+with open(os.path.join(packer_temp_folder, 'file.json'), 'w') as file_json_wr:
     json.dump(data, file_json_wr, indent=2)
 
 # Save start time.
@@ -464,12 +464,12 @@ packerfinishtime = datetime.now()
 
 # Remove temp folder
 os.chdir(vmpath)
-output_folder = packer_temp_folder+"/"+vmname
+output_folder = os.path.join(packer_temp_folder, vmname)
 # Copy output to VM folder.
 if os.path.isdir(output_folder):
     # Remove previous folder, if it exists.
-    if os.path.isdir(vmpath+"/"+vmname):
-        shutil.rmtree(vmpath+"/"+vmname)
+    if os.path.isdir(os.path.join(vmpath, vmname)):
+        shutil.rmtree(os.path.join(vmpath, vmname))
     # Remove existing VMs in KVM
     if args.vmtype == 2:
         kvmlist = CFunc.subpout("virsh --connect qemu:///system -q list --all")
@@ -477,23 +477,23 @@ if os.path.isdir(output_folder):
             subprocess.run('virsh --connect qemu:///system destroy "{0}"'.format(vmname), shell=True)
             subprocess.run('virsh --connect qemu:///system undefine "{0}"'.format(vmname), shell=True)
     # Remove previous file for kvm.
-    if args.vmtype == 2 and os.path.isfile(vmpath+"/"+vmname+".qcow2"):
-        os.remove(vmpath+"/"+vmname+".qcow2")
+    if args.vmtype == 2 and os.path.isfile(os.path.join(vmpath, vmname+".qcow2")):
+        os.remove(os.path.join(vmpath, vmname+".qcow2"))
     print("\nCopying {0} to {1}.".format(output_folder, vmpath))
     if args.vmtype != 2:
-        shutil.copytree(output_folder, vmpath+"/"+vmname)
+        shutil.copytree(output_folder, os.path.join(vmpath, vmname))
     # Copy the qcow2 file, and remove the folder entirely for kvm.
-    if args.vmtype == 2 and os.path.isfile(output_folder+"/"+vmname+".qcow2"):
-        shutil.copy2(output_folder+"/"+vmname+".qcow2", vmpath+"/"+vmname+".qcow2")
+    if args.vmtype == 2 and os.path.isfile(os.path.join(output_folder, vmname+".qcow2")):
+        shutil.copy2(os.path.join(output_folder, vmname+".qcow2"), os.path.join(vmpath, vmname+".qcow2"))
 print("Removing {0}".format(packer_temp_folder))
 shutil.rmtree(packer_temp_folder)
-print("VM successfully output to {0}".format(vmpath+"/"+vmname))
+print("VM successfully output to {0}".format(os.path.join(vmpath, vmname)))
 # Save full finish time.
 fullfinishtime = datetime.now()
 
 # Attach VM to libvirt
 if args.vmtype == 2:
-    CREATESCRIPT_KVM = """virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg}.qcow2,bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model=virtio --filesystem source=/,target=root,mode=mapped --os-type={kvm_os} --os-variant={kvm_variant} --import --noautoconsole --video=virtio --channel unix,target_type=virtio,name=org.qemu.guest_agent.0""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=vmpath+"/"+vmname, kvm_os=kvm_os, kvm_variant=kvm_variant)
+    CREATESCRIPT_KVM = """virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg}.qcow2,bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model=virtio --filesystem source=/,target=root,mode=mapped --os-type={kvm_os} --os-variant={kvm_variant} --import --noautoconsole --video=virtio --channel unix,target_type=virtio,name=org.qemu.guest_agent.0""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=os.path.join(vmpath, vmname), kvm_os=kvm_os, kvm_variant=kvm_variant)
     print(CREATESCRIPT_KVM)
     subprocess.run(CREATESCRIPT_KVM, shell=True)
 
