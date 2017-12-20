@@ -12,17 +12,10 @@ import CFunc
 print("Running {0}".format(__file__))
 
 # Get user details.
-usernamevar = os.getenv("USER")
-usergroup, userhome = CFunc.getuserdetails(usernamevar)
-
+usernamevar, usergroup, userhome = CFunc.getnormaluser()
 
 # Exit if root.
-if os.geteuid() is 0:
-    sys.exit("\nError: Please run this script as a normal user.\n")
-
-# Check if installed.
-if not shutil.which("apm"):
-    sys.exit("\nERROR: atom/apm command not found. Exiting.")
+CFunc.is_root(False)
 
 # Check for apm command.
 apm_native = "apm"
@@ -30,13 +23,15 @@ apm_flatpak = "flatpak run --command=apm io.atom.Atom"
 if shutil.which("apm"):
     print("Detected native apm command.")
     apm_cmd = apm_native
-    atom_userconfigfolder = userhome + "/.atom"
-    atom_userconfig = atom_userconfigfolder + "/config.cson"
+    atom_userconfigfolder = os.path.join(userhome, ".atom")
+    atom_userconfig = os.path.join(atom_userconfigfolder, "config.cson")
 elif subprocess.run("flatpak run --command=apm io.atom.Atom", shell=True).returncode is 0:
     print("Detected flatpak apm command.")
     apm_cmd = apm_flatpak
-    atom_userconfigfolder = userhome + "/.atom"
-    atom_userconfig = atom_userconfigfolder + "/config.cson"
+    atom_userconfigfolder = os.path.join(userhome, ".atom")
+    atom_userconfig = os.path.join(atom_userconfigfolder, "config.cson")
+else:
+    sys.exit("\nERROR: atom/apm command not found. Exiting.")
 
 ### Functions ###
 def atom_ins(extension):
@@ -55,18 +50,24 @@ sudo zypper ar -f http://download.opensuse.org/repositories/devel:/languages:/py
 sudo zypper --non-interactive --gpg-auto-import-keys refresh
 sudo zypper in -yl python3-jedi ShellCheck python3-pylama python-pylama_pylint""", shell=True)
 
-
+### Detect Windows Commands ###
+if CFunc.is_windows() is True:
+    sudocmd = ""
+    pipcmd = "pip"
+else:
+    sudocmd = "sudo -H "
+    pipcmd = "pip3"
 ### Language Specific packages ###
 if shutil.which("gem"):
     print("Installing ruby gems.")
     subprocess.run("sudo -H gem install rails_best_practices", shell=True)
 else:
     print("Ruby/gem not detected. Not installing ruby gems.")
-if shutil.which("pip3"):
+if shutil.which(pipcmd):
     print("Installing python dependencies.")
-    subprocess.run("sudo -H pip3 install pylama pylama-pylint", shell=True)
+    subprocess.run("{0}{1} install pylama pylama-pylint".format(sudocmd, pipcmd), shell=True)
 else:
-    print("pip3 not found. Not install python packages.")
+    print("{0} not found. Not install python packages.".format(pipcmd))
 
 
 ### Extensions ###

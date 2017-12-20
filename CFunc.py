@@ -79,12 +79,17 @@ def find_replace(directory, find, replace, filePattern):
 def getuserdetails(username):
     """Get group and home folder info about a particular user."""
     # https://docs.python.org/3/library/grp.html
-    usergroup = grp.getgrgid(pwd.getpwnam(username)[3])[0]
+    if is_windows() is False:
+        usergroup = grp.getgrgid(pwd.getpwnam(username)[3])[0]
+    else:
+        usergroup = None
     userhome = os.path.expanduser("~{0}".format(username))
     return usergroup, userhome
 def getnormaluser():
     """Auto-detect non-root user information."""
-    if os.getenv("SUDO_USER") not in ["root", None]:
+    if is_windows() is True:
+        usernamevar = os.getlogin()
+    elif os.getenv("SUDO_USER") not in ["root", None]:
         usernamevar = os.getenv("SUDO_USER")
     elif os.getenv("USER") not in ["root", None]:
         usernamevar = os.getenv("USER")
@@ -114,7 +119,10 @@ def getvmstate():
             vmstatus = "vmware"
     return vmstatus
 def is_root(checkstate=True):
-    """Check if current user is root or not."""
+    """
+    Check if current user is root or not.
+    Pass True if checking to make sure you are root, or False if you don't want to be root.
+    """
     if is_windows() is False:
         actualstate = bool(os.geteuid() == 0)
         if actualstate != checkstate:
