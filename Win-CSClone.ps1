@@ -46,7 +46,13 @@ if (-Not (Test-Path "$RepoLocalPath")) {
   git clone "https://github.com/$Repo.git"
 }
 cd "$RepoLocalPath"
-git config remote.origin.url "https://github.com/$Repo.git"
+# If ssh configuration exists, use updated remote url.
+if (Test-Path "$env:USERPROFILE\.ssh\config"){
+  git config remote.origin.url "git@gitserv:$Repo.git"
+} else {
+  git config remote.origin.url "https://github.com/$Repo.git"
+}
+
 git pull
 
 # Add CS to path.

@@ -443,8 +443,9 @@ if 50 <= args.ostype <= 59:
                                            os.path.join(tempscriptbasename, "unattend", "win_initial.bat"),
                                            os.path.join(tempscriptbasename, "unattend", "win_openssh.bat")]
     # Provision with generic windows script
-    data['provisioners'][0]["scripts"] = [os.path.join(tempscriptfolderpath, "Win_config.ps1"),
-                                          os.path.join(tempscriptfolderpath, "Win_tablacus.ps1")]
+    data['provisioners'][0]["scripts"] = [os.path.join(tempscriptfolderpath, "Win-config.ps1"),
+                                          os.path.join(tempscriptfolderpath, "Win-tablacus.ps1"),
+                                          os.path.join(tempscriptfolderpath, "Win-CSClone.ps1")]
 if args.ostype == 50:
     shutil.move(os.path.join(tempunattendfolder, "windows10.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
 if args.ostype == 51:
