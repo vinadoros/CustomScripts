@@ -109,6 +109,8 @@ elif args.vmtype == 2:
     hvname = "kvm"
 elif args.vmtype == 3:
     hvname = "vmware"
+elif args.vmtype == 4:
+    hvname = "hyperv"
 
 # Set OS options.
 # KVM os options can be found by running "osinfo-query os"
@@ -390,6 +392,11 @@ elif args.vmtype == 3:
     if 50 <= args.ostype <= 59:
         data['builders'][0]["tools_upload_flavor"] = "windows"
         data['builders'][0]["tools_upload_path"] = "c:/Windows/Temp/windows.iso"
+elif args.vmtype == 4:
+    data['builders'][0]["type"] = "hyperv-iso"
+    data['builders'][0]["vm_name"] = "{0}".format(vmname)
+    data['builders'][0]["ram_size"] = "{0}".format(args.memory)
+    data['builders'][0]["enable_dynamic_memory"] = True
 data['builders'][0]["shutdown_command"] = "shutdown -P now"
 data['builders'][0]["iso_url"] = "{0}".format(isopath)
 data['builders'][0]["iso_checksum"] = md5
@@ -400,7 +407,7 @@ data['builders'][0]["disk_size"] = "{0}".format(args.imgsize)
 data['builders'][0]["boot_wait"] = "5s"
 data['builders'][0]["ssh_username"] = "root"
 data['builders'][0]["ssh_password"] = "{0}".format(args.vmpass)
-data['builders'][0]["ssh_wait_timeout"] = "90m"
+data['builders'][0]["ssh_timeout"] = "90m"
 # Packer Provisioning Configuration
 data['provisioners'] = ['']
 data['provisioners'][0] = {}
