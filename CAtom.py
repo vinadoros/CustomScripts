@@ -28,7 +28,7 @@ if shutil.which("apm"):
 elif subprocess.run("flatpak run --command=apm io.atom.Atom", shell=True).returncode is 0:
     print("Detected flatpak apm command.")
     apm_cmd = apm_flatpak
-    atom_userconfigfolder = os.path.join(userhome, ".atom")
+    atom_userconfigfolder = os.path.join(userhome, ".var", "app", "io.atom.Atom", "data")
     atom_userconfig = os.path.join(atom_userconfigfolder, "config.cson")
 else:
     sys.exit("\nERROR: atom/apm command not found. Exiting.")

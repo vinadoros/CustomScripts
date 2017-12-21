@@ -206,21 +206,8 @@ if os.path.isdir('/etc/sudoers.d'):
 CFunc.dnfinstall("powertop smartmontools hdparm; systemctl enable powertop")
 
 if not args.bare and not args.nogui:
-    # Use atom unofficial repo
-    # https://github.com/alanfranz/atom-text-editor-repository
-    ATOMREPOFILE = "/etc/yum.repos.d/atom.repo"
-    with open(ATOMREPOFILE, 'w') as atomrepo_writefile:
-        atomrepo_writefile.write("""[atom]
-name=atom
-baseurl=https://dl.bintray.com/alanfranz/atom-yum
-repo_gpgcheck=1
-gpgcheck=0
-enabled=1
-gpgkey=https://www.franzoni.eu/keys/D401AB61.txt""")
-    # Install Atom
-    CFunc.dnfinstall("atom")
     # Atom flatpak
-    # subprocess.run("flatpak install -y --from https://flathub.org/repo/appstream/io.atom.Atom.flatpakref", shell=True)
+    subprocess.run("flatpak install -y --from https://flathub.org/repo/appstream/io.atom.Atom.flatpakref", shell=True)
 
 # Disable Selinux
 # To get selinux status: sestatus, getenforce
