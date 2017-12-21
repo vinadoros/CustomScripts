@@ -104,6 +104,8 @@ New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\
 echo "Combine taskbar items only when full"
 New-ItemProperty -Path Registry::HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name TaskbarGlomLevel -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
 New-ItemProperty -Path Registry::HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name MMTaskbarGlomLevel -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+# Remove people button
+New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name PeopleBand -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
 # Enable quickedit in shells
 New-ItemProperty -Path Registry::HKCU\Console -Name QuickEdit -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
 # Set Control Panel Icon Size
