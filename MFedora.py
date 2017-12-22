@@ -79,7 +79,7 @@ if not args.bare:
     # Ensure Priority is set. UnitedRPMs has a default priority of 1, but just make sure it is set to a priority higher than 99.
     # https://bugzilla.redhat.com/show_bug.cgi?id=1253237
     # Exclude packages newer in fedora repos.
-    subprocess.run('dnf config-manager --save --setopt=priority=1 --setopt="excludepkgs=atom* syncthing*" unitedrpms', shell=True)
+    subprocess.run('dnf config-manager --save --setopt=priority=1 --setopt="excludepkgs=syncthing*" unitedrpms', shell=True)
 
 
 # Update system after enabling repos.
@@ -206,8 +206,9 @@ if os.path.isdir('/etc/sudoers.d'):
 CFunc.dnfinstall("powertop smartmontools hdparm; systemctl enable powertop")
 
 if not args.bare and not args.nogui:
-    # Atom flatpak
-    subprocess.run("flatpak install -y --from https://flathub.org/repo/appstream/io.atom.Atom.flatpakref", shell=True)
+    # Atom from unitedrpms
+    CFunc.dnfinstall("atom")
+    # subprocess.run("flatpak install -y --from https://flathub.org/repo/appstream/io.atom.Atom.flatpakref", shell=True)
 
 # Disable Selinux
 # To get selinux status: sestatus, getenforce
