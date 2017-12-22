@@ -132,7 +132,7 @@ function Fcn-Software {
   # Required Basics
   choco upgrade -y dotnet4.7 powershell
   # Install universal apps
-  choco update -y 7zip
+  choco upgrade -y 7zip
   # Libraries
   choco upgrade -y vcredist-all git python
 
