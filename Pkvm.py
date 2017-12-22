@@ -377,7 +377,7 @@ if args.vmtype == 1:
     data['builders'][0]["vboxmanage_post"][0] = ["modifyvm", "{{.Name}}", "--clipboard", "bidirectional"]
     data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--accelerate3d", "on"])
     if CFunc.is_windows() is False:
-        data['builders'][0]["vboxmanage_post"][0].append(["sharedfolder", "add", "{{.Name}}", "--name", "root", "--hostpath", "/", "--automount"])
+        data['builders'][0]["vboxmanage_post"].append(["sharedfolder", "add", "{{.Name}}", "--name", "root", "--hostpath", "/", "--automount"])
 
     data['builders'][0]["post_shutdown_delay"] = "30s"
     if 1 <= args.ostype <= 39:
