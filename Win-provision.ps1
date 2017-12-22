@@ -300,12 +300,20 @@ function Fcn-Customize {
   New-ItemProperty -Path Registry::HKLM\System\CurrentControlSet\Control\TimeZoneInformation -Name RealTimeIsUniversal -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
 }
 
+# Remove Windows Features
+function Fcn-Remove {
+  # Remove windows defender from core or VMs.
+  if ( $core -eq $true -Or $IsVM -eq $true ) {
+    Uninstall-WindowsFeature Windows-Defender
+  }
+}
+
 ### Begin Code ###
 if (-Not $isDotSourced) {
   echo "Running provision script."
-  # Install Chocolatey.
   Fcn-InstallChocolatey
   Fcn-CSClone
   Fcn-Software
   Fcn-Customize
+  Fcn-Remove
 }
