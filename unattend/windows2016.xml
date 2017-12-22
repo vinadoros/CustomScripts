@@ -17,7 +17,7 @@
           <InstallFrom>
             <MetaData wcm:action="add">
               <Key>/IMAGE/INDEX</Key>
-              <Value>2</Value>
+              <Value>INSERTWINOSIMAGE</Value>
             </MetaData>
           </InstallFrom>
           <InstallTo>

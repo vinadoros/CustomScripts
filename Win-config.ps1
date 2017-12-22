@@ -1,13 +1,9 @@
-$temppath = "C:\Windows\Temp"
 
-# Check if Virtual Machine
-$VMstring = gwmi -q "select * from win32_computersystem"
-if ( $VMstring.Model -imatch "vmware" -Or $VMstring.Model -imatch "virtualbox" ) {
-  $IsVM = $true
-}
-else {
-  $IsVM = $false
-}
+# Source Fcns
+if (-Not $PSScriptRoot) { $PSScriptRoot = (Split-Path -parent $MyInvocation.MyCommand.Definition) }
+if (Test-Path "$PSScriptRoot\Win-provision.ps1") { . $PSScriptRoot\Win-provision.ps1; Fcn-SourceChocolatey }
+
+### Variables ###
 
 # Power customizations
 if ( $IsVM -eq $true ) {
@@ -36,50 +32,6 @@ powercfg -setacvalueindex 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c 4f971e89-eebd-445
 powercfg -setdcvalueindex 381b4222-f694-41f0-9685-ff5bb260df2e 4f971e89-eebd-4455-a8de-9e59040e7347 5ca83367-6e45-459f-a27b-476b1d01c936 000
 powercfg -setacvalueindex 381b4222-f694-41f0-9685-ff5bb260df2e 4f971e89-eebd-4455-a8de-9e59040e7347 5ca83367-6e45-459f-a27b-476b1d01c936 000
 
-# Chocolatey section
-echo "Installing Chocolatey"
-iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-echo "Installing Chocolatey packages"
-# Required Basics
-choco upgrade -y dotnet4.7 powershell
-# Libraries
-choco upgrade -y vcredist-all javaruntime git python
-# GUI Apps
-choco upgrade -y googlechrome notepadplusplus tortoisegit ccleaner putty chocolateygui conemu visualstudiocode winmerge libreoffice sumatrapdf 7zip
-# Install for Windows 8 or above.
-if ([Environment]::OSVersion.Version.Major -ge 8){
-  choco upgrade -y classic-shell ShutUp10
-}
-# Install for lower than Windows 8
-if ([Environment]::OSVersion.Version.Major -lt 8){
-  choco upgrade -y ie11
-}
-# Chocolatey Configuration
-choco feature enable -n allowGlobalConfirmation
-
-# Handle VMTools
-$winiso = "C:\Windows\Temp\windows.iso"
-$vmfolder = "$temppath\vmfolder"
-if (Test-Path $winiso) {
-  echo "Installing VM Tools"
-  Start-Process -Wait "C:\Program Files\7-Zip\7z.exe" -ArgumentList "x","$winiso","-o$vmfolder"
-
-  if (Test-Path "$vmfolder\setup64.exe") {
-    echo "Installing VMWare tools"
-    Start-Process -Wait "$vmfolder\setup64.exe" -ArgumentList "/s","/v/qr","REBOOT=R"
-  }
-
-  if (Test-Path "$vmfolder\VBoxWindowsAdditions.exe") {
-    echo "Installing VMWare tools"
-    Start-Process -Wait "$vmfolder\cert\VBoxCertUtil.exe" -ArgumentList "add-trusted-publisher","$vmfolder\cert\vbox-sha1.cer" | Out-Null
-    Start-Process -Wait "$vmfolder\VBoxWindowsAdditions.exe" -ArgumentList "/S"
-  }
-
-  # Clean up vmtools
-  echo "Cleaning up VMTools"
-  Remove-Item -Recurse -Force $winiso
-  Remove-Item -Recurse -Force $vmfolder
-}
 
 # Windows customizations
 echo "Extra Folder Options"
@@ -133,5 +85,3 @@ if ([Environment]::OSVersion.Version.Major -lt 8){
 tzutil /s "Eastern Standard Time"
 # Set system clock as UTC
 New-ItemProperty -Path Registry::HKLM\System\CurrentControlSet\Control\TimeZoneInformation -Name RealTimeIsUniversal -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
-
-exit 0

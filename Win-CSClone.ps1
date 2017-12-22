@@ -1,47 +1,15 @@
 
-### Functions ###
-# Add path to environment.
-# https://stackoverflow.com/questions/714877/setting-windows-powershell-path-variable#1333717
-# https://gist.github.com/mkropat/c1226e0cc2ca941b23a9
-function Add-EnvPath {
-    param(
-        [Parameter(Mandatory=$true)]
-        [string] $Path,
-
-        [ValidateSet('Machine', 'User', 'Session')]
-        [string] $Container = 'Session'
-    )
-
-    if ($Container -ne 'Session') {
-        $containerMapping = @{
-            Machine = [EnvironmentVariableTarget]::Machine
-            User = [EnvironmentVariableTarget]::User
-        }
-        $containerType = $containerMapping[$Container]
-
-        $persistedPaths = [Environment]::GetEnvironmentVariable('Path', $containerType) -split ';'
-        if ($persistedPaths -notcontains $Path) {
-            $persistedPaths = $persistedPaths + $Path | where { $_ }
-            [Environment]::SetEnvironmentVariable('Path', $persistedPaths -join ';', $containerType)
-        }
-    }
-
-    $envPaths = $env:Path -split ';'
-    if ($envPaths -notcontains $Path) {
-        $envPaths = $envPaths + $Path | where { $_ }
-        $env:Path = $envPaths -join ';'
-    }
-}
+# Source Fcns
+if (-Not $PSScriptRoot) { $PSScriptRoot = (Split-Path -parent $MyInvocation.MyCommand.Definition) }
+if (Test-Path "$PSScriptRoot\Win-provision.ps1") { . $PSScriptRoot\Win-provision.ps1; Fcn-SourceChocolatey }
 
 
-# Set root path for CS clone.
-$CSRootPath = $env:USERPROFILE
-# Set repo user and repo name.
-$RepoUser = "ramesh45345"
-$RepoName = "CustomScripts"
-$Repo = "$RepoUser/$RepoName"
-$RepoLocalPath = "$CSRootPath\$RepoName"
+# Ensure git is installed.
+choco install -y git
 
+# Variables have been set in the provision script.
+
+cd $env:USERPROFILE
 if (-Not (Test-Path "$RepoLocalPath")) {
   git clone "https://github.com/$Repo.git"
 }

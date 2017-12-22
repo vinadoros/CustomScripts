@@ -1,4 +1,8 @@
 
+# Source Fcns
+if (-Not $PSScriptRoot) { $PSScriptRoot = (Split-Path -parent $MyInvocation.MyCommand.Definition) }
+if (Test-Path "$PSScriptRoot\Win-provision.ps1") { . $PSScriptRoot\Win-provision.ps1; Fcn-SourceChocolatey }
+
 # https://stackoverflow.com/questions/41554300/how-to-run-retry-the-commands-multiple-times-in-try-block
 $success = $false
 $attempt = 10
