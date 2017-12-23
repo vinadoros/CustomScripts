@@ -180,13 +180,13 @@ CFunc.aptinstall("avahi-daemon avahi-discover libnss-mdns")
 CFunc.aptinstall("default-jre")
 
 # Non-bare CLI stuff.
-if not args.bare:
+if args.bare is False:
     # Cron
     CFunc.aptinstall("cron anacron")
     subprocess.run("systemctl disable cron; systemctl disable anacron", shell=True)
 
 # General GUI software
-if not args.nogui or not args.bare:
+if args.nogui is False and args.bare is False:
     CFunc.aptinstall("synaptic gnome-disk-utility gdebi gparted xdg-utils leafpad")
     # Cups-pdf
     CFunc.aptinstall("printer-driver-cups-pdf")
