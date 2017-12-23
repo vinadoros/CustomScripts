@@ -251,7 +251,7 @@ elif args.desktop == "xfce":
     CFunc.aptinstall("xubuntu-desktop")
 
 # Post DE install stuff.
-if not args.nogui or not args.bare:
+if args.nogui is False and args.bare is False:
     # Numix
     CFunc.addppa("ppa:numix/ppa")
     CFunc.aptinstall("numix-icon-theme-circle")
