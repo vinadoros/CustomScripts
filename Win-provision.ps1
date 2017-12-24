@@ -80,20 +80,23 @@ function Add-EnvPath {
 function Fcn-CSClone {
   # Ensure git is installed.
   choco install -y git
+  # Git executable
+  $gitcmdpath = "C:\Program Files\Git\bin"
+  Start-Process -Wait "$vmfolder\VBoxWindowsAdditions.exe" -ArgumentList "/S"
 
   cd $env:USERPROFILE
   if (-Not (Test-Path "$RepoLocalPath")) {
-    git clone "https://github.com/$Repo.git"
+    Start-Process -Wait "$gitcmdpath\git.exe" -ArgumentList "clone","https://github.com/$Repo.git"
   }
   cd "$RepoLocalPath"
   # If ssh configuration exists, use updated remote url.
   if (Test-Path "$env:USERPROFILE\.ssh\config"){
-    git config remote.origin.url "git@gitserv:$Repo.git"
+    Start-Process -Wait "$gitcmdpath\git.exe" -ArgumentList "config","remote.origin.url","git@gitserv:$Repo.git"
   } else {
-    git config remote.origin.url "https://github.com/$Repo.git"
+    Start-Process -Wait "$gitcmdpath\git.exe" -ArgumentList "config","remote.origin.url","https://github.com/$Repo.git"
   }
 
-  git pull
+  Start-Process -Wait "$gitcmdpath\git.exe" -ArgumentList "pull"
 
   # Add CS to path.
   Add-EnvPath "$RepoLocalPath" 'User'
