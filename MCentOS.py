@@ -40,50 +40,45 @@ if os.geteuid() is not 0:
 
 ##### Centos Repositories #####
 
-subprocess.call("""#!/bin/bash
 # Install repo tools
-yum install -y yum-utils deltarpm
-
+subprocess.call("yum install -y yum-utils deltarpm", shell=True)
 # EPEL
-yum install -y epel-release
-
-# Centos Plus
-yum-config-manager --enable centosplus
-
-# Centos Fasttrack
-yum-config-manager --enable fasttrack
-
-# IUS
-# https://ius.io/
-yum install -y https://centos7.iuscommunity.org/ius-release.rpm
-
+subprocess.call("yum install -y epel-release", shell=True)
 # Software Collections
 # https://www.softwarecollections.org
-yum install -y centos-release-scl
-
-# EL Repo
-# https://elrepo.org
-yum install -y http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
-yum-config-manager --enable elrepo-extras elrepo-kernel
-
-# Fish
-yum-config-manager --add-repo http://download.opensuse.org/repositories/shells:fish:release:2/CentOS_7/shells:fish:release:2.repo
+subprocess.call("yum install -y centos-release-scl", shell=True)
+subprocess.call("yum-config-manager --enable centos-sclo-rh-testing", shell=True)
+if args.replace is True:
+    # Centos Plus
+    subprocess.call("yum-config-manager --enable centosplus", shell=True)
+    # Centos Fasttrack
+    subprocess.call("yum-config-manager --enable fasttrack", shell=True)
+    # IUS
+    # https://ius.io/
+    subprocess.call("yum install -y https://centos7.iuscommunity.org/ius-release.rpm", shell=True)
+    # EL Repo
+    # https://elrepo.org
+    subprocess.call("yum install -y http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm ; yum-config-manager --enable elrepo-extras elrepo-kernel")
+    # Fish
+    subprocess.call("yum-config-manager --add-repo http://download.opensuse.org/repositories/shells:fish:release:2/CentOS_7/shells:fish:release:2.repo")
 
 # Update system
-yum update -y
-""", shell=True)
+subprocess.call("yum update -y", shell=True)
 
 
 ##### Centos Software #####
 
 # Install cli tools
-subprocess.call("yum install -y redhat-lsb-core python34 python34-pip python36u python36u-pip nano fish tmux iotop rsync openssh-clients p7zip p7zip-plugins zip unzip", shell=True)
+subprocess.check_output("yum install -y redhat-lsb-core python34 python34-pip nano tmux iotop rsync openssh-clients p7zip p7zip-plugins zip unzip", shell=True)
+subprocess.check_output("yum install -y scl-utils rh-python36", shell=True)
+if args.replace is True:
+    subprocess.check_output("yum install -y python36u python36u-pip fish", shell=True)
 
 # Replace git and kernel
 if args.replace is True:
     subprocess.call("yum swap -y git git2u", shell=True)
     # Bashfish script
-    bashfish = subprocess.Popen("python3.6 {0}/CBashFish.py".format(SCRIPTDIR), shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+    bashfish = subprocess.Popen("scl enable rh-python36 '{0}/CBashFish.py'".format(SCRIPTDIR), shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
     # Install kernel
     subprocess.check_output("""
     yum install -y kernel-ml kernel-ml-devel kernel-ml-headers
@@ -93,14 +88,14 @@ else:
     subprocess.check_output("yum install -y git kernel-devel kernel-headers", shell=True)
 
 # Zram
-subprocess.check_output("python3.6 {0}/Czram.py".format(SCRIPTDIR), shell=True)
+subprocess.check_output("scl enable rh-python36 {0}/Czram.py".format(SCRIPTDIR), shell=True)
 
 # Docker
 if args.docker is True:
-    subprocess.check_output("python3.6 {0}/CDocker.py -n".format(SCRIPTDIR), shell=True)
+    subprocess.check_output("scl enable rh-python36 '{0}/CDocker.py -n'".format(SCRIPTDIR), shell=True)
 
 # Virtualbox Additions
-subprocess.call("python3.6 {0}/CVBoxGuest.py -n".format(SCRIPTDIR), shell=True)
+subprocess.call("scl enable rh-python36 '{0}/CVBoxGuest.py -n'".format(SCRIPTDIR), shell=True)
 
 
 ##### CentOS Configuration #####
