@@ -82,7 +82,6 @@ function Fcn-CSClone {
   choco install -y git
   # Git executable
   $gitcmdpath = "C:\Program Files\Git\bin"
-  Start-Process -Wait "$vmfolder\VBoxWindowsAdditions.exe" -ArgumentList "/S"
 
   cd $env:USERPROFILE
   if (-Not (Test-Path "$RepoLocalPath")) {
