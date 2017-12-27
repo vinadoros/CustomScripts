@@ -130,6 +130,9 @@ if args.ostype == 2:
 if args.ostype == 3:
     vmname = "Packer-FedoraCLI-{0}".format(hvname)
     vmprovision_defopts = "-x -a"
+if args.ostype == 4:
+    vmname = "Packer-FedoraCLIBare-{0}".format(hvname)
+    vmprovision_defopts = "-x -b"
 if 5 <= args.ostype <= 9:
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
