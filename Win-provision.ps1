@@ -32,17 +32,6 @@ function Fcn-InstallChocolatey {
   }
 }
 
-# Source chocolatey if files exist.
-function Fcn-SourceChocolatey {
-  if (Test-Path "$env:ProgramData\chocolatey\helpers\functions\Update-SessionEnvironment.ps1"){
-    . $env:ProgramData\chocolatey\helpers\functions\Write-FunctionCallLogMessage.ps1
-    . $env:ProgramData\chocolatey\helpers\functions\Get-EnvironmentVariable.ps1
-    . $env:ProgramData\chocolatey\helpers\functions\Get-EnvironmentVariableNames.ps1
-    . $env:ProgramData\chocolatey\helpers\functions\Update-SessionEnvironment.ps1
-    . $env:ProgramData\chocolatey\helpers\ChocolateyTabExpansion.ps1
-  }
-}
-
 # Add path to environment.
 # https://stackoverflow.com/questions/714877/setting-windows-powershell-path-variable#1333717
 # https://gist.github.com/mkropat/c1226e0cc2ca941b23a9
@@ -217,6 +206,28 @@ function Fcn-Tablacus {
     $Shortcut.WorkingDirectory = "$pathtotablacus"
     $Shortcut.Save()
   }
+}
+
+# Disable Windows 10 Tracking
+function Fcn-Disable10Tracking {
+  # Get Release version
+  $diswintrack_version = "3.1.2"
+  $diswintrack_url = "https://github.com/10se1ucgo/DisableWinTracking/releases/download/v$diswintrack_version/dwt-$diswintrack_version-cp27-win_x86.zip"
+  $diswintrack_localzip = "C:\Windows\Temp\dwt.zip"
+  $diswintrack_localfld = "C:\Windows\Temp\dwt"
+  # Download Release
+  Invoke-WebRequest -Uri $diswintrack_url -OutFile $diswintrack_localzip
+  # Extract
+  Start-Process -Wait "C:\Program Files\7-Zip\7z.exe" -ArgumentList "x","$diswintrack_localzip","-o$diswintrack_localfld"
+  # Run
+  if ((Test-Path "$diswintrack_localfld\DisableWinTracking.exe") -And ([Environment]::OSVersion.Version.Major -ge 10)) {
+    echo "Disable Windows 10 Tracking"
+    Start-Process -Wait "$diswintrack_localfld\DisableWinTracking.exe" -ArgumentList "-silent"
+  }
+
+  # Clean up
+  Remove-Item -Recurse -Force $diswintrack_localfld
+  Remove-Item -Recurse -Force $diswintrack_localzip
 }
 
 # Customize Function
