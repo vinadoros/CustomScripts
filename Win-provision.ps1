@@ -19,6 +19,14 @@ if ( $VMstring.Model -imatch "vmware" ) {
 } else {
   $IsVM = $false
 }
+# Test for Server Core.
+# Basically see if exlorer.exe is present.
+# https://serverfault.com/questions/529124/identify-windows-2012-server-core#529131
+if (Test-Path "$env:windir\explorer.exe"){
+  $core = $false
+} else {
+  $core = $true
+}
 
 
 ### Functions ###
@@ -104,18 +112,6 @@ function Fcn-CSClone {
   # This task is registered as a normal user for now. By default, it will pop up a small window briefly, and will only run if the user is logged in. To get rid of the window, enable the "Run whether user is logged on or not" option in Task Scheduler for this task.
   # https://stackoverflow.com/questions/1802127/how-to-run-a-powershell-script-without-displaying-a-window#1802836
   Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "csupdate" -Description "Hourly Update of $RepoName" -User $env:UserName
-}
-
-# Test for Server Core.
-function Fcn-IsCore {
-  # Basically see if exlorer.exe is present.
-  # https://serverfault.com/questions/529124/identify-windows-2012-server-core#529131
-  if (Test-Path "$env:windir\explorer.exe"){
-    $core = $false
-  } else {
-    $core = $true
-  }
-  return $core
 }
 
 # Software Function
