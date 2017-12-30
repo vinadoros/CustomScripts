@@ -177,9 +177,18 @@ function Fcn-Software {
     choco upgrade -y packer --version 1.1.1 --force
     # Install python dependancies
     pip install passlib
-    # Enable Hyper-V
-    #Enable-WindowsOptionalFeature -Online -FeatureName:Microsoft-Hyper-V -All -NoRestart
   }
+}
+
+# Enable Hyper-V
+function Fcn-HypervEn {
+  #Enable-WindowsOptionalFeature -Online -FeatureName:Microsoft-Hyper-V -All -NoRestart
+  Install-WindowsFeature -Name Hyper-V -IncludeManagementTools
+}
+
+# Disable Hyper-V
+function Fcn-HypervDis {
+  Uninstall-WindowsFeature -Name Hyper-V -IncludeManagementTools
 }
 
 # Tablacus Function
