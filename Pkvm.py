@@ -223,6 +223,14 @@ if args.ostype == 56:
     kvm_variant = "win10"
     vmprovision_defopts = " "
     isourl = None
+if args.ostype == 57:
+    vmname = "Packer-WindowsServerCore-{0}".format(hvname)
+    vboxosid = "Windows2016_64"
+    vmwareid = "windows9srv-64"
+    kvm_os = "windows"
+    kvm_variant = "win10"
+    vmprovision_defopts = " "
+    isourl = None
 if args.ostype == 60:
     vmname = "Packer-Gentoo-{0}".format(hvname)
     vmprovisionscript = "MFedora.sh"
@@ -480,9 +488,12 @@ if args.ostype == 50:
 if args.ostype == 51:
     shutil.move(os.path.join(tempunattendfolder, "windows7.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
 if 55 <= args.ostype <= 59:
-    # Username is fixed to Administrator in Server 2016
+    # Username is fixed to Administrator in Server
     data['builders'][0]["ssh_username"] = "Administrator"
+if 55 <= args.ostype <= 56:
     shutil.move(os.path.join(tempunattendfolder, "windows2016.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
+if args.ostype == 57:
+    shutil.move(os.path.join(tempunattendfolder, "win_servercore.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
 if args.ostype == 55:
     CFunc.find_replace(tempunattendfolder, "INSERTWINOSIMAGE", "2", "autounattend.xml")
 if args.ostype == 56:
