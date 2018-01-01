@@ -4,8 +4,8 @@
 # Python includes.
 import argparse
 from datetime import datetime
-import json
 import hashlib
+import json
 import multiprocessing
 import os
 import shutil
@@ -13,6 +13,7 @@ import subprocess
 import sys
 import urllib.parse
 import urllib.request
+import xml.etree.ElementTree as ET
 # Custom includes
 import CFunc
 
@@ -192,45 +193,34 @@ if args.ostype == 40:
     kvm_os = "freebsd"
     kvm_variant = "freebsd11.0"
     isourl = "https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/11.1/FreeBSD-11.1-RELEASE-amd64-disc1.iso"
-if args.ostype == 50:
-    vmname = "Packer-Windows10-{0}".format(hvname)
+if 50 <= args.ostype <= 59:
     vboxosid = "Windows10_64"
     vmwareid = "windows9-64"
     kvm_os = "windows"
     kvm_variant = "win10"
     vmprovision_defopts = " "
     isourl = None
+if args.ostype == 50:
+    vmname = "Packer-Windows10-{0}".format(hvname)
 if args.ostype == 51:
+    vmname = "Packer-Windows10LTS-{0}".format(hvname)
+if args.ostype == 54:
     vmname = "Packer-Windows7-{0}".format(hvname)
     vboxosid = "Windows7_64"
     vmwareid = "windows7-64"
-    kvm_os = "windows"
     kvm_variant = "win7"
+if 55 <= args.ostype <= 59:
+    vboxosid = "Windows2016_64"
+    vmwareid = "windows9srv-64"
+    kvm_os = "windows"
+    kvm_variant = "win10"
     vmprovision_defopts = " "
-    isourl = None
 if args.ostype == 55:
     vmname = "Packer-Windows2016-{0}".format(hvname)
-    vboxosid = "Windows2016_64"
-    vmwareid = "windows9srv-64"
-    kvm_os = "windows"
-    kvm_variant = "win10"
-    vmprovision_defopts = " "
 if args.ostype == 56:
     vmname = "Packer-Windows2016Core-{0}".format(hvname)
-    vboxosid = "Windows2016_64"
-    vmwareid = "windows9srv-64"
-    kvm_os = "windows"
-    kvm_variant = "win10"
-    vmprovision_defopts = " "
-    isourl = None
 if args.ostype == 57:
     vmname = "Packer-WindowsServerCore-{0}".format(hvname)
-    vboxosid = "Windows2016_64"
-    vmwareid = "windows9srv-64"
-    kvm_os = "windows"
-    kvm_variant = "win10"
-    vmprovision_defopts = " "
-    isourl = None
 if args.ostype == 60:
     vmname = "Packer-Gentoo-{0}".format(hvname)
     vmprovisionscript = "MFedora.sh"
@@ -486,6 +476,24 @@ if 50 <= args.ostype <= 59:
 if args.ostype == 50:
     shutil.move(os.path.join(tempunattendfolder, "windows10.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
 if args.ostype == 51:
+    # Register the namespace to avoid nsX in namespace.
+    ET.register_namespace('', "urn:schemas-microsoft-com:unattend")
+    ET.register_namespace('wcm', "http://schemas.microsoft.com/WMIConfig/2002/State")
+    ET.register_namespace('xsi', "http://www.w3.org/2001/XMLSchema-instance")
+    # Load the xml file
+    tree = ET.parse(os.path.join(tempunattendfolder, "windows10.xml"))
+    root = tree.getroot()
+    # Search through all keys.
+    for pk in root.iter('*'):
+        # Find Key, including ProductKey
+        if "ProductKey" in pk.tag:
+            # Clear (delete the contents)
+            pk.clear()
+            # Exit after the first one, Windows doesn't like if the 2nd ProductKey is removed.
+            break
+    # Write the XML file
+    tree.write(os.path.join(tempunattendfolder, "autounattend.xml"))
+if args.ostype == 54:
     shutil.move(os.path.join(tempunattendfolder, "windows7.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
 if 55 <= args.ostype <= 59:
     # Username is fixed to Administrator in Server
