@@ -483,14 +483,19 @@ if args.ostype == 51:
     # Load the xml file
     tree = ET.parse(os.path.join(tempunattendfolder, "windows10.xml"))
     root = tree.getroot()
-    # Search through all keys.
-    for pk in root.iter('*'):
-        # Find Key, including ProductKey
-        if "ProductKey" in pk.tag:
-            # Clear (delete the contents)
-            pk.clear()
-            # Exit after the first one, Windows doesn't like if the 2nd ProductKey is removed.
-            break
+    # Find specific ProductKey entries, and delete them.
+    for a in root:
+        if "settings" in a.tag:
+            for b in a:
+                if "component" in b.tag:
+                    for c in b:
+                        if "ProductKey" in c.tag:
+                            # Remove the productkey element from the parent.
+                            b.remove(c)
+                        if "UserData" in c.tag:
+                            for d in c:
+                                if "ProductKey" in d.tag:
+                                    c.remove(d)
     # Write the XML file
     tree.write(os.path.join(tempunattendfolder, "autounattend.xml"))
 if args.ostype == 54:
@@ -500,12 +505,12 @@ if 55 <= args.ostype <= 59:
     data['builders'][0]["ssh_username"] = "Administrator"
 if 55 <= args.ostype <= 56:
     shutil.move(os.path.join(tempunattendfolder, "windows2016.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
-if args.ostype == 57:
-    shutil.move(os.path.join(tempunattendfolder, "win_servercore.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
 if args.ostype == 55:
     CFunc.find_replace(tempunattendfolder, "INSERTWINOSIMAGE", "2", "autounattend.xml")
 if args.ostype == 56:
     CFunc.find_replace(tempunattendfolder, "INSERTWINOSIMAGE", "1", "autounattend.xml")
+if args.ostype == 57:
+    shutil.move(os.path.join(tempunattendfolder, "win_servercore.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
 
 
 # Write packer json file.
