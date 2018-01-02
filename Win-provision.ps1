@@ -183,15 +183,19 @@ function Fcn-Software {
 # Enable Hyper-V
 function Fcn-HypervEn {
   # Windows 10
-  Enable-WindowsOptionalFeature -Online -FeatureName:Microsoft-Hyper-V -All -NoRestart
+  # https://docs.microsoft.com/en-us/powershell/module/dism/get-windowsoptionalfeature?view=win10-ps
+  # Search for optional features:
+  # Get-WindowsOptionalFeature -Online | Select-String <nameoffeature>
+  Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All -NoRestart
   # Windows Server
+  # https://docs.microsoft.com/en-us/powershell/module/microsoft.windows.servermanager.migration/install-windowsfeature?view=win10-ps
   Install-WindowsFeature -Name Hyper-V -IncludeManagementTools
 }
 
 # Disable Hyper-V
 function Fcn-HypervDis {
   # Windows 10
-  Disable-WindowsOptionalFeature -Online -FeatureName:Microsoft-Hyper-V -NoRestart
+  Disable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All -NoRestart
   # Windows Server
   Uninstall-WindowsFeature -Name Hyper-V -IncludeManagementTools
 }
