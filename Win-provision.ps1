@@ -182,12 +182,17 @@ function Fcn-Software {
 
 # Enable Hyper-V
 function Fcn-HypervEn {
-  #Enable-WindowsOptionalFeature -Online -FeatureName:Microsoft-Hyper-V -All -NoRestart
+  # Windows 10
+  Enable-WindowsOptionalFeature -Online -FeatureName:Microsoft-Hyper-V -All -NoRestart
+  # Windows Server
   Install-WindowsFeature -Name Hyper-V -IncludeManagementTools
 }
 
 # Disable Hyper-V
 function Fcn-HypervDis {
+  # Windows 10
+  Disable-WindowsOptionalFeature -Online -FeatureName:Microsoft-Hyper-V -NoRestart
+  # Windows Server
   Uninstall-WindowsFeature -Name Hyper-V -IncludeManagementTools
 }
 
@@ -322,6 +327,7 @@ function Fcn-Customize {
 function Fcn-Remove {
   # Remove windows defender from core or VMs.
   if ( $core -eq $true -Or $IsVM -eq $true ) {
+    # Windows Server
     Uninstall-WindowsFeature Windows-Defender
   }
 }
