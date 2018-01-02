@@ -277,9 +277,9 @@ elif args.vmtype == 4:
     # https://github.com/MattHodge/PackerTemplates#building-hyper-v-images
     hyperv_switch_name = "External VM Switch"
     hyperv_mainnetadapter_name = "Ethernet"
-    hyperv_winadapters = CFunc.subpout('powershell -c "Get-NetAdapter"')
+    hyperv_winadapters = CFunc.subpout('powershell -c "Get-NetAdapter -Name "*" | Format-List -Property "Name""')
     if hyperv_switch_name not in hyperv_winadapters:
-        subprocess.run('powershell -c "New-VMSwitch -name \"{0}\" -NetAdapterName \"{1}\" -AllowManagementOS $true"'.format(hyperv_switch_name, hyperv_mainnetadapter_name), shell=True)
+        subprocess.run('''powershell -c "New-VMSwitch -name '{0}' -NetAdapterName '{1}' -AllowManagementOS $true"'''.format(hyperv_switch_name, hyperv_mainnetadapter_name), shell=True)
 
 # Delete leftover VMs
 if args.vmtype == 1:
