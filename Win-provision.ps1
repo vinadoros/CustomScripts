@@ -194,6 +194,8 @@ function Fcn-HypervEn {
 
 # Disable Hyper-V
 function Fcn-HypervDis {
+  # Remove VMSwitch first
+  Remove-VMSwitch "External VM Switch"
   # Windows 10
   Disable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All -NoRestart
   # Windows Server

@@ -272,18 +272,14 @@ if args.vmtype == 1:
         # Set DHCP active on created adapter
         subprocess.run('vboxmanage hostonlyif ipconfig "{0}" --ip 192.168.253.1'.format(vbox_hostonlyif_name), shell=True, check=True)
         subprocess.run('vboxmanage dhcpserver modify --ifname "{0}" --ip 192.168.253.1 --netmask 255.255.255.0 --lowerip 192.168.253.2 --upperip 192.168.253.253 --enable'.format(vbox_hostonlyif_name), shell=True, check=True)
-# elif args.vmtype == 4:
-#     # Create an external switch if it does not already exist. External switch is required for guests to get DHCP.
-#     # https://groups.google.com/forum/#!topic/packer-tool/W6QeTqwgyek
-#     # TODO: Does not work, packer cannot find the virtual machine.
-#     # https://www.petri.com/create-nat-rules-hyper-v-nat-virtual-switch
-#     # https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/setup-nat-network
-#     # http://andreyzavadskiy.com/2017/01/11/set-up-nat-in-windows-10-hyper-v/
-#     hyperv_switch_name = "packer-hyperv-iso"
-#     hyperv_mainnetadapter_name = "Ethernet"
-#     hyperv_winadapters = CFunc.subpout('powershell -c "Get-NetAdapter"')
-#     if hyperv_switch_name not in hyperv_winadapters:
-#         subprocess.run('powershell -c "New-VMSwitch -name {0} -NetAdapterName {1} -AllowManagementOS $true"'.format(hyperv_switch_name, hyperv_mainnetadapter_name), shell=True)
+elif args.vmtype == 4:
+    # Create an external switch if it does not already exist. External switch is required for guests to get DHCP.
+    # https://github.com/MattHodge/PackerTemplates#building-hyper-v-images
+    hyperv_switch_name = "External VM Switch"
+    hyperv_mainnetadapter_name = "Ethernet"
+    hyperv_winadapters = CFunc.subpout('powershell -c "Get-NetAdapter"')
+    if hyperv_switch_name not in hyperv_winadapters:
+        subprocess.run('powershell -c "New-VMSwitch -name \"{0}\" -NetAdapterName \"{1}\" -AllowManagementOS $true"'.format(hyperv_switch_name, hyperv_mainnetadapter_name), shell=True)
 
 # Delete leftover VMs
 if args.vmtype == 1:
