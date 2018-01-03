@@ -80,7 +80,6 @@ mate-desktop-environment
 lightdm
 network-manager-gnome
 caja-open-terminal
-caja-gksu
 dconf-editor
 gnome-keyring
 dconf-cli
@@ -153,7 +152,7 @@ with open(pkgfile, 'w') as pkgfile_write:
 PACKAGEFOLDER = buildfolder+"/config/packages.chroot"
 os.makedirs(PACKAGEFOLDER, exist_ok=True)
 # qt5-fsarchiver
-qtfsfile = downloadfile("https://downloads.sourceforge.net/project/qt4-fsarchiver/qt5-fsarchiver/deb-Pakete/Debian9.0/qt5-fsarchiver-0.8.1-1-amd64.deb", PACKAGEFOLDER)
+qtfsfile = downloadfile("https://downloads.sourceforge.net/project/qt4-fsarchiver/qt5-fsarchiver/deb-Pakete/Debian/Debian9.3/qt5-fsarchiver-0.8.2-0-amd64.deb", PACKAGEFOLDER)
 subprocess.run("dpkg-name -o {0}".format(qtfsfile[0]), shell=True)
 
 # # Add bootloader config
