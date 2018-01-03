@@ -79,7 +79,7 @@ if not args.bare:
     # Ensure Priority is set. UnitedRPMs has a default priority of 1, but just make sure it is set to a priority higher than 99.
     # https://bugzilla.redhat.com/show_bug.cgi?id=1253237
     # Exclude packages newer in fedora repos.
-    subprocess.run('dnf config-manager --save --setopt=priority=1 --setopt="excludepkgs=syncthing*" unitedrpms', shell=True)
+    subprocess.run('dnf config-manager --save --setopt=priority=1 --setopt="excludepkgs=atom* syncthing*" unitedrpms', shell=True)
 
 
 # Update system after enabling repos.
