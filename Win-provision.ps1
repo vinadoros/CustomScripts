@@ -1,4 +1,5 @@
 # Provision script for unattended installs or packer.
+#Requires -RunAsAdministrator
 
 # Check if dot sourced.
 $isDotSourced = $MyInvocation.InvocationName -eq '.' -or $MyInvocation.Line -eq ''
@@ -330,11 +331,25 @@ function Fcn-Customize {
 }
 
 # Remove Windows Features
-function Fcn-Remove {
+function Fcn-RemoveFeatures {
   # Remove windows defender from core or VMs.
   if ( $core -eq $true -Or $IsVM -eq $true ) {
     # Windows Server
     Uninstall-WindowsFeature Windows-Defender
+  }
+}
+
+# Remove all items from Windows 10 Stock Start Menu
+function Fcn-StartMenuRemoveAll {
+  if ( $core -eq $false ) {
+    # https://www.tenforums.com/customization/21002-how-automatically-cmd-powershell-script-unpin-all-apps-start.html
+    # Loop through every item, and remove pin.
+    ((New-Object -Com Shell.Application).NameSpace('shell:::{4234d49b-0245-4df3-b780-3893943456e1}').Items() | ?{$_.Name}).Verbs() | ?{$_.Name.replace('&','') -match 'From "Start" UnPin|Unpin from Start'} | %{$_.DoIt()}
+    # http://www.thewindowsclub.com/erase-default-preinstalled-modern-apps-windows-8
+    # List all Modern Apps on system
+    #Get-AppxPackage -allusers | Select Name, PackageFullName
+    # Remove Apps
+    Get-AppxPackage -allusers *king.com* | Remove-AppxPackage
   }
 }
 
@@ -345,5 +360,6 @@ if (-Not $isDotSourced) {
   Fcn-CSClone
   Fcn-Software
   Fcn-Customize
-  Fcn-Remove
+  Fcn-RemoveFeatures
+  Fcn-StartMenuRemoveAll
 }
