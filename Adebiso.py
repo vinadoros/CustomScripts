@@ -110,6 +110,7 @@ f2fs-tools
 xfsprogs
 dmraid
 mdadm
+lvm2
 chntpw
 debootstrap
 efibootmgr
