@@ -453,7 +453,7 @@ if 40 <= args.ostype <= 41:
     data['provisioners'][0]["type"] = "shell"
     # Needed for freebsd: https://www.packer.io/docs/provisioners/shell.html#execute_command
     data['provisioners'][0]["execute_command"] = "chmod +x {{ .Path }}; env {{ .Vars }} {{ .Path }}"
-    data['provisioners'][0]["inline"] = 'export ASSUME_ALWAYS_YES=yes; pkg update -f; pkg install -y git; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}'.format(vmprovisionscript, vmprovision_opts)
+    data['provisioners'][0]["inline"] = "export ASSUME_ALWAYS_YES=yes; pw useradd -n {vmuser} -m; mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; pkg update -f; pkg install -y git; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser)
     data['builders'][0]["shutdown_command"] = "shutdown -p now"
 if 50 <= args.ostype <= 59:
     data['provisioners'][0]["type"] = "powershell"
