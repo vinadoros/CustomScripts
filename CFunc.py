@@ -95,7 +95,15 @@ def getnormaluser():
         usernamevar = os.getenv("USER")
     else:
         # https://docs.python.org/3/library/pwd.html
-        usernamevar = pwd.getpwuid(1000)[0]
+        # Search through the user id range for a normal user.
+        for userid in range(1000, 1100):
+            try:
+                usernamevar = pwd.getpwuid(userid)[0]
+                # Stop when the first user is sucessfully found.
+                break
+            except KeyError:
+                # Do nothing until the user id is sucessfully found.
+                pass
     usergroup, userhome = getuserdetails(usernamevar)
     return usernamevar, usergroup, userhome
 def machinearch():

@@ -12,7 +12,7 @@ pkg update -f
 # portsnap auto
 
 # Install command line utilities.
-pkg install -y nano bash fish git sudo
+pkg install -y nano bash fish git sudo python3
 echo "%wheel ALL=(ALL) ALL" > /usr/local/etc/sudoers.d/10-wheel
 
 # Install mate.
