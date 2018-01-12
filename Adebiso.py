@@ -305,7 +305,7 @@ for filename in glob.iglob(buildfolder+"/*.hybrid.iso"):
     basefilename = os.path.basename(filename)
     dirfilename = os.path.dirname(filename)
     # New file name for file.
-    currentdatetime = time.strftime("%Y-%m-%d_%H:%M")
+    currentdatetime = time.strftime("%Y-%m-%d_%H%M")
     newfilename = basefilename.replace("hybrid", currentdatetime)
     # Make the iso world rwx
     os.chmod(filename, 0o777)
