@@ -1,17 +1,17 @@
 #
 # Usage:
-# docker build -t r/fediso -f Dockerfile-fediso .
-# docker run -dt --privileged --name fediso -v /opt/CustomScripts:/opt/CustomScripts -v /path:/fediso r/fediso
+# docker stop fediso; docker rm fediso; docker build -t r/fediso -f Dockerfile-fediso .; docker run -it --privileged --name fediso -v /opt/CustomScripts:/opt/CustomScripts -v /path:/fediso r/fediso; docker logs -f fediso
 #
 
 FROM fedora:latest
 
 # Install livecd apps.
-# RUN 
+RUN dnf install -y nano livecd-tools spin-kickstarts pykickstart anaconda
 
 VOLUME ["/opt/CustomScripts"]
 
-VOLUME ["/fediso"]
-WORKDIR /fediso
+# VOLUME ["/fediso"]
+# WORKDIR /fediso
 
 CMD ["/opt/CustomScripts/Afediso.py","-n","-w","/fediso","-o","/fediso"]
+# CMD ["bash"]
