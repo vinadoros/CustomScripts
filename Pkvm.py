@@ -469,13 +469,13 @@ if 50 <= args.ostype <= 59:
                                            os.path.join(tempscriptbasename, "unattend", "win_openssh.bat")]
     # Provision with generic windows script for all but Server Core
     data['provisioners'][0]["scripts"] = [os.path.join(tempscriptfolderpath, "Win-provision.ps1")]
-if args.ostype == 50:
-    shutil.move(os.path.join(tempunattendfolder, "windows10.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
-if args.ostype == 51:
     # Register the namespace to avoid nsX in namespace.
     ET.register_namespace('', "urn:schemas-microsoft-com:unattend")
     ET.register_namespace('wcm', "http://schemas.microsoft.com/WMIConfig/2002/State")
     ET.register_namespace('xsi', "http://www.w3.org/2001/XMLSchema-instance")
+if args.ostype == 50:
+    shutil.move(os.path.join(tempunattendfolder, "windows10.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
+if args.ostype == 51:
     # Load the xml file
     tree = ET.parse(os.path.join(tempunattendfolder, "windows10.xml"))
     root = tree.getroot()
@@ -506,7 +506,25 @@ if args.ostype == 55:
 if args.ostype == 56:
     CFunc.find_replace(tempunattendfolder, "INSERTWINOSIMAGE", "1", "autounattend.xml")
 if args.ostype == 57:
-    shutil.move(os.path.join(tempunattendfolder, "win_servercore.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
+    # Load the xml file
+    tree = ET.parse(os.path.join(tempunattendfolder, "windows2016.xml"))
+    root = tree.getroot()
+    # Find specific ProductKey entries, and delete them.
+    for a in root:
+        if "settings" in a.tag:
+            for b in a:
+                if "component" in b.tag:
+                    for c in b:
+                        if "ProductKey" in c.tag:
+                            # Remove the productkey element from the parent.
+                            b.remove(c)
+                        if "UserData" in c.tag:
+                            for d in c:
+                                if "ProductKey" in d.tag:
+                                    c.remove(d)
+    # Write the XML file
+    tree.write(os.path.join(tempunattendfolder, "autounattend.xml"))
+    CFunc.find_replace(tempunattendfolder, "INSERTWINOSIMAGE", "1", "autounattend.xml")
 
 
 # Write packer json file.
