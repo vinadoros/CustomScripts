@@ -15,8 +15,13 @@ $RepoLocalPath = "$CSRootPath\$RepoName"
 $VMstring = gwmi -q "select * from win32_computersystem"
 if ( $VMstring.Model -imatch "vmware" ) {
   $IsVM = $true
+  $VMtype = 3
 } elseif ( $VMstring.Model -imatch "virtualbox" ) {
   $IsVM = $true
+  $VMtype = 1
+} elseif ( $VMstring.Manufacturer -imatch "qemu" ) {
+  $IsVM = $true
+  $VMtype = 2
 } else {
   $IsVM = $false
 }
@@ -123,6 +128,7 @@ function Fcn-Software {
   choco upgrade -y 7zip
   # Libraries
   choco upgrade -y vcredist-all git python
+  $gitcmdpath = "C:\Program Files\Git\bin"
 
   # Install VM Tools
   if ( $IsVM -eq $true ) {
@@ -140,9 +146,18 @@ function Fcn-Software {
       }
 
       if (Test-Path "$vmfolder\VBoxWindowsAdditions.exe") {
-        echo "Installing VMWare tools"
+        echo "Installing Virtualbox tools"
         Start-Process -Wait "$vmfolder\cert\VBoxCertUtil.exe" -ArgumentList "add-trusted-publisher","$vmfolder\cert\vbox-sha1.cer" | Out-Null
         Start-Process -Wait "$vmfolder\VBoxWindowsAdditions.exe" -ArgumentList "/S"
+      }
+
+      if ($VMtype == 2) {
+        echo "Installing SPICE/QEMU tools"
+        $kvmguestfolder = "$temppath\kvm-guest-drivers-windows"
+        Start-Process -Wait "$gitcmdpath\git.exe" -ArgumentList "clone","https://github.com/virtio-win/kvm-guest-drivers-windows" "$kvmguestfolder"
+        Start-Process -Wait "$kvmguestfolder\Tools\InstallCertificate.bat"
+        Invoke-WebRequest -Uri https://www.spice-space.org/download/windows/spice-guest-tools/spice-guest-tools-latest.exe -OutFile $temppath\spice-guest-tools-latest.exe
+        Start-Process -Wait "$temppath\spice-guest-tools-latest.exe" -ArgumentList "/S"
       }
 
       # Clean up vmtools
