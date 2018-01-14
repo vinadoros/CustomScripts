@@ -468,7 +468,7 @@ if 50 <= args.ostype <= 59:
     data['builders'][0]["ssh_username"] = "{0}".format(args.vmuser)
     data['builders'][0]["floppy_files"] = [os.path.join(tempscriptbasename, "unattend", "autounattend.xml"),
                                            os.path.join(tempscriptbasename, "unattend", "win_initial.bat"),
-                                           os.path.join(tempscriptbasename, "unattend", "win_openssh.bat")]
+                                           os.path.join(tempscriptbasename, "unattend", "win_cygssh.bat")]
     # Provision with generic windows script for all but Server Core
     data['provisioners'][0]["scripts"] = [os.path.join(tempscriptfolderpath, "Win-provision.ps1")]
     # Register the namespace to avoid nsX in namespace.
