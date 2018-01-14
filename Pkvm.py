@@ -390,11 +390,13 @@ elif args.vmtype == 2:
     data['builders'][0]["accelerator"] = "kvm"
     if 50 <= args.ostype <= 59:
         # Use more generic hardware for windows
-        data['builders'][0]["disk_interface"] = "ide"
-        data['builders'][0]["net_device"] = "e1000"
+        kvm_diskinterface = "ide"
+        kvm_netdevice = "e1000"
     else:
-        data['builders'][0]["disk_interface"] = "virtio"
-        data['builders'][0]["net_device"] = "virtio-net"
+        kvm_diskinterface = "virtio"
+        kvm_netdevice = "virtio-net"
+    data['builders'][0]["disk_interface"] = kvm_diskinterface
+    data['builders'][0]["net_device"] = kvm_netdevice
     data['builders'][0]["vm_name"] = "{0}.qcow2".format(vmname)
     data['builders'][0]["qemuargs"] = ['']
     data['builders'][0]["qemuargs"][0] = ["-m", "{0}M".format(args.memory)]
@@ -569,7 +571,15 @@ fullfinishtime = datetime.now()
 
 # Attach VM to libvirt
 if args.vmtype == 2:
-    CREATESCRIPT_KVM = """virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg}.qcow2,bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model=virtio --filesystem source=/,target=root,mode=mapped --os-type={kvm_os} --os-variant={kvm_variant} --import --noautoconsole --video=virtio --channel unix,target_type=virtio,name=org.qemu.guest_agent.0""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=os.path.join(vmpath, vmname), kvm_os=kvm_os, kvm_variant=kvm_variant)
+    if 50 <= args.ostype <= 59:
+        kvm_video = "qxl"
+        kvm_diskinterface = "ide"
+        kvm_netdevice = "e1000"
+    else:
+        kvm_video = "virtio"
+        kvm_diskinterface = "virtio"
+        kvm_netdevice = "virtio"
+    CREATESCRIPT_KVM = """virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg}.qcow2,bus={kvm_diskinterface} --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model={kvm_netdevice} --filesystem source=/,target=root,mode=mapped --os-type={kvm_os} --os-variant={kvm_variant} --import --noautoconsole --video={kvm_video} --channel unix,target_type=virtio,name=org.qemu.guest_agent.0""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=os.path.join(vmpath, vmname), kvm_os=kvm_os, kvm_variant=kvm_variant, kvm_video=kvm_video, kvm_diskinterface=kvm_diskinterface, kvm_netdevice=kvm_netdevice)
     print(CREATESCRIPT_KVM)
     subprocess.run(CREATESCRIPT_KVM, shell=True)
 
