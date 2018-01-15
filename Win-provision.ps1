@@ -162,9 +162,10 @@ function Fcn-Software {
       echo "Installing SPICE/QEMU tools"
       $kvmguestfolder = "$temppath\kvm-guest-drivers-windows"
       Start-Process -Wait "$gitcmdpath\git.exe" -ArgumentList "clone","https://github.com/virtio-win/kvm-guest-drivers-windows","$kvmguestfolder"
-      Start-Process -Wait "$kvmguestfolder\Tools\InstallCertificate.bat"
-      Invoke-WebRequest -Uri https://www.spice-space.org/download/windows/spice-guest-tools/spice-guest-tools-latest.exe -OutFile $temppath\spice-guest-tools-latest.exe
-      Start-Process -Wait "$temppath\spice-guest-tools-latest.exe" -ArgumentList "/S"
+      Start-Process -Wait "$kvmguestfolder\Tools\InstallCertificate.bat" -WorkingDirectory "$kvmguestfolder\Tools\"
+      $kvm_exefolder = "$env:PUBLIC\Desktop\"
+      Invoke-WebRequest -Uri https://www.spice-space.org/download/windows/spice-guest-tools/spice-guest-tools-latest.exe -OutFile "$kvm_exefolder\spice-guest-tools-latest.exe"
+      Start-Process -Wait "$kvm_exefolder\spice-guest-tools-latest.exe" -ArgumentList "/S"
       Remove-Item -Recurse -Force $kvmguestfolder
     }
   }
