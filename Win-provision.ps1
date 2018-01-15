@@ -151,13 +151,14 @@ function Fcn-Software {
         Start-Process -Wait "$vmfolder\VBoxWindowsAdditions.exe" -ArgumentList "/S"
       }
 
-      if ($VMtype == 2) {
+      if ($VMtype = 2) {
         echo "Installing SPICE/QEMU tools"
         $kvmguestfolder = "$temppath\kvm-guest-drivers-windows"
         Start-Process -Wait "$gitcmdpath\git.exe" -ArgumentList "clone","https://github.com/virtio-win/kvm-guest-drivers-windows" "$kvmguestfolder"
         Start-Process -Wait "$kvmguestfolder\Tools\InstallCertificate.bat"
         Invoke-WebRequest -Uri https://www.spice-space.org/download/windows/spice-guest-tools/spice-guest-tools-latest.exe -OutFile $temppath\spice-guest-tools-latest.exe
         Start-Process -Wait "$temppath\spice-guest-tools-latest.exe" -ArgumentList "/S"
+        Remove-Item -Recurse -Force $kvmguestfolder
       }
 
       # Clean up vmtools
