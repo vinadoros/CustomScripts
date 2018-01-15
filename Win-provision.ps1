@@ -132,12 +132,12 @@ function Fcn-Software {
 
   # Install VM Tools
   if ( $IsVM -eq $true ) {
+    echo "Installing VM Tools"
     # Handle VMTools
     $temppath = "C:\Windows\Temp"
     $winiso = "C:\Windows\Temp\windows.iso"
     $vmfolder = "$temppath\vmfolder"
     if (Test-Path $winiso) {
-      echo "Installing VM Tools"
       Start-Process -Wait "C:\Program Files\7-Zip\7z.exe" -ArgumentList "x","$winiso","-o$vmfolder"
 
       if (Test-Path "$vmfolder\setup64.exe") {
@@ -151,20 +151,21 @@ function Fcn-Software {
         Start-Process -Wait "$vmfolder\VBoxWindowsAdditions.exe" -ArgumentList "/S"
       }
 
-      if ($VMtype = 2) {
-        echo "Installing SPICE/QEMU tools"
-        $kvmguestfolder = "$temppath\kvm-guest-drivers-windows"
-        Start-Process -Wait "$gitcmdpath\git.exe" -ArgumentList "clone","https://github.com/virtio-win/kvm-guest-drivers-windows" "$kvmguestfolder"
-        Start-Process -Wait "$kvmguestfolder\Tools\InstallCertificate.bat"
-        Invoke-WebRequest -Uri https://www.spice-space.org/download/windows/spice-guest-tools/spice-guest-tools-latest.exe -OutFile $temppath\spice-guest-tools-latest.exe
-        Start-Process -Wait "$temppath\spice-guest-tools-latest.exe" -ArgumentList "/S"
-        Remove-Item -Recurse -Force $kvmguestfolder
-      }
-
       # Clean up vmtools
       echo "Cleaning up VMTools"
       Remove-Item -Recurse -Force $winiso
       Remove-Item -Recurse -Force $vmfolder
+    }
+
+    # QEMU
+    if ($VMtype -eq 2) {
+      echo "Installing SPICE/QEMU tools"
+      $kvmguestfolder = "$temppath\kvm-guest-drivers-windows"
+      Start-Process -Wait "$gitcmdpath\git.exe" -ArgumentList "clone","https://github.com/virtio-win/kvm-guest-drivers-windows","$kvmguestfolder"
+      Start-Process -Wait "$kvmguestfolder\Tools\InstallCertificate.bat"
+      Invoke-WebRequest -Uri https://www.spice-space.org/download/windows/spice-guest-tools/spice-guest-tools-latest.exe -OutFile $temppath\spice-guest-tools-latest.exe
+      Start-Process -Wait "$temppath\spice-guest-tools-latest.exe" -ArgumentList "/S"
+      Remove-Item -Recurse -Force $kvmguestfolder
     }
   }
 
@@ -172,7 +173,7 @@ function Fcn-Software {
   if ( $core -eq $false ) {
     echo "Installing Desktop Apps"
     # GUI Apps
-    choco upgrade -y googlechrome notepadplusplus tortoisegit ccleaner putty chocolateygui conemu visualstudiocode winmerge libreoffice sumatrapdf nomacs javaruntime spacesniffer
+    choco upgrade -y googlechrome notepadplusplus tortoisegit ccleaner putty chocolateygui conemu atom winmerge libreoffice sumatrapdf nomacs javaruntime spacesniffer
     # Tablacus
     Fcn-Tablacus
     # Install for Windows 8 or above.
