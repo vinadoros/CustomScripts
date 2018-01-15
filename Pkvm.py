@@ -574,7 +574,7 @@ if args.vmtype == 2:
     if 50 <= args.ostype <= 59:
         kvm_video = "qxl"
         kvm_diskinterface = "ide"
-        kvm_netdevice = "e1000"
+        kvm_netdevice = "virtio"
     else:
         kvm_video = "virtio"
         kvm_diskinterface = "virtio"
