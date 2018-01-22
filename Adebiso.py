@@ -102,6 +102,7 @@ git
 whois
 # Recovery and Backup utils
 clonezilla
+screen
 gparted
 fsarchiver
 gnome-disk-utility
