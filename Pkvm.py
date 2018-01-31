@@ -183,7 +183,7 @@ if args.ostype == 20:
     vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
     kvm_os = "linux"
     kvm_variant = "opensusetumbleweed"
-    isourl = "http://download.opensuse.org/tumbleweed/iso/openSUSE-Tumbleweed-DVD-x86_64-Current.iso"
+    isourl = "http://download.opensuse.org/tumbleweed/iso/openSUSE-Tumbleweed-NET-x86_64-Current.iso"
 if args.ostype == 40:
     vmname = "Packer-FreeBSD-{0}".format(hvname)
     vboxosid = "FreeBSD_64"
@@ -449,7 +449,7 @@ if 15 <= args.ostype <= 19:
 if 20 <= args.ostype <= 21:
     data['builders'][0]["boot_command"] = ["<wait><down><wait><f4><wait><esc><wait>autoyast2=http://{{ .HTTPIP }}:{{ .HTTPPort }}/opensuse.cfg textmode=1<enter>"]
     data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = 'while ! zypper install -yl --no-recommends git; do sleep 5; done; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}'.format(vmprovisionscript, vmprovision_opts)
+    data['provisioners'][0]["inline"] = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:{vmuser} -R ~{vmuser}; while ! zypper install -yl --no-recommends git; do sleep 5; done; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser)
 if 40 <= args.ostype <= 41:
     data['builders'][0]["boot_command"] = ["<wait><enter><wait10><wait10><right><enter><wait>dhclient -b vtnet0<enter><wait>dhclient -b em0<enter><wait10>fetch -o /tmp/installerconfig http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd<wait><enter><wait>bsdinstall script /tmp/installerconfig<wait><enter>"]
     data['provisioners'][0]["type"] = "shell"
