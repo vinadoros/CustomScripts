@@ -138,7 +138,7 @@ if 5 <= args.ostype <= 9:
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
     kvm_os = "linux"
-    kvm_variant = "fedora22"
+    kvm_variant = "centos7.0"
     isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1708.iso"
     vmprovisionscript = "MCentOS.py"
 if args.ostype == 5:
@@ -184,6 +184,45 @@ if args.ostype == 20:
     kvm_os = "linux"
     kvm_variant = "opensusetumbleweed"
     isourl = "http://download.opensuse.org/tumbleweed/iso/openSUSE-Tumbleweed-NET-x86_64-Current.iso"
+if 30 <= args.ostype <= 39:
+    vboxosid = "Debian_64"
+    vmwareid = "debian-64"
+    vmprovisionscript = "MDebian.py"
+    kvm_os = "linux"
+    kvm_variant = "debiantesting"
+# Debian Stable
+if 30 <= args.ostype <= 32:
+    isourl = "https://cdimage.debian.org/cdimage/release/current/amd64/iso-cd/debian-9.3.0-amd64-netinst.iso"
+# Testing and Unstable
+if 33 <= args.ostype <= 39:
+    isourl = "https://cdimage.debian.org/cdimage/weekly-builds/amd64/iso-cd/debian-testing-amd64-netinst.iso"
+if args.ostype == 30:
+    vmname = "Packer-DebianStable-{0}".format(hvname)
+    vmprovision_defopts = "-l -d {0} -a".format(args.desktopenv)
+if args.ostype == 31:
+    vmname = "Packer-DebianStableCLI-{0}".format(hvname)
+    vmprovision_defopts = "-l -a -x"
+if args.ostype == 32:
+    vmname = "Packer-DebianStableBare-{0}".format(hvname)
+    vmprovision_defopts = "-l -b -x"
+if args.ostype == 33:
+    vmname = "Packer-DebianTesting-{0}".format(hvname)
+    vmprovision_defopts = "-l -d {0} -a".format(args.desktopenv)
+if args.ostype == 34:
+    vmname = "Packer-DebianTestingCLI-{0}".format(hvname)
+    vmprovision_defopts = "-l -a -x"
+if args.ostype == 35:
+    vmname = "Packer-DebianTestingBare-{0}".format(hvname)
+    vmprovision_defopts = "-l -b -x"
+if args.ostype == 36:
+    vmname = "Packer-DebianUnstable-{0}".format(hvname)
+    vmprovision_defopts = "-l -d {0} -a".format(args.desktopenv)
+if args.ostype == 37:
+    vmname = "Packer-DebianUnstableCLI-{0}".format(hvname)
+    vmprovision_defopts = "-l -a -x"
+if args.ostype == 38:
+    vmname = "Packer-DebianUnstableBare-{0}".format(hvname)
+    vmprovision_defopts = "-l -b -x"
 if args.ostype == 40:
     vmname = "Packer-FreeBSD-{0}".format(hvname)
     vboxosid = "FreeBSD_64"
