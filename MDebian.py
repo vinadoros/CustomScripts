@@ -82,7 +82,6 @@ add-apt-repository non-free
 """, shell=True)
 
 
-
 # Comment out lines containing httpredir.
 subprocess.run("sed -i '/httpredir/ s/^#*/#/' /etc/apt/sources.list", shell=True)
 
@@ -168,7 +167,7 @@ if args.nogui is False and args.bare is False:
     # Browsers
     CFunc.aptinstall("chromium-browser firefox flashplugin-installer pepperflashplugin-nonfree")
     # Tilix
-    # CFunc.aptinstall("tilix")
+    CFunc.aptinstall("tilix")
     # Atom Editor
     # CFunc.aptinstall("atom")
     # Visual Studio Code
