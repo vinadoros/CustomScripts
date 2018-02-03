@@ -205,13 +205,16 @@ elif args.desktop == "lxqt":
     CFunc.aptinstall("task-lxqt-desktop")
 
 # Post DE install stuff.
-# if args.nogui is False and args.bare is False:
-#     # Numix
-#     CFunc.addppa("ppa:numix/ppa")
-#     CFunc.aptinstall("numix-icon-theme-circle")
-#     # Adapta
-#     CFunc.addppa("ppa:tista/adapta")
-#     CFunc.aptinstall("adapta-gtk-theme")
+if args.nogui is False and args.bare is False:
+    # Numix Circle Icons
+    iconfolder = os.path.join("/", "usr", "local", "share", "icons")
+    os.makedirs(iconfolder, exist_ok=True)
+    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
+    shutil.rmtree(os.path.join(iconfolder, "Numix-Circle"), ignore_errors=True)
+    subprocess.run("git clone https://github.com/numixproject/numix-icon-theme-circle.git {0}".format(os.path.join(iconfolder, "numix-icon-theme-circle")), shell=True)
+    shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle"), iconfolder)
+    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
+    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "/Numix-Circle")), shell=True)
 
 
 # Install guest software for VMs
