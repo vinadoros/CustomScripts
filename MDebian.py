@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install Ubuntu Software"""
+"""Install Debian Software"""
 
 # Python includes.
 import argparse
@@ -19,7 +19,7 @@ SCRIPTDIR = sys.path[0]
 parser = argparse.ArgumentParser(description='Install Ubuntu Software.')
 parser.add_argument("-d", "--desktop", help='Desktop Environment (i.e. gnome, kde, mate, etc)')
 parser.add_argument("-a", "--allextra", help='Run Extra Scripts', action="store_true")
-parser.add_argument("-l", "--lts", help='Configure script to run for an LTS release.', action="store_true")
+parser.add_argument("-u", "--unstable", help='Upgrade to unstable.', action="store_true")
 parser.add_argument("-b", "--bare", help='Configure script to set up a bare-minimum environment.', action="store_true")
 parser.add_argument("-x", "--nogui", help='Configure script to disable GUI.', action="store_true")
 
@@ -27,7 +27,7 @@ parser.add_argument("-x", "--nogui", help='Configure script to disable GUI.', ac
 args = parser.parse_args()
 print("Desktop Environment:", args.desktop)
 print("Run extra scripts:", args.allextra)
-print("LTS Mode:", args.lts)
+print("Unstable Mode:", args.unstable)
 print("Bare install:", args.bare)
 print("No GUI:", args.nogui)
 
@@ -50,33 +50,12 @@ if "P" not in rootacctstatus:
     print("Please rerun this script now that the root account is unlocked.")
     sys.exit(1)
 
-# Select ubuntu url
-UBUNTUURL = "http://archive.ubuntu.com/ubuntu/"
-UBUNTUARMURL = "http://ports.ubuntu.com/ubuntu-ports/"
-if MACHINEARCH == "armhf":
-    URL = UBUNTUARMURL
-else:
-    URL = UBUNTUURL
-print("Ubuntu URL is "+URL)
+# Select debian url
+URL = "http://ftp.us.debian.org/"
+print("Debian Mirror URL is "+URL)
 
 # Get VM State
 vmstatus = CFunc.getvmstate()
-
-# Keymissing script
-with open('/usr/local/bin/keymissing', 'w') as writefile:
-    writefile.write('''#!/bin/bash
-APTLOG=/tmp/aptlog
-sudo apt-get update 2> $APTLOG
-if [ -f $APTLOG ]
-then
-	for key in $(grep "NO_PUBKEY" $APTLOG |sed "s/.*NO_PUBKEY //"); do
-			echo -e "\\nProcessing key: $key"
-			sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $key
-			sudo apt-get update
-	done
-	rm $APTLOG
-fi''')
-os.chmod('/usr/local/bin/keymissing', 0o777)
 
 
 ### Begin Code ###
@@ -89,30 +68,30 @@ distro, debrelease = CFunc.detectdistro()
 print("Distro is {0}.".format(distro))
 print("Release is {0}.".format(debrelease))
 
-### Set up Ubuntu Repos ###
-# Main, Restricted, universe, and multiverse for Ubuntu.
+### Set up Debian Repos ###
+# Main, Contrib, Non-Free for Debian.
 subprocess.run("""
 add-apt-repository main
-add-apt-repository restricted
-add-apt-repository universe
-add-apt-repository multiverse
+add-apt-repository contrib
+add-apt-repository non-free
 """, shell=True)
 
 # Add updates, security, and backports.
-with open('/etc/apt/sources.list', 'r') as VAR:
-    DATA = VAR.read()
-    # Updates
-    if not "{0}-updates main".format(debrelease) in DATA:
-        print("\nAdding updates to sources.list")
-        subprocess.run('add-apt-repository "deb {URL} {DEBRELEASE}-updates main restricted universe multiverse"'.format(URL=URL, DEBRELEASE=debrelease), shell=True)
-    # Security
-    if not "{0}-security main".format(debrelease) in DATA:
-        print("\nAdding security to sources.list")
-        subprocess.run('add-apt-repository "deb {URL} {DEBRELEASE}-security main restricted universe multiverse"'.format(URL=URL, DEBRELEASE=debrelease), shell=True)
-    # Backports
-    if not "{0}-backports main".format(debrelease) in DATA:
-        print("\nAdding backports to sources.list")
-        subprocess.run('add-apt-repository "deb {URL} {DEBRELEASE}-backports main restricted universe multiverse"'.format(URL=URL, DEBRELEASE=debrelease), shell=True)
+if not args.unstable:
+    with open('/etc/apt/sources.list', 'r') as VAR:
+        DATA = VAR.read()
+        # Updates
+        if not "{0}-updates main".format(debrelease) in DATA:
+            print("\nAdding updates to sources.list")
+            subprocess.run('add-apt-repository "deb {URL} {DEBRELEASE}-updates main contrib non-free"'.format(URL=URL, DEBRELEASE=debrelease), shell=True)
+        # Security
+        if not "{0}-security main".format(debrelease) in DATA:
+            print("\nAdding security to sources.list")
+            subprocess.run('add-apt-repository "deb {URL} {DEBRELEASE}-security main contrib non-free"'.format(URL=URL, DEBRELEASE=debrelease), shell=True)
+        # Backports
+        if not "{0}-backports main".format(debrelease) in DATA:
+            print("\nAdding backports to sources.list")
+            subprocess.run('add-apt-repository "deb {URL} {DEBRELEASE}-backports main contrib non-free"'.format(URL=URL, DEBRELEASE=debrelease), shell=True)
 
 # Comment out lines containing httpredir.
 subprocess.run("sed -i '/httpredir/ s/^#*/#/' /etc/apt/sources.list", shell=True)
@@ -152,9 +131,6 @@ if not args.bare:
     CFunc.aptupdate()
     CFunc.aptinstall("syncthing syncthing-inotify")
 
-# Fish Shell, install ppa only if lts
-if args.lts is True:
-    CFunc.addppa("ppa:fish-shell/release-2")
 # Cli Software
 CFunc.aptinstall("ssh tmux fish btrfs-tools f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs")
 # Add fish to shells
@@ -202,11 +178,9 @@ if args.nogui is False and args.bare is False:
     # Browsers
     CFunc.aptinstall("chromium-browser firefox flashplugin-installer pepperflashplugin-nonfree")
     # Tilix
-    CFunc.addppa("ppa:webupd8team/terminix")
-    CFunc.aptinstall("tilix")
+    # CFunc.aptinstall("tilix")
     # Atom Editor
-    CFunc.addppa("ppa:webupd8team/atom")
-    CFunc.aptinstall("atom")
+    # CFunc.aptinstall("atom")
     # Visual Studio Code
     subprocess.run("""curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
     mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg""", shell=True)
@@ -217,12 +191,6 @@ if args.nogui is False and args.bare is False:
 
 # Network Manager
 CFunc.aptinstall("network-manager network-manager-ssh resolvconf")
-subprocess.run("apt-get install -y network-manager-config-connectivity-ubuntu", shell=True, check=False)
-subprocess.run("sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf", shell=True)
-# https://askubuntu.com/questions/882806/ethernet-device-not-managed
-with open('/etc/NetworkManager/conf.d/10-globally-managed-devices.conf', 'w') as writefile:
-    writefile.write("""[keyfile]
-unmanaged-devices=none""")
 # Ensure DNS resolution is working
 subprocess.run("dpkg-reconfigure --frontend=noninteractive resolvconf", shell=True)
 
@@ -233,31 +201,25 @@ if os.path.isfile("/etc/default/apport"):
 # Install Desktop Software
 if args.desktop == "gnome":
     print("\n Installing gnome desktop")
-    CFunc.aptinstall("ubuntu-desktop ubuntu-session gnome-session")
+    CFunc.aptinstall("task-gnome-desktop")
     CFunc.aptinstall("gnome-clocks")
-    # Remove ubuntu dock in order to install dashtodock
-    subprocess.run("apt-get remove -y gnome-shell-extension-ubuntu-dock", shell=True, check=False)
     CFunc.aptinstall("gnome-shell-extensions gnome-shell-extension-dashtodock gnome-shell-extension-mediaplayer gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste")
     subprocess.run("{0}/DExtGnome.sh -v".format(SCRIPTDIR), shell=True)
-elif args.desktop == "kde":
-    print("\n Installing kde desktop")
-    CFunc.aptinstall("kubuntu-desktop")
 elif args.desktop == "mate":
     print("\n Installing mate desktop")
-    CFunc.aptinstall("ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop")
-    CFunc.aptinstall("ubuntu-mate-lightdm-theme dconf-cli")
+    CFunc.aptinstall("task-mate-desktop mate-tweak dconf-cli")
 elif args.desktop == "xfce":
     print("\n Installing xfce desktop")
-    CFunc.aptinstall("xubuntu-desktop")
+    CFunc.aptinstall("task-xfce-desktop")
 
 # Post DE install stuff.
-if args.nogui is False and args.bare is False:
-    # Numix
-    CFunc.addppa("ppa:numix/ppa")
-    CFunc.aptinstall("numix-icon-theme-circle")
-    # Adapta
-    CFunc.addppa("ppa:tista/adapta")
-    CFunc.aptinstall("adapta-gtk-theme")
+# if args.nogui is False and args.bare is False:
+#     # Numix
+#     CFunc.addppa("ppa:numix/ppa")
+#     CFunc.aptinstall("numix-icon-theme-circle")
+#     # Adapta
+#     CFunc.addppa("ppa:tista/adapta")
+#     CFunc.aptinstall("adapta-gtk-theme")
 
 
 # Install guest software for VMs
@@ -275,18 +237,18 @@ if vmstatus == "vmware":
         CFunc.aptinstall("open-vm-tools-desktop")
 
 
-subprocess.run("apt-get install -y --no-install-recommends powertop smartmontools", shell=True)
-# Write and enable powertop systemd-unit file.
-Powertop_SystemdServiceText = '''[Unit]
-Description=Powertop tunings
-
-[Service]
-ExecStart={0} --auto-tune
-RemainAfterExit=true
-
-[Install]
-WantedBy=multi-user.target'''.format(shutil.which("powertop"))
-CFunc.systemd_createsystemunit("powertop.service", Powertop_SystemdServiceText, True)
+# subprocess.run("apt-get install -y --no-install-recommends powertop smartmontools", shell=True)
+# # Write and enable powertop systemd-unit file.
+# Powertop_SystemdServiceText = '''[Unit]
+# Description=Powertop tunings
+#
+# [Service]
+# ExecStart={0} --auto-tune
+# RemainAfterExit=true
+#
+# [Install]
+# WantedBy=multi-user.target'''.format(shutil.which("powertop"))
+# CFunc.systemd_createsystemunit("powertop.service", Powertop_SystemdServiceText, True)
 
 if args.bare is False:
     # Add normal user to all reasonable groups

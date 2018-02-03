@@ -198,31 +198,31 @@ if 33 <= args.ostype <= 39:
     isourl = "https://cdimage.debian.org/cdimage/weekly-builds/amd64/iso-cd/debian-testing-amd64-netinst.iso"
 if args.ostype == 30:
     vmname = "Packer-DebianStable-{0}".format(hvname)
-    vmprovision_defopts = "-l -d {0} -a".format(args.desktopenv)
+    vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
 if args.ostype == 31:
     vmname = "Packer-DebianStableCLI-{0}".format(hvname)
-    vmprovision_defopts = "-l -a -x"
+    vmprovision_defopts = "-a -x"
 if args.ostype == 32:
     vmname = "Packer-DebianStableBare-{0}".format(hvname)
-    vmprovision_defopts = "-l -b -x"
+    vmprovision_defopts = "-b -x"
 if args.ostype == 33:
     vmname = "Packer-DebianTesting-{0}".format(hvname)
-    vmprovision_defopts = "-l -d {0} -a".format(args.desktopenv)
+    vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
 if args.ostype == 34:
     vmname = "Packer-DebianTestingCLI-{0}".format(hvname)
-    vmprovision_defopts = "-l -a -x"
+    vmprovision_defopts = "-a -x"
 if args.ostype == 35:
     vmname = "Packer-DebianTestingBare-{0}".format(hvname)
-    vmprovision_defopts = "-l -b -x"
+    vmprovision_defopts = "-b -x"
 if args.ostype == 36:
     vmname = "Packer-DebianUnstable-{0}".format(hvname)
-    vmprovision_defopts = "-l -d {0} -a".format(args.desktopenv)
+    vmprovision_defopts = "-u -d {0} -a".format(args.desktopenv)
 if args.ostype == 37:
     vmname = "Packer-DebianUnstableCLI-{0}".format(hvname)
-    vmprovision_defopts = "-l -a -x"
+    vmprovision_defopts = "-u -a -x"
 if args.ostype == 38:
     vmname = "Packer-DebianUnstableBare-{0}".format(hvname)
-    vmprovision_defopts = "-l -b -x"
+    vmprovision_defopts = "-u -b -x"
 if args.ostype == 40:
     vmname = "Packer-FreeBSD-{0}".format(hvname)
     vboxosid = "FreeBSD_64"
@@ -489,6 +489,10 @@ if 20 <= args.ostype <= 21:
     data['builders'][0]["boot_command"] = ["<wait><down><wait><f4><wait><esc><wait>autoyast2=http://{{ .HTTPIP }}:{{ .HTTPPort }}/opensuse.cfg textmode=1<enter>"]
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:{vmuser} -R ~{vmuser}; while ! zypper install -yl --no-recommends git; do sleep 5; done; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser)
+if 30 <= args.ostype <= 39:
+    data['provisioners'][0]["type"] = "shell"
+    data['provisioners'][0]["inline"] = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:{vmuser} -R ~{vmuser}; apt install -y git; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser)
+    data['builders'][0]["boot_command"] = ["<esc>auto url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/debian.cfg hostname=debian locale=en_US keyboard-configuration/modelcode=SKIP netcfg/choose_interface=auto <enter>"]
 if 40 <= args.ostype <= 41:
     data['builders'][0]["boot_command"] = ["<wait><enter><wait10><wait10><right><enter><wait>dhclient -b vtnet0<enter><wait>dhclient -b em0<enter><wait10>fetch -o /tmp/installerconfig http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd<wait><enter><wait>bsdinstall script /tmp/installerconfig<wait><enter>"]
     data['provisioners'][0]["type"] = "shell"
