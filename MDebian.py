@@ -71,6 +71,7 @@ print("Release is {0}.".format(debrelease))
 ### Set up Debian Repos ###
 # Change to unstable.
 if args.unstable:
+    debrelease = "sid"
     print("\n Enable unstable repositories.")
     with open('/etc/apt/sources.list', 'w') as writefile:
         writefile.write('deb {0} sid main contrib non-free'.format(URL))
@@ -110,8 +111,9 @@ if grep -iq '^Defaults\tenv_reset' /etc/sudoers; then
 fi
 visudo -c""", shell=True)
 
-# Syncthing
+
 if not args.bare:
+    # Syncthing
     subprocess.run("wget -qO- https://syncthing.net/release-key.txt | apt-key add -", shell=True)
     # Write syncthing sources list
     with open('/etc/apt/sources.list.d/syncthing-release.list', 'w') as stapt_writefile:
@@ -119,6 +121,16 @@ if not args.bare:
     # Update and install syncthing:
     CFunc.aptupdate()
     CFunc.aptinstall("syncthing syncthing-inotify")
+
+    # Debian Multimedia
+    # Write sources list
+    if args.unstable:
+        multimedia_release = "sid"
+    else:
+        multimedia_release = "testing"
+    with open('/etc/apt/sources.list.d/debian-multimedia.list', 'w') as stapt_writefile:
+        stapt_writefile.write("deb https://www.deb-multimedia.org {0} main non-free".format(multimedia_release))
+    subprocess.run("apt-get update -oAcquire::AllowInsecureRepositories=true; apt-get install -y deb-multimedia-keyring -oAcquire::AllowInsecureRepositories=true", shell=True)
 
 # Cli Software
 CFunc.aptinstall("ssh tmux fish btrfs-tools f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs")
