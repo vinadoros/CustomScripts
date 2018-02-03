@@ -148,7 +148,7 @@ if args.desktop == "gnome":
     # Some Gnome Extensions
     CFunc.dnfinstall("gnome-terminal-nautilus gnome-tweak-tool dconf-editor")
     CFunc.dnfinstall("gnome-shell-extension-gpaste gnome-shell-extension-media-player-indicator gnome-shell-extension-topicons-plus")
-    subprocess.run("{0}/DExtGnome.sh -d -v".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/DExtGnome.py -d -v".format(SCRIPTDIR), shell=True)
     # Adapta
     CFunc.dnfinstall("gnome-shell-theme-adapta adapta-gtk-theme-metacity adapta-gtk-theme-gtk2 adapta-gtk-theme-gtk3")
     # Remmina Gnome integration

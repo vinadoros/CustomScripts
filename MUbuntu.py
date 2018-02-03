@@ -238,7 +238,7 @@ if args.desktop == "gnome":
     # Remove ubuntu dock in order to install dashtodock
     subprocess.run("apt-get remove -y gnome-shell-extension-ubuntu-dock", shell=True, check=False)
     CFunc.aptinstall("gnome-shell-extensions gnome-shell-extension-dashtodock gnome-shell-extension-mediaplayer gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste")
-    subprocess.run("{0}/DExtGnome.sh -v".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/DExtGnome.py -v".format(SCRIPTDIR), shell=True)
 elif args.desktop == "kde":
     print("\n Installing kde desktop")
     CFunc.aptinstall("kubuntu-desktop")
