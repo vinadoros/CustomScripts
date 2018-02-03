@@ -51,7 +51,7 @@ if "P" not in rootacctstatus:
     sys.exit(1)
 
 # Select debian url
-URL = "http://ftp.us.debian.org/"
+URL = "http://http.us.debian.org/debian"
 print("Debian Mirror URL is "+URL)
 
 # Get VM State
@@ -62,13 +62,18 @@ vmstatus = CFunc.getvmstate()
 
 # Get Ubuntu Release
 CFunc.aptupdate()
-CFunc.aptinstall("lsb-release software-properties-common apt-transport-https")
+CFunc.aptinstall("lsb-release software-properties-common apt-transport-https gnupg")
 # Detect OS information
 distro, debrelease = CFunc.detectdistro()
 print("Distro is {0}.".format(distro))
 print("Release is {0}.".format(debrelease))
 
 ### Set up Debian Repos ###
+# Change to unstable.
+if args.unstable:
+    print("\n Enable unstable repositories.")
+    with open('/etc/apt/sources.list', 'w') as writefile:
+        writefile.write('deb {0} sid main contrib non-free'.format(URL))
 # Main, Contrib, Non-Free for Debian.
 subprocess.run("""
 add-apt-repository main
@@ -76,22 +81,7 @@ add-apt-repository contrib
 add-apt-repository non-free
 """, shell=True)
 
-# Add updates, security, and backports.
-if not args.unstable:
-    with open('/etc/apt/sources.list', 'r') as VAR:
-        DATA = VAR.read()
-        # Updates
-        if not "{0}-updates main".format(debrelease) in DATA:
-            print("\nAdding updates to sources.list")
-            subprocess.run('add-apt-repository "deb {URL} {DEBRELEASE}-updates main contrib non-free"'.format(URL=URL, DEBRELEASE=debrelease), shell=True)
-        # Security
-        if not "{0}-security main".format(debrelease) in DATA:
-            print("\nAdding security to sources.list")
-            subprocess.run('add-apt-repository "deb {URL} {DEBRELEASE}-security main contrib non-free"'.format(URL=URL, DEBRELEASE=debrelease), shell=True)
-        # Backports
-        if not "{0}-backports main".format(debrelease) in DATA:
-            print("\nAdding backports to sources.list")
-            subprocess.run('add-apt-repository "deb {URL} {DEBRELEASE}-backports main contrib non-free"'.format(URL=URL, DEBRELEASE=debrelease), shell=True)
+
 
 # Comment out lines containing httpredir.
 subprocess.run("sed -i '/httpredir/ s/^#*/#/' /etc/apt/sources.list", shell=True)
@@ -211,6 +201,9 @@ elif args.desktop == "mate":
 elif args.desktop == "xfce":
     print("\n Installing xfce desktop")
     CFunc.aptinstall("task-xfce-desktop")
+elif args.desktop == "lxqt":
+    print("\n INstalling lxqt desktop")
+    CFunc.aptinstall("task-lxqt-desktop")
 
 # Post DE install stuff.
 # if args.nogui is False and args.bare is False:
