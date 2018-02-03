@@ -94,6 +94,17 @@ polkit.addRule(function(action, subject) {
 });
 EOL
 
+		# Set dconf info
+		gsettings set org.virt-manager.virt-manager.stats enable-cpu-poll true
+		gsettings set org.virt-manager.virt-manager.stats enable-disk-poll true
+		gsettings set org.virt-manager.virt-manager.stats enable-memory-poll true
+		gsettings set org.virt-manager.virt-manager.stats enable-net-poll true
+		gsettings set org.virt-manager.virt-manager.vmlist-fields cpu-usage true
+		gsettings set org.virt-manager.virt-manager.vmlist-fields disk-usage false
+		gsettings set org.virt-manager.virt-manager.vmlist-fields memory-usage true
+		gsettings set org.virt-manager.virt-manager.vmlist-fields network-traffic true
+		gsettings set org.virt-manager.virt-manager.console resize-guest 1
+
 	break;;
 
 	[2]* )
