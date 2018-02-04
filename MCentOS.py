@@ -96,8 +96,14 @@ if args.docker is True:
     subprocess.check_output("scl enable rh-python36 '{0}/CDocker.py -n'".format(SCRIPTDIR), shell=True)
 
 # Desktop Environments
+if args.gui is not None:
+    subprocess.check_output('yum groupinstall -y "X Window system" "Graphical Administration Tools"', shell=True)
 if args.gui == "gnome":
-    subprocess.check_output('yum groupinstall "GNOME Desktop" "Graphical Administration Tools"', shell=True)
+    subprocess.check_output('yum groupinstall -y "GNOME Desktop"', shell=True)
+if args.gui == "mate":
+    subprocess.check_output('yum groupinstall -y "MATE Desktop"', shell=True)
+    subprocess.check_output("yum install -y gnome-disk-utility")
+if args.gui is not None:
     subprocess.call("systemctl set-default graphical.target", shell=True)
 
 # Virtualbox Additions
