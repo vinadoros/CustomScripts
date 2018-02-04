@@ -84,7 +84,7 @@ if args.replace is True:
     # To remove old tools: "yum swap -- install kernel-ml kernel-ml-devel kernel-ml-headers kernel-ml-tools kernel-ml-tools-libs -- remove kernel-tools kernel-tools-libs"
     # Replace new tools with old tools: "yum swap -- install kernel-tools kernel-tools-libs -- remove kernel-ml-tools kernel-ml-tools-libs"
     subprocess.check_output("yum install -y kernel-ml kernel-ml-devel", shell=True)
-    subprocess.check_output("yum swap -y -- install kernel-ml-headers -- remove kernel-headers")
+    subprocess.check_output("yum swap -y -- install kernel-ml-headers -- remove kernel-headers", shell=True)
 else:
     subprocess.check_output("yum install -y git kernel-devel kernel-headers", shell=True)
 
