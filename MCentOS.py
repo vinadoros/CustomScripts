@@ -18,6 +18,7 @@ SCRIPTDIR = sys.path[0]
 parser = argparse.ArgumentParser(description='Install CentOS Software.')
 parser.add_argument("-d", "--docker", help='Install Docker', action="store_true")
 parser.add_argument("-r", "--replace", help='Replace distro packages', action="store_true")
+parser.add_argument("-g", "--gui", help='Install desktop environment (gnome, etc)')
 
 # Save arguments.
 args = parser.parse_args()
@@ -93,6 +94,11 @@ subprocess.check_output("scl enable rh-python36 {0}/Czram.py".format(SCRIPTDIR),
 # Docker
 if args.docker is True:
     subprocess.check_output("scl enable rh-python36 '{0}/CDocker.py -n'".format(SCRIPTDIR), shell=True)
+
+# Desktop Environments
+if args.gui == "gnome":
+    subprocess.check_output('yum groupinstall "GNOME Desktop" "Graphical Administration Tools"', shell=True)
+    subprocess.call("systemctl set-default graphical.target", shell=True)
 
 # Virtualbox Additions
 subprocess.call("scl enable rh-python36 '{0}/CVBoxGuest.py -n'".format(SCRIPTDIR), shell=True)

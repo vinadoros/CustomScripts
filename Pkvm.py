@@ -143,8 +143,11 @@ if 5 <= args.ostype <= 9:
     vmprovisionscript = "MCentOS.py"
 if args.ostype == 5:
     vmname = "Packer-CentOS-{0}".format(hvname)
-    vmprovision_defopts = "-d -r"
+    vmprovision_defopts = "-d -r -g {0}".format(args.desktopenv)
 if args.ostype == 6:
+    vmname = "Packer-CentOSCLI-{0}".format(hvname)
+    vmprovision_defopts = "-d -r"
+if args.ostype == 7:
     vmname = "Packer-CentOSOrig-{0}".format(hvname)
     vmprovision_defopts = " "
 if 10 <= args.ostype <= 19:
@@ -567,7 +570,7 @@ with open(os.path.join(packer_temp_folder, 'file.json'), 'w') as file_json_wr:
 # Save start time.
 beforetime = datetime.now()
 # Call packer.
-subprocess.run("packer build file.json", shell=True)
+subprocess.run("packer build file.json | tee build.log", shell=True)
 # Save packer finish time.
 packerfinishtime = datetime.now()
 
