@@ -81,10 +81,10 @@ if args.replace is True:
     # Bashfish script
     bashfish = subprocess.Popen("scl enable rh-python36 '{0}/CBashFish.py'".format(SCRIPTDIR), shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
     # Install kernel
-    subprocess.check_output("""
-    yum install -y kernel-ml kernel-ml-devel kernel-ml-headers
-    yum swap -y kernel-tools-libs kernel-ml-tools-libs kernel-ml-tools
-    """, shell=True)
+    # To remove old tools: "yum swap -- install kernel-ml kernel-ml-devel kernel-ml-headers kernel-ml-tools kernel-ml-tools-libs -- remove kernel-tools kernel-tools-libs"
+    # Replace new tools with old tools: "yum swap -- install kernel-tools kernel-tools-libs -- remove kernel-ml-tools kernel-ml-tools-libs"
+    subprocess.check_output("yum install -y kernel-ml kernel-ml-devel", shell=True)
+    subprocess.check_output("yum swap -y -- install kernel-ml-headers -- remove kernel-headers")
 else:
     subprocess.check_output("yum install -y git kernel-devel kernel-headers", shell=True)
 
@@ -97,13 +97,17 @@ if args.docker is True:
 
 # Desktop Environments
 if args.gui is not None:
-    subprocess.check_output('yum groupinstall -y "X Window system" "Graphical Administration Tools"', shell=True)
+    subprocess.check_output('yum groupinstall -y "X Window system"', shell=True)
 if args.gui == "gnome":
     subprocess.check_output('yum groupinstall -y "GNOME Desktop"', shell=True)
 if args.gui == "mate":
     subprocess.check_output('yum groupinstall -y "MATE Desktop"', shell=True)
-    subprocess.check_output("yum install -y gnome-disk-utility", shell=True)
+if args.gui == "mate":
+    subprocess.check_output('yum groupinstall -y "Xfce"', shell=True)
 if args.gui is not None:
+    subprocess.check_output("yum install -y gnome-disk-utility", shell=True)
+    if os.path.is_file("/etc/X11/xorg.conf"):
+        os.remove("/etc/X11/xorg.conf")
     subprocess.call("systemctl set-default graphical.target", shell=True)
 
 # Virtualbox Additions
