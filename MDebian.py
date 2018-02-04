@@ -130,7 +130,7 @@ if not args.bare:
         multimedia_release = "testing"
     with open('/etc/apt/sources.list.d/debian-multimedia.list', 'w') as stapt_writefile:
         stapt_writefile.write("deb https://www.deb-multimedia.org {0} main non-free".format(multimedia_release))
-    subprocess.run("apt-get update -oAcquire::AllowInsecureRepositories=true; apt-get install -y deb-multimedia-keyring -oAcquire::AllowInsecureRepositories=true", shell=True)
+    subprocess.run("apt-get update -oAcquire::AllowInsecureRepositories=true; apt-get install -y --allow-unauthenticated deb-multimedia-keyring -oAcquire::AllowInsecureRepositories=true", shell=True)
 
 # Cli Software
 CFunc.aptinstall("ssh tmux fish btrfs-tools f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs")
@@ -169,19 +169,23 @@ if args.nogui is False and args.bare is False:
     CFunc.aptinstall("printer-driver-cups-pdf")
     # Media Playback
     CFunc.aptinstall("vlc audacious ffmpeg youtube-dl smplayer")
-    CFunc.aptinstall("alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pulseaudio-module-bluetooth swh-plugins")
+    CFunc.aptinstall("alsa-utils pavucontrol pulseaudio-module-zeroconf pulseaudio-module-bluetooth swh-plugins")
+    CFunc.aptinstall("paprefs")
     CFunc.aptinstall("gstreamer1.0-vaapi")
     # Wine
-    CFunc.aptinstall("playonlinux wine64-development wine32-development-preloader")
+    CFunc.aptinstall("playonlinux wine64 wine32")
     # For Office 2010
     CFunc.aptinstall("winbind")
     CFunc.aptinstall("fonts-powerline fonts-noto fonts-roboto")
     # Browsers
-    CFunc.aptinstall("chromium-browser firefox flashplugin-installer pepperflashplugin-nonfree")
+    CFunc.aptinstall("chromium pepperflashplugin-nonfree")
+    if args.unstable:
+        CFunc.aptinstall("firefox")
+    else:
+        CFunc.aptinstall("firefox-esr")
+    CFunc.aptinstall("browser-plugin-freshplayer-pepperflash")
     # Tilix
     CFunc.aptinstall("tilix")
-    # Atom Editor
-    # CFunc.aptinstall("atom")
     # Visual Studio Code
     subprocess.run("""curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
     mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg""", shell=True)
