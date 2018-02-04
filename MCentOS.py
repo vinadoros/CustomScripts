@@ -59,9 +59,9 @@ if args.replace is True:
     subprocess.call("yum install -y https://centos7.iuscommunity.org/ius-release.rpm", shell=True)
     # EL Repo
     # https://elrepo.org
-    subprocess.call("yum install -y http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm ; yum-config-manager --enable elrepo-extras elrepo-kernel")
+    subprocess.call("yum install -y http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm ; yum-config-manager --enable elrepo-extras elrepo-kernel", shell=True)
     # Fish
-    subprocess.call("yum-config-manager --add-repo http://download.opensuse.org/repositories/shells:fish:release:2/CentOS_7/shells:fish:release:2.repo")
+    subprocess.call("yum-config-manager --add-repo http://download.opensuse.org/repositories/shells:fish:release:2/CentOS_7/shells:fish:release:2.repo", shell=True)
 
 # Update system
 subprocess.call("yum update -y", shell=True)
@@ -102,7 +102,7 @@ if args.gui == "gnome":
     subprocess.check_output('yum groupinstall -y "GNOME Desktop"', shell=True)
 if args.gui == "mate":
     subprocess.check_output('yum groupinstall -y "MATE Desktop"', shell=True)
-    subprocess.check_output("yum install -y gnome-disk-utility")
+    subprocess.check_output("yum install -y gnome-disk-utility", shell=True)
 if args.gui is not None:
     subprocess.call("systemctl set-default graphical.target", shell=True)
 

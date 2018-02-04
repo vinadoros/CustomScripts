@@ -577,8 +577,12 @@ packerfinishtime = datetime.now()
 # Remove temp folder
 os.chdir(vmpath)
 output_folder = os.path.join(packer_temp_folder, vmname)
+buildlog_sourcepath = os.path.join(packer_temp_folder, "build.log")
+buildlog_destname = "{0}.log".format(vmname)
 # Copy output to VM folder.
 if os.path.isdir(output_folder):
+    # Copy build log to destination folder.
+    shutil.copy2(buildlog_sourcepath, os.path.join(output_folder, buildlog_destname))
     # Remove previous folder, if it exists.
     if os.path.isdir(os.path.join(vmpath, vmname)):
         shutil.rmtree(os.path.join(vmpath, vmname))
@@ -597,6 +601,8 @@ if os.path.isdir(output_folder):
     # Copy the qcow2 file, and remove the folder entirely for kvm.
     if args.vmtype == 2 and os.path.isfile(os.path.join(output_folder, vmname+".qcow2")):
         shutil.copy2(os.path.join(output_folder, vmname+".qcow2"), os.path.join(vmpath, vmname+".qcow2"))
+        # Copy build log
+        shutil.copy2(os.path.join(output_folder, buildlog_destname), vmpath)
 print("Removing {0}".format(packer_temp_folder))
 shutil.rmtree(packer_temp_folder)
 print("VM successfully output to {0}".format(os.path.join(vmpath, vmname)))
