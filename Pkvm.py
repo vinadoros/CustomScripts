@@ -570,7 +570,12 @@ with open(os.path.join(packer_temp_folder, 'file.json'), 'w') as file_json_wr:
 # Save start time.
 beforetime = datetime.now()
 # Call packer.
-subprocess.run("packer build file.json | tee build.log", shell=True)
+if CFunc.is_windows():
+    # https://stackoverflow.com/questions/4984428/python-subprocess-get-childrens-output-to-file-and-terminal
+    packer_buildcmd = "powershell packer build file.json | tee build.log"
+else:
+    packer_buildcmd = "packer build file.json | tee build.log"
+subprocess.run(packer_buildcmd, shell=True)
 # Save packer finish time.
 packerfinishtime = datetime.now()
 
