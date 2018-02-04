@@ -222,6 +222,8 @@ elif args.desktop == "lxqt":
 
 # Post DE install stuff.
 if args.nogui is False and args.bare is False:
+    # Numix icons must be installed for Circle to display properly.
+    CFunc.aptinstall("numix-icon-theme")
     # Numix Circle Icons
     iconfolder = os.path.join("/", "usr", "local", "share", "icons")
     os.makedirs(iconfolder, exist_ok=True)
