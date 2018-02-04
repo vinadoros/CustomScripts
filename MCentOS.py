@@ -106,7 +106,7 @@ if args.gui == "mate":
     subprocess.check_output('yum groupinstall -y "Xfce"', shell=True)
 if args.gui is not None:
     subprocess.check_output("yum install -y gnome-disk-utility", shell=True)
-    if os.path.is_file("/etc/X11/xorg.conf"):
+    if os.path.isfile("/etc/X11/xorg.conf"):
         os.remove("/etc/X11/xorg.conf")
     subprocess.call("systemctl set-default graphical.target", shell=True)
 
