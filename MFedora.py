@@ -164,9 +164,9 @@ elif args.desktop == "mate":
     subprocess.run("systemctl enable -f lightdm", shell=True)
     # Applications
     CFunc.dnfinstall("dconf-editor")
-elif args.desktop == "xfce"
+elif args.desktop == "xfce":
     CFunc.dnfinstall("@xfce-desktop-environment")
-elif args.desktop == "lxqt"
+elif args.desktop == "lxqt":
     CFunc.dnfinstall("@lxqt-desktop-environment")
 
 if not args.nogui and not args.bare:
