@@ -213,6 +213,9 @@ if args.desktop == "gnome":
 elif args.desktop == "mate":
     print("\n Installing mate desktop")
     CFunc.aptinstall("task-mate-desktop mate-tweak dconf-cli")
+elif args.desktop == "kde":
+    print("\n Installing kde desktop")
+    CFunc.aptinstall("task-kde-desktop")
 elif args.desktop == "xfce":
     print("\n Installing xfce desktop")
     CFunc.aptinstall("task-xfce-desktop")
