@@ -57,6 +57,9 @@ print("Debian Mirror URL is "+URL)
 # Get VM State
 vmstatus = CFunc.getvmstate()
 
+# Set non-interactive flag
+os.environ['DEBIAN_FRONTEND'] = "noninteractive"
+
 
 ### Begin Code ###
 
