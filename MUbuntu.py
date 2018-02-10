@@ -240,8 +240,17 @@ if args.desktop == "gnome":
     CFunc.aptinstall("gnome-shell-extensions gnome-shell-extension-dashtodock gnome-shell-extension-mediaplayer gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste")
     subprocess.run("{0}/DExtGnome.py -v".format(SCRIPTDIR), shell=True)
 elif args.desktop == "kde":
-    print("\n Installing kde desktop")
-    CFunc.aptinstall("kubuntu-desktop")
+    if args.lts is True:
+        print("\n Installing neon desktop.")
+        subprocess.run("wget -qO - 'http://archive.neon.kde.org/public.key' | apt-key add -", shell=True)
+        subprocess.run("apt-add-repository http://archive.neon.kde.org/user", shell=True)
+        CFunc.aptupdate()
+        CFunc.aptdistupg()
+        CFunc.aptinstall("neon-desktop")
+        CFunc.aptdistupg()
+    else:
+        print("\n Installing kde desktop")
+        CFunc.aptinstall("kubuntu-desktop")
 elif args.desktop == "mate":
     print("\n Installing mate desktop")
     CFunc.aptinstall("ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop")
