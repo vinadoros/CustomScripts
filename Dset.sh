@@ -217,4 +217,15 @@ if type kwriteconfig; then
 	if type dolphin; then
 		kwriteconfig --file ~/.config/dolphinrc --group General --key GlobalViewProps --type bool true
 	fi
+	# Input
+	kwriteconfig --file ~/.config/kdeglobals --group KDE --key SingleClick --type bool false
+	# Lock Screen and Power Management
+	if [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 ]]; then
+		kwriteconfig --file ~/.config/powermanagementprofilesrc --group AC --group DPMSControl --key idleTime 300000
+	else
+		kwriteconfig --file ~/.config/powermanagementprofilesrc --group AC --group DPMSControl --key idleTime 600
+	fi
+	kwriteconfig --file ~/.config/kscreenlockerrc --group Daemon --key Autolock --type bool false
+	kwriteconfig --file ~/.config/kscreenlockerrc --group Daemon --key LockOnResume --type bool false
+	kwriteconfig --file ~/.config/kscreenlockerrc --group Daemon --key Timeout 10
 fi
