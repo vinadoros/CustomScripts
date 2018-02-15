@@ -250,6 +250,7 @@ elif args.desktop == "kde":
         CFunc.aptdistupg()
     else:
         print("\n Installing kde desktop")
+        CFunc.addppa("ppa:kubuntu-ppa/backports")
         CFunc.aptinstall("kubuntu-desktop")
 elif args.desktop == "mate":
     print("\n Installing mate desktop")
