@@ -248,7 +248,6 @@ elif args.desktop == "kde":
         CFunc.aptdistupg()
         CFunc.aptinstall("neon-desktop")
         CFunc.aptdistupg()
-        CFunc.aptinstall("kde-runtime")
     else:
         print("\n Installing kde desktop")
         CFunc.aptinstall("kubuntu-desktop")
