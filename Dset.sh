@@ -234,3 +234,15 @@ if type kwriteconfig5; then
 	kwriteconfig5 --file kscreenlockerrc --group Daemon --key LockOnResume --type bool false
 	kwriteconfig5 --file kscreenlockerrc --group Daemon --key Timeout 10
 fi
+
+# Firefox profile prefs.
+function mod_ff () {
+	sed -i 's/user_pref("'$1'",.*);/user_pref("'$1'",'$2');/' prefs.js
+	grep -q $1 prefs.js || echo "user_pref(\"$1\",$2);" >> prefs.js
+}
+
+if cd ~/.mozilla/firefox/*.default/ && ls prefs.js; then
+	echo "Editing Firefox preferences."
+	mod_ff "general.autoScroll" "true"
+	mod_ff "extensions.pocket.enabled" "false"
+fi
