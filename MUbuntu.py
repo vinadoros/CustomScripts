@@ -253,6 +253,7 @@ elif args.desktop == "kde":
     else:
         print("\n Installing kde desktop")
         CFunc.addppa("ppa:kubuntu-ppa/backports")
+        CFunc.addppa("ppa:papirus/papirus")
         CFunc.aptinstall("kubuntu-desktop")
 elif args.desktop == "mate":
     print("\n Installing mate desktop")
