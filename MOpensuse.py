@@ -259,7 +259,7 @@ if args.allextra is True:
     subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CBashFish.py".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CCSClone.sh".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CDisplayManagerConfig.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CVMGeneral.sh".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/Cxdgdirs.sh".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True)
