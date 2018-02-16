@@ -178,6 +178,8 @@ timedatectl set-ntp 1""", shell=True)
 CFunc.aptinstall("avahi-daemon avahi-discover libnss-mdns")
 # Java
 CFunc.aptinstall("default-jre")
+# Drivers
+CFunc.aptinstall("intel-microcode")
 
 # Non-bare CLI stuff.
 if args.bare is False:
