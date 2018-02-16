@@ -212,10 +212,10 @@ fi
 # KDE/Plasma specific Settings
 # https://askubuntu.com/questions/839647/gsettings-like-tools-for-kde#839773
 # https://manned.org/kwriteconfig/d47c2de0
-if type kwriteconfig; then
+if type kwriteconfig5; then
 	# Dolphin settings
 	if type dolphin; then
-		kwriteconfig --file dolphinrc --group General --key GlobalViewProps --type bool true
+		kwriteconfig5 --file dolphinrc --group General --key GlobalViewProps --type bool true
 	fi
 	# Input
 	kwriteconfig5 --file kdeglobals --group KDE --key SingleClick --type bool false
