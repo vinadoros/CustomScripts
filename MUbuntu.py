@@ -186,10 +186,13 @@ if args.bare is False:
     # Cron
     CFunc.aptinstall("cron anacron")
     subprocess.run("systemctl disable cron; systemctl disable anacron", shell=True)
+# GUI Software
+if args.nogui is False:
+    CFunc.aptinstall("dconf-cli")
+    CFunc.aptinstall("synaptic gnome-disk-utility gdebi gparted xdg-utils leafpad")
 
 # General GUI software
 if args.nogui is False and args.bare is False:
-    CFunc.aptinstall("synaptic gnome-disk-utility gdebi gparted xdg-utils leafpad")
     # Cups-pdf
     CFunc.aptinstall("printer-driver-cups-pdf")
     # Media Playback
@@ -258,7 +261,7 @@ elif args.desktop == "kde":
 elif args.desktop == "mate":
     print("\n Installing mate desktop")
     CFunc.aptinstall("ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop")
-    CFunc.aptinstall("ubuntu-mate-lightdm-theme dconf-cli")
+    CFunc.aptinstall("ubuntu-mate-lightdm-theme")
 elif args.desktop == "xfce":
     print("\n Installing xfce desktop")
     CFunc.aptinstall("xubuntu-desktop")
