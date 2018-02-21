@@ -251,25 +251,7 @@ if args.ostype == 56:
     vmname = "Packer-Windows2016Core-{0}".format(hvname)
 if args.ostype == 57:
     vmname = "Packer-WindowsServerCore-{0}".format(hvname)
-if args.ostype == 60:
-    vmname = "Packer-Gentoo-{0}".format(hvname)
-    vmprovisionscript = "MFedora.sh"
-    vmprovision_defopts = " "
-    vboxosid = "Gentoo_64"
-    vmwareid = "ubuntu-64"
-    kvm_os = "linux"
-    kvm_variant = "opensusetumbleweed"
-    install_txt_url = "http://distfiles.gentoo.org/releases/amd64/autobuilds/latest-install-amd64-minimal.txt"
-    # Save url
-    install_txt_data = urllib.request.urlopen(install_txt_url)
-    # Search through every line.
-    for line in install_txt_data:
-        # Find the line with the install iso.
-        if "install" in str(line):
-            # Split that line, decode the byte array and save it.
-            relative_install_iso = line.split()[0].decode()
-            isourl = "http://distfiles.gentoo.org/releases/amd64/autobuilds/"+relative_install_iso
-            print("Gentoo ISO Url: "+isourl)
+
 
 # Override provision opts if provided.
 if args.vmprovision is None:
