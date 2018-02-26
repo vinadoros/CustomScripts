@@ -1,5 +1,4 @@
 # Provision script for unattended installs or packer.
-#Requires -RunAsAdministrator
 
 # Check if dot sourced.
 $isDotSourced = $MyInvocation.InvocationName -eq '.' -or $MyInvocation.Line -eq ''
