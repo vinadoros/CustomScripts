@@ -68,7 +68,8 @@ parser.add_argument("-y", "--vmuser", help="VM Username", default="user")
 parser.add_argument("-z", "--vmpass", help="VM Password", default="asdf")
 parser.add_argument("-b", "--getpacker", help="Force refresh packer", action="store_true")
 parser.add_argument("-x", "--sshkey", help="SSH authorizaiton key")
-parser.add_argument("-d", "--desktopenv", help="Desktop Environment (defaults to mate)", default="mate")
+parser.add_argument("-e", "--desktopenv", help="Desktop Environment (defaults to mate)", default="mate")
+parser.add_argument("-d", "--debug", help="Enable Debug output from packer", action="store_true")
 parser.add_argument("--memory", help="Memory for VM", default="4096")
 parser.add_argument("--vmprovision", help="""Override provision options. Enclose options in double backslashes and quotes. Example: \\\\"-n -e 3\\\\" """)
 
@@ -549,6 +550,10 @@ if args.ostype == 57:
 with open(os.path.join(packer_temp_folder, 'file.json'), 'w') as file_json_wr:
     json.dump(data, file_json_wr, indent=2)
 
+# Set debug environment variable
+if args.debug:
+    os.environ["PACKER_LOG"] = "1"
+
 # Save start time.
 beforetime = datetime.now()
 # Call packer.
@@ -556,7 +561,7 @@ if CFunc.is_windows():
     # https://stackoverflow.com/questions/4984428/python-subprocess-get-childrens-output-to-file-and-terminal
     packer_buildcmd = "powershell packer build file.json | tee build.log"
 else:
-    packer_buildcmd = "packer build file.json | tee build.log"
+    packer_buildcmd = "packer build file.json 2>&1 | tee build.log"
 subprocess.run(packer_buildcmd, shell=True)
 # Save packer finish time.
 packerfinishtime = datetime.now()
@@ -590,8 +595,11 @@ if os.path.isdir(output_folder):
         shutil.copy2(os.path.join(output_folder, vmname+".qcow2"), os.path.join(vmpath, vmname+".qcow2"))
         # Copy build log
         shutil.copy2(os.path.join(output_folder, buildlog_destname), vmpath)
-print("Removing {0}".format(packer_temp_folder))
-shutil.rmtree(packer_temp_folder)
+if args.debug:
+    print("Not removing {0}, debug flag is set. Please remove this folder manually.".format(packer_temp_folder))
+else:
+    print("Removing {0}".format(packer_temp_folder))
+    shutil.rmtree(packer_temp_folder)
 print("VM successfully output to {0}".format(os.path.join(vmpath, vmname)))
 # Save full finish time.
 fullfinishtime = datetime.now()
