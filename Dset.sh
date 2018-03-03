@@ -217,13 +217,20 @@ if type kwriteconfig5; then
 	if type dolphin; then
 		kwriteconfig5 --file dolphinrc --group General --key GlobalViewProps --type bool true
 	fi
-	# Input
+	# KDE Globals
 	kwriteconfig5 --file kdeglobals --group KDE --key SingleClick --type bool false
+	kwriteconfig5 --file kdeglobals --group General	--key XftSubPixel "rgb"
+	kwriteconfig5 --file kdeglobals --group General	--key fixed "Liberation Mono,10,-1,5,50,0,0,0,0,0,Regular"
+	kwriteconfig5 --file kdeglobals --group Icons --key Theme "Numix-Circle-Light"
 	# Keyboard shortcuts
-	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key "Window Maximize" "Meta+Up,none,Maximize Window"
+	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomDown ",Meta+Down,Move Zoomed Area Downwards"
+	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomLeft ",Meta+Left,Move Zoomed Area to Left"
+	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomRight ",Meta+Right,Move Zoomed Area to Right"
+	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomUp ",Meta+Up,Move Zoomed Area Upwards"
+	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key "Window Maximize" "Meta+Up\tMeta+Down,none,Maximize Window"
 	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key "Window Quick Tile Left" "Meta+Left,none,Quick Tile Window to the Left"
 	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key "Window Quick Tile Right" "Meta+Right,none,Quick Tile Window to the Right"
-	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key "Show Desktop" "Meta+Down,none,Show Desktop"
+	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key "Show Desktop" "Meta+m,none,Show Desktop"
 	# Lock Screen and Power Management
 	if [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 ]]; then
 		kwriteconfig5 --file powermanagementprofilesrc --group AC --group DPMSControl --key idleTime 300000
