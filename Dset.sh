@@ -227,7 +227,9 @@ if type kwriteconfig5; then
 	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomLeft ",Meta+Left,Move Zoomed Area to Left"
 	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomRight ",Meta+Right,Move Zoomed Area to Right"
 	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomUp ",Meta+Up,Move Zoomed Area Upwards"
-	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key "Window Maximize" Meta+Up\tMeta+Down,none,Maximize Window
+	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key "Window Maximize" "Meta+Up\tMeta+Down,none,Maximize Window"
+	# Workaround for kwriteconfig escaping \t as \\t. Without quotes, \t is escaped as only t.
+	sed -i 's@\\\\t@\\t@g' $HOME/.config/kglobalshortcutsrc
 	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key "Window Quick Tile Left" "Meta+Left,none,Quick Tile Window to the Left"
 	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key "Window Quick Tile Right" "Meta+Right,none,Quick Tile Window to the Right"
 	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key "Show Desktop" "Meta+m,none,Show Desktop"
