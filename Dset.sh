@@ -233,6 +233,10 @@ if type kwriteconfig5; then
 	kwriteconfig5 --file kscreenlockerrc --group Daemon --key Autolock --type bool false
 	kwriteconfig5 --file kscreenlockerrc --group Daemon --key LockOnResume --type bool false
 	kwriteconfig5 --file kscreenlockerrc --group Daemon --key Timeout 10
+	if type qdbus; then
+		# Reload kwin.
+		qdbus org.kde.KWin /KWin reconfigure
+	fi
 fi
 
 # Firefox profile prefs.
