@@ -163,7 +163,7 @@ if 10 <= args.ostype <= 14:
 # Ubuntu LTS
 if 15 <= args.ostype <= 19:
     kvm_variant = "ubuntu16.04"
-    isourl = "http://releases.ubuntu.com/16.04/ubuntu-16.04.3-server-amd64.iso"
+    isourl = "http://releases.ubuntu.com/16.04/ubuntu-16.04.4-server-amd64.iso"
 if args.ostype == 10:
     vmname = "Packer-Ubuntu-{0}".format(hvname)
     vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
