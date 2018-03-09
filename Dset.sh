@@ -242,6 +242,10 @@ if type kwriteconfig5; then
 	kwriteconfig5 --file kscreenlockerrc --group Daemon --key Autolock --type bool false
 	kwriteconfig5 --file kscreenlockerrc --group Daemon --key LockOnResume --type bool false
 	kwriteconfig5 --file kscreenlockerrc --group Daemon --key Timeout 10
+	# GTK theme
+	kwriteconfig5 --file ~/.config/gtk-3.0/settings.ini --group Settings --key gtk-fallback-icon-theme Numix-Circle-Light
+	kwriteconfig5 --file ~/.config/gtk-3.0/settings.ini --group Settings --key gtk-font-name "Sans Serif  10"
+	kwriteconfig5 --file ~/.config/gtk-3.0/settings.ini --group Settings --key gtk-icon-theme-name Numix-Circle-Light
 	if type qdbus; then
 		# Reload kwin.
 		qdbus org.kde.KWin /KWin reconfigure
