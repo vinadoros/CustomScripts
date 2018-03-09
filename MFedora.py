@@ -210,8 +210,9 @@ if os.path.isdir('/etc/sudoers.d'):
 CFunc.dnfinstall("powertop smartmontools hdparm; systemctl enable powertop")
 
 if not args.bare and not args.nogui:
-    # Atom from unitedrpms
-    CFunc.dnfinstall("atom")
+    # Atom from script
+    subprocess.run("{0}/CAtomRPM.py".format(SCRIPTDIR), shell=True)
+    # Atom from flatpak
     # subprocess.run("flatpak install -y --from https://flathub.org/repo/appstream/io.atom.Atom.flatpakref", shell=True)
 
 # Disable Selinux
