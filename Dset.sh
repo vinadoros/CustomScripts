@@ -243,9 +243,13 @@ if type kwriteconfig5; then
 	kwriteconfig5 --file kscreenlockerrc --group Daemon --key LockOnResume --type bool false
 	kwriteconfig5 --file kscreenlockerrc --group Daemon --key Timeout 10
 	# GTK theme
-	kwriteconfig5 --file ~/.config/gtk-3.0/settings.ini --group Settings --key gtk-fallback-icon-theme Numix-Circle-Light
-	kwriteconfig5 --file ~/.config/gtk-3.0/settings.ini --group Settings --key gtk-font-name "Sans Serif  10"
+	kwriteconfig5 --file ~/.config/gtk-3.0/settings.ini --group Settings --key gtk-fallback-icon-theme Numix-Light
+	kwriteconfig5 --file ~/.config/gtk-3.0/settings.ini --group Settings --key gtk-font-name "Noto Sans Regular 10"
 	kwriteconfig5 --file ~/.config/gtk-3.0/settings.ini --group Settings --key gtk-icon-theme-name Numix-Circle-Light
+	kwriteconfig5 --file ~/.config/gtk-3.0/settings.ini --group Settings --key gtk-cursor-theme-name breeze_cursors
+	kwriteconfig5 --file ~/.config/gtk-3.0/settings.ini --group Settings --key gtk-menu-images 1
+	kwriteconfig5 --file ~/.config/gtk-3.0/settings.ini --group Settings --key gtk-button-images 1
+	kwriteconfig5 --file ~/.config/gtk-3.0/settings.ini --group Settings --key gtk-theme-name Breeze
 	if type qdbus; then
 		# Reload kwin.
 		qdbus org.kde.KWin /KWin reconfigure
