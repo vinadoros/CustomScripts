@@ -242,14 +242,38 @@ if type kwriteconfig5; then
 	kwriteconfig5 --file kscreenlockerrc --group Daemon --key Autolock --type bool false
 	kwriteconfig5 --file kscreenlockerrc --group Daemon --key LockOnResume --type bool false
 	kwriteconfig5 --file kscreenlockerrc --group Daemon --key Timeout 10
-	# GTK theme
-	kwriteconfig5 --file ~/.config/gtk-3.0/settings.ini --group Settings --key gtk-fallback-icon-theme Numix-Light
-	kwriteconfig5 --file ~/.config/gtk-3.0/settings.ini --group Settings --key gtk-font-name "Noto Sans Regular 10"
-	kwriteconfig5 --file ~/.config/gtk-3.0/settings.ini --group Settings --key gtk-icon-theme-name Numix-Circle-Light
-	kwriteconfig5 --file ~/.config/gtk-3.0/settings.ini --group Settings --key gtk-cursor-theme-name breeze_cursors
-	kwriteconfig5 --file ~/.config/gtk-3.0/settings.ini --group Settings --key gtk-menu-images 1
-	kwriteconfig5 --file ~/.config/gtk-3.0/settings.ini --group Settings --key gtk-button-images 1
-	kwriteconfig5 --file ~/.config/gtk-3.0/settings.ini --group Settings --key gtk-theme-name Breeze
+	# gtk3 theme
+	mkdir -p $HOME/.config/gtk-3.0
+	kwriteconfig5 --file $HOME/.config/gtk-3.0/settings.ini --group Settings --key gtk-fallback-icon-theme Numix-Light
+	kwriteconfig5 --file $HOME/.config/gtk-3.0/settings.ini --group Settings --key gtk-font-name "Noto Sans Regular 10"
+	kwriteconfig5 --file $HOME/.config/gtk-3.0/settings.ini --group Settings --key gtk-icon-theme-name Numix-Circle-Light
+	kwriteconfig5 --file $HOME/.config/gtk-3.0/settings.ini --group Settings --key gtk-cursor-theme-name breeze_cursors
+	kwriteconfig5 --file $HOME/.config/gtk-3.0/settings.ini --group Settings --key gtk-menu-images 1
+	kwriteconfig5 --file $HOME/.config/gtk-3.0/settings.ini --group Settings --key gtk-button-images 1
+	kwriteconfig5 --file $HOME/.config/gtk-3.0/settings.ini --group Settings --key gtk-theme-name Breeze
+	# gtk2 theme
+	cat >"$HOME/.gtkrc-2.0" <<'EOFXYZ'
+# File created by KDE Gtk Config
+# Configs for GTK2 programs
+
+include "/usr/share/themes/Breeze/gtk-2.0/gtkrc"
+style "user-font"
+{
+	font_name="Noto Sans Regular"
+}
+widget_class "*" style "user-font"
+gtk-font-name="Noto Sans Regular 10"
+gtk-theme-name="Breeze"
+gtk-icon-theme-name="Numix-Circle-Light"
+gtk-fallback-icon-theme="Numix-Light"
+gtk-cursor-theme-name="breeze_cursors"
+gtk-toolbar-style=GTK_TOOLBAR_ICONS
+gtk-menu-images=1
+gtk-button-images=1
+gtk-primary-button-warps-slider=0
+EOFXYZ
+	ln -sf $HOME/.gtkrc-2.0 $HOME/.gtkrc-2.0-kde4
+
 	if type qdbus; then
 		# Reload kwin.
 		qdbus org.kde.KWin /KWin reconfigure
