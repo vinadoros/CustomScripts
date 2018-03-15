@@ -274,6 +274,9 @@ if args.nogui is False and args.bare is False:
     # Adapta
     CFunc.addppa("ppa:tista/adapta")
     CFunc.aptinstall("adapta-gtk-theme")
+    # KeepassXC
+    CFunc.addppa("ppa:phoerious/keepassxc")
+    CFunc.aptinstall("keepassxc")
 
 
 # Install guest software for VMs
