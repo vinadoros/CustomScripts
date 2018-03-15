@@ -220,7 +220,7 @@ if type kwriteconfig5; then
 	# KDE Globals
 	kwriteconfig5 --file kdeglobals --group KDE --key SingleClick --type bool false
 	kwriteconfig5 --file kdeglobals --group General	--key XftSubPixel "rgb"
-	kwriteconfig5 --file kdeglobals --group General	--key fixed "Liberation Mono,10,-1,5,50,0,0,0,0,0,Regular"
+	# kwriteconfig5 --file kdeglobals --group General	--key fixed "Liberation Mono,10,-1,5,50,0,0,0,0,0,Regular"
 	# kwriteconfig5 --file kdeglobals --group Icons --key Theme "Numix-Circle-Light"
 	# Keyboard shortcuts
 	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomDown ",Meta+Down,Move Zoomed Area Downwards"
