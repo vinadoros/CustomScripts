@@ -82,7 +82,7 @@ yum-config-manager --enable docker-ce-edge
     if release.isdigit() is True:
         subprocess.run("sed -i 's/$releasever/{0}/g' /etc/yum.repos.d/docker-ce.repo".format(release), shell=True)
     # Install
-    subprocess.run("yum install -y docker-ce; systemctl enable docker", shell=True)
+    subprocess.run("yum install -y docker-ce; systemctl enable docker; systemctl start docker", shell=True)
     subprocess.run("usermod -aG docker {0}".format(USERNAMEVAR), shell=True)
 
 ### Docker Compose Install ###
