@@ -20,12 +20,18 @@ CFunc.is_root(False)
 # Check for apm command.
 apm_native = "apm"
 apm_flatpak = "flatpak run --command=apm io.atom.Atom"
+apm_snap = "snap run atom.apm"
 if shutil.which("apm"):
     print("Detected native apm command.")
     apm_cmd = apm_native
     atom_userconfigfolder = os.path.join(userhome, ".atom")
     atom_userconfig = os.path.join(atom_userconfigfolder, "config.cson")
-elif subprocess.run("flatpak run --command=apm io.atom.Atom", shell=True).returncode is 0:
+elif subprocess.run(apm_snap, shell=True).returncode is 0:
+    print("Detected snap apm command.")
+    apm_cmd = apm_snap
+    atom_userconfigfolder = os.path.join(userhome, ".atom")
+    atom_userconfig = os.path.join(atom_userconfigfolder, "config.cson")
+elif subprocess.run(apm_flatpak, shell=True).returncode is 0:
     print("Detected flatpak apm command.")
     apm_cmd = apm_flatpak
     atom_userconfigfolder = os.path.join(userhome, ".var", "app", "io.atom.Atom", "data")
