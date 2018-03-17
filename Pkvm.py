@@ -315,7 +315,7 @@ else:
     sys.exit("\nError, ensure iso {0} exists.".format(isopath))
 
 # Create temporary folder for packer
-packer_temp_folder = os.path.join(vmpath, "packertemp"+vmname)
+packer_temp_folder = os.path.join(vmpath, "packertemp" + vmname)
 if os.path.isdir(packer_temp_folder):
     print("\nDeleting old VM.")
     shutil.rmtree(packer_temp_folder)
@@ -585,14 +585,14 @@ if os.path.isdir(output_folder):
             subprocess.run('virsh --connect qemu:///system destroy "{0}"'.format(vmname), shell=True)
             subprocess.run('virsh --connect qemu:///system undefine "{0}"'.format(vmname), shell=True)
     # Remove previous file for kvm.
-    if args.vmtype == 2 and os.path.isfile(os.path.join(vmpath, vmname+".qcow2")):
-        os.remove(os.path.join(vmpath, vmname+".qcow2"))
+    if args.vmtype == 2 and os.path.isfile(os.path.join(vmpath, vmname + ".qcow2")):
+        os.remove(os.path.join(vmpath, vmname + ".qcow2"))
     print("\nCopying {0} to {1}.".format(output_folder, vmpath))
     if args.vmtype != 2:
         shutil.copytree(output_folder, os.path.join(vmpath, vmname))
     # Copy the qcow2 file, and remove the folder entirely for kvm.
-    if args.vmtype == 2 and os.path.isfile(os.path.join(output_folder, vmname+".qcow2")):
-        shutil.copy2(os.path.join(output_folder, vmname+".qcow2"), os.path.join(vmpath, vmname+".qcow2"))
+    if args.vmtype == 2 and os.path.isfile(os.path.join(output_folder, vmname + ".qcow2")):
+        shutil.copy2(os.path.join(output_folder, vmname + ".qcow2"), os.path.join(vmpath, vmname + ".qcow2"))
         # Copy build log
         shutil.copy2(os.path.join(output_folder, buildlog_destname), vmpath)
 if args.debug:
