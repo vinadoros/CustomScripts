@@ -54,7 +54,7 @@ elif shutil.which("zypper"):
     subprocess.run("""	sudo zypper ar -f http://download.opensuse.org/repositories/devel:/languages:/python3/openSUSE_Tumbleweed/ languages-python3
 sudo zypper ar -f http://download.opensuse.org/repositories/devel:/languages:/python/openSUSE_Tumbleweed/ languages-python
 sudo zypper --non-interactive --gpg-auto-import-keys refresh
-sudo zypper in -yl python3-jedi ShellCheck python3-pylama python-pylama_pylint""", shell=True)
+sudo zypper in -yl python3-jedi ShellCheck""", shell=True)
 
 ### Detect Windows Commands ###
 if CFunc.is_windows() is True:
@@ -71,7 +71,7 @@ else:
     print("Ruby/gem not detected. Not installing ruby gems.")
 if shutil.which(pipcmd):
     print("Installing python dependencies.")
-    subprocess.run("{0}{1} install pylama pylama-pylint".format(sudocmd, pipcmd), shell=True)
+    subprocess.run("{0}{1} install flake8".format(sudocmd, pipcmd), shell=True)
 else:
     print("{0} not found. Not install python packages.".format(pipcmd))
 
@@ -93,7 +93,7 @@ atom_ins("split-diff")
 # Linting
 atom_ins("linter linter-ui-default intentions busy-signal")
 # Python
-atom_ins("autocomplete-python linter-python")
+atom_ins("autocomplete-python linter-flake8")
 # Ruby and Rails
 atom_ins("linter-ruby linter-rails-best-practices")
 # Shell
@@ -126,13 +126,15 @@ file_cson_text = '''"*":
     muteNotifications: true
     turnOffSoftWrap: true
 '''
-if shutil.which("pylama"):
-    file_cson_text += '''  "linter-python":
-    executablePath: "{pylamapath}"
-    ignoreCodes: "C0301"
-    lintTrigger: "File saved or modified"
-    withPylint: true
-'''.format(pylamapath=shutil.which("pylama"))
+if shutil.which("flake8"):
+    file_cson_text += '''  "linter-flake8":
+    executablePath: "/usr/local/bin/flake8"
+    ignoreErrorCodes: [
+      "E501"
+      "E302"
+      "E266"
+    ]
+'''.format(flakepath=shutil.which("flake8"))
 print("Writing {0}.".format(atom_userconfig))
 with open(atom_userconfig, 'w') as file_cson_wr:
     file_cson_wr.write(file_cson_text)
