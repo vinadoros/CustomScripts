@@ -19,6 +19,7 @@ SCRIPTDIR = sys.path[0]
 # Get arguments
 parser = argparse.ArgumentParser(description='Install Virtualbox Guest Software.')
 parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
+parser.add_argument("-f", "--force", help='Force installation.', action="store_true")
 args = parser.parse_args()
 
 # Exit if not root.
