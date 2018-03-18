@@ -75,6 +75,25 @@ subprocess.check_output("yum install -y scl-utils rh-python36", shell=True)
 if args.replace is True:
     subprocess.check_output("yum install -y python36u python36u-pip fish", shell=True)
 
+# Desktop Environments
+if args.gui is not None:
+    print("Installing xorg")
+    subprocess.check_output('yum install -y @x-window-system', shell=True)
+if args.gui == "gnome":
+    print("Installing gnome")
+    subprocess.check_output('yum install -y @gnome-desktop', shell=True)
+if args.gui == "mate":
+    print("Installing mate")
+    subprocess.check_output('yum groupinstall -y "MATE Desktop"', shell=True)
+if args.gui == "xfce":
+    print("Installing xfce")
+    subprocess.check_output('yum groupinstall -y "Xfce"', shell=True)
+if args.gui is not None:
+    subprocess.check_output("yum install -y gnome-disk-utility", shell=True)
+    # if os.path.isfile("/etc/X11/xorg.conf"):
+    #     os.remove("/etc/X11/xorg.conf")
+    subprocess.call("systemctl set-default graphical.target", shell=True)
+
 # Replace git and kernel
 if args.replace is True:
     subprocess.call("yum swap -y git git2u", shell=True)
@@ -95,24 +114,8 @@ subprocess.check_output("scl enable rh-python36 {0}/Czram.py".format(SCRIPTDIR),
 if args.docker is True:
     subprocess.check_output("scl enable rh-python36 '{0}/CDocker.py -n'".format(SCRIPTDIR), shell=True)
 
-# Desktop Environments
-if args.gui is not None:
-    subprocess.check_output('yum groupinstall -y "X Window system"', shell=True)
-if args.gui == "gnome":
-    subprocess.check_output('yum groupinstall -y "GNOME Desktop"', shell=True)
-if args.gui == "mate":
-    subprocess.check_output('yum groupinstall -y "MATE Desktop"', shell=True)
-if args.gui == "mate":
-    subprocess.check_output('yum groupinstall -y "Xfce"', shell=True)
-if args.gui is not None:
-    subprocess.check_output("yum install -y gnome-disk-utility", shell=True)
-    # if os.path.isfile("/etc/X11/xorg.conf"):
-    #     os.remove("/etc/X11/xorg.conf")
-    subprocess.call("systemctl set-default graphical.target", shell=True)
-
 # Virtualbox Additions
 subprocess.call("scl enable rh-python36 '{0}/CVBoxGuest.py -n'".format(SCRIPTDIR), shell=True)
-
 
 ##### CentOS Configuration #####
 subprocess.check_output("""
