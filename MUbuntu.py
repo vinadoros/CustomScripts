@@ -232,8 +232,8 @@ unmanaged-devices=none""")
 subprocess.run("dpkg-reconfigure --frontend=noninteractive resolvconf", shell=True)
 
 # Disable apport if it exists
-if os.path.isfile("/etc/default/apport"):
-    subprocess.run("sed -i 's/^enabled=.*/enabled=0/g' /etc/default/apport", shell=True)
+# if os.path.isfile("/etc/default/apport"):
+#     subprocess.run("sed -i 's/^enabled=.*/enabled=0/g' /etc/default/apport", shell=True)
 
 # Install Desktop Software
 if args.desktop == "gnome":
