@@ -123,7 +123,6 @@ dkms
 spice-vdagent
 qemu-guest-agent
 open-vm-tools
-open-vm-tools-dkms
 open-vm-tools-desktop
 virtualbox-guest-utils
 virtualbox-guest-dkms
