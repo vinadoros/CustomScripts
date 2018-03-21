@@ -50,6 +50,28 @@ ks_text = """
 
 part / --size 6144
 
+%packages
+
+gparted
+fish
+nano
+tmux
+iotop
+rsync
+p7zip
+p7zip-plugins
+zip
+unzip
+openssh-server
+openssh-clients
+avahi
+spice-vdagent
+qemu-guest-agent
+open-vm-tools
+open-vm-tools-desktop
+
+%end
+
 %post
 cat >> /etc/rc.d/init.d/livesys << EOF
 
@@ -107,4 +129,5 @@ shortdate = time.strftime("%Y%m%d")
 beforetime = datetime.now()
 # Start Build
 subprocess.run("livemedia-creator --ks {ks} --no-virt --resultdir {resultdir} --project Fedora-CustomLive --make-iso --volid Fedora-CustomLive-{shortdate} --iso-only --iso-name Fedora-CustomLive-{datetime}.iso --releasever 27 --title Fedora-CustomLive --macboot".format(ks=ks_flat, resultdir=resultsfolder, datetime=currentdatetime, shortdate=shortdate), shell=True)
+subprocess.run("chmod a+rw -R {0}".format(buildfolder))
 print("Build completed in :", datetime.now() - beforetime)

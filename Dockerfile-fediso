@@ -6,12 +6,12 @@
 FROM fedora:latest
 
 # Install livecd apps.
-RUN dnf install -y nano livecd-tools spin-kickstarts pykickstart anaconda
+RUN dnf install -y coreutils nano livecd-tools spin-kickstarts pykickstart anaconda
 
 VOLUME ["/opt/CustomScripts"]
 
-# VOLUME ["/fediso"]
-# WORKDIR /fediso
+VOLUME ["/fediso"]
+WORKDIR /fediso
 
 CMD ["/opt/CustomScripts/Afediso.py","-n","-w","/fediso","-o","/fediso"]
 # CMD ["bash"]
