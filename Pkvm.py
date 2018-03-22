@@ -475,7 +475,15 @@ if 40 <= args.ostype <= 41:
     data['provisioners'][0]["inline"] = "export ASSUME_ALWAYS_YES=yes; pw useradd -n {vmuser} -m; mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; pkg update -f; pkg install -y git; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser)
     data['builders'][0]["shutdown_command"] = "shutdown -p now"
 if 50 <= args.ostype <= 59:
-    data['provisioners'][0]["type"] = "powershell"
+    # Reboot after initial script
+    data['provisioners'][0]["type"] = "windows-restart"
+    data['provisioners'][0]["restart_timeout"] = "10m"
+    # Set up provisioner for powershell script
+    data['provisioners'].append('')
+    data['provisioners'][1] = {}
+    data['provisioners'][1]["type"] = "powershell"
+    # Provision with generic windows script
+    data['provisioners'][1]["scripts"] = [os.path.join(tempscriptfolderpath, "Win-provision.ps1")]
     data['builders'][0]["boot_command"] = ["<wait5>"]
     # Shutdown in 4 minutes (for Windows 7, which runs the commands earlier in setup than Windows 10)
     data['builders'][0]["shutdown_command"] = "shutdown /s /t 60"
@@ -485,9 +493,8 @@ if 50 <= args.ostype <= 59:
     data['builders'][0]["ssh_username"] = "{0}".format(args.vmuser)
     data['builders'][0]["floppy_files"] = [os.path.join(tempscriptbasename, "unattend", "autounattend.xml"),
                                            os.path.join(tempscriptbasename, "unattend", "win_initial.bat"),
+                                           os.path.join(tempscriptbasename, "unattend", "win_enablerm.ps1"),
                                            os.path.join(tempscriptbasename, "unattend", "win_cygssh.bat")]
-    # Provision with generic windows script for all but Server Core
-    data['provisioners'][0]["scripts"] = [os.path.join(tempscriptfolderpath, "Win-provision.ps1")]
     # Register the namespace to avoid nsX in namespace.
     ET.register_namespace('', "urn:schemas-microsoft-com:unattend")
     ET.register_namespace('wcm', "http://schemas.microsoft.com/WMIConfig/2002/State")

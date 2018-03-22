@@ -39,10 +39,6 @@ if (Test-Path "$env:windir\explorer.exe"){
 # Install chocolatey
 function Fcn-InstallChocolatey {
   iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-  # Ensure powershell is updated for Windows 7.
-  if ([Environment]::OSVersion.Version.Major -lt 8){
-    choco upgrade -y dotnet4.7 powershell
-  }
 }
 
 # Add path to environment.
@@ -122,7 +118,7 @@ function Fcn-CSClone {
 # Software Function
 function Fcn-Software {
   # Required Basics
-  choco upgrade -y dotnet4.7 powershell
+  choco upgrade -y dotnet4.7.1 powershell
   # Install universal apps
   choco upgrade -y 7zip
   # Libraries
@@ -371,6 +367,16 @@ function Fcn-StartMenuRemoveAll {
   }
 }
 
+# Disable WinRM
+function Fcn-DisableWinRM {
+  $winrmService = Get-Service -Name WinRM
+  if ($winrmService.Status -eq "Running"){
+      Disable-PSRemoting -Force
+  }
+  Stop-Service winrm
+  Set-Service -Name winrm -StartupType Disabled
+}
+
 ### Begin Code ###
 if (-Not $isDotSourced) {
   echo "Running provision script."
@@ -380,4 +386,5 @@ if (-Not $isDotSourced) {
   Fcn-Customize
   Fcn-RemoveFeatures
   Fcn-StartMenuRemoveAll
+  Fcn-DisableWinRM
 }
