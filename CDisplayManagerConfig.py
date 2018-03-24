@@ -39,7 +39,7 @@ print("Group Name is:", USERGROUP)
 ### LightDM Section ###
 if shutil.which("lightdm"):
     print("\n Processing lightdm configuration.")
-    if not "autologin" in open('/etc/group', 'r').read():
+    if "autologin" not in open('/etc/group', 'r').read():
         subprocess.run("groupadd autologin", shell=True)
     subprocess.run("gpasswd -a {0} autologin".format(USERNAMEVAR), shell=True)
     # Enable autologin
@@ -47,7 +47,9 @@ if shutil.which("lightdm"):
         if os.path.isfile("/etc/lightdm/lightdm.conf"):
             subprocess.run("sed -i 's/#autologin-user=/autologin-user={0}/g' /etc/lightdm/lightdm.conf".format(USERNAMEVAR), shell=True)
         os.makedirs("/etc/lightdm/lightdm.conf.d", exist_ok=True)
-        subprocess.run('echo -e "[SeatDefaults]\nautologin-user={0}" > /etc/lightdm/lightdm.conf.d/12-autologin.conf'.format(USERNAMEVAR), shell=True)
+        with open('/etc/lightdm/lightdm.conf.d/12-autologin.conf', 'w') as file:
+            file.write("""[SeatDefaults]
+autologin-user={0}""".format(USERNAMEVAR))
 # Enable listing of users
 if os.path.isfile("/etc/lightdm/lightdm.conf"):
     subprocess.run("sed -i 's/#greeter-hide-users=false/greeter-hide-users=false/g' /etc/lightdm/lightdm.conf", shell=True)
@@ -72,32 +74,33 @@ echo "Executing $0"
 SERVER="$(<{0})"
 
 if [ -z $DISPLAY ]; then
-	echo "Setting variables for xvnc."
-	DISPLAY=:0
+    echo "Setting variables for xvnc."
+    DISPLAY=:0
 fi
 
 if type -p synergyc &> /dev/null && [[ "$SERVER" != "HostnameHere" ]]; then
-	echo "Starting Synergy client."
-	synergyc "$SERVER"
+    echo "Starting Synergy client."
+    synergyc "$SERVER"
 fi
 
 if type -p x0vncserver &> /dev/null && [ -f /etc/vncpasswd ]; then
-	echo "Starting vnc."
-	x0vncserver -passwordfile /etc/vncpasswd -rfbport 5900 &
+    echo "Starting vnc."
+    x0vncserver -passwordfile /etc/vncpasswd -rfbport 5900 &
 fi
 
 # Don't run if gdm is running.
 if type -p xset &> /dev/null && ! pgrep gdm &> /dev/null; then
-	echo "Starting xset dpms."
-	# http://shallowsky.com/linux/x-screen-blanking.html
-	# http://www.x.org/releases/X11R7.6/doc/man/man1/xset.1.xhtml
-	# Turn screen off in 60 seconds.
-	xset s 60
-	xset dpms 60 60 60
+    echo "Starting xset dpms."
+    # http://shallowsky.com/linux/x-screen-blanking.html
+    # http://www.x.org/releases/X11R7.6/doc/man/man1/xset.1.xhtml
+    # Turn screen off in 60 seconds.
+    xset s 60
+    xset dpms 60 60 60
 fi
 
 exit 0
 """.format(SynHostFile))
+os.chmod(LDSTART, 0o777)
 
 # LightDM Stop Script
 LDSTOP = "/usr/local/bin/ldstop.sh"
@@ -107,35 +110,39 @@ echo "Executing $0"
 
 # Kill synergy client.
 if pgrep synergyc; then
-	killall synergyc
+    killall synergyc
 fi
 
 # Kill X VNC server.
 if pgrep x0vncserver; then
-	killall x0vncserver
+    killall x0vncserver
 fi
 
 # Set xset parameters back to defaults.
 if type -p xset &> /dev/null && ! pgrep gdm &> /dev/null; then
-	xset s
+    xset s
 fi
 
 exit 0
 """)
+os.chmod(LDSTOP, 0o777)
 
 # Run startup script
 LightDM_Config = "/etc/lightdm/lightdm.conf"
 if os.path.isfile(LightDM_Config):
     subprocess.run("""
-	# Uncomment lines
-	sed -i '/^#display-setup-script=.*/s/^#//g' {LightDM_Config}
-	sed -i '/^#session-setup-script=.*/s/^#//g' {LightDM_Config}
-	# Add startup scripts to session
-	sed -i "s@display-setup-script=.*@display-setup-script=$LDSTART@g" {LightDM_Config}
-	sed -i "s@session-setup-script=.*@session-setup-script=$LDSTOP@g" {LightDM_Config}
+    # Uncomment lines
+    sed -i '/^#display-setup-script=.*/s/^#//g' {LightDM_Config}
+    sed -i '/^#session-setup-script=.*/s/^#//g' {LightDM_Config}
+    # Add startup scripts to session
+    sed -i "s@display-setup-script=.*@display-setup-script=$LDSTART@g" {LightDM_Config}
+    sed -i "s@session-setup-script=.*@session-setup-script=$LDSTOP@g" {LightDM_Config}
 """.format(LightDM_Config=LightDM_Config), shell=True)
 elif not os.path.isfile(LightDM_Config) and os.path.isdir("/etc/lightdm/lightdm.conf.d"):
-    subprocess.run('echo -e "[SeatDefaults]\ndisplay-setup-script={LDSTART}\nsession-setup-script={LDSTOP}" > /etc/lightdm/lightdm.conf.d/11-startup.conf'.format(LDSTART=LDSTART, LDSTOP=LDSTOP), shell=True)
+    with open('/etc/lightdm/lightdm.conf.d/11-startup.conf', 'w') as file:
+        file.write("""[SeatDefaults]
+display-setup-script={LDSTART}
+session-setup-script={LDSTOP}""".format(LDSTART=LDSTART, LDSTOP=LDSTOP))
 
 ### GDM Section ###
 if shutil.which("gdm") or shutil.which("gdm3"):
@@ -150,8 +157,8 @@ if shutil.which("gdm") or shutil.which("gdm3"):
     # Enable gdm autologin for virtual machines.
     if vmstatus or args.autologin is True:
         print("Enabling gdm autologin for {0}.".format(USERNAMEVAR))
-		# https://afrantzis.wordpress.com/2012/06/11/changing-gdmlightdm-user-login-settings-programmatically/
-		# Get dbus path for the user
+        # https://afrantzis.wordpress.com/2012/06/11/changing-gdmlightdm-user-login-settings-programmatically/
+        # Get dbus path for the user
         USER_PATH = CFunc.subpout("dbus-send --print-reply=literal --system --dest=org.freedesktop.Accounts /org/freedesktop/Accounts org.freedesktop.Accounts.FindUserByName string:{0}".format(USERNAMEVAR))
         # Send the command over dbus to freedesktop accounts.
         subprocess.run("dbus-send --print-reply --system --dest=org.freedesktop.Accounts {0} org.freedesktop.Accounts.User.SetAutomaticLogin boolean:true".format(USER_PATH), shell=True)
@@ -186,7 +193,7 @@ if shutil.which("gdm") or shutil.which("gdm3"):
         sed -i 's/^WaylandEnable=.*/WaylandEnable=false/g' "{0}"
         """.format(GDMCustomConf), shell=True)
 
-	# Start xvnc and synergy
+    # Start xvnc and synergy
     with open("/usr/share/gdm/greeter/autostart/gdm_start.desktop", 'w') as file:
         file.write("""[Desktop Entry]
 Type=Application
