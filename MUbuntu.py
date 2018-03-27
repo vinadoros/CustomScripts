@@ -210,8 +210,9 @@ if args.nogui is False and args.bare is False:
     CFunc.addppa("ppa:webupd8team/terminix")
     CFunc.aptinstall("tilix")
     # Atom Editor
-    CFunc.addppa("ppa:webupd8team/atom")
-    CFunc.aptinstall("atom")
+    subprocess.run("snap install --classic atom", shell=True)
+    # CFunc.addppa("ppa:webupd8team/atom")
+    # CFunc.aptinstall("atom")
     # Visual Studio Code
     subprocess.run("""curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
     mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg""", shell=True)

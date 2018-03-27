@@ -185,8 +185,28 @@ if os.path.isdir('/etc/sudoers.d'):
 CFunc.dnfinstall("powertop smartmontools hdparm; systemctl enable powertop")
 
 if not args.bare and not args.nogui:
+    # Install snapd
+    CFunc.dnfinstall("snapd")
+    if not os.path.islink("/snap"):
+        os.symlink("/var/lib/snapd/snap", "/snap", target_is_directory=True)
+
+    # Atom from snap
+    subprocess.run("snap install --classic atom", shell=True)
+    # Create shortcut (not yet integrated for snap on fedora)
+    with open("/usr/local/share/applications/atom.desktop", 'w') as file:
+        file.write("""[Desktop Entry]
+Name=Atom
+Comment=A hackable text editor for the 21st Century.
+GenericName=Text Editor
+Exec=snap run atom %F
+Icon=/snap/atom/current/usr/share/pixmaps/atom.png
+Type=Application
+StartupNotify=true
+Categories=GNOME;GTK;Utility;TextEditor;Development;
+MimeType=text/plain;""".format())
+
     # Atom from script
-    subprocess.run("{0}/CAtomRPM.py".format(SCRIPTDIR), shell=True)
+    # subprocess.run("{0}/CAtomRPM.py".format(SCRIPTDIR), shell=True)
     # Atom from flatpak
     # subprocess.run("flatpak install -y --from https://flathub.org/repo/appstream/io.atom.Atom.flatpakref", shell=True)
 
