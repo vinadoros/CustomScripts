@@ -135,12 +135,12 @@ if os.path.isfile(LightDM_Config):
     sed -i '/^#display-setup-script=.*/s/^#//g' {LightDM_Config}
     sed -i '/^#session-setup-script=.*/s/^#//g' {LightDM_Config}
     # Add startup scripts to session
-    sed -i "s@display-setup-script=.*@display-setup-script=$LDSTART@g" {LightDM_Config}
-    sed -i "s@session-setup-script=.*@session-setup-script=$LDSTOP@g" {LightDM_Config}
-""".format(LightDM_Config=LightDM_Config), shell=True)
+    sed -i "s@display-setup-script=.*@display-setup-script={LDSTART}@g" {LightDM_Config}
+    sed -i "s@session-setup-script=.*@session-setup-script={LDSTOP}@g" {LightDM_Config}
+""".format(LightDM_Config=LightDM_Config, LDSTART=LDSTART, LDSTOP=LDSTOP), shell=True)
 elif not os.path.isfile(LightDM_Config) and os.path.isdir("/etc/lightdm/lightdm.conf.d"):
     with open('/etc/lightdm/lightdm.conf.d/11-startup.conf', 'w') as file:
-        file.write("""[SeatDefaults]
+        file.write("""[Seat:*]
 display-setup-script={LDSTART}
 session-setup-script={LDSTOP}""".format(LDSTART=LDSTART, LDSTOP=LDSTOP))
 
