@@ -128,7 +128,6 @@ file_cson_text = '''"*":
 '''
 if shutil.which("flake8"):
     file_cson_text += '''  "linter-flake8":
-    executablePath: "/usr/local/bin/flake8"
     ignoreErrorCodes: [
       "E501"
       "E302"
