@@ -115,6 +115,11 @@ function Fcn-CSClone {
   Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "csupdate" -Description "Hourly Update of $RepoName" -User $env:UserName
 }
 
+# Prompt for password to make CSUpdate a background task
+function Fcn-csauto {
+  schtasks /Change /RP * /TN "csupdate"
+}
+
 # Software Function
 function Fcn-Software {
   # Required Basics
