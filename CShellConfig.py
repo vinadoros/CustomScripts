@@ -364,11 +364,11 @@ if shutil.which('zsh'):
             subprocess.run('chsh -s {ZSHPATH}'.format(ZSHPATH=ZSHPATH), shell=True)
 
         # Install oh-my-zsh for user
-        gitclone("git clone git://github.com/robbyrussell/oh-my-zsh.git {0}/.oh-my-zsh".format(USERHOME))
+        gitclone("git://github.com/robbyrussell/oh-my-zsh.git", "{0}/.oh-my-zsh".format(USERHOME))
         # Install zsh-syntax-highlighting
-        gitclone("git clone https://github.com/zsh-users/zsh-syntax-highlighting.git {0}/.oh-my-zsh/plugins/zsh-syntax-highlighting".format(USERHOME))
+        gitclone("https://github.com/zsh-users/zsh-syntax-highlighting.git", "{0}/.oh-my-zsh/plugins/zsh-syntax-highlighting".format(USERHOME))
         # Install zsh-autosuggestions
-        gitclone("git clone https://github.com/zsh-users/zsh-autosuggestions {0}/.oh-my-zsh/plugins/zsh-autosuggestions".format(USERHOME))
+        gitclone("https://github.com/zsh-users/zsh-autosuggestions", "{0}/.oh-my-zsh/plugins/zsh-autosuggestions".format(USERHOME))
 
         # Determine which plugins to install
         ohmyzsh_plugins = "git systemd zsh-syntax-highlighting zsh-autosuggestions"
