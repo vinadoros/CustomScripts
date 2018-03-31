@@ -44,6 +44,18 @@ for cmd in cmdcheck:
         sys.exit("\nError, ensure command {0} is installed.".format(cmd))
 
 
+### Functions ###
+def gitclone(url, destination):
+    """If destination exists, do a git pull, otherwise git clone"""
+    abs_dest = os.path.abspath(destination)
+    if os.path.isdir(abs_dest):
+        print("{0} exists. Pulling changes.".format(abs_dest))
+        subprocess.run("cd {0}; git pull".format(abs_dest), shell=True)
+    else:
+        print("Cloning to {0}".format(abs_dest))
+        subprocess.run("git clone {0} {1}".format(url, destination), shell=True)
+
+
 ### Generic Section ###
 # Create "a" script
 ascript_path = os.path.join("/", "usr", "local", "bin", "a")
@@ -254,6 +266,9 @@ elif type dnf &> /dev/null || type yum &> /dev/null; then
         $SUDOCMD $PKGMGR update -y
     }
 fi
+
+# Run options passed.
+"$@"
 """ % SCRIPTDIR)
     # C-style printf string formatting was used to avoid collision with curly braces above.
     # https://docs.python.org/3/library/stdtypes.html#old-string-formatting
@@ -343,18 +358,15 @@ if shutil.which('zsh'):
         # Change the shell for the non-root user if running as root.
         if os.geteuid() is 0:
             subprocess.run('chsh -s {ZSHPATH} {USERNAMEVAR}'.format(USERNAMEVAR=USERNAMEVAR, ZSHPATH=ZSHPATH), shell=True)
-            # Install oh-my-zsh
-            subprocess.run('su {0} -s {1} -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"'.format(USERNAMEVAR, shutil.which('bash')), shell=True)
-            # Install zsh-syntax-highlighting
-            subprocess.run('su {0} -s {1} -c "git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${{ZSH_CUSTOM:-~/.oh-my-zsh/custom}}/plugins/zsh-syntax-highlighting"'.format(USERNAMEVAR, shutil.which('zsh')), shell=True)
-            subprocess.run('su {0} -s {1} -c "git clone https://github.com/zsh-users/zsh-autosuggestions $ZSH_CUSTOM/plugins/zsh-autosuggestions"'.format(USERNAMEVAR, shutil.which('zsh')), shell=True)
         else:
             subprocess.run('chsh -s {ZSHPATH}'.format(ZSHPATH=ZSHPATH), shell=True)
-            # Install oh-my-zsh
-            subprocess.run('sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"', shell=True)
-            # Install zsh-syntax-highlighting
-            subprocess.run('zsh -c "git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${{ZSH_CUSTOM:-~/.oh-my-zsh/custom}}/plugins/zsh-syntax-highlighting"', shell=True)
-            subprocess.run('su {0} -s {1} -c "git clone https://github.com/zsh-users/zsh-autosuggestions $ZSH_CUSTOM/plugins/zsh-autosuggestions"'.format(USERNAMEVAR, shutil.which('zsh')), shell=True)
+
+        # Install oh-my-zsh for user
+        gitclone("git clone git://github.com/robbyrussell/oh-my-zsh.git {0}/.oh-my-zsh".format(USERHOME))
+        # Install zsh-syntax-highlighting
+        gitclone("git clone https://github.com/zsh-users/zsh-syntax-highlighting.git {0}/.oh-my-zsh/plugins/zsh-syntax-highlighting".format(USERHOME))
+        # Install zsh-autosuggestions
+        gitclone("git clone https://github.com/zsh-users/zsh-autosuggestions {0}/.oh-my-zsh/plugins/zsh-autosuggestions".format(USERHOME))
 
         # Determine which plugins to install
         ohmyzsh_plugins = "git systemd zsh-syntax-highlighting zsh-autosuggestions"
@@ -366,10 +378,13 @@ if shutil.which('zsh'):
         zshrc_path = os.path.join(USERHOME, ".zshrc")
         print("Writing {0}".format(zshrc_path))
         with open(zshrc_path, 'w') as file:
-            file.write("""
-export ZSH={0}/.oh-my-zsh
-ZSH_THEME="robbyrussell"
+            file.write("""export ZSH={0}/.oh-my-zsh
+ZSH_THEME="agnoster"
 plugins=( {1} )
 source $ZSH/oh-my-zsh.sh""".format(USERHOME, ohmyzsh_plugins))
+
+# Fix permissions of home folder if the script was run as root.
+if os.geteuid() is 0:
+    subprocess.run("chown {0}:{1} -R {2}".format(USERNAMEVAR, USERGROUP, USERHOME))
 
 print("Script finished successfully.")
