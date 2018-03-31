@@ -281,7 +281,7 @@ else:
 # Generate profile file.
 customprofile_path = os.path.join("/", "etc", "profile.d", "rcustom.sh")
 # Check if the profile.d folder exists.
-if os.path.isdir(os.path.dirname(customprofile_path)):
+if os.path.isdir(os.path.dirname(customprofile_path)) and os.access(os.path.dirname(customprofile_path), os.W_OK):
     print("Writing {0}".format(customprofile_path))
     with open(customprofile_path, 'w') as file:
         file.write("""#!/bin/sh --this-shebang-is-just-here-to-inform-shellcheck--
@@ -297,6 +297,8 @@ if [ -z "$EDITOR" ] || [ "$EDITOR" != "nano" ]; then
 fi
 
 """.format(SCRIPTDIR))
+else:
+    print("ERROR: {0} is not writeable.".format(os.path.dirname(customprofile_path)))
 
 # Generate bash script
 BASHSCRIPT = "alias la='ls -lah --color=auto'"
