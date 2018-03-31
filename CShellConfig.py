@@ -47,9 +47,10 @@ for cmd in cmdcheck:
 ### Generic Section ###
 # Create "a" script
 ascript_path = os.path.join("/", "usr", "local", "bin", "a")
-print("Writing {0}".format(ascript_path))
-with open(ascript_path, 'w') as file:
-    file.write("""#!/bin/bash
+if os.access(os.path.dirname(ascript_path), os.W_OK):
+    print("Writing {0}".format(ascript_path))
+    with open(ascript_path, 'w') as file:
+        file.write("""#!/bin/bash
 # Set root and non-root cmds.
 if [ $(id -u) != "0" ]; then
     SUDOCMD="sudo"
@@ -254,9 +255,12 @@ elif type dnf &> /dev/null || type yum &> /dev/null; then
     }
 fi
 """ % SCRIPTDIR)
-# C-style printf string formatting was used to avoid collision with curly braces above.
-# https://docs.python.org/3/library/stdtypes.html#old-string-formatting
-os.chmod(ascript_path, 0o777)
+    # C-style printf string formatting was used to avoid collision with curly braces above.
+    # https://docs.python.org/3/library/stdtypes.html#old-string-formatting
+    os.chmod(ascript_path, 0o777)
+else:
+    print("ERROR: {0} not writeable.".format(os.path.dirname(ascript_path)))
+
 
 ######### Bash Section #########
 # Generate profile file.
@@ -268,12 +272,12 @@ if os.path.isdir(os.path.dirname(customprofile_path)):
         file.write("""#!/bin/sh --this-shebang-is-just-here-to-inform-shellcheck--
 
 # Expand $PATH to include the CustomScripts path.
-if [ "${{PATH#*{0}}}" = "${{PATH}}" && -d "{0}" ]; then
+if [ "${{PATH#*{0}}}" = "${{PATH}}" ] && [ -d "{0}" ]; then
     export PATH=$PATH:{0}
 fi
 
 # Set editor to nano
-if [ -z $EDITOR || $EDITOR != "nano" ]; then
+if [ -z "$EDITOR" ] || [ "$EDITOR" != "nano" ]; then
     export EDITOR=nano
 fi
 
