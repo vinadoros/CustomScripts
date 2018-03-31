@@ -387,6 +387,6 @@ source $ZSH/oh-my-zsh.sh""".format(USERHOME, ohmyzsh_plugins))
 
 # Fix permissions of home folder if the script was run as root.
 if os.geteuid() is 0:
-    subprocess.run("chown {0}:{1} -R {2}".format(USERNAMEVAR, USERGROUP, USERHOME))
+    subprocess.run("chown {0}:{1} -R {2}".format(USERNAMEVAR, USERGROUP, USERHOME), shell=True)
 
 print("Script finished successfully.")
