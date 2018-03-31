@@ -355,35 +355,35 @@ if os.geteuid() is 0:
 # Check if zsh exists
 if shutil.which('zsh'):
     ZSHPATH = shutil.which('zsh')
-    # Set Zsh as default shell for the user.
-    if not os.getenv("SHELL").endswith("zsh"):
-        # Change the shell for the non-root user if running as root.
-        if os.geteuid() is 0:
-            subprocess.run('chsh -s {ZSHPATH} {USERNAMEVAR}'.format(USERNAMEVAR=USERNAMEVAR, ZSHPATH=ZSHPATH), shell=True)
-        else:
-            subprocess.run('chsh -s {ZSHPATH}'.format(ZSHPATH=ZSHPATH), shell=True)
+    # Change the shell for the non-root user if running as root.
+    if os.geteuid() is 0:
+        subprocess.run('chsh -s {ZSHPATH} {USERNAMEVAR}'.format(USERNAMEVAR=USERNAMEVAR, ZSHPATH=ZSHPATH), shell=True)
+    else:
+        subprocess.run('chsh -s {0}'.format(ZSHPATH), shell=True)
 
-        # Install oh-my-zsh for user
-        gitclone("git://github.com/robbyrussell/oh-my-zsh.git", "{0}/.oh-my-zsh".format(USERHOME))
-        # Install zsh-syntax-highlighting
-        gitclone("https://github.com/zsh-users/zsh-syntax-highlighting.git", "{0}/.oh-my-zsh/plugins/zsh-syntax-highlighting".format(USERHOME))
-        # Install zsh-autosuggestions
-        gitclone("https://github.com/zsh-users/zsh-autosuggestions", "{0}/.oh-my-zsh/plugins/zsh-autosuggestions".format(USERHOME))
+    # Install oh-my-zsh for user
+    gitclone("git://github.com/robbyrussell/oh-my-zsh.git", "{0}/.oh-my-zsh".format(USERHOME))
+    # Install zsh-syntax-highlighting
+    gitclone("https://github.com/zsh-users/zsh-syntax-highlighting.git", "{0}/.oh-my-zsh/plugins/zsh-syntax-highlighting".format(USERHOME))
+    # Install zsh-autosuggestions
+    gitclone("https://github.com/zsh-users/zsh-autosuggestions", "{0}/.oh-my-zsh/plugins/zsh-autosuggestions".format(USERHOME))
 
-        # Determine which plugins to install
-        ohmyzsh_plugins = "git systemd zsh-syntax-highlighting zsh-autosuggestions"
-        if distro == "Ubuntu":
-            ohmyzsh_plugins += " ubuntu"
-        elif distro == "Fedora":
-            ohmyzsh_plugins += " dnf"
-        # Write zshrc
-        zshrc_path = os.path.join(USERHOME, ".zshrc")
-        print("Writing {0}".format(zshrc_path))
-        with open(zshrc_path, 'w') as file:
-            file.write("""export ZSH={0}/.oh-my-zsh
+    # Determine which plugins to install
+    ohmyzsh_plugins = "git systemd zsh-syntax-highlighting zsh-autosuggestions"
+    if distro == "Ubuntu":
+        ohmyzsh_plugins += " ubuntu"
+    elif distro == "Fedora":
+        ohmyzsh_plugins += " dnf"
+    # Write zshrc
+    zshrc_path = os.path.join(USERHOME, ".zshrc")
+    print("Writing {0}".format(zshrc_path))
+    with open(zshrc_path, 'w') as file:
+        file.write("""export ZSH={0}/.oh-my-zsh
 ZSH_THEME="agnoster"
 plugins=( {1} )
 source $ZSH/oh-my-zsh.sh""".format(USERHOME, ohmyzsh_plugins))
+else:
+    print("zsh not detected, skipping configuration.")
 
 # Fix permissions of home folder if the script was run as root.
 if os.geteuid() is 0:
