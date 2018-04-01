@@ -84,7 +84,7 @@ subprocess.run(REPOSCRIPT, shell=True)
 # Install Software
 SOFTWARESCRIPT = """
 # Install cli tools
-zypper in -yl fish nano tmux iotop rsync p7zip zip unzip xdg-utils xdg-user-dirs
+zypper in -yl zsh nano tmux iotop rsync p7zip zip unzip xdg-utils xdg-user-dirs
 
 # Management tools
 zypper in -yl gparted leafpad
@@ -257,7 +257,7 @@ CFunc.AddUserAllGroups()
 if args.allextra is True:
     subprocess.run("{0}/Csdtimers.sh".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CBashFish.py".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CShellConfig.py".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CCSClone.sh".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CVMGeneral.sh".format(SCRIPTDIR), shell=True)

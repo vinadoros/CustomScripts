@@ -136,14 +136,7 @@ if not args.bare:
     subprocess.run("apt-get update -oAcquire::AllowInsecureRepositories=true; apt-get install -y --allow-unauthenticated deb-multimedia-keyring -oAcquire::AllowInsecureRepositories=true", shell=True)
 
 # Cli Software
-CFunc.aptinstall("ssh tmux fish btrfs-tools f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs")
-# Add fish to shells
-with open('/etc/shells', 'r') as VAR:
-    DATA = VAR.read()
-    FISHPATH = shutil.which("fish")
-    if not FISHPATH in DATA:
-        print("\nAdding fish to /etc/shells")
-        subprocess.run('echo "{0}" >> /etc/shells'.format(FISHPATH), shell=True)
+CFunc.aptinstall("ssh tmux zsh btrfs-tools f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs")
 # Timezone stuff
 subprocess.run("dpkg-reconfigure -f noninteractive tzdata", shell=True)
 # Needed for systemd user sessions.
@@ -289,7 +282,7 @@ if args.bare is False:
     if args.allextra is True:
         subprocess.run("{0}/Csdtimers.sh".format(SCRIPTDIR), shell=True)
         subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
-        subprocess.run("{0}/CBashFish.py".format(SCRIPTDIR), shell=True)
+        subprocess.run("{0}/CShellConfig.py".format(SCRIPTDIR), shell=True)
         subprocess.run("{0}/CCSClone.sh".format(SCRIPTDIR), shell=True)
         subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
         subprocess.run("{0}/CVMGeneral.sh".format(SCRIPTDIR), shell=True)

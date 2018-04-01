@@ -86,8 +86,8 @@ if args.scripts is True:
     print("Running extra scripts for Pi.")
     subprocess.run("""
     apt-get update
-    apt-get install -y fish
-    {0}/CBashFish.py
+    apt-get install -y zsh
+    {0}/CShellConfig.py
     {0}/Csdtimers.sh
     systemctl disable cron
     {0}/Czram.py -c 1

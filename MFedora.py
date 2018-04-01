@@ -63,7 +63,7 @@ CFunc.dnfupdate()
 
 ### Install Fedora Software ###
 # Cli tools
-CFunc.dnfinstall("fish nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils xdg-user-dirs util-linux-user fuse-sshfs redhat-lsb-core openssh-server openssh-clients avahi dnf-plugin-system-upgrade")
+CFunc.dnfinstall("zsh nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils xdg-user-dirs util-linux-user fuse-sshfs redhat-lsb-core openssh-server openssh-clients avahi dnf-plugin-system-upgrade")
 if not args.bare:
     CFunc.dnfinstall("unrar")
 subprocess.run("systemctl enable sshd", shell=True)
@@ -207,7 +207,7 @@ subprocess.run("sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /e
 if args.allextra is True:
     subprocess.run("{0}/Csdtimers.sh".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CBashFish.py".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CShellConfig.py".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CCSClone.sh".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CVMGeneral.sh".format(SCRIPTDIR), shell=True)

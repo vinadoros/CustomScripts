@@ -53,7 +53,7 @@ part / --size 6144
 %packages
 
 gparted
-fish
+zsh
 nano
 tmux
 iotop
