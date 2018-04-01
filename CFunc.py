@@ -64,7 +64,7 @@ def downloadfile(url, localpath, filename=None, overwrite=False):
     return (fullpath, filename)
 def find_pattern_infile(file, find, printlines=False):
     """Find a pattern in a signle file"""
-    abs_file = os.path.abs(file)
+    abs_file = os.path.abspath(file)
     found = False
     if os.path.isfile(abs_file):
         with open(abs_file, 'r') as VAR:
