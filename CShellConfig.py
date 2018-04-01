@@ -26,8 +26,7 @@ else:
     USERNAMEVAR = pwd.getpwuid(1000)[0]
 # https://docs.python.org/3/library/grp.html
 USERGROUP = grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
-# Note: This folder is the root home folder if this script is run as root.
-USERHOME = os.path.expanduser("~")
+# Note: This folder is the root home folder.
 ROOTHOME = os.path.expanduser("~root")
 # This folder is the above detected user's home folder if this script is run as root.
 USERVARHOME = os.path.expanduser("~{0}".format(USERNAMEVAR))
@@ -304,22 +303,25 @@ else:
 BASHSCRIPT = "alias la='ls -lah --color=auto'"
 
 # Set bash script
-BASHSCRIPTPATH = os.path.join(USERHOME, ".bashrc")
+BASHSCRIPTPATH = os.path.join(USERVARHOME, ".bashrc")
+print("Bash script path is {0}".format(BASHSCRIPTPATH))
 if os.geteuid() is 0:
-    BASHSCRIPTUSERPATH = os.path.join("{0}", ".bashrc").format(USERVARHOME)
+    BASHROOTSCRIPTPATH = os.path.join(ROOTHOME, ".bashrc")
+    print("Bash root script path is {0}".format(BASHROOTSCRIPTPATH))
 
 # Remove existing bash scripts and copy skeleton.
 if os.path.isfile(BASHSCRIPTPATH):
     os.remove(BASHSCRIPTPATH)
 if os.geteuid() is 0:
-    if os.path.isfile(BASHSCRIPTUSERPATH):
-        os.remove(BASHSCRIPTUSERPATH)
+    if os.path.isfile(BASHROOTSCRIPTPATH):
+        os.remove(BASHROOTSCRIPTPATH)
+
 # Skeleton will get overwritten by bash-it below, this is left here just in case it is needed in the future.
 if os.path.isfile("/etc/skel/.bashrc"):
     shutil.copy("/etc/skel/.bashrc", BASHSCRIPTPATH)
     if os.geteuid() is 0:
-        shutil.copy("/etc/skel/.bashrc", BASHSCRIPTUSERPATH)
-        shutil.chown(BASHSCRIPTUSERPATH, USERNAMEVAR, USERGROUP)
+        shutil.copy("/etc/skel/.bashrc", BASHROOTSCRIPTPATH)
+        shutil.chown(BASHSCRIPTPATH, USERNAMEVAR, USERGROUP)
 
 # Install bash-it before modifying bashrc (which automatically deletes bashrc)
 # Only do it if the current user can write to opt
@@ -331,13 +333,13 @@ if os.access("/opt", os.W_OK):
     subprocess.run("chmod a+rwx -R /opt/bash-it", shell=True)
 if os.path.isdir("/opt/bash-it"):
     subprocess.run("""
-    [ "$(id -u)" = "0" ] &&    HOME={0}
+    [ "$(id -u)" = "0" ] && HOME={0}
     /opt/bash-it/install.sh --silent
     """.format(ROOTHOME), shell=True)
     subprocess.run("""sed -i "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTPATH), shell=True)
     if os.geteuid() is 0:
         subprocess.run('su {0} -s {1} -c "/opt/bash-it/install.sh --silent"'.format(USERNAMEVAR, shutil.which("bash")), shell=True)
-        subprocess.run("""sed -i "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTUSERPATH), shell=True)
+        subprocess.run("""sed -i "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0} {1}""".format(BASHROOTSCRIPTPATH, BASHSCRIPTPATH), shell=True)
 
 # Install bash script
 BASHSCRIPT_VAR = open(BASHSCRIPTPATH, mode='a')
@@ -345,11 +347,11 @@ BASHSCRIPT_VAR.write(BASHSCRIPT)
 BASHSCRIPT_VAR.close()
 os.chmod(BASHSCRIPTPATH, 0o644)
 if os.geteuid() is 0:
-    BASHSCRIPTUSER_VAR = open(BASHSCRIPTUSERPATH, mode='a')
+    BASHSCRIPTUSER_VAR = open(BASHROOTSCRIPTPATH, mode='a')
     BASHSCRIPTUSER_VAR.write(BASHSCRIPT)
     BASHSCRIPTUSER_VAR.close()
-    os.chmod(BASHSCRIPTUSERPATH, 0o644)
-    shutil.chown(BASHSCRIPTUSERPATH, USERNAMEVAR, USERGROUP)
+    os.chmod(BASHROOTSCRIPTPATH, 0o644)
+    shutil.chown(BASHSCRIPTPATH, USERNAMEVAR, USERGROUP)
 
 ######### Zsh Section #########
 # Check if zsh exists
@@ -362,11 +364,11 @@ if shutil.which('zsh'):
         subprocess.run('chsh -s {0}'.format(ZSHPATH), shell=True)
 
     # Install oh-my-zsh for user
-    gitclone("git://github.com/robbyrussell/oh-my-zsh.git", "{0}/.oh-my-zsh".format(USERHOME))
+    gitclone("git://github.com/robbyrussell/oh-my-zsh.git", "{0}/.oh-my-zsh".format(USERVARHOME))
     # Install zsh-syntax-highlighting
-    gitclone("https://github.com/zsh-users/zsh-syntax-highlighting.git", "{0}/.oh-my-zsh/plugins/zsh-syntax-highlighting".format(USERHOME))
+    gitclone("https://github.com/zsh-users/zsh-syntax-highlighting.git", "{0}/.oh-my-zsh/plugins/zsh-syntax-highlighting".format(USERVARHOME))
     # Install zsh-autosuggestions
-    gitclone("https://github.com/zsh-users/zsh-autosuggestions", "{0}/.oh-my-zsh/plugins/zsh-autosuggestions".format(USERHOME))
+    gitclone("https://github.com/zsh-users/zsh-autosuggestions", "{0}/.oh-my-zsh/plugins/zsh-autosuggestions".format(USERVARHOME))
 
     # Determine which plugins to install
     ohmyzsh_plugins = "git systemd zsh-syntax-highlighting zsh-autosuggestions"
@@ -375,18 +377,18 @@ if shutil.which('zsh'):
     elif distro == "Fedora":
         ohmyzsh_plugins += " dnf"
     # Write zshrc
-    zshrc_path = os.path.join(USERHOME, ".zshrc")
+    zshrc_path = os.path.join(USERVARHOME, ".zshrc")
     print("Writing {0}".format(zshrc_path))
     with open(zshrc_path, 'w') as file:
         file.write("""export ZSH={0}/.oh-my-zsh
 ZSH_THEME="agnoster"
 plugins=( {1} )
-source $ZSH/oh-my-zsh.sh""".format(USERHOME, ohmyzsh_plugins))
+source $ZSH/oh-my-zsh.sh""".format(USERVARHOME, ohmyzsh_plugins))
 else:
     print("zsh not detected, skipping configuration.")
 
 # Fix permissions of home folder if the script was run as root.
 if os.geteuid() is 0:
-    subprocess.run("chown {0}:{1} -R {2}".format(USERNAMEVAR, USERGROUP, USERHOME), shell=True)
+    subprocess.run("chown {0}:{1} -R {2}".format(USERNAMEVAR, USERGROUP, USERVARHOME), shell=True)
 
 print("Script finished successfully.")
