@@ -189,6 +189,10 @@ if args.nogui is False and args.bare is False:
     subprocess.run('echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list', shell=True)
     CFunc.aptupdate()
     CFunc.aptinstall("code")
+    # Install snapd
+    CFunc.aptinstall("snapd")
+    # Atom from snap
+    subprocess.run("snap install --classic atom", shell=True)
 
 # Network Manager
 CFunc.aptinstall("network-manager network-manager-ssh resolvconf")
