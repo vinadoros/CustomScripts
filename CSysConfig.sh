@@ -110,7 +110,7 @@ if [ -f /etc/anacrontab ]; then
 fi
 
 # Nano Configuration
-NANOCONFIG="set const\nset softwrap\nset smooth\nset tabsize 4"
+NANOCONFIG="set constantshow\nset softwrap\nset smooth\nset tabsize 4"
 # For root
 echo -e $NANOCONFIG > "/root/.nanorc"
 # For user
