@@ -297,7 +297,7 @@ fi
 """.format(SCRIPTDIR)
     if distro == "Debian":
         customprofile_text += """# Add debian paths
-if [ "${{PATH#*/sbin}}" = "${{PATH}}" ]; then
+if [ "${PATH#*/sbin}" = "${PATH}" ]; then
     export PATH=/sbin:/usr/sbin:/usr/local/sbin:$PATH
 fi
 """
