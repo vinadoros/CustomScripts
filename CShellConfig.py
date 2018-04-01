@@ -282,8 +282,7 @@ customprofile_path = os.path.join("/", "etc", "profile.d", "rcustom.sh")
 # Check if the profile.d folder exists.
 if os.path.isdir(os.path.dirname(customprofile_path)) and os.access(os.path.dirname(customprofile_path), os.W_OK):
     print("Writing {0}".format(customprofile_path))
-    with open(customprofile_path, 'w') as file:
-        file.write("""#!/bin/sh --this-shebang-is-just-here-to-inform-shellcheck--
+    customprofile_text = """#!/bin/sh --this-shebang-is-just-here-to-inform-shellcheck--
 
 # Expand $PATH to include the CustomScripts path.
 if [ "${{PATH#*{0}}}" = "${{PATH}}" ] && [ -d "{0}" ]; then
@@ -295,15 +294,25 @@ if [ -z "$EDITOR" ] || [ "$EDITOR" != "nano" ]; then
     export EDITOR=nano
 fi
 
-""".format(SCRIPTDIR))
+""".format(SCRIPTDIR)
+    if distro == "Debian":
+        customprofile_text += """# Add debian paths
+if [ "${{PATH#*/sbin}}" = "${{PATH}}" ]; then
+    export PATH=/sbin:/usr/sbin:/usr/local/sbin:$PATH
+fi
+"""
+    with open(customprofile_path, 'w') as file:
+        file.write(customprofile_text)
 else:
     print("ERROR: {0} is not writeable.".format(os.path.dirname(customprofile_path)))
 
 # Generate bash script
-BASHSCRIPT = "alias la='ls -lah --color=auto'"
+BASHSCRIPT = "\nalias la='ls -lah --color=auto'"
 # Manually source rscript for Debian
+customtext = ""
 if distro == "Debian" and os.path.isfile(customprofile_path):
-    BASHSCRIPT += "source {0}".format(customprofile_path)
+    customrctext = "\nsource {0}".format(customprofile_path)
+BASHSCRIPT += customrctext
 
 # Set bash script
 BASHSCRIPTPATH = os.path.join(USERVARHOME, ".bashrc")
@@ -387,16 +396,22 @@ if shutil.which('zsh'):
     ohmyzsh_plugins = "git systemd zsh-syntax-highlighting zsh-autosuggestions"
     if distro == "Ubuntu":
         ohmyzsh_plugins += " ubuntu"
-    elif distro == "Fedora":
+    elif distro == "Debian":
+        ohmyzsh_plugins += " debian"
+    if shutil.which("dnf"):
         ohmyzsh_plugins += " dnf"
+    if shutil.which("yum"):
+        ohmyzsh_plugins += " yum"
     # Write zshrc
     zshrc_path = os.path.join(USERVARHOME, ".zshrc")
     print("Writing {0}".format(zshrc_path))
-    with open(zshrc_path, 'w') as file:
-        file.write("""export ZSH={0}/.oh-my-zsh
+    ZSHSCRIPT = """export ZSH={0}/.oh-my-zsh
 ZSH_THEME="agnoster"
 plugins=( {1} )
-source $ZSH/oh-my-zsh.sh""".format(USERVARHOME, ohmyzsh_plugins))
+source $ZSH/oh-my-zsh.sh""".format(USERVARHOME, ohmyzsh_plugins)
+    ZSHSCRIPT += customrctext
+    with open(zshrc_path, 'w') as file:
+        file.write(ZSHSCRIPT)
 else:
     print("zsh not detected, skipping configuration.")
 
