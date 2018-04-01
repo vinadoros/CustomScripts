@@ -278,6 +278,14 @@ if args.bare is False:
             print("Visudo status not 0, removing sudoers file.")
             os.remove(CUSTOMSUDOERSPATH)
 
+    # Modify system path
+    # https://serverfault.com/questions/166383/how-set-path-for-all-users-in-debian
+    logindefs_file = os.path.join("/", "etc", "login.defs")
+    if os.path.isfile(logindefs_file):
+        print("Modifying {0}".format(logindefs_file))
+        if CFunc.find_pattern_infile(logindefs_file, "ENV_PATH.*PATH.*sbin") is False:
+            subprocess.run("""sed -i '/^ENV_PATH.*PATH.*/ s@$@:/sbin:/usr/sbin:/usr/local/sbin@' {0}""".format(logindefs_file), shell=True)
+
     # Extra scripts
     if args.allextra is True:
         subprocess.run("{0}/Csdtimers.sh".format(SCRIPTDIR), shell=True)

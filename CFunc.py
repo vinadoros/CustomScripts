@@ -2,10 +2,10 @@
 """General Python Functions"""
 
 # Python includes.
-import fileinput
 import fnmatch
 import os
 import platform
+import re
 import subprocess
 import sys
 import urllib.request
@@ -62,6 +62,20 @@ def downloadfile(url, localpath, filename=None, overwrite=False):
     else:
         print("File {0} already exists. Skipping download.".format(fullpath))
     return (fullpath, filename)
+def find_pattern_infile(file, find, printlines=False):
+    """Find a pattern in a signle file"""
+    abs_file = os.path.abs(file)
+    found = False
+    if os.path.isfile(abs_file):
+        with open(abs_file, 'r') as VAR:
+            for line in VAR:
+                if bool(re.search(find, line)):
+                    found = True
+                    if printlines is True:
+                        print(line.strip())
+    else:
+        print("{0} file not found.".format(abs_file))
+    return found
 def find_replace(directory, find, replace, filePattern):
     """
     Find and replace recursively.

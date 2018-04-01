@@ -301,6 +301,9 @@ else:
 
 # Generate bash script
 BASHSCRIPT = "alias la='ls -lah --color=auto'"
+# Manually source rscript for Debian
+if distro == "Debian" and os.path.isfile(customprofile_path):
+    BASHSCRIPT += "source {0}".format(customprofile_path)
 
 # Set bash script
 BASHSCRIPTPATH = os.path.join(USERVARHOME, ".bashrc")
@@ -352,6 +355,16 @@ if os.geteuid() is 0:
     BASHSCRIPTUSER_VAR.close()
     os.chmod(BASHROOTSCRIPTPATH, 0o644)
     shutil.chown(BASHSCRIPTPATH, USERNAMEVAR, USERGROUP)
+
+# Modify system path for debian
+# https://serverfault.com/questions/166383/how-set-path-for-all-users-in-debian
+logindefs_file = os.path.join("/", "etc", "login.defs")
+if os.geteuid() is 0 and distro == "Debian" and os.path.isfile(logindefs_file):
+    print("Modifying {0}".format(logindefs_file))
+    if CFunc.find_pattern_infile(logindefs_file, "ENV_PATH.*PATH.*{0}".format(os.path.basename(SCRIPTDIR))) is False:
+        subprocess.run("""sed -i '/^ENV_PATH.*PATH.*/ s@$@:{1}@' {0}""".format(logindefs_file, SCRIPTDIR), shell=True)
+    if CFunc.find_pattern_infile(logindefs_file, "ENV_SUPATH.*PATH.*{0}".format(os.path.basename(SCRIPTDIR))) is False:
+        subprocess.run("""sed -i '/^ENV_SUPATH.*PATH.*/ s@$@:{1}@' {0}""".format(logindefs_file, SCRIPTDIR), shell=True)
 
 ######### Zsh Section #########
 # Check if zsh exists
