@@ -49,7 +49,7 @@ def gitclone(url, destination):
     abs_dest = os.path.abspath(destination)
     if os.path.isdir(abs_dest):
         print("{0} exists. Pulling changes.".format(abs_dest))
-        subprocess.run("cd {0}; git pull".format(abs_dest), shell=True)
+        subprocess.run("cd {0}; git checkout -f; git pull".format(abs_dest), shell=True)
     else:
         print("Cloning to {0}".format(abs_dest))
         subprocess.run("git clone {0} {1}".format(url, destination), shell=True)
@@ -309,7 +309,7 @@ else:
 # Generate bash script
 BASHSCRIPT = "\nalias la='ls -lah --color=auto'"
 # Manually source rscript for Debian
-customtext = ""
+customrctext = ""
 if distro == "Debian" and os.path.isfile(customprofile_path):
     customrctext = "\nsource {0}".format(customprofile_path)
 BASHSCRIPT += customrctext
@@ -338,10 +338,7 @@ if os.path.isfile("/etc/skel/.bashrc"):
 # Install bash-it before modifying bashrc (which automatically deletes bashrc)
 # Only do it if the current user can write to opt
 if os.access("/opt", os.W_OK):
-    if not os.path.isdir("/opt/bash-it"):
-        subprocess.run("git clone https://github.com/Bash-it/bash-it /opt/bash-it", shell=True)
-    else:
-        subprocess.run("cd /opt/bash-it; git checkout -f; git pull", shell=True)
+    gitclone("https://github.com/Bash-it/bash-it", "/opt/bash-it")
     subprocess.run("chmod a+rwx -R /opt/bash-it", shell=True)
 if os.path.isdir("/opt/bash-it"):
     subprocess.run("""
