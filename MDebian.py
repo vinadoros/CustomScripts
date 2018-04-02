@@ -52,7 +52,7 @@ if "P" not in rootacctstatus:
 
 # Select debian url
 URL = "http://http.us.debian.org/debian"
-print("Debian Mirror URL is "+URL)
+print("Debian Mirror URL is {0}".format(URL))
 
 # Get VM State
 vmstatus = CFunc.getvmstate()
@@ -106,11 +106,11 @@ subprocess.run("usermod -aG sudo {0}".format(USERNAMEVAR), shell=True)
 subprocess.run("""
 # Delete defaults in sudoers for Debian.
 if grep -iq '^Defaults\tenv_reset' /etc/sudoers; then
-	sed -i '/^Defaults\tenv_reset/ s/^#*/#/' /etc/sudoers
-	# Consider changing above line to below line in future (as in Opensuse)
-	# sed -e 's/^Defaults env_reset$/Defaults !env_reset/g' -i /etc/sudoers
-	sed -i '/^Defaults\tmail_badpass/ s/^#*/#/' /etc/sudoers
-	sed -i '/^Defaults\tsecure_path/ s/^#*/#/' /etc/sudoers
+    sed -i '/^Defaults\tenv_reset/ s/^#*/#/' /etc/sudoers
+    # Consider changing above line to below line in future (as in Opensuse)
+    # sed -e 's/^Defaults env_reset$/Defaults !env_reset/g' -i /etc/sudoers
+    sed -i '/^Defaults\tmail_badpass/ s/^#*/#/' /etc/sudoers
+    sed -i '/^Defaults\tsecure_path/ s/^#*/#/' /etc/sudoers
 fi
 visudo -c""", shell=True)
 
@@ -196,6 +196,11 @@ if args.nogui is False and args.bare is False:
 
 # Network Manager
 CFunc.aptinstall("network-manager network-manager-ssh resolvconf")
+subprocess.run("sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf", shell=True)
+# https://askubuntu.com/questions/882806/ethernet-device-not-managed
+with open('/etc/NetworkManager/conf.d/10-globally-managed-devices.conf', 'w') as writefile:
+    writefile.write("""[keyfile]
+unmanaged-devices=none""")
 # Ensure DNS resolution is working
 subprocess.run("dpkg-reconfigure --frontend=noninteractive resolvconf", shell=True)
 
