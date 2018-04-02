@@ -137,6 +137,11 @@ if not args.bare:
 
 # Cli Software
 CFunc.aptinstall("ssh tmux zsh btrfs-tools f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs")
+# Firmware
+CFunc.aptinstall("firmware-linux")
+subprocess.run("""echo "firmware-ipw2x00 firmware-ipw2x00/license/accepted boolean true" | debconf-set-selections
+echo "firmware-ivtv firmware-ivtv/license/accepted boolean true" | debconf-set-selections
+DEBIAN_FRONTEND=noninteractive apt install -y ^firmware-*""", shell=True)
 # Timezone stuff
 subprocess.run("dpkg-reconfigure -f noninteractive tzdata", shell=True)
 # Needed for systemd user sessions.
