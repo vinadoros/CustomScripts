@@ -117,7 +117,10 @@ visudo -c""", shell=True)
 
 if not args.bare:
     # Syncthing
-    subprocess.run("wget -qO- https://syncthing.net/release-key.txt | apt-key add -", shell=True)
+    # Import keyfile
+    key = CFunc.downloadfile("https://syncthing.net/release-key.txt", "/tmp")
+    subprocess.run("apt-key add {0}".format(key[0]), shell=True, check=True)
+    os.remove(key[0])
     # Write syncthing sources list
     with open('/etc/apt/sources.list.d/syncthing-release.list', 'w') as stapt_writefile:
         stapt_writefile.write("deb http://apt.syncthing.net/ syncthing release")
@@ -134,6 +137,10 @@ if not args.bare:
     with open('/etc/apt/sources.list.d/debian-multimedia.list', 'w') as stapt_writefile:
         stapt_writefile.write("deb https://www.deb-multimedia.org {0} main non-free".format(multimedia_release))
     subprocess.run("apt-get update -oAcquire::AllowInsecureRepositories=true; apt-get install -y --allow-unauthenticated deb-multimedia-keyring -oAcquire::AllowInsecureRepositories=true", shell=True)
+
+    # Update and upgrade with new repositories
+    CFunc.aptupdate()
+    CFunc.aptdistupg()
 
 # Cli Software
 CFunc.aptinstall("ssh tmux zsh btrfs-tools f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs")
