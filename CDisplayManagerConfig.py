@@ -186,7 +186,10 @@ if shutil.which("gdm") or shutil.which("gdm3"):
     # https://major.io/2008/07/30/automatically-starting-synergy-in-gdm-in-ubuntufedora/
 
     # Disable Wayland in GDM
-    GDMCustomConf = os.path.join(GDMETCPATH, "custom.conf")
+    if os.path.isfile(os.path.join(GDMETCPATH, "daemon.conf")):
+        GDMCustomConf = os.path.join(GDMETCPATH, "daemon.conf")
+    else:
+        GDMCustomConf = os.path.join(GDMETCPATH, "custom.conf")
     if os.path.isfile(GDMCustomConf):
         subprocess.run("""
         sed -i '/^#WaylandEnable=.*/s/^#//' "{0}"
