@@ -164,6 +164,18 @@ CFunc.aptinstall("avahi-daemon avahi-discover libnss-mdns")
 # Java
 CFunc.aptinstall("default-jre")
 
+# GUI programs
+if args.nogui is False:
+    CFunc.aptinstall("synaptic gnome-disk-utility gdebi gparted xdg-utils leafpad")
+    CFunc.aptinstall("dconf-editor")
+    # Browsers
+    CFunc.aptinstall("chromium pepperflashplugin-nonfree")
+    if args.unstable:
+        CFunc.aptinstall("firefox")
+    else:
+        CFunc.aptinstall("firefox-esr")
+    CFunc.aptinstall("browser-plugin-freshplayer-pepperflash")
+
 # Non-bare CLI stuff.
 if args.bare is False:
     # Cron
@@ -172,7 +184,6 @@ if args.bare is False:
 
 # General GUI software
 if args.nogui is False and args.bare is False:
-    CFunc.aptinstall("synaptic gnome-disk-utility gdebi gparted xdg-utils leafpad")
     # Cups-pdf
     CFunc.aptinstall("printer-driver-cups-pdf")
     # Media Playback
@@ -185,13 +196,6 @@ if args.nogui is False and args.bare is False:
     # For Office 2010
     CFunc.aptinstall("winbind")
     CFunc.aptinstall("fonts-powerline fonts-noto fonts-roboto")
-    # Browsers
-    CFunc.aptinstall("chromium pepperflashplugin-nonfree")
-    if args.unstable:
-        CFunc.aptinstall("firefox")
-    else:
-        CFunc.aptinstall("firefox-esr")
-    CFunc.aptinstall("browser-plugin-freshplayer-pepperflash")
     # Tilix
     CFunc.aptinstall("tilix")
     # Visual Studio Code
@@ -269,19 +273,6 @@ if vmstatus == "vmware":
     if not args.nogui:
         CFunc.aptinstall("open-vm-tools-desktop")
 
-
-# subprocess.run("apt-get install -y --no-install-recommends powertop smartmontools", shell=True)
-# # Write and enable powertop systemd-unit file.
-# Powertop_SystemdServiceText = '''[Unit]
-# Description=Powertop tunings
-#
-# [Service]
-# ExecStart={0} --auto-tune
-# RemainAfterExit=true
-#
-# [Install]
-# WantedBy=multi-user.target'''.format(shutil.which("powertop"))
-# CFunc.systemd_createsystemunit("powertop.service", Powertop_SystemdServiceText, True)
 
 if args.bare is False:
     # Add normal user to all reasonable groups
