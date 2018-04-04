@@ -273,6 +273,9 @@ if vmstatus == "vmware":
     if not args.nogui:
         CFunc.aptinstall("open-vm-tools-desktop")
 
+# Disable automatic unattended upgrades
+if os.path.isfile("/etc/apt/apt.conf.d/20auto-upgrades"):
+    os.remove("/etc/apt/apt.conf.d/20auto-upgrades")
 
 if args.bare is False:
     # Add normal user to all reasonable groups
