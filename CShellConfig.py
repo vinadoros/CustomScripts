@@ -405,7 +405,13 @@ if shutil.which('zsh'):
     ZSHSCRIPT = """export ZSH={0}/.oh-my-zsh
 ZSH_THEME="agnoster"
 plugins=( {1} )
-source $ZSH/oh-my-zsh.sh""".format(USERVARHOME, ohmyzsh_plugins)
+source $ZSH/oh-my-zsh.sh
+
+# Expand $PATH to include the CustomScripts path.
+if [ "${{PATH#*{2}}}" = "${{PATH}}" ] && [ -d "{2}" ]; then
+    export PATH=$PATH:{2}
+fi
+""".format(USERVARHOME, ohmyzsh_plugins, SCRIPTDIR)
     ZSHSCRIPT += customrctext
     with open(zshrc_path, 'w') as file:
         file.write(ZSHSCRIPT)
