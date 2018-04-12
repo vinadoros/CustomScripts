@@ -56,12 +56,8 @@ def gitclone(url, destination):
 
 
 ### Generic Section ###
-# Create "a" script
-ascript_path = os.path.join("/", "usr", "local", "bin", "a")
-if os.access(os.path.dirname(ascript_path), os.W_OK):
-    print("Writing {0}".format(ascript_path))
-    with open(ascript_path, 'w') as file:
-        file.write("""#!/bin/bash
+# Create bash-like shell rc additions
+rc_additions = """
 # Set root and non-root cmds.
 if [ $(id -u) != "0" ]; then
     SUDOCMD="sudo"
@@ -265,15 +261,9 @@ elif type dnf &> /dev/null || type yum &> /dev/null; then
         $SUDOCMD $PKGMGR update -y
     }
 fi
-
-# Run options passed.
-"$@"
-""" % SCRIPTDIR)
-    # C-style printf string formatting was used to avoid collision with curly braces above.
-    # https://docs.python.org/3/library/stdtypes.html#old-string-formatting
-    os.chmod(ascript_path, 0o777)
-else:
-    print("ERROR: {0} not writeable.".format(os.path.dirname(ascript_path)))
+""" % SCRIPTDIR
+# C-style printf string formatting was used to avoid collision with curly braces above.
+# https://docs.python.org/3/library/stdtypes.html#old-string-formatting
 
 
 ######### Bash Section #########
@@ -313,6 +303,7 @@ customrctext = ""
 if distro == "Debian" and os.path.isfile(customprofile_path):
     customrctext = "\nsource {0}".format(customprofile_path)
 BASHSCRIPT += customrctext
+BASHSCRIPT += rc_additions
 
 # Set bash script
 BASHSCRIPTPATH = os.path.join(USERVARHOME, ".bashrc")
@@ -413,6 +404,7 @@ if [ "${{PATH#*{2}}}" = "${{PATH}}" ] && [ -d "{2}" ]; then
 fi
 """.format(USERVARHOME, ohmyzsh_plugins, SCRIPTDIR)
     ZSHSCRIPT += customrctext
+    ZSHSCRIPT += rc_additions
     with open(zshrc_path, 'w') as file:
         file.write(ZSHSCRIPT)
 else:
