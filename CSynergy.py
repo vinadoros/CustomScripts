@@ -211,6 +211,7 @@ Exec={0}
 Name=Barrier
 Comment=Barrier KVM Software""".format(os.path.join(InstallPath, "barrier"))
     barrierdesktop_file = os.path.join("/", "usr", "local", "share", "applications", "barrier.desktop")
+    os.makedirs(os.path.dirname(barrierdesktop_file), exist_ok=True)
     with open(barrierdesktop_file, 'w') as file:
         file.write(barrierdesktop_text)
     os.chmod(barrierdesktop_file, 0o777)
