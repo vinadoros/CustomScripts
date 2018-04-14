@@ -74,7 +74,7 @@ def deps_barrier():
         CFunc.dnfinstall("qt5-devel")
     elif shutil.which("apt-get"):
         print("Installing Ubuntu barrier requirements.")
-        CFunc.aptinstall("libqt5-dev")
+        CFunc.aptinstall("qtdeclarative5-dev")
 
 
 if args.noprompt is False:
