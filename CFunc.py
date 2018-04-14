@@ -18,6 +18,7 @@ def is_windows():
         return True
     return False
 
+
 # Exclude imports not available on Windows.
 if is_windows() is False:
     import grp
@@ -36,7 +37,7 @@ def subpout(cmd):
     return output
 def dlProgress(count, blockSize, totalSize):
     """Get the progress of a download"""
-    percent = int(count*blockSize*100/totalSize)
+    percent = int(count * blockSize * 100 / totalSize)
     sys.stdout.write("\r" + "Progress...%d%%" % percent)
     # If the progress is 100 (or more), print a newline.
     if percent >= 100:
@@ -89,6 +90,14 @@ def find_replace(directory, find, replace, filePattern):
             s = s.replace(find, replace)
             with open(filepath, "w") as f:
                 f.write(s)
+def gitclone(url, destination):
+    """If destination exists, do a git pull, otherwise git clone"""
+    abs_dest = os.path.abspath(destination)
+    if os.path.isdir(abs_dest):
+        print("{0} exists. Pulling changes.".format(abs_dest))
+        subprocess.run("cd {0}; git checkout -f; git pull".format(abs_dest), shell=True)
+    else:
+        subprocess.run("git clone {0} {1}".format(url, destination), shell=True)
 ### OS Functions ###
 def getuserdetails(username):
     """Get group and home folder info about a particular user."""
@@ -234,7 +243,7 @@ def AddUserAllGroups(username=None):
                 splitline != "users" and \
                 splitline != "nobody" and \
                 splitline != "nogroup" and \
-                splitline != USERGROUP:
+                    splitline != USERGROUP:
                 # Add group to array.
                 grparray.append(line.split(":")[0])
     # Add all detected groups to the current user.

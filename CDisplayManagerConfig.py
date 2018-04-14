@@ -16,7 +16,7 @@ print("Running {0}".format(__file__))
 SCRIPTDIR = sys.path[0]
 
 # Get arguments
-parser = argparse.ArgumentParser(description='Create synergy-core configuration.')
+parser = argparse.ArgumentParser(description='Configure the Display Manager.')
 parser.add_argument("-a", "--autologin", help='Force automatic login in display managers.', action="store_true")
 
 # Save arguments.
@@ -78,7 +78,10 @@ if [ -z $DISPLAY ]; then
     DISPLAY=:0
 fi
 
-if type -p synergyc &> /dev/null && [[ "$SERVER" != "HostnameHere" ]]; then
+if type -p barrierc &> /dev/null && [[ "$SERVER" != "HostnameHere" ]]; then
+    echo "Starting Barrier client."
+    barrierc "$SERVER"
+elif type -p synergyc &> /dev/null && [[ "$SERVER" != "HostnameHere" ]]; then
     echo "Starting Synergy client."
     synergyc "$SERVER"
 fi
@@ -108,10 +111,9 @@ with open(LDSTOP, 'w') as file:
     file.write("""#!/bin/bash
 echo "Executing $0"
 
-# Kill synergy client.
-if pgrep synergyc; then
-    killall synergyc
-fi
+# Kill synergy/barrier client.
+pgrep synergyc && killall synergyc
+pgrep barrierc && killall barrierc
 
 # Kill X VNC server.
 if pgrep x0vncserver; then

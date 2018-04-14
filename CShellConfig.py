@@ -43,18 +43,6 @@ for cmd in cmdcheck:
         sys.exit("\nError, ensure command {0} is installed.".format(cmd))
 
 
-### Functions ###
-def gitclone(url, destination):
-    """If destination exists, do a git pull, otherwise git clone"""
-    abs_dest = os.path.abspath(destination)
-    if os.path.isdir(abs_dest):
-        print("{0} exists. Pulling changes.".format(abs_dest))
-        subprocess.run("cd {0}; git checkout -f; git pull".format(abs_dest), shell=True)
-    else:
-        print("Cloning to {0}".format(abs_dest))
-        subprocess.run("git clone {0} {1}".format(url, destination), shell=True)
-
-
 ### Generic Section ###
 # Create bash-like shell rc additions
 rc_additions = """
@@ -329,7 +317,7 @@ if os.path.isfile("/etc/skel/.bashrc"):
 # Install bash-it before modifying bashrc (which automatically deletes bashrc)
 # Only do it if the current user can write to opt
 if os.access("/opt", os.W_OK):
-    gitclone("https://github.com/Bash-it/bash-it", "/opt/bash-it")
+    CFunc.gitclone("https://github.com/Bash-it/bash-it", "/opt/bash-it")
     subprocess.run("chmod a+rwx -R /opt/bash-it", shell=True)
 if os.path.isdir("/opt/bash-it"):
     subprocess.run("""
@@ -374,11 +362,11 @@ if shutil.which('zsh'):
         subprocess.run('chsh -s {0}'.format(ZSHPATH), shell=True)
 
     # Install oh-my-zsh for user
-    gitclone("git://github.com/robbyrussell/oh-my-zsh.git", "{0}/.oh-my-zsh".format(USERVARHOME))
+    CFunc.gitclone("git://github.com/robbyrussell/oh-my-zsh.git", "{0}/.oh-my-zsh".format(USERVARHOME))
     # Install zsh-syntax-highlighting
-    gitclone("https://github.com/zsh-users/zsh-syntax-highlighting.git", "{0}/.oh-my-zsh/plugins/zsh-syntax-highlighting".format(USERVARHOME))
+    CFunc.gitclone("https://github.com/zsh-users/zsh-syntax-highlighting.git", "{0}/.oh-my-zsh/plugins/zsh-syntax-highlighting".format(USERVARHOME))
     # Install zsh-autosuggestions
-    gitclone("https://github.com/zsh-users/zsh-autosuggestions", "{0}/.oh-my-zsh/plugins/zsh-autosuggestions".format(USERVARHOME))
+    CFunc.gitclone("https://github.com/zsh-users/zsh-autosuggestions", "{0}/.oh-my-zsh/plugins/zsh-autosuggestions".format(USERVARHOME))
 
     # Determine which plugins to install
     ohmyzsh_plugins = "git systemd zsh-syntax-highlighting zsh-autosuggestions"
