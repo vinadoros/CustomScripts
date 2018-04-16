@@ -201,7 +201,7 @@ if args.barrier is True:
     # Copy built files.
     InstallPath = os.path.join("/", "usr", "local", "bin")
     os.chdir(os.path.join(RepoClonePath, "build"))
-    subprocess.run("install -m 755 -t {0} bin/barrier bin/barriers bin/barrierc bin/syntool".format(InstallPath), shell=True)
+    subprocess.run("install -m 755 -t {0} bin/barrier bin/barriers bin/barrierc".format(InstallPath), shell=True)
     # Create desktop file
     barrierdesktop_text = """#!/usr/bin/env xdg-open
 [Desktop Entry]
