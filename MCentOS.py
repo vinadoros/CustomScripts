@@ -49,17 +49,6 @@ subprocess.call("yum install -y epel-release", shell=True)
 # https://www.softwarecollections.org
 subprocess.call("yum install -y centos-release-scl", shell=True)
 subprocess.call("yum-config-manager --enable centos-sclo-rh-testing", shell=True)
-if args.replace is True:
-    # Centos Plus
-    subprocess.call("yum-config-manager --enable centosplus", shell=True)
-    # Centos Fasttrack
-    subprocess.call("yum-config-manager --enable fasttrack", shell=True)
-    # IUS
-    # https://ius.io/
-    subprocess.call("yum install -y https://centos7.iuscommunity.org/ius-release.rpm", shell=True)
-    # EL Repo
-    # https://elrepo.org
-    subprocess.call("yum install -y http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm ; yum-config-manager --enable elrepo-extras elrepo-kernel", shell=True)
 
 # Update system
 subprocess.call("yum update -y", shell=True)
@@ -70,8 +59,6 @@ subprocess.call("yum update -y", shell=True)
 # Install cli tools
 subprocess.check_output("yum install -y redhat-lsb-core python34 python34-pip nano tmux iotop rsync openssh-clients p7zip p7zip-plugins zip unzip zsh", shell=True)
 subprocess.check_output("yum install -y scl-utils rh-python36", shell=True)
-if args.replace is True:
-    subprocess.check_output("yum install -y python36u python36u-pip", shell=True)
 
 # Desktop Environments
 if args.gui is not None:
@@ -92,11 +79,24 @@ if args.gui is not None:
     #     os.remove("/etc/X11/xorg.conf")
     subprocess.call("systemctl set-default graphical.target", shell=True)
 
-# Replace git and kernel
+# Shell script
+shellproc = subprocess.Popen("scl enable rh-python36 '{0}/CShellConfig.py'".format(SCRIPTDIR), shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+
+# Do replace after installing desktop environment
 if args.replace is True:
+    # Centos Plus
+    subprocess.call("yum-config-manager --enable centosplus", shell=True)
+    # Centos Fasttrack
+    subprocess.call("yum-config-manager --enable fasttrack", shell=True)
+    # IUS
+    # https://ius.io/
+    subprocess.call("yum install -y https://centos7.iuscommunity.org/ius-release.rpm", shell=True)
+    # EL Repo
+    # https://elrepo.org
+    subprocess.call("yum install -y http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm ; yum-config-manager --enable elrepo-extras elrepo-kernel", shell=True)
+    subprocess.check_output("yum install -y python36u python36u-pip", shell=True)
+    # Replace git and kernel
     subprocess.call("yum swap -y git git2u", shell=True)
-    # Shell script
-    shellproc = subprocess.Popen("scl enable rh-python36 '{0}/CShellConfig.py'".format(SCRIPTDIR), shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
     # Install kernel
     # To remove old tools: "yum swap -- install kernel-ml kernel-ml-devel kernel-ml-headers kernel-ml-tools kernel-ml-tools-libs -- remove kernel-tools kernel-tools-libs"
     # Replace new tools with old tools: "yum swap -- install kernel-tools kernel-tools-libs -- remove kernel-ml-tools kernel-ml-tools-libs"
@@ -130,5 +130,4 @@ sed -i 's/GRUB_DEFAULT=.*$/GRUB_DEFAULT=0/g' /etc/default/grub
 grub2-mkconfig -o /boot/grub2/grub.cfg""", shell=True)
 
 # Wait for processes to finish before exiting.
-if args.replace is True:
-    shellproc.wait()
+shellproc.wait()

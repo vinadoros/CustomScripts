@@ -144,7 +144,7 @@ if 5 <= args.ostype <= 9:
     vmprovisionscript = "MCentOS.py"
 if args.ostype == 5:
     vmname = "Packer-CentOS-{0}".format(hvname)
-    vmprovision_defopts = "-d -r -g {0}".format(args.desktopenv)
+    vmprovision_defopts = "-g {0}".format(args.desktopenv)
 if args.ostype == 6:
     vmname = "Packer-CentOSCLI-{0}".format(hvname)
     vmprovision_defopts = "-d -r"
