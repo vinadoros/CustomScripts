@@ -34,15 +34,6 @@ MACHINEARCH = CFunc.machinearch()
 print("Username is:", USERNAMEVAR)
 print("Group Name is:", USERGROUP)
 # Print out configuration information
-print("Server config flag is", args.server)
-if args.server is True:
-    print("Left Client for server is", args.serverleftclient)
-    print("Right Client for server is", args.serverrightclient)
-print("Client config flag is", args.client)
-if args.client is True:
-    print("Client host is", args.clienthost)
-if args.barrier is True:
-    print("Compiling and installing barrier.")
 
 ### Functions ###
 def deps_common():
