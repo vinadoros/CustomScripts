@@ -19,7 +19,6 @@ SCRIPTDIR = sys.path[0]
 # Get arguments
 parser = argparse.ArgumentParser(description='Compile and install barrier.')
 parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
-parser.add_argument("-g", "--git", help='Compile barrier from git repository.', action="store_true")
 
 # Save arguments.
 args = parser.parse_args()
@@ -60,19 +59,15 @@ if args.noprompt is False:
 
 # Global Variables
 RepoClonePathRoot = os.path.join("/", "var", "tmp")
+RepoClonePath = os.path.join(RepoClonePathRoot, "barrier")
 
 # Install the dependancies
 deps_common()
 deps_barrier()
-if args.git is True:
-    RepoClonePath = os.path.join(RepoClonePathRoot, "barrier")
-    # Clone the repo
-    CFunc.gitclone("https://github.com/debauchee/barrier", RepoClonePath)
-else:
-    # Get latest release
-    CFunc.downloadfile("https://github.com/debauchee/barrier/releases/download/v2.0.0/barrier-2.0.0-Linux.tar.bz2", os.path.join("/", "var", "tmp"), "barrier.tar.bz2")
-    subprocess.run("tar xvpf {0} -C {1}".format(os.path.join("/", "var", "tmp", "barrier.tar.bz2"), RepoClonePath), shell=True)
+# Clone the repo
+CFunc.gitclone("https://github.com/debauchee/barrier", RepoClonePath)
 os.chdir(RepoClonePath)
+# subprocess.run("git checkout -f 5e1982042511cf03bd780fb5f2d96c4657c22e50", shell=True)
 # Start the build.
 subprocess.run(os.path.join(RepoClonePath, "clean_build.sh"), shell=True)
 # Ensure user owns the folder before installation.
@@ -81,6 +76,7 @@ subprocess.run("chown {0}:{1} -R {2}".format(USERNAMEVAR, USERGROUP, RepoClonePa
 InstallPath = os.path.join("/", "usr", "local", "bin")
 os.chdir(os.path.join(RepoClonePath, "build"))
 subprocess.run("install -m 755 -t {0} bin/barrier bin/barriers bin/barrierc".format(InstallPath), shell=True)
+subprocess.run("install -m 755 -t {0} bin/syntool".format(InstallPath), shell=True)
 # Create desktop file
 barrierdesktop_text = """#!/usr/bin/env xdg-open
 [Desktop Entry]
