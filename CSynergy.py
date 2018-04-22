@@ -25,7 +25,6 @@ parser.add_argument("-r", "--serverrightclient", help='Hostname of client to the
 parser.add_argument("-c", "--client", help='Install configuration on startup as a client.', action="store_true")
 parser.add_argument("-d", "--clienthost", help='Connect to this host when configured as a client.', default="InsertHostHere")
 parser.add_argument("-z", "--compile", help='Compile synergy-core from source.', action="store_true")
-parser.add_argument("-b", "--barrier", help='Use barrier instead of synergy. Use this option with no other options.', action="store_true")
 
 # Save arguments.
 args = parser.parse_args()
@@ -47,8 +46,6 @@ if args.server is True:
 print("Client config flag is", args.client)
 if args.client is True:
     print("Client host is", args.clienthost)
-if args.barrier is True:
-    print("Compiling and installing barrier.")
 
 ### Functions ###
 def deps_common():
@@ -67,14 +64,6 @@ def deps_synergy():
     elif shutil.which("apt-get"):
         print("Installing Ubuntu synergy requirements.")
         CFunc.aptinstall("libqt4-dev")
-def deps_barrier():
-    """Install dependancies specific to barrier"""
-    if shutil.which("dnf"):
-        print("Installing Fedora barrier requirements.")
-        CFunc.dnfinstall("qt5-devel")
-    elif shutil.which("apt-get"):
-        print("Installing Ubuntu barrier requirements.")
-        CFunc.aptinstall("qtdeclarative5-dev")
 
 
 if args.noprompt is False:
@@ -185,48 +174,3 @@ TimeoutStopSec=7s
 WantedBy=default.target
 """.format(shutil.which("synergy-core"), args.clienthost, shutil.which("xhost"))
     CFunc.systemd_createuserunit("syncli.service", Client_SystemdUnitText)
-
-if args.barrier is True:
-    RepoClonePath = os.path.join(RepoClonePathRoot, "barrier")
-    # Install the dependancies
-    deps_common()
-    deps_barrier()
-    # Clone the repo
-    CFunc.gitclone("https://github.com/debauchee/barrier", RepoClonePath)
-    os.chdir(RepoClonePath)
-    # Start the build.
-    subprocess.run(os.path.join(RepoClonePath, "clean_build.sh"), shell=True)
-    # Ensure user owns the folder before installation.
-    subprocess.run("chown {0}:{1} -R {2}".format(USERNAMEVAR, USERGROUP, RepoClonePath), shell=True)
-    # Copy built files.
-    InstallPath = os.path.join("/", "usr", "local", "bin")
-    os.chdir(os.path.join(RepoClonePath, "build"))
-    subprocess.run("install -m 755 -t {0} bin/barrier bin/barriers bin/barrierc".format(InstallPath), shell=True)
-    # Create desktop file
-    barrierdesktop_text = """#!/usr/bin/env xdg-open
-[Desktop Entry]
-Type=Application
-Terminal=false
-Exec={0}
-Name=Barrier
-Comment=Barrier KVM Software""".format(os.path.join(InstallPath, "barrier"))
-    barrierdesktop_file = os.path.join("/", "usr", "local", "share", "applications", "barrier.desktop")
-    os.makedirs(os.path.dirname(barrierdesktop_file), exist_ok=True)
-    with open(barrierdesktop_file, 'w') as file:
-        file.write(barrierdesktop_text)
-    os.chmod(barrierdesktop_file, 0o777)
-    # Autostart synergy for the user.
-    shutil.copy2(barrierdesktop_file, os.path.join(USERHOME, ".config", "autostart"))
-    # Create autohide config for user if it does not already exist.
-    barrier_userconfig = os.path.join(USERHOME, ".config", "Debauchee", "Barrier.conf")
-    if not os.path.isfile(barrier_userconfig):
-        os.makedirs(os.path.dirname(barrier_userconfig), exist_ok=True)
-        with open(barrier_userconfig, 'w') as file:
-            file.write("""[General]
-autoHide=true
-minimizeToTray=true""")
-        subprocess.run("chown -R {0}:{1} {2}/.config".format(USERNAMEVAR, USERGROUP, USERHOME), shell=True)
-    # Remove git folder.
-    os.chdir("/")
-    if os.path.isdir(RepoClonePath):
-        shutil.rmtree(RepoClonePath)
