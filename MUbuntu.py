@@ -57,7 +57,7 @@ if MACHINEARCH == "armhf":
     URL = UBUNTUARMURL
 else:
     URL = UBUNTUURL
-print("Ubuntu URL is "+URL)
+print("Ubuntu URL is " + URL)
 
 # Get VM State
 vmstatus = CFunc.getvmstate()
@@ -69,12 +69,12 @@ APTLOG=/tmp/aptlog
 sudo apt-get update 2> $APTLOG
 if [ -f $APTLOG ]
 then
-	for key in $(grep "NO_PUBKEY" $APTLOG |sed "s/.*NO_PUBKEY //"); do
-			echo -e "\\nProcessing key: $key"
-			sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $key
-			sudo apt-get update
-	done
-	rm $APTLOG
+    for key in $(grep "NO_PUBKEY" $APTLOG |sed "s/.*NO_PUBKEY //"); do
+            echo -e "\\nProcessing key: $key"
+            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $key
+            sudo apt-get update
+    done
+    rm $APTLOG
 fi''')
 os.chmod('/usr/local/bin/keymissing', 0o777)
 
@@ -134,11 +134,11 @@ subprocess.run("usermod -aG sudo {0}".format(USERNAMEVAR), shell=True)
 subprocess.run("""
 # Delete defaults in sudoers for Debian.
 if grep -iq '^Defaults\tenv_reset' /etc/sudoers; then
-	sed -i '/^Defaults\tenv_reset/ s/^#*/#/' /etc/sudoers
-	# Consider changing above line to below line in future (as in Opensuse)
-	# sed -e 's/^Defaults env_reset$/Defaults !env_reset/g' -i /etc/sudoers
-	sed -i '/^Defaults\tmail_badpass/ s/^#*/#/' /etc/sudoers
-	sed -i '/^Defaults\tsecure_path/ s/^#*/#/' /etc/sudoers
+    sed -i '/^Defaults\tenv_reset/ s/^#*/#/' /etc/sudoers
+    # Consider changing above line to below line in future (as in Opensuse)
+    # sed -e 's/^Defaults env_reset$/Defaults !env_reset/g' -i /etc/sudoers
+    sed -i '/^Defaults\tmail_badpass/ s/^#*/#/' /etc/sudoers
+    sed -i '/^Defaults\tsecure_path/ s/^#*/#/' /etc/sudoers
 fi
 visudo -c""", shell=True)
 
@@ -197,12 +197,11 @@ if args.nogui is False and args.bare is False:
     # Browsers
     CFunc.aptinstall("chromium-browser firefox flashplugin-installer pepperflashplugin-nonfree")
     # Tilix
-    CFunc.addppa("ppa:webupd8team/terminix")
+    if args.lts is True:
+        CFunc.addppa("ppa:webupd8team/terminix")
     CFunc.aptinstall("tilix")
     # Atom Editor
     subprocess.run("snap install --classic atom", shell=True)
-    # CFunc.addppa("ppa:webupd8team/atom")
-    # CFunc.aptinstall("atom")
     # Visual Studio Code
     subprocess.run("""curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
     mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg""", shell=True)
@@ -221,10 +220,6 @@ with open('/etc/NetworkManager/conf.d/10-globally-managed-devices.conf', 'w') as
 unmanaged-devices=none""")
 # Ensure DNS resolution is working
 subprocess.run("dpkg-reconfigure --frontend=noninteractive resolvconf", shell=True)
-
-# Disable apport if it exists
-# if os.path.isfile("/etc/default/apport"):
-#     subprocess.run("sed -i 's/^enabled=.*/enabled=0/g' /etc/default/apport", shell=True)
 
 # Install Desktop Software
 if args.desktop == "gnome":
