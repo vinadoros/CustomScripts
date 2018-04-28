@@ -178,7 +178,7 @@ if args.bare is False:
     subprocess.run("systemctl disable cron; systemctl disable anacron", shell=True)
 # GUI Software
 if args.nogui is False:
-    CFunc.aptinstall("dconf-cli")
+    CFunc.aptinstall("dconf-cli dconf-editor")
     CFunc.aptinstall("synaptic gnome-disk-utility gdebi gparted xdg-utils leafpad")
 
 # General GUI software
