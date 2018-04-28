@@ -6,6 +6,7 @@ import argparse
 from datetime import datetime
 import hashlib
 import json
+import logging
 import multiprocessing
 import os
 import shutil
@@ -563,13 +564,13 @@ if args.debug:
 
 # Save start time.
 beforetime = datetime.now()
+# Initiate logger
+# buildlog_destname = "{0}.log".format(vmname)
+buildlog_path = os.path.join(vmpath, "{0}.log".format(vmname))
+CFunc.log_config(buildlog_path)
 # Call packer.
-if CFunc.is_windows():
-    # https://stackoverflow.com/questions/4984428/python-subprocess-get-childrens-output-to-file-and-terminal
-    packer_buildcmd = "powershell packer build file.json | tee build.log"
-else:
-    packer_buildcmd = "packer build file.json 2>&1 | tee build.log"
-subprocess.run(packer_buildcmd, shell=True)
+packer_buildcmd = "packer build file.json"
+CFunc.subpout_logger(packer_buildcmd)
 # Save packer finish time.
 packerfinishtime = datetime.now()
 
@@ -577,11 +578,9 @@ packerfinishtime = datetime.now()
 os.chdir(vmpath)
 output_folder = os.path.join(packer_temp_folder, vmname)
 buildlog_sourcepath = os.path.join(packer_temp_folder, "build.log")
-buildlog_destname = "{0}.log".format(vmname)
+
 # Copy output to VM folder.
 if os.path.isdir(output_folder):
-    # Copy build log to destination folder.
-    shutil.copy2(buildlog_sourcepath, os.path.join(output_folder, buildlog_destname))
     # Remove previous folder, if it exists.
     if os.path.isdir(os.path.join(vmpath, vmname)):
         shutil.rmtree(os.path.join(vmpath, vmname))
@@ -594,20 +593,18 @@ if os.path.isdir(output_folder):
     # Remove previous file for kvm.
     if args.vmtype == 2 and os.path.isfile(os.path.join(vmpath, vmname + ".qcow2")):
         os.remove(os.path.join(vmpath, vmname + ".qcow2"))
-    print("\nCopying {0} to {1}.".format(output_folder, vmpath))
+    logging.info("\nCopying {0} to {1}.".format(output_folder, vmpath))
     if args.vmtype != 2:
         shutil.copytree(output_folder, os.path.join(vmpath, vmname))
     # Copy the qcow2 file, and remove the folder entirely for kvm.
     if args.vmtype == 2 and os.path.isfile(os.path.join(output_folder, vmname + ".qcow2")):
         shutil.copy2(os.path.join(output_folder, vmname + ".qcow2"), os.path.join(vmpath, vmname + ".qcow2"))
-        # Copy build log
-        shutil.copy2(os.path.join(output_folder, buildlog_destname), vmpath)
 if args.debug:
-    print("Not removing {0}, debug flag is set. Please remove this folder manually.".format(packer_temp_folder))
+    logging.info("Not removing {0}, debug flag is set. Please remove this folder manually.".format(packer_temp_folder))
 else:
-    print("Removing {0}".format(packer_temp_folder))
+    logging.info("Removing {0}".format(packer_temp_folder))
     shutil.rmtree(packer_temp_folder)
-print("VM successfully output to {0}".format(os.path.join(vmpath, vmname)))
+logging.info("VM successfully output to {0}".format(os.path.join(vmpath, vmname)))
 # Save full finish time.
 fullfinishtime = datetime.now()
 
@@ -622,9 +619,9 @@ if args.vmtype == 2:
         kvm_diskinterface = "virtio"
         kvm_netdevice = "virtio"
     CREATESCRIPT_KVM = """virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg}.qcow2,bus={kvm_diskinterface} --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model={kvm_netdevice} --filesystem source=/,target=root,mode=mapped --os-type={kvm_os} --os-variant={kvm_variant} --import --noautoconsole --video={kvm_video} --channel unix,target_type=virtio,name=org.qemu.guest_agent.0""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=os.path.join(vmpath, vmname), kvm_os=kvm_os, kvm_variant=kvm_variant, kvm_video=kvm_video, kvm_diskinterface=kvm_diskinterface, kvm_netdevice=kvm_netdevice)
-    print(CREATESCRIPT_KVM)
+    logging.info("KVM launch command: {0}".format(CREATESCRIPT_KVM))
     subprocess.run(CREATESCRIPT_KVM, shell=True)
 
 # Print finish times
-print("Packer completed in :", packerfinishtime - beforetime)
-print("Whole thing completed in :", fullfinishtime - beforetime)
+logging.info("Packer completed in :{0}".format(str(packerfinishtime - beforetime)))
+logging.info("Whole thing completed in :".format(str(fullfinishtime - beforetime)))
