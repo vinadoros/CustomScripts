@@ -181,8 +181,8 @@ if os.path.isdir('/etc/sudoers.d'):
         print("Visudo status not 0, removing sudoers file.")
         os.remove(CUSTOMSUDOERSPATH)
 
-# Powertop
-CFunc.dnfinstall("powertop smartmontools hdparm; systemctl enable powertop")
+# Hdparm
+CFunc.dnfinstall("smartmontools hdparm")
 
 if not args.bare and not args.nogui:
     # Install snapd
@@ -202,6 +202,9 @@ if not args.bare and not args.nogui:
 # To get selinux status: sestatus, getenforce
 # To enable or disable selinux temporarily: setenforce 1 (to enable), setenforce 0 (to disable)
 subprocess.run("sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /etc/sysconfig/selinux", shell=True)
+
+# Disable the firewall
+subprocess.run("systemctl mask firewalld", shell=True)
 
 # Extra scripts
 if args.allextra is True:
