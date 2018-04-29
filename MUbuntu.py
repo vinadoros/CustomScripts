@@ -280,18 +280,7 @@ if vmstatus == "vmware":
         CFunc.aptinstall("open-vm-tools-desktop")
 
 
-subprocess.run("apt-get install -y --no-install-recommends powertop smartmontools", shell=True)
-# Write and enable powertop systemd-unit file.
-Powertop_SystemdServiceText = '''[Unit]
-Description=Powertop tunings
-
-[Service]
-ExecStart={0} --auto-tune
-RemainAfterExit=true
-
-[Install]
-WantedBy=multi-user.target'''.format(shutil.which("powertop"))
-CFunc.systemd_createsystemunit("powertop.service", Powertop_SystemdServiceText, True)
+subprocess.run("apt-get install -y --no-install-recommends smartmontools", shell=True)
 
 if args.bare is False:
     # Add normal user to all reasonable groups
