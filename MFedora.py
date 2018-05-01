@@ -106,10 +106,7 @@ if not args.nogui:
 if vmstatus == "kvm":
     CFunc.dnfinstall("spice-vdagent qemu-guest-agent")
 if vmstatus == "vbox":
-    # subprocess.run("{0}/CVBoxGuest.py -n".format(SCRIPTDIR), shell=True)
-    CFunc.dnfinstall("kmod-VirtualBox")
-    if not args.nogui:
-        CFunc.dnfinstall("VirtualBox-guest-additions")
+    CFunc.dnfinstall("virtualbox-guest-additions virtualbox-guest-additions-ogl")
 if vmstatus == "vmware":
     CFunc.dnfinstall("open-vm-tools")
     if not args.nogui:
