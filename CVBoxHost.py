@@ -75,7 +75,7 @@ elif distro == "Fedora":
     CFunc.rpmimport(key[0])
     os.remove(key[0])
     # Add repo file.
-    CFunc.dnfinstall("dkms")
+    CFunc.dnfinstall("dkms kernel-devel")
     subprocess.run('dnf config-manager --add-repo "http://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo"', shell=True)
     # Modify repo file.
     if release.isdigit() is True:
