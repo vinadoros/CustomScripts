@@ -123,7 +123,7 @@ function Fcn-csauto {
 # Software Function
 function Fcn-Software {
   # Required Basics
-  choco upgrade -y dotnet4.7.1 powershell
+  choco upgrade -y dotnetfx powershell
   # Install universal apps
   choco upgrade -y 7zip
   # Libraries
