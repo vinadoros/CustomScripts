@@ -122,8 +122,8 @@ if 1 <= args.ostype <= 4:
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
     kvm_os = "linux"
-    kvm_variant = "fedora25"
-    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/27/Server/x86_64/iso/Fedora-Server-dvd-x86_64-27-1.6.iso"
+    kvm_variant = "fedora27"
+    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/28/Server/x86_64/iso/Fedora-Server-dvd-x86_64-28-1.1.iso"
 if args.ostype == 1:
     vmname = "Packer-Fedora-{0}".format(hvname)
     vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
@@ -140,8 +140,8 @@ if 5 <= args.ostype <= 9:
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
     kvm_os = "linux"
-    kvm_variant = "centos7.0"
-    isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1708.iso"
+    kvm_variant = "rhel7.5"
+    isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1804.iso"
     vmprovisionscript = "MCentOS.py"
 if args.ostype == 5:
     vmname = "Packer-CentOS-{0}".format(hvname)
@@ -245,7 +245,7 @@ if 55 <= args.ostype <= 59:
     vboxosid = "Windows2016_64"
     vmwareid = "windows9srv-64"
     kvm_os = "windows"
-    kvm_variant = "win10"
+    kvm_variant = "win2k16"
     vmprovision_defopts = " "
 if args.ostype == 55:
     vmname = "Packer-Windows2016-{0}".format(hvname)
