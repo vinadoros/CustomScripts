@@ -73,24 +73,11 @@ subprocess.run(os.path.join(RepoClonePath, "clean_build.sh"), shell=True)
 # Ensure user owns the folder before installation.
 subprocess.run("chown {0}:{1} -R {2}".format(USERNAMEVAR, USERGROUP, RepoClonePath), shell=True)
 # Copy built files.
-InstallPath = os.path.join("/", "usr", "local", "bin")
 os.chdir(os.path.join(RepoClonePath, "build"))
-subprocess.run("install -m 755 -t {0} bin/barrier bin/barriers bin/barrierc".format(InstallPath), shell=True)
-subprocess.run("install -m 755 -t {0} bin/syntool".format(InstallPath), shell=True)
-# Create desktop file
-barrierdesktop_text = """#!/usr/bin/env xdg-open
-[Desktop Entry]
-Type=Application
-Terminal=false
-Exec={0}
-Name=Barrier
-Comment=Barrier KVM Software""".format(os.path.join(InstallPath, "barrier"))
+subprocess.run("make install", shell=True)
+
+# Autostart barrier for the user.
 barrierdesktop_file = os.path.join("/", "usr", "local", "share", "applications", "barrier.desktop")
-os.makedirs(os.path.dirname(barrierdesktop_file), exist_ok=True)
-with open(barrierdesktop_file, 'w') as file:
-    file.write(barrierdesktop_text)
-os.chmod(barrierdesktop_file, 0o777)
-# Autostart synergy for the user.
 shutil.copy2(barrierdesktop_file, os.path.join(USERHOME, ".config", "autostart"))
 # Create autohide config for user if it does not already exist.
 barrier_userconfig = os.path.join(USERHOME, ".config", "Debauchee", "Barrier.conf")
