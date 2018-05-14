@@ -179,7 +179,7 @@ function Fcn-Software {
     Fcn-Tablacus
     # Install for Windows 8 or above.
     if ([Environment]::OSVersion.Version.Major -ge 8){
-      choco upgrade -y ShutUp10
+      choco upgrade -y classic-shell ShutUp10
     }
     # Install for lower than Windows 8
     if ([Environment]::OSVersion.Version.Major -lt 8){
