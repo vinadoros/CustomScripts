@@ -94,6 +94,31 @@ polkit.addRule(function(action, subject) {
 });
 EOL
 
+# TODO: Enable accept_ra https://superuser.com/questions/1208952/qemu-kvm-libvirt-forwarding
+# TODO: echo "2" > /proc/sys/net/ipv6/conf/enp2s0/accept_ra
+# TODO: https://wiki.gentoo.org/wiki/QEMU/KVM_IPv6_Support
+# 		sudo bash -c "cat >/tmp/default.xml" <<'EOL'
+# <network>
+#   <name>default</name>
+#   <forward mode='nat'/>
+#   <bridge name='virbr0' stp='off'/>
+#   <ip address='192.168.122.1' netmask='255.255.255.0'>
+#     <dhcp>
+#       <range start='192.168.122.2' end='192.168.122.254'/>
+#     </dhcp>
+#   </ip>
+#   <ip family='ipv6' address='2001:db8:dead:beef:fe::2' prefix='96'>
+#     <dhcp>
+#       <range start='2001:db8:dead:beef:fe::1000' end='2001:db8:dead:beef:fe::2000' />
+#     </dhcp>
+#   </ip>
+# </network>
+# EOL
+# 		sudo virsh net-destroy default
+# 		cd /tmp
+# 		sudo virsh net-define default.xml
+# 		sudo virsh net-start default
+
 		# Set dconf info
 		gsettings set org.virt-manager.virt-manager.stats enable-cpu-poll true
 		gsettings set org.virt-manager.virt-manager.stats enable-disk-poll true
