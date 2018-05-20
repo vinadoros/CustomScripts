@@ -625,4 +625,4 @@ if args.vmtype == 2:
 
 # Print finish times
 logging.info("Packer completed in :{0}".format(str(packerfinishtime - beforetime)))
-logging.info("Whole thing completed in :".format(str(fullfinishtime - beforetime)))
+logging.info("Whole thing completed in :{0}".format(str(fullfinishtime - beforetime)))
