@@ -33,10 +33,10 @@ else:
 
 ### libvirt section ###
 if shutil.which("virsh"):
-    virtnetworks = subpout("virsh net-list --all --name").splitlines()
+    virtnetworks = subpout("virsh --connect qemu:///system net-list --all --name").splitlines()
     for virtnet in virtnetworks:
         if virtnet is not None:
             print("\nIPs for libvirt network", virtnet)
-            subprocess.run("virsh net-dhcp-leases {0}".format(virtnet), shell=True)
+            subprocess.run("virsh --connect qemu:///system net-dhcp-leases {0}".format(virtnet), shell=True)
 else:
     print("virsh utility not found. Skipping libvirt networks.")

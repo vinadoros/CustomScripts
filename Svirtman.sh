@@ -43,10 +43,6 @@ while true; do
 			sudo usermod -aG libvirt $USERNAMEVAR
 		fi
 
-		# Set network info
-		sudo virsh net-autostart default
-		sudo virsh net-start default
-
 		# Set default storage location
 		while true; do
 			echo "Enter a path for VM images. (i.e. \"/mnt/Path here\")"
@@ -94,30 +90,38 @@ polkit.addRule(function(action, subject) {
 });
 EOL
 
-# TODO: Enable accept_ra https://superuser.com/questions/1208952/qemu-kvm-libvirt-forwarding
-# TODO: echo "2" > /proc/sys/net/ipv6/conf/enp2s0/accept_ra
-# TODO: https://wiki.gentoo.org/wiki/QEMU/KVM_IPv6_Support
-# 		sudo bash -c "cat >/tmp/default.xml" <<'EOL'
-# <network>
-#   <name>default</name>
-#   <forward mode='nat'/>
-#   <bridge name='virbr0' stp='off'/>
-#   <ip address='192.168.122.1' netmask='255.255.255.0'>
-#     <dhcp>
-#       <range start='192.168.122.2' end='192.168.122.254'/>
-#     </dhcp>
-#   </ip>
-#   <ip family='ipv6' address='2001:db8:dead:beef:fe::2' prefix='96'>
-#     <dhcp>
-#       <range start='2001:db8:dead:beef:fe::1000' end='2001:db8:dead:beef:fe::2000' />
-#     </dhcp>
-#   </ip>
-# </network>
-# EOL
-# 		sudo virsh net-destroy default
-# 		cd /tmp
-# 		sudo virsh net-define default.xml
-# 		sudo virsh net-start default
+# https://wiki.gentoo.org/wiki/QEMU/KVM_IPv6_Support
+		sudo bash -c "cat >/tmp/default.xml" <<'EOL'
+<network>
+  <name>default</name>
+  <forward mode='nat'/>
+  <bridge name='virbr0' stp='off'/>
+  <ip address='192.168.122.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='192.168.122.2' end='192.168.122.254'/>
+    </dhcp>
+  </ip>
+  <ip family='ipv6' address='fdab:8ce1:b5cd:fbd5::1' prefix='96'>
+    <dhcp>
+      <range start='fdab:8ce1:b5cd:fbd5::1000' end='fdab:8ce1:b5cd:fbd5::2000' />
+    </dhcp>
+  </ip>
+</network>
+EOL
+		sudo virsh net-destroy default
+		sudo virsh net-undefine default
+		# Get default route interface
+		# ROUTEINTF=$(route | grep '^default' | grep -o '[^ ]*$')
+		# Add accept_ra
+		# https://superuser.com/questions/1208952/qemu-kvm-libvirt-forwarding
+		echo -e "net.ipv6.conf.all.accept_ra = 2" | sudo tee /etc/sysctl.d/99-acceptra.conf
+		echo "2" | sudo tee /proc/sys/net/ipv6/conf/all/accept_ra
+		cd /tmp
+		sudo virsh net-define default.xml
+		sudo rm /tmp/default.xml
+		# Set network info
+		sudo virsh net-autostart default
+		sudo virsh net-start default
 
 		# Set dconf info
 		gsettings set org.virt-manager.virt-manager.stats enable-cpu-poll true
@@ -155,6 +159,7 @@ EOL
 		sudo dnf remove -y qemu-kvm virt-install virt-viewer libvirt-daemon-config-network libvirt-daemon-kvm virt-manager
 	fi
 	sudo rm -f /etc/polkit-1/rules.d/80-libvirt.rules
+	sudo rm -f /etc/sysctl.d/99-acceptra.conf
 	break;;
 
 	* ) echo "Please input 0, 1 or 2.";;
