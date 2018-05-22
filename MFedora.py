@@ -99,8 +99,7 @@ if not args.nogui:
         # Editors
         CFunc.dnfinstall("code")
         # Syncthing
-        subprocess.run("dnf copr enable -y decathorpe/syncthing", shell=True)
-        CFunc.dnfinstall("syncthing syncthing-inotify")
+        CFunc.dnfinstall("syncthing")
 
 # Install software for VMs
 if vmstatus == "kvm":
