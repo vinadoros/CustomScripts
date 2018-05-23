@@ -140,7 +140,7 @@ if 5 <= args.ostype <= 9:
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
     kvm_os = "linux"
-    kvm_variant = "rhel7.5"
+    kvm_variant = "rhel7.4"
     isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1804.iso"
     vmprovisionscript = "MCentOS.py"
 if args.ostype == 5:
