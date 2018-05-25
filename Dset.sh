@@ -82,7 +82,6 @@ if type mate-session; then
 	gsettings set org.mate.pluma auto-indent true
 	gsettings set org.mate.pluma tabs-size 4
 	gsettings set org.gtk.Settings.FileChooser show-hidden true
-	gsettings set org.mate.caja.preferences sort-directories-first true
 	gsettings set org.mate.caja.preferences executable-text-activation ask
 	gsettings set org.mate.caja.preferences enable-delete true
 	gsettings set org.mate.caja.preferences click-policy double
@@ -150,7 +149,6 @@ if type gnome-session; then
 	gsettings set org.gnome.nautilus.preferences sort-directories-first true
 	gsettings set org.gnome.nautilus.preferences executable-text-activation ask
 	gsettings set org.gnome.nautilus.preferences click-policy double
-	gsettings set org.gnome.nautilus.preferences automatic-decompression false
 	gsettings set org.gnome.nautilus.list-view use-tree-view true
 	gsettings set org.gnome.nautilus.list-view default-zoom-level small
 	gsettings set org.gnome.nautilus.icon-view default-zoom-level small
@@ -192,9 +190,15 @@ if type gnome-session; then
 	gsettings set org.freedesktop.Tracker.Miner.Files crawling-interval -2
 	gsettings set org.freedesktop.Tracker.Miner.Files enable-monitors false
 	dconf write /org/gnome/shell/extensions/dash-to-dock/intellihide "true"
-	dconf write /org/gnome/shell/extensions/dash-to-dock/intellihide-mode "'ALL_WINDOWS'"
 	dconf write /org/gnome/shell/extensions/dash-to-dock/multi-monitor "true"
+	gsettings set org.gnome.shell.extensions.dash-to-dock intellihide true
 	gsettings set org.gnome.shell.extensions.dash-to-dock click-action 'minimize'
+	gsettings set org.gnome.shell.extensions.dash-to-dock intellihide-mode 'FOCUS_APPLICATION_WINDOWS'
+	gsettings set org.gnome.shell.extensions.dash-to-dock require-pressure-to-show true
+	gsettings set org.gnome.shell.extensions.dash-to-dock icon-size-fixed false
+	gsettings set org.gnome.shell.extensions.dash-to-dock isolate-monitors false
+	gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed false
+	gsettings set org.gnome.shell.extensions.dash-to-dock extend-height false
 	dconf write /org/gnome/shell/extensions/window-list/show-on-all-monitors "true"
 	# Set gnome-terminal scrollback
 	dconf write /org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/scrollback-unlimited true
