@@ -193,7 +193,7 @@ function Fcn-Software {
   # Non-vm software
   if ( $IsVM -eq $false ) {
     # Install packer
-    choco upgrade -y packer --version 1.1.1 --force
+    choco upgrade -y packer
     # Install python dependancies
     pip install passlib
   }
