@@ -106,7 +106,7 @@ screen
 gparted
 fsarchiver
 gnome-disk-utility
-btrfs-tools
+btrfs-progs
 f2fs-tools
 xfsprogs
 dmraid
@@ -149,12 +149,12 @@ with open(pkgfile, 'w') as pkgfile_write:
 # with open(chrootrepofile, 'w') as chrootrepofile_write:
 #     chrootrepofile_write.write(REPOLIST)
 
-# Add packages
-PACKAGEFOLDER = buildfolder+"/config/packages.chroot"
-os.makedirs(PACKAGEFOLDER, exist_ok=True)
-# qt5-fsarchiver
-qtfsfile = downloadfile("https://downloads.sourceforge.net/project/qt4-fsarchiver/qt5-fsarchiver/deb-Pakete/Debian/Debian9.3/qt5-fsarchiver-0.8.2-0-amd64.deb", PACKAGEFOLDER)
-subprocess.run("dpkg-name -o {0}".format(qtfsfile[0]), shell=True)
+# # Add packages
+# PACKAGEFOLDER = buildfolder+"/config/packages.chroot"
+# os.makedirs(PACKAGEFOLDER, exist_ok=True)
+# # qt5-fsarchiver
+# qtfsfile = downloadfile("https://downloads.sourceforge.net/project/qt4-fsarchiver/qt5-fsarchiver/deb-Pakete/Debian/Debian9.3/qt5-fsarchiver-0.8.2-0-amd64.deb", PACKAGEFOLDER)
+# subprocess.run("dpkg-name -o {0}".format(qtfsfile[0]), shell=True)
 
 # # Add bootloader config
 if os.path.isdir(buildfolder+"/config/bootloaders"):
