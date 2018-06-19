@@ -195,7 +195,7 @@ function Fcn-Software {
     # Install packer
     choco upgrade -y packer
     # Install python dependancies
-    pip install passlib
+    Start-Process -Wait "C:\Python36\Scripts\pip.exe" -ArgumentList "install","passlib"
   }
 }
 
