@@ -78,7 +78,8 @@ subprocess.run("make install", shell=True)
 
 # Autostart barrier for the user.
 barrierdesktop_file = os.path.join("/", "usr", "local", "share", "applications", "barrier.desktop")
-shutil.copy2(barrierdesktop_file, os.path.join(USERHOME, ".config", "autostart"))
+os.makedirs(os.path.join(USERHOME, ".config", "autostart"), exist_ok=True)
+shutil.copy2(barrierdesktop_file, os.path.join(USERHOME, ".config", "autostart", "barrier.desktop"))
 # Create autohide config for user if it does not already exist.
 barrier_userconfig = os.path.join(USERHOME, ".config", "Debauchee", "Barrier.conf")
 if not os.path.isfile(barrier_userconfig):
