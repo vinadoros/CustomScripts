@@ -89,6 +89,7 @@ gvfs
 avahi-daemon
 avahi-discover
 # CLI Utilities
+coreutils
 sudo
 ssh
 tmux

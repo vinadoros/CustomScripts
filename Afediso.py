@@ -5,6 +5,7 @@
 import argparse
 from datetime import datetime
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -45,14 +46,18 @@ if args.noprompt is False:
 # https://github.com/rhinstaller/lorax/blob/master/docs/livemedia-creator.rst
 ks_text = """
 %include /usr/share/spin-kickstarts/fedora-live-base.ks
-%include /usr/share/spin-kickstarts/fedora-mate-common.ks
 %include /usr/share/spin-kickstarts/fedora-live-minimization.ks
 
 part / --size 6144
 
 %packages
 
-gparted
+# Desktop Environment
+@mate-desktop
+@mate-applications
+@networkmanager-submodules
+
+# CLI Utils
 zsh
 nano
 tmux
@@ -65,35 +70,38 @@ unzip
 openssh-server
 openssh-clients
 avahi
+chntpw
+
+# VM Utils
 spice-vdagent
 qemu-guest-agent
 open-vm-tools
 open-vm-tools-desktop
+
+# Graphical Utils
+gnome-disk-utility
+gparted
+
+# Exclusions
+-thunderbird
+-pidgin
 
 %end
 
 %post
 cat >> /etc/rc.d/init.d/livesys << EOF
 
-
-# make the installer show up
-if [ -f /usr/share/applications/liveinst.desktop ]; then
-  # Show harddisk install in shell dash
-  sed -i -e 's/NoDisplay=true/NoDisplay=false/' /usr/share/applications/liveinst.desktop ""
-fi
-mkdir /home/liveuser/Desktop
-cp /usr/share/applications/liveinst.desktop /home/liveuser/Desktop
-
-# and mark it as executable
-chmod +x /home/liveuser/Desktop/liveinst.desktop
+# Change shell to zsh
+chsh -s /bin/zsh root
+chsh -s /bin/zsh livecd
 
 # rebuild schema cache with any overrides we installed
 glib-compile-schemas /usr/share/glib-2.0/schemas
 
 # set up lightdm autologin
 sed -i 's/^#autologin-user=.*/autologin-user=liveuser/' /etc/lightdm/lightdm.conf
-sed -i 's/^#autologin-user-timeout=.*/autologin-user-timeout=0/' /etc/lightdm/lightdm.conf
-#sed -i 's/^#show-language-selector=.*/show-language-selector=true/' /etc/lightdm/lightdm-gtk-greeter.conf
+# sed -i 's/^#autologin-user-timeout=.*/autologin-user-timeout=0/' /etc/lightdm/lightdm.conf
+usermod -aG autologin liveuser
 
 # set MATE as default session, otherwise login will fail
 sed -i 's/^#user-session=.*/user-session=mate/' /etc/lightdm/lightdm.conf
@@ -123,11 +131,15 @@ subprocess.run("ksflatten --config {0} -o {1}".format(ks_path, ks_flat), shell=T
 
 ### Build LiveCD ###
 resultsfolder = os.path.join(buildfolder, "results")
+if os.path.isdir(resultsfolder):
+    shutil.rmtree(resultsfolder)
 # Get Dates
 currentdatetime = time.strftime("%Y-%m-%d_%H%M")
 shortdate = time.strftime("%Y%m%d")
 beforetime = datetime.now()
+isoname = "Fedora-CustomLive-{0}.iso".format(currentdatetime)
 # Start Build
-subprocess.run("livemedia-creator --ks {ks} --no-virt --resultdir {resultdir} --project Fedora-CustomLive --make-iso --volid Fedora-CustomLive-{shortdate} --iso-only --iso-name Fedora-CustomLive-{datetime}.iso --releasever 27 --title Fedora-CustomLive --macboot".format(ks=ks_flat, resultdir=resultsfolder, datetime=currentdatetime, shortdate=shortdate), shell=True)
-subprocess.run("chmod a+rw -R {0}".format(buildfolder))
+subprocess.run("livemedia-creator --ks {ks} --no-virt --resultdir {resultdir} --project Fedora-CustomLive --make-iso --volid Fedora-CustomLive-{shortdate} --iso-only --iso-name {isoname} --releasever 28 --title Fedora-CustomLive --macboot".format(ks=ks_flat, resultdir=resultsfolder, isoname=isoname, shortdate=shortdate), shell=True)
+subprocess.run("chmod a+rw -R {0}".format(buildfolder), shell=True)
+print('Run to test in iso folder: "qemu-system-x86_64 -enable-kvm -m 2048 ./{0}"'.format(isoname))
 print("Build completed in :", datetime.now() - beforetime)

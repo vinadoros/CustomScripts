@@ -1,7 +1,6 @@
 #
 # Usage:
-# docker build -t r/debiso -f Dockerfile-debiso .
-# docker run -d -t --privileged --name debiso -v /opt/CustomScripts:/opt/CustomScripts -v /path:/debbuild r/debiso
+# docker stop debiso; docker rm debiso; docker build -t r/debiso -f Dockerfile-debiso .; docker run -dt --privileged --name debiso -v /opt/CustomScripts:/opt/CustomScripts -v /path:/debbuild r/debiso; docker logs -f debiso
 #
 
 FROM debian:sid

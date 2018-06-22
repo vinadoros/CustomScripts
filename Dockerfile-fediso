@@ -1,12 +1,12 @@
 #
 # Usage:
-# docker stop fediso; docker rm fediso; docker build -t r/fediso -f Dockerfile-fediso .; docker run -it --privileged --name fediso -v /opt/CustomScripts:/opt/CustomScripts -v /path:/fediso r/fediso; docker logs -f fediso
+# docker stop fediso; docker rm fediso; docker build -t r/fediso -f Dockerfile-fediso .; docker run -dt --privileged --name fediso -v /opt/CustomScripts:/opt/CustomScripts -v /path:/fediso r/fediso; docker logs -f fediso
 #
 
 FROM fedora:latest
 
 # Install livecd apps.
-RUN dnf install -y coreutils nano livecd-tools spin-kickstarts pykickstart anaconda
+RUN dnf install -y coreutils-single nano livecd-tools spin-kickstarts pykickstart anaconda util-linux
 
 VOLUME ["/opt/CustomScripts"]
 
