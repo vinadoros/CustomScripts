@@ -41,6 +41,10 @@ if not os.path.isdir(outfolder):
 if args.noprompt is False:
     input("Press Enter to continue.")
 
+# Modify lorax grub config
+subprocess.run('sed -i "s/^default=.*/default=0/g" /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub.conf /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub2-efi.cfg /usr/share/lorax/templates.d/99-generic/config_files/x86/grub.conf /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg', shell=True)
+subprocess.run('sed -i "s/^timeout.*/timeout 1/g" /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub.conf /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub2-efi.cfg /usr/share/lorax/templates.d/99-generic/config_files/x86/grub.conf /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg', shell=True)
+
 ### Prep Environment ###
 # https://fedoraproject.org/wiki/Livemedia-creator-_How_to_create_and_use_a_Live_CD
 # https://github.com/rhinstaller/lorax/blob/master/docs/livemedia-creator.rst
@@ -58,6 +62,7 @@ part / --size 6144
 @networkmanager-submodules
 
 # CLI Utils
+git
 zsh
 nano
 tmux
@@ -82,26 +87,59 @@ open-vm-tools-desktop
 gnome-disk-utility
 gparted
 
+# For clonezilla
+dialog
+
 # Exclusions
 -thunderbird
 -pidgin
 
 %end
 
+%post --nochroot
+cp /etc/resolv.conf $INSTALL_ROOT/etc/resolv.conf
+%end
+
 %post
+
+# Pull CustomScripts
+git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts
+
+# Clonezilla
+git clone https://github.com/stevenshiau/drbl drbl
+cd drbl
+make all
+make install
+cd ..
+rm -rf drbl
+git clone https://github.com/stevenshiau/clonezilla clonezilla
+cd clonezilla
+make all
+make install
+cd ..
+rm -rf clonezilla
+
+
+# Script run on boot
 cat >> /etc/rc.d/init.d/livesys << EOF
+
+# Update CustomScripts
+cd /opt/CustomScripts
+git pull
 
 # Change shell to zsh
 chsh -s /bin/zsh root
-chsh -s /bin/zsh livecd
+chsh -s /bin/zsh liveuser
+
+# LightDM Autologin
+sed -i 's/^#autologin-user=.*/autologin-user=liveuser/' /etc/lightdm/lightdm.conf
+# sed -i 's/^#autologin-user-timeout=.*/autologin-user-timeout=0/' /etc/lightdm/lightdm.conf
+echo -e "[SeatDefaults]\nautologin-user=liveuser\nuser-session=mate" > /etc/lightdm/lightdm.conf.d/12-autologin.conf
+groupadd autologin
+gpasswd -a liveuser autologin
 
 # rebuild schema cache with any overrides we installed
 glib-compile-schemas /usr/share/glib-2.0/schemas
-
-# set up lightdm autologin
-sed -i 's/^#autologin-user=.*/autologin-user=liveuser/' /etc/lightdm/lightdm.conf
-# sed -i 's/^#autologin-user-timeout=.*/autologin-user-timeout=0/' /etc/lightdm/lightdm.conf
-usermod -aG autologin liveuser
 
 # set MATE as default session, otherwise login will fail
 sed -i 's/^#user-session=.*/user-session=mate/' /etc/lightdm/lightdm.conf
@@ -139,7 +177,7 @@ shortdate = time.strftime("%Y%m%d")
 beforetime = datetime.now()
 isoname = "Fedora-CustomLive-{0}.iso".format(currentdatetime)
 # Start Build
-subprocess.run("livemedia-creator --ks {ks} --no-virt --resultdir {resultdir} --project Fedora-CustomLive --make-iso --volid Fedora-CustomLive-{shortdate} --iso-only --iso-name {isoname} --releasever 28 --title Fedora-CustomLive --macboot".format(ks=ks_flat, resultdir=resultsfolder, isoname=isoname, shortdate=shortdate), shell=True)
+subprocess.run("livemedia-creator --ks {ks} --no-virt --resultdir {resultdir} --project Fedora-CustomLive --make-iso --volid Fedora-CustomLive-{shortdate} --iso-only --iso-name {isoname} --releasever 28 --title Fedora-CustomLive --macboot --no-virt".format(ks=ks_flat, resultdir=resultsfolder, isoname=isoname, shortdate=shortdate), shell=True)
 subprocess.run("chmod a+rw -R {0}".format(buildfolder), shell=True)
 print('Run to test in iso folder: "qemu-system-x86_64 -enable-kvm -m 2048 ./{0}"'.format(isoname))
 print("Build completed in :", datetime.now() - beforetime)

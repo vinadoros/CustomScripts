@@ -3,12 +3,10 @@
 
 # Python includes.
 import argparse
-import json
 import os
 import shutil
 import subprocess
 import sys
-import urllib.request
 # Custom includes
 import CFunc
 
@@ -119,6 +117,8 @@ if args.desktop == "gnome":
     # Some Gnome Extensions
     CFunc.dnfinstall("gnome-terminal-nautilus gnome-tweak-tool dconf-editor")
     CFunc.dnfinstall("gnome-shell-extension-gpaste gnome-shell-extension-media-player-indicator gnome-shell-extension-topicons-plus gnome-shell-extension-dash-to-dock")
+    # Compile schemas if needed.
+    subprocess.run("glib-compile-schemas /usr/share/gnome-shell/extensions/mediaplayer@patapon.info/schemas/", shell=True)
     subprocess.run("{0}/DExtGnome.py -v".format(SCRIPTDIR), shell=True)
     # Adapta
     CFunc.dnfinstall("gnome-shell-theme-adapta adapta-gtk-theme-metacity adapta-gtk-theme-gtk2 adapta-gtk-theme-gtk3")
