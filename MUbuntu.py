@@ -220,6 +220,13 @@ with open('/etc/NetworkManager/conf.d/10-globally-managed-devices.conf', 'w') as
 unmanaged-devices=none""")
 # Ensure DNS resolution is working
 subprocess.run("dpkg-reconfigure --frontend=noninteractive resolvconf", shell=True)
+# Set netplan to use Network Manager
+if os.path.isfile('/etc/netplan/01-netcfg.yaml'):
+    with open('/etc/netplan/01-netcfg.yaml', 'w') as writefile:
+        writefile.write("""network:
+  version: 2
+  renderer: NetworkManager""")
+
 
 # Install Desktop Software
 if args.desktop == "gnome":
