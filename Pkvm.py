@@ -59,7 +59,7 @@ CPUCORES = multiprocessing.cpu_count() if multiprocessing.cpu_count() <= 4 else 
 parser = argparse.ArgumentParser(description='Create a VM using packer.')
 parser.add_argument("-m", "--noprompt", help='Do not prompt to continue.', action="store_true")
 parser.add_argument("-n", "--vmname", help="Name of Virtual Machine")
-parser.add_argument("-t", "--vmtype", type=int, help="Virtual Machine type (1=Virtualbox, 2=libvirt, 3=VMWare)", default="1")
+parser.add_argument("-t", "--vmtype", type=int, help="Virtual Machine type (1=Virtualbox, 2=libvirt, 3=VMWare, 4=hyperv)", default="1")
 parser.add_argument("-a", "--ostype", type=int, help="OS type", default="1")
 parser.add_argument("-f", "--fullname", help="Full Name", default="User Name")
 parser.add_argument("-i", "--iso", help="Path to live cd")
