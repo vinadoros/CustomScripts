@@ -347,15 +347,51 @@ function Fcn-Customize {
   tzutil /s "Eastern Standard Time"
   # Set system clock as UTC
   New-ItemProperty -Path Registry::HKLM\System\CurrentControlSet\Control\TimeZoneInformation -Name RealTimeIsUniversal -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+
+  # Add windows defender exclusions
+  Add-MpPreference -ExclusionPath "$env:windir\Temp\SppExtComObjHook.dll"
+  Add-MpPreference -ExclusionPath "$env:USERPROFILE\Desktop"
+  Add-MpPreference -ExclusionPath "$env:LOCALAPPDATA\Temp\SppExtComObjHook.dll"
+  Add-MpPreference -ExclusionPath "$env:windir\AutoKMS"
 }
 
-# Remove Windows Features
-function Fcn-RemoveFeatures {
-  # Remove windows defender from core or VMs.
-  if ( $core -eq $true -Or $IsVM -eq $true ) {
-    # Windows Server
-    Uninstall-WindowsFeature Windows-Defender
-  }
+# Remove Windows Defender
+function Fcn-DisableDefender {
+  # Windows Server
+  Uninstall-WindowsFeature Windows-Defender-GUI
+  Uninstall-WindowsFeature Windows-Defender
+
+  # Windows 10
+  # Disable Sample submission
+  Set-MpPreference -SubmitSamplesConsent 2
+  Set-MpPreference -MAPSReporting 0
+  # Disable real-time monitoring
+  Set-MpPreference -DisableRealtimeMonitoring $True
+  # Disable via registry
+  # https://www.tenforums.com/tutorials/5918-turn-off-windows-defender-windows-10-a.html
+  New-ItemProperty -Path "Registry::HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" -Name DisableAntiSpyware -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+  # Hide Defender system tray (only for 1803 and above)
+  # https://www.tenforums.com/tutorials/11974-hide-show-windows-defender-notification-area-icon-windows-10-a.html#option4
+  New-ItemProperty -Path "Registry::HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Systray" -Name HideSystray -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+}
+
+# Enable Windows Defender
+function Fcn-EnableDefender {
+  # Windows Server
+  Install-WindowsFeature -Name Windows-Defender-GUI
+
+  # Windows 10
+  # Enable via registry
+  # https://www.tenforums.com/tutorials/5918-turn-off-windows-defender-windows-10-a.html
+  New-ItemProperty -Path "Registry::HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" -Name DisableAntiSpyware -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+  # Show Defender system tray (only for 1803 and above)
+  # https://www.tenforums.com/tutorials/11974-hide-show-windows-defender-notification-area-icon-windows-10-a.html#option4
+  New-ItemProperty -Path "Registry::HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Systray" -Name HideSystray -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+  # Sample submission
+  Set-MpPreference -SubmitSamplesConsent 0
+  Set-MpPreference -MAPSReporting 0
+  # Real-time monitoring
+  Set-MpPreference -DisableRealtimeMonitoring $False
 }
 
 # Remove all items from Windows 10 Stock Start Menu
@@ -389,7 +425,9 @@ if (-Not $isDotSourced) {
   Fcn-CSClone
   Fcn-Software
   Fcn-Customize
-  Fcn-RemoveFeatures
+  if ( $core -eq $true -Or $IsVM -eq $true ) {
+    Fcn-RemoveDefender
+  }
   Fcn-StartMenuRemoveAll
   Fcn-DisableWinRM
 }
