@@ -122,7 +122,7 @@ if 1 <= args.ostype <= 4:
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
     kvm_os = "linux"
-    kvm_variant = "fedora27"
+    kvm_variant = "fedora26"
     isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/28/Server/x86_64/iso/Fedora-Server-dvd-x86_64-28-1.1.iso"
 if args.ostype == 1:
     vmname = "Packer-Fedora-{0}".format(hvname)
@@ -619,10 +619,12 @@ if args.vmtype == 2:
         kvm_diskinterface = "virtio"
         kvm_netdevice = "virtio"
     # virt-install manual: https://www.mankier.com/1/virt-install
+    # List of os: osinfo-query os
     CREATESCRIPT_KVM = """virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg}.qcow2,bus={kvm_diskinterface} --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model={kvm_netdevice} --filesystem source=/,target=root,mode=mapped --os-type={kvm_os} --os-variant={kvm_variant} --import --noautoconsole --video={kvm_video} --channel unix,target_type=virtio,name=org.qemu.guest_agent.0""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=os.path.join(vmpath, vmname), kvm_os=kvm_os, kvm_variant=kvm_variant, kvm_video=kvm_video, kvm_diskinterface=kvm_diskinterface, kvm_netdevice=kvm_netdevice)
     logging.info("KVM launch command: {0}".format(CREATESCRIPT_KVM))
-    subprocess.run(CREATESCRIPT_KVM, shell=True)
+    if args.noprompt is False:
+        subprocess.run(CREATESCRIPT_KVM, shell=True)
 
 # Print finish times
-logging.info("Packer completed in :{0}".format(str(packerfinishtime - beforetime)))
-logging.info("Whole thing completed in :{0}".format(str(fullfinishtime - beforetime)))
+logging.info("Packer completed in {0}".format(str(packerfinishtime - beforetime)))
+logging.info("Whole thing completed in {0}".format(str(fullfinishtime - beforetime)))
