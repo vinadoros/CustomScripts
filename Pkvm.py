@@ -224,7 +224,7 @@ if args.ostype == 40:
     vmprovision_defopts = " "
     kvm_os = "freebsd"
     kvm_variant = "freebsd11.0"
-    isourl = "https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/11.1/FreeBSD-11.1-RELEASE-amd64-disc1.iso"
+    isourl = "https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/11.2/FreeBSD-11.2-RELEASE-amd64-disc1.iso"
 if 50 <= args.ostype <= 59:
     vboxosid = "Windows10_64"
     vmwareid = "windows9-64"
@@ -318,7 +318,7 @@ else:
 # Create temporary folder for packer
 packer_temp_folder = os.path.join(vmpath, "packertemp" + vmname)
 if os.path.isdir(packer_temp_folder):
-    print("\nDeleting old VM.")
+    print("\nDeleting {0}.".format(packer_temp_folder))
     shutil.rmtree(packer_temp_folder)
 os.mkdir(packer_temp_folder)
 os.chdir(packer_temp_folder)
@@ -469,7 +469,7 @@ if 30 <= args.ostype <= 39:
     data['provisioners'][0]["inline"] = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:{vmuser} -R ~{vmuser}; apt install -y git; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser)
     data['builders'][0]["boot_command"] = ["<esc>auto url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/debian.cfg hostname=debian locale=en_US keyboard-configuration/modelcode=SKIP netcfg/choose_interface=auto <enter>"]
 if 40 <= args.ostype <= 41:
-    data['builders'][0]["boot_command"] = ["<wait><enter><wait10><wait10><right><enter><wait>dhclient -b vtnet0<enter><wait>dhclient -b em0<enter><wait10>fetch -o /tmp/installerconfig http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd<wait><enter><wait>bsdinstall script /tmp/installerconfig<wait><enter>"]
+    data['builders'][0]["boot_command"] = ["<wait5><enter><wait30><right><wait><enter><wait>dhclient -b vtnet0<enter><wait>dhclient -b em0<enter><wait10>fetch -o /tmp/installerconfig http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd<wait><enter><wait>bsdinstall script /tmp/installerconfig<wait><enter>"]
     data['provisioners'][0]["type"] = "shell"
     # Needed for freebsd: https://www.packer.io/docs/provisioners/shell.html#execute_command
     data['provisioners'][0]["execute_command"] = "chmod +x {{ .Path }}; env {{ .Vars }} {{ .Path }}"
