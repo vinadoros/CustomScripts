@@ -303,6 +303,12 @@ if os.path.isfile("/etc/skel/.bashrc"):
     if os.geteuid() is 0:
         shutil.copy("/etc/skel/.bashrc", BASHROOTSCRIPTPATH)
         shutil.chown(BASHSCRIPTPATH, USERNAMEVAR, USERGROUP)
+else:
+    # Create bashrc if no skeleton
+    open(BASHSCRIPTPATH, 'a').close()
+    if os.geteuid() is 0:
+        open(BASHROOTSCRIPTPATH, 'a').close()
+        shutil.chown(BASHSCRIPTPATH, USERNAMEVAR, USERGROUP)
 
 # Install bash-it before modifying bashrc (which automatically deletes bashrc)
 # Only do it if the current user can write to opt
