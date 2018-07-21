@@ -316,10 +316,10 @@ if os.path.isdir("/opt/bash-it"):
     [ "$(id -u)" = "0" ] && HOME={0}
     /opt/bash-it/install.sh --silent
     """.format(ROOTHOME), shell=True)
-    subprocess.run("""sed -i "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTPATH), shell=True)
+    subprocess.run("""sed -i -- "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTPATH), shell=True)
     if os.geteuid() is 0:
         subprocess.run('su {0} -s {1} -c "/opt/bash-it/install.sh --silent"'.format(USERNAMEVAR, shutil.which("bash")), shell=True)
-        subprocess.run("""sed -i "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0} {1}""".format(BASHROOTSCRIPTPATH, BASHSCRIPTPATH), shell=True)
+        subprocess.run("""sed -i -- "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0} {1}""".format(BASHROOTSCRIPTPATH, BASHSCRIPTPATH), shell=True)
 
 # Install bash script
 BASHSCRIPT_VAR = open(BASHSCRIPTPATH, mode='a')
