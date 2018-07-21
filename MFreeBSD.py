@@ -61,8 +61,8 @@ vmstatus = CFunc.subpout("dmidecode -s baseboard-product-name")
 
 ### Install FreeBSD Software ###
 # Cli tools
-pkg_install("git python3 sudo nano bash zsh tmux rsync p7zip p7zip-codec-rar zip unzip xdg-utils xdg-user-dirs fuse-sshfs avahi-app")
-pkg_install("powerline-fonts ubuntu-font roboto-fonts-ttf noto")
+pkg_install("git python3 sudo nano bash zsh tmux rsync p7zip p7zip-codec-rar zip unzip xdg-utils xdg-user-dirs fusefs-sshfs avahi-app")
+pkg_install("powerline-fonts ubuntu-font roboto-fonts-ttf noto-lite")
 # Samba
 pkg_install("samba48")
 sysrc_cmd('samba_server_enable=yes winbindd_enable=yes')
