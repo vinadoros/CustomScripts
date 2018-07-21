@@ -220,8 +220,8 @@ if args.ostype == 40:
     vmname = "Packer-FreeBSD-{0}".format(hvname)
     vboxosid = "FreeBSD_64"
     vmwareid = "freebsd-64"
-    vmprovisionscript = "MFreeBSD.sh"
-    vmprovision_defopts = " "
+    vmprovisionscript = "MFreeBSD.py"
+    vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
     kvm_os = "freebsd"
     kvm_variant = "freebsd11.0"
     isourl = "https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/11.2/FreeBSD-11.2-RELEASE-amd64-disc1.iso"
