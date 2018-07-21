@@ -64,7 +64,7 @@ vmstatus = CFunc.subpout("dmidecode -s baseboard-product-name")
 pkg_install("git python3 sudo nano bash zsh tmux rsync p7zip p7zip-codec-rar zip unzip xdg-utils xdg-user-dirs fusefs-sshfs avahi-app")
 pkg_install("powerline-fonts ubuntu-font roboto-fonts-ttf noto-lite")
 # Samba
-pkg_install("samba48")
+pkg_install("samba46")
 sysrc_cmd('samba_server_enable=yes winbindd_enable=yes')
 # NTP Configuration
 sysrc_cmd('ntpd_enable=yes')
@@ -117,7 +117,7 @@ if os.path.isdir(sudoersd_dir):
     if status.returncode is not 0:
         print("Visudo status not 0, removing sudoers file.")
         os.remove(CUSTOMSUDOERSPATH)
-subprocess.run("pw usermod {0} -G wheel,video".format(USERNAMEVAR))
+subprocess.run("pw usermod {0} -G wheel,video".format(USERNAMEVAR), shell=True)
 
 # Extra scripts
 if args.allextra is True:
