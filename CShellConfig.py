@@ -3,8 +3,6 @@
 
 # Python includes.
 import os
-import grp
-import pwd
 import sys
 import subprocess
 import shutil
@@ -393,6 +391,6 @@ else:
 
 # Fix permissions of home folder if the script was run as root.
 if os.geteuid() is 0:
-    subprocess.run("chown {0}:{1} -R {2}".format(USERNAMEVAR, USERGROUP, USERVARHOME), shell=True)
+    subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, USERVARHOME), shell=True)
 
 print("Script finished successfully.")
