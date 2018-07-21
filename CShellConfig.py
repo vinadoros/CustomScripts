@@ -17,15 +17,7 @@ print("Running {0}".format(__file__))
 SCRIPTDIR = sys.path[0]
 
 # Get non-root user information.
-if os.getenv("SUDO_USER") not in ["root", None]:
-    USERNAMEVAR = os.getenv("SUDO_USER")
-elif os.getenv("USER") not in ["root", None]:
-    USERNAMEVAR = os.getenv("USER")
-else:
-    # https://docs.python.org/3/library/pwd.html
-    USERNAMEVAR = pwd.getpwuid(1000)[0]
-# https://docs.python.org/3/library/grp.html
-USERGROUP = grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
+USERNAMEVAR, USERGROUP, USERHOME = CFunc.getnormaluser()
 # Note: This folder is the root home folder.
 ROOTHOME = os.path.expanduser("~root")
 # This folder is the above detected user's home folder if this script is run as root.
