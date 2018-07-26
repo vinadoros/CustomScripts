@@ -195,7 +195,7 @@ function Fcn-Software {
     # Install packer
     choco upgrade -y packer
     # Install python dependancies
-    Start-Process -Wait "C:\Python36\Scripts\pip.exe" -ArgumentList "install","passlib"
+    Start-Process -Wait "C:\Python37\Scripts\pip.exe" -ArgumentList "install","passlib"
   }
 }
 
@@ -209,6 +209,8 @@ function Fcn-HypervEn {
   # Windows Server
   # https://docs.microsoft.com/en-us/powershell/module/microsoft.windows.servermanager.migration/install-windowsfeature?view=win10-ps
   Install-WindowsFeature -Name Hyper-V -IncludeManagementTools
+  # Create Ethernet adapter
+  New-VMSwitch -name "External VM Switch" -NetAdapterName "Ethernet" -AllowManagementOS $true
 }
 
 # Disable Hyper-V

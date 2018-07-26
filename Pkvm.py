@@ -293,7 +293,7 @@ elif args.vmtype == 4:
     hyperv_mainnetadapter_name = "Ethernet"
     hyperv_winadapters = CFunc.subpout('powershell -c "Get-NetAdapter -Name "*" | Format-List -Property "Name""')
     if hyperv_switch_name not in hyperv_winadapters:
-        subprocess.run('''powershell -c "New-VMSwitch -name '{0}' -NetAdapterName '{1}' -AllowManagementOS $true"'''.format(hyperv_switch_name, hyperv_mainnetadapter_name), shell=True)
+        sys.exit('HyperV network adapter "{0}" not detected. Please install before continuing.'.format(hyperv_switch_name))
 
 # Delete leftover VMs
 if args.vmtype == 1:
