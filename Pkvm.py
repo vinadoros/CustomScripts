@@ -341,7 +341,7 @@ print("SSH Key is \"{0}\"".format(sshkey))
 
 if CFunc.is_windows() is True:
     from passlib import hash
-    sha512_password = hash.sha512_crypt.encrypt(args.vmpass, rounds=5000)
+    sha512_password = hash.sha512_crypt.hash(args.vmpass, rounds=5000)
 else:
     import crypt
     sha512_password = crypt.crypt(args.vmpass, crypt.mksalt(crypt.METHOD_SHA512))
