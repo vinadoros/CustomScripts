@@ -75,6 +75,9 @@ if [ $(id -u) != "0" ]; then
         unset EXISTPATH
     }
 fi
+function sst () {
+    ssh -t "$@" "tmux attach || tmux new";
+}
 function start () {
     echo "Starting systemd service $@."
     $SUDOCMD systemctl start "$@"
