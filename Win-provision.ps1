@@ -322,6 +322,8 @@ function Fcn-Customize {
   # Remove people button
   # https://www.tenforums.com/tutorials/83096-add-remove-people-button-taskbar-windows-10-a.html
   New-ItemProperty -Path Registry::HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People -Name PeopleBand -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+  # Disable Snap Assist
+  New-ItemProperty -Path "Registry::HKCU\Control Panel\Desktop" -Name WindowArrangementActive -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
   # Enable quickedit in shells
   New-ItemProperty -Path Registry::HKCU\Console -Name QuickEdit -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
   # Set Control Panel Icon Size
