@@ -238,19 +238,18 @@ if args.desktop == "gnome":
     CFunc.aptinstall("gnome-shell-extensions gnome-shell-extension-dashtodock gnome-shell-extension-mediaplayer gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste")
     subprocess.run("{0}/DExtGnome.py -v".format(SCRIPTDIR), shell=True)
 elif args.desktop == "kde":
-    if args.lts is True:
-        print("\n Installing neon desktop.")
-        subprocess.run("wget -qO - 'http://archive.neon.kde.org/public.key' | apt-key add -", shell=True)
-        subprocess.run("apt-add-repository http://archive.neon.kde.org/user", shell=True)
-        CFunc.aptupdate()
-        CFunc.aptdistupg()
-        CFunc.aptinstall("neon-desktop")
-        CFunc.aptdistupg()
-    else:
-        print("\n Installing kde desktop")
-        CFunc.addppa("ppa:kubuntu-ppa/backports")
-        CFunc.addppa("ppa:papirus/papirus")
-        CFunc.aptinstall("kubuntu-desktop")
+    print("\n Installing kde desktop")
+    CFunc.addppa("ppa:kubuntu-ppa/backports")
+    CFunc.addppa("ppa:papirus/papirus")
+    CFunc.aptinstall("kubuntu-desktop")
+elif args.desktop == "neon":
+    print("\n Installing kde neon desktop.")
+    subprocess.run("wget -qO - 'http://archive.neon.kde.org/public.key' | apt-key add -", shell=True)
+    subprocess.run("apt-add-repository http://archive.neon.kde.org/user", shell=True)
+    CFunc.aptupdate()
+    CFunc.aptdistupg()
+    CFunc.aptinstall("neon-desktop")
+    CFunc.aptdistupg()
 elif args.desktop == "mate":
     print("\n Installing mate desktop")
     CFunc.aptinstall("ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop")
@@ -258,6 +257,9 @@ elif args.desktop == "mate":
 elif args.desktop == "xfce":
     print("\n Installing xfce desktop")
     CFunc.aptinstall("xubuntu-desktop")
+elif args.desktop == "budgie":
+    print("\n Installing budgie desktop")
+    CFunc.aptinstall("ubuntu-budgie-desktop")
 
 # Post DE install stuff.
 if args.nogui is False and args.bare is False:
