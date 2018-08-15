@@ -175,6 +175,8 @@ function Fcn-Software {
     echo "Installing Desktop Apps"
     # GUI Apps
     choco upgrade -y googlechrome notepadplusplus tortoisegit ccleaner putty chocolateygui conemu atom winmerge libreoffice-fresh sumatrapdf nomacs javaruntime spacesniffer
+    # Disable ccleaner startup.
+    Set-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run -Name "CCleaner Monitoring" -Value ([byte[]](0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00)) -Force -ErrorAction SilentlyContinue | Out-Null
     # Tablacus
     Fcn-Tablacus
     # Install for Windows 8 or above.
@@ -324,6 +326,8 @@ function Fcn-Customize {
   New-ItemProperty -Path Registry::HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People -Name PeopleBand -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
   # Disable Snap Assist
   New-ItemProperty -Path "Registry::HKCU\Control Panel\Desktop" -Name WindowArrangementActive -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
+  # Disable onedrive startup.
+  Set-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run -Name "OneDrive" -Value ([byte[]](0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00)) -Force -ErrorAction SilentlyContinue | Out-Null
   # Enable quickedit in shells
   New-ItemProperty -Path Registry::HKCU\Console -Name QuickEdit -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
   # Set Control Panel Icon Size
