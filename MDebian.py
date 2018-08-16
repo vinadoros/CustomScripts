@@ -208,7 +208,7 @@ if args.nogui is False and args.bare is False:
     # Install snapd
     CFunc.aptinstall("snapd")
     # Atom from snap
-    subprocess.run("snap install --classic atom", shell=True)
+    CFunc.snap_install("atom", True)
 
 # Network Manager
 CFunc.aptinstall("network-manager network-manager-ssh resolvconf")

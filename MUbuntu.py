@@ -200,8 +200,11 @@ if args.nogui is False and args.bare is False:
     if args.lts is True:
         CFunc.addppa("ppa:webupd8team/terminix")
     CFunc.aptinstall("tilix")
+    # Flatpak
+    CFunc.aptinstall("flatpak")
+    CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpak")
     # Atom Editor
-    subprocess.run("snap install --classic atom", shell=True)
+    CFunc.snap_install("atom", True)
     # Visual Studio Code
     subprocess.run("""curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
     mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg""", shell=True)
@@ -237,6 +240,7 @@ if args.desktop == "gnome":
     subprocess.run("apt-get remove -y gnome-shell-extension-ubuntu-dock", shell=True, check=False)
     CFunc.aptinstall("gnome-shell-extensions gnome-shell-extension-dashtodock gnome-shell-extension-mediaplayer gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste")
     subprocess.run("{0}/DExtGnome.py -v".format(SCRIPTDIR), shell=True)
+    CFunc.aptinstall("gnome-software-plugin-flatpak")
 elif args.desktop == "kde":
     print("\n Installing kde desktop")
     CFunc.addppa("ppa:kubuntu-ppa/backports")
@@ -260,6 +264,7 @@ elif args.desktop == "xfce":
 elif args.desktop == "budgie":
     print("\n Installing budgie desktop")
     CFunc.aptinstall("ubuntu-budgie-desktop")
+    CFunc.aptinstall("gnome-software-plugin-flatpak")
 
 # Post DE install stuff.
 if args.nogui is False and args.bare is False:

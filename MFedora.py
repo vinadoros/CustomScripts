@@ -187,7 +187,7 @@ if not args.bare and not args.nogui:
         os.symlink("/var/lib/snapd/snap", "/snap", target_is_directory=True)
 
     # Atom from snap
-    subprocess.run("snap install --classic atom", shell=True)
+    CFunc.snap_install("atom", True)
 
     # Atom from script
     # subprocess.run("{0}/CAtomRPM.py".format(SCRIPTDIR), shell=True)

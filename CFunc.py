@@ -7,6 +7,7 @@ import logging
 import os
 import platform
 import re
+import shutil
 import subprocess
 import sys
 import urllib.request
@@ -173,7 +174,7 @@ def getvmstate():
         if bool("VMware" in VAR.read().strip()):
             vmstatus = "vmware"
     return vmstatus
-def is_root(checkstate=True):
+def is_root(checkstate=True, state_exit=True):
     """
     Check if current user is root or not.
     Pass True if checking to make sure you are root, or False if you don't want to be root.
@@ -181,7 +182,22 @@ def is_root(checkstate=True):
     if is_windows() is False:
         actualstate = bool(os.geteuid() == 0)
         if actualstate != checkstate:
-            sys.exit("\nError: Actual root state is {0}, expected {1}.\n".format(actualstate, checkstate))
+            match = False
+            if state_exit is True:
+                sys.exit("\nError: Actual root state is {0}, expected {1}.\n".format(actualstate, checkstate))
+            else:
+                print("Actual root state is {0}, expected {1}.".format(actualstate, checkstate))
+        else:
+            match = True
+        return match
+def sudocmd(h=False):
+    """Generate sudo command if not root."""
+    sudo_cmd = ""
+    if is_root(checkstate=False, state_exit=False):
+        sudo_cmd = "sudo "
+        if h is True:
+            sudo_cmd += "-H "
+    return sudo_cmd
 ### Systemd Functions ###
 def systemd_createsystemunit(sysunitname, sysunittext, sysenable=False):
     """Create a systemd system unit."""
@@ -315,6 +331,28 @@ def zpinstall(zpapps):
     """Install application(s) using zypper"""
     print("\nInstalling {0} using zypper.".format(zpapps))
     subprocess.run("zypper in -yl {0}".format(zpapps), shell=True)
+# Flatpak
+def flatpak_addremote(remotename, remoteurl):
+    """Add a remote to flatpak."""
+    if shutil.which("flatpak"):
+        print("Installing remote {0}.".format(remotename))
+        subprocess.run("{0}flatpak remote-add --if-not-exists {1} {2}".format(sudocmd(), remotename, remoteurl))
+def flatpak_install(remote, app):
+    """Install application(s) using flatpak using the specified remote."""
+    if shutil.which("flatpak"):
+        print("\nInstalling {0} using flatpak using {1}.".format(app, remote))
+        subprocess.run("{0}flatpak install -y {1} {2}".format(sudocmd(), remote, app))
+# Snap
+def snap_install(app, classic):
+    """Install application(s) using snap"""
+    # Options
+    snap_classic = ""
+    if classic is True:
+        snap_classic = "--classic"
+    # Command
+    if shutil.which("snap"):
+        print("\nInstalling {0} using snap.".format(app))
+        subprocess.run("{0}snap install {1} {2}".format(sudocmd(), snap_classic, app))
 
 
 if __name__ == '__main__':
