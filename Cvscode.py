@@ -13,40 +13,66 @@ import CFunc
 print("Running {0}".format(__file__))
 
 # Get user details.
-usernamevar = os.getenv("USER")
-usergroup, userhome = CFunc.getuserdetails(usernamevar)
+usernamevar, usergroup, userhome = CFunc.getnormaluser()
+
+# Exit if root.
+CFunc.is_root(False)
 
 ### Variables ###
 vscode_userconfigfolder = userhome + "/.config/Code/User"
 vscode_userconfig = vscode_userconfigfolder + "/settings.json"
-
-# Exit if root.
-if os.geteuid() is 0:
-    sys.exit("\nError: Please run this script as a normal user.\n")
-
-# Check if installed.
-if not shutil.which("code"):
+# Check for code command.
+vscode_native = "code"
+vscode_flatpak = "flatpak run --command=code com.visualstudio.code"
+vscode_snap = "snap run vscode.code"
+if shutil.which("code"):
+    print("Detected native code command.")
+    vscode_cmd = vscode_native
+elif subprocess.run(vscode_snap, shell=True).returncode is 0:
+    print("Detected snap code command.")
+    vscode_cmd = vscode_snap
+elif subprocess.run(vscode_flatpak + " -h", shell=True).returncode is 0:
+    print("Detected flatpak code command.")
+    vscode_cmd = vscode_flatpak
+    vscode_userconfigfolder = os.path.join(userhome, ".var", "app", "com.visualstudio.code", "data")
+    vscode_userconfig = vscode_userconfigfolder + "/settings.json"
+else:
     sys.exit("\nERROR: code command not found. Exiting.")
 
 
 ### Functions ###
 def ce_ins(extension):
     """Install an extension"""
-    subprocess.run("code --install-extension {0}".format(extension), shell=True)
+    subprocess.run("{0} --install-extension {1}".format(vscode_cmd, extension), shell=True)
 
 
 ### Distro Specific Packages ###
+if shutil.which("dnf"):
+    print("Install dnf dependencies.")
+    CFunc.dnfinstall("python3-pip")
+elif shutil.which("apt-get"):
+    print("Install apt dependencies.")
+    CFunc.aptinstall("python3-pip")
+elif shutil.which("zypper"):
+    print("Install zypper dependencies.")
 
+### Detect Windows Commands ###
+if CFunc.is_windows() is True:
+    pipcmd = "pip"
+else:
+    pipcmd = "pip3"
 
 ### Language Specific packages ###
 if shutil.which("gem"):
     print("Installing ruby gems.")
-    subprocess.run("sudo -H gem install rubocop rcodetools", shell=True)
+    subprocess.run("{0}gem install rubocop rcodetools".format(CFunc.sudocmd(True)), shell=True)
 else:
     print("Ruby/gem not detected. Not installing ruby gems.")
-if shutil.which("pip3"):
+if shutil.which(pipcmd):
     print("Installing python dependencies.")
-    subprocess.run("sudo -H pip3 install pylama pylama-pylint", shell=True)
+    subprocess.run("{0}{1} install pylama pylama-pylint flake8".format(CFunc.sudocmd(True), pipcmd), shell=True)
+else:
+    print("{0} not found. Not install python packages.".format(pipcmd))
 
 
 ### Extensions ###
@@ -68,6 +94,8 @@ data["python.linting.maxNumberOfProblems"] = 500
 data["python.linting.pylintArgs"] = ["--disable=C0301,C0103"]
 data["python.linting.pylamaEnabled"] = True
 data["python.linting.pylamaArgs"] = ["-i", "E501,E266"]
+data["python.linting.flake8Enabled"] = True
+data["python.linting.flake8Args"] = ["--ignore=E501,E302,E266"]
 # data["python.linting.pylintPath"] = "{0}".format(shutil.which("pylint"))
 # Ruby Config
 data["ruby.lint"] = {}
