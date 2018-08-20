@@ -357,7 +357,7 @@ def snap_install(app, classic):
     # Command
     if shutil.which("snap"):
         print("\nInstalling {0} using snap.".format(app))
-        subprocess.run("{0}snap install {1} {2}".format(sudocmd(), snap_classic, app))
+        subprocess.run("{0}snap install {1} {2}".format(sudocmd(), snap_classic, app), shell=True)
 
 
 if __name__ == '__main__':
