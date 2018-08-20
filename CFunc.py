@@ -182,6 +182,7 @@ def is_root(checkstate=True, state_exit=True):
     if is_windows() is False:
         actualstate = bool(os.geteuid() == 0)
         if actualstate != checkstate:
+            # No match if actual state didn't match the expected state (checkstate).
             match = False
             if state_exit is True:
                 sys.exit("\nError: Actual root state is {0}, expected {1}.\n".format(actualstate, checkstate))
@@ -189,7 +190,11 @@ def is_root(checkstate=True, state_exit=True):
                 print("Actual root state is {0}, expected {1}.".format(actualstate, checkstate))
         else:
             match = True
+        # Return result of root match check.
         return match
+    else:
+        # Windows should always return false for root.
+        return False
 def sudocmd(h=False):
     """Generate sudo command if not root."""
     sudo_cmd = ""
@@ -336,12 +341,12 @@ def flatpak_addremote(remotename, remoteurl):
     """Add a remote to flatpak."""
     if shutil.which("flatpak"):
         print("Installing remote {0}.".format(remotename))
-        subprocess.run("{0}flatpak remote-add --if-not-exists {1} {2}".format(sudocmd(), remotename, remoteurl))
+        subprocess.run("{0}flatpak remote-add --if-not-exists {1} {2}".format(sudocmd(), remotename, remoteurl), shell=True)
 def flatpak_install(remote, app):
     """Install application(s) using flatpak using the specified remote."""
     if shutil.which("flatpak"):
         print("\nInstalling {0} using flatpak using {1}.".format(app, remote))
-        subprocess.run("{0}flatpak install -y {1} {2}".format(sudocmd(), remote, app))
+        subprocess.run("{0}flatpak install -y {1} {2}".format(sudocmd(), remote, app), shell=True)
 # Snap
 def snap_install(app, classic):
     """Install application(s) using snap"""
