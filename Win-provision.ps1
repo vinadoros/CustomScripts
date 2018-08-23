@@ -310,9 +310,9 @@ function Fcn-Customize {
   # https://www.tenforums.com/tutorials/4343-turn-off-aero-snap-windows-10-a.html#option3
   New-ItemProperty -Path "Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name SnapAssist -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
   # Disable onedrive startup.
-  Set-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run -Name "OneDrive" -Value ([byte[]](0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00)) -Force -ErrorAction SilentlyContinue | Out-Null
+  New-ItemProperty -Path "Registry::HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run" -Name "OneDrive" -Value ([byte[]](0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00)) -Force -ErrorAction SilentlyContinue | Out-Null
   # Disable ccleaner startup.
-  Set-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run -Name "CCleaner Monitoring" -Value ([byte[]](0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00)) -Force -ErrorAction SilentlyContinue | Out-Null
+  New-ItemProperty -Path "Registry::HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run" -Name SnapAssist -Value ([byte[]](0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00)) -Force -ErrorAction SilentlyContinue | Out-Null
   # Enable quickedit in shells
   New-ItemProperty -Path Registry::HKCU\Console -Name QuickEdit -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
   # Set Control Panel Icon Size
