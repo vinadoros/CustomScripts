@@ -113,10 +113,11 @@ function Fcn-CSClone {
   # This task is registered as a normal user for now. By default, it will pop up a small window briefly, and will only run if the user is logged in. To get rid of the window, enable the "Run whether user is logged on or not" option in Task Scheduler for this task.
   # https://stackoverflow.com/questions/1802127/how-to-run-a-powershell-script-without-displaying-a-window#1802836
   Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "csupdate" -Description "Hourly Update of $RepoName" -User $env:UserName
-  $userpassword = "INSERTPASSWORDHERE"
   # Set the scheduled task password if the password was set correctly.
-  if ( -Not ( $userpassword.Contains("PASSWORD") ) ) {
-    schtasks /Change /RP $userpassword /TN "csupdate"
+  $cs_userpassword = "INSERTPASSWORDHERE"
+  $cs_username = "INSERTUSERHERE"
+  if ( -Not ( $cs_userpassword.Contains("PASSWORD") ) ) {
+    schtasks /Change /RU $cs_username /RP $cs_userpassword /TN "csupdate"
   }
 }
 

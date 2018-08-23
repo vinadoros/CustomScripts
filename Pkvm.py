@@ -355,6 +355,7 @@ if os.path.isdir(os.path.join(SCRIPTDIR, "unattend")):
     shutil.copytree(SCRIPTDIR, tempscriptfolderpath, ignore=shutil.ignore_patterns('.git'))
     # Set usernames and passwords
     CFunc.find_replace(tempunattendfolder, "INSERTUSERHERE", args.vmuser, "*")
+    CFunc.find_replace(tempscriptfolderpath, "INSERTUSERHERE", args.vmuser, "Win-provision.ps1")
     CFunc.find_replace(tempunattendfolder, "INSERTPASSWORDHERE", args.vmpass, "*")
     CFunc.find_replace(tempscriptfolderpath, "INSERTPASSWORDHERE", args.vmpass, "Win-provision.ps1")
     CFunc.find_replace(tempunattendfolder, "INSERTFULLNAMEHERE", args.fullname, "*")
