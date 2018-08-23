@@ -354,12 +354,12 @@ if os.path.isdir(os.path.join(SCRIPTDIR, "unattend")):
     tempunattendfolder = os.path.join(tempscriptfolderpath, "unattend")
     shutil.copytree(SCRIPTDIR, tempscriptfolderpath, ignore=shutil.ignore_patterns('.git'))
     # Set usernames and passwords
-    CFunc.find_replace(tempunattendfolder, "INSERTUSERHERE", args.vmuser, "*")
-    CFunc.find_replace(tempunattendfolder, "INSERTPASSWORDHERE", args.vmpass, "*")
-    CFunc.find_replace(tempunattendfolder, "INSERTFULLNAMEHERE", args.fullname, "*")
-    CFunc.find_replace(tempunattendfolder, "INSERTHOSTNAMENAMEHERE", vmname, "*")
-    CFunc.find_replace(tempunattendfolder, "INSERTHASHEDPASSWORDHERE", sha512_password, "*")
-    CFunc.find_replace(tempunattendfolder, "INSERTSSHKEYHERE", sshkey, "*")
+    CFunc.find_replace(tempscriptfolderpath, "INSERTUSERHERE", args.vmuser, "*")
+    CFunc.find_replace(tempscriptfolderpath, "INSERTPASSWORDHERE", args.vmpass, "*")
+    CFunc.find_replace(tempscriptfolderpath, "INSERTFULLNAMEHERE", args.fullname, "*")
+    CFunc.find_replace(tempscriptfolderpath, "INSERTHOSTNAMENAMEHERE", vmname, "*")
+    CFunc.find_replace(tempscriptfolderpath, "INSERTHASHEDPASSWORDHERE", sha512_password, "*")
+    CFunc.find_replace(tempscriptfolderpath, "INSERTSSHKEYHERE", sshkey, "*")
 
 
 # Get hash for iso.
