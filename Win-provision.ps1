@@ -174,9 +174,7 @@ function Fcn-Software {
   if ( $core -eq $false ) {
     echo "Installing Desktop Apps"
     # GUI Apps
-    choco upgrade -y googlechrome notepadplusplus tortoisegit ccleaner putty chocolateygui conemu atom winmerge libreoffice-fresh sumatrapdf nomacs javaruntime spacesniffer
-    # Disable ccleaner startup.
-    Set-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run -Name "CCleaner Monitoring" -Value ([byte[]](0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00)) -Force -ErrorAction SilentlyContinue | Out-Null
+    choco upgrade -y googlechrome notepadplusplus tortoisegit ccleaner putty chocolateygui conemu VisualStudioCode winmerge libreoffice-fresh sumatrapdf nomacs javaruntime spacesniffer
     # Tablacus
     Fcn-Tablacus
     # Install for Windows 8 or above.
@@ -329,6 +327,8 @@ function Fcn-Customize {
   New-ItemProperty -Path "Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name SnapAssist -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
   # Disable onedrive startup.
   Set-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run -Name "OneDrive" -Value ([byte[]](0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00)) -Force -ErrorAction SilentlyContinue | Out-Null
+  # Disable ccleaner startup.
+  Set-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run -Name "CCleaner Monitoring" -Value ([byte[]](0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00)) -Force -ErrorAction SilentlyContinue | Out-Null
   # Enable quickedit in shells
   New-ItemProperty -Path Registry::HKCU\Console -Name QuickEdit -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
   # Set Control Panel Icon Size
