@@ -19,23 +19,28 @@ usernamevar, usergroup, userhome = CFunc.getnormaluser()
 CFunc.is_root(False)
 
 ### Variables ###
-vscode_userconfigfolder = userhome + "/.config/Code/User"
-vscode_userconfig = vscode_userconfigfolder + "/settings.json"
+vscode_userconfigfolder = os.path.join(userhome, ".config", "Code", "User")
+vscode_userconfig = os.path.join(vscode_userconfigfolder, "settings.json")
 # Check for code command.
-vscode_native = "code"
-vscode_flatpak = "flatpak run --command=code com.visualstudio.code"
-vscode_snap = "snap run vscode.code"
+vscode_native = ["code"]
+vscode_flatpak = ["flatpak", "run", "--command=code", "com.visualstudio.code"]
+vscode_windows = os.path.join("C:", "Program Files", "Microsoft VS Code", "bin", "code.cmd")
+vscode_snap = ["snap", "run", "vscode.code"]
 if shutil.which("code"):
     print("Detected native code command.")
     vscode_cmd = vscode_native
-elif subprocess.run(vscode_snap, shell=True).returncode is 0:
+elif shutil.which("snap") and subprocess.run(vscode_snap).returncode is 0:
     print("Detected snap code command.")
     vscode_cmd = vscode_snap
-elif subprocess.run(vscode_flatpak + " -h", shell=True).returncode is 0:
+elif shutil.which("flatpak") and subprocess.run(vscode_flatpak + ["-h"]).returncode is 0:
     print("Detected flatpak code command.")
     vscode_cmd = vscode_flatpak
     vscode_userconfigfolder = os.path.join(userhome, ".var", "app", "com.visualstudio.code", "data")
-    vscode_userconfig = vscode_userconfigfolder + "/settings.json"
+    vscode_userconfig = os.path.join(vscode_userconfigfolder, "settings.json")
+elif CFunc.is_windows() and os.path.exists(vscode_windows) and subprocess.run([vscode_windows, "-h"]).returncode is 0:
+    print("Detected Windows code command.")
+    vscode_cmd = [vscode_windows]
+    vscode_userconfig = os.path.join(userhome, "AppData", "Roaming", "Code", "User", "settings.json")
 else:
     sys.exit("\nERROR: code command not found. Exiting.")
 
@@ -43,7 +48,7 @@ else:
 ### Functions ###
 def ce_ins(extension):
     """Install an extension"""
-    subprocess.run("{0} --install-extension {1}".format(vscode_cmd, extension), shell=True)
+    subprocess.run(vscode_cmd + ["--install-extension", extension])
 
 
 ### Distro Specific Packages ###
@@ -96,7 +101,6 @@ data["python.linting.pylamaEnabled"] = True
 data["python.linting.pylamaArgs"] = ["-i", "E501,E266"]
 data["python.linting.flake8Enabled"] = True
 data["python.linting.flake8Args"] = ["--ignore=E501,E302,E266"]
-# data["python.linting.pylintPath"] = "{0}".format(shutil.which("pylint"))
 # Ruby Config
 data["ruby.lint"] = {}
 data["ruby.lint"]["ruby"] = True
