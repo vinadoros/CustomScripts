@@ -171,6 +171,12 @@ if args.ostype == 10:
 if args.ostype == 11:
     vmname = "Packer-UbuntuCLI-{0}".format(hvname)
     vmprovision_defopts = "-a -x"
+if args.ostype == 12:
+    vmname = "Packer-UbuntuBare-{0}".format(hvname)
+    vmprovision_defopts = "-l -d {0} -b".format(args.desktopenv)
+if args.ostype == 13:
+    vmname = "Packer-UbuntuBareCLI-{0}".format(hvname)
+    vmprovision_defopts = "-l -b -x"
 if args.ostype == 15:
     vmname = "Packer-UbuntuLTS-{0}".format(hvname)
     vmprovision_defopts = "-l -d {0} -a".format(args.desktopenv)
@@ -179,6 +185,9 @@ if args.ostype == 16:
     vmprovision_defopts = "-l -a -x"
 if args.ostype == 17:
     vmname = "Packer-UbuntuLTSBare-{0}".format(hvname)
+    vmprovision_defopts = "-l -d {0} -b".format(args.desktopenv)
+if args.ostype == 18:
+    vmname = "Packer-UbuntuLTSBareCLI-{0}".format(hvname)
     vmprovision_defopts = "-l -b -x"
 if args.ostype == 20:
     vmname = "Packer-OpenSuseTW-{0}".format(hvname)
