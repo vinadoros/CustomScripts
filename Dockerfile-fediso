@@ -6,7 +6,7 @@
 FROM fedora:latest
 
 # Install livecd apps.
-RUN dnf install -y coreutils-single nano livecd-tools spin-kickstarts pykickstart anaconda util-linux
+RUN dnf install -y nano livecd-tools spin-kickstarts pykickstart anaconda util-linux
 
 VOLUME ["/opt/CustomScripts"]
 

@@ -79,6 +79,7 @@ openssh-server
 openssh-clients
 avahi
 chntpw
+fstransform
 
 # VM Utils
 spice-vdagent
