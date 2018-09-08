@@ -18,7 +18,6 @@ SCRIPTDIR = sys.path[0]
 # Get arguments
 parser = argparse.ArgumentParser(description='Install Ubuntu Software.')
 parser.add_argument("-d", "--desktop", help='Desktop Environment (i.e. gnome, kde, mate, etc)')
-parser.add_argument("-a", "--allextra", help='Run Extra Scripts', action="store_true")
 parser.add_argument("-l", "--lts", help='Configure script to run for an LTS release.', action="store_true")
 parser.add_argument("-b", "--bare", help='Configure script to set up a bare-minimum environment.', action="store_true")
 parser.add_argument("-x", "--nogui", help='Configure script to disable GUI.', action="store_true")
@@ -26,7 +25,6 @@ parser.add_argument("-x", "--nogui", help='Configure script to disable GUI.', ac
 # Save arguments.
 args = parser.parse_args()
 print("Desktop Environment:", args.desktop)
-print("Run extra scripts:", args.allextra)
 print("LTS Mode:", args.lts)
 print("Bare install:", args.bare)
 print("No GUI:", args.nogui)
@@ -153,7 +151,7 @@ if not args.bare:
     CFunc.aptinstall("syncthing syncthing-inotify")
 
 # Cli Software
-CFunc.aptinstall("ssh tmux zsh btrfs-tools f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs")
+CFunc.aptinstall("ssh tmux btrfs-tools f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs")
 # Timezone stuff
 subprocess.run("dpkg-reconfigure -f noninteractive tzdata", shell=True)
 # Needed for systemd user sessions.
@@ -173,6 +171,8 @@ CFunc.aptinstall("intel-microcode")
 
 # Non-bare CLI stuff.
 if args.bare is False:
+    # Zsh
+    CFunc.aptinstall("zsh")
     # Cron
     CFunc.aptinstall("cron anacron")
     subprocess.run("systemctl disable cron; systemctl disable anacron", shell=True)
@@ -180,6 +180,7 @@ if args.bare is False:
 if args.nogui is False:
     CFunc.aptinstall("dconf-cli dconf-editor")
     CFunc.aptinstall("synaptic gnome-disk-utility gdebi gparted xdg-utils leafpad")
+    CFunc.aptinstall("fonts-powerline fonts-noto fonts-roboto")
 
 # General GUI software
 if args.nogui is False and args.bare is False:
@@ -193,7 +194,6 @@ if args.nogui is False and args.bare is False:
     CFunc.aptinstall("playonlinux wine64-development wine32-development")
     # For Office 2010
     CFunc.aptinstall("winbind")
-    CFunc.aptinstall("fonts-powerline fonts-noto fonts-roboto")
     # Browsers
     CFunc.aptinstall("chromium-browser firefox flashplugin-installer pepperflashplugin-nonfree")
     # Tilix
@@ -313,15 +313,16 @@ if args.bare is False:
             os.remove(CUSTOMSUDOERSPATH)
 
     # Extra scripts
-    if args.allextra is True:
-        subprocess.run("{0}/Csdtimers.sh".format(SCRIPTDIR), shell=True)
-        subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
-        subprocess.run("{0}/CShellConfig.py".format(SCRIPTDIR), shell=True)
-        subprocess.run("{0}/CCSClone.sh".format(SCRIPTDIR), shell=True)
-        subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
-        subprocess.run("{0}/CVMGeneral.sh".format(SCRIPTDIR), shell=True)
-        subprocess.run("{0}/Cxdgdirs.sh".format(SCRIPTDIR), shell=True)
-        subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True)
-        subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/Csdtimers.sh".format(SCRIPTDIR), shell=True)
+
+# Run these extra scripts even in bare config.
+subprocess.run("{0}/CShellConfig.py".format(SCRIPTDIR), shell=True)
+subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
+subprocess.run("{0}/CCSClone.sh".format(SCRIPTDIR), shell=True)
+subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
+subprocess.run("{0}/CVMGeneral.sh".format(SCRIPTDIR), shell=True)
+subprocess.run("{0}/Cxdgdirs.sh".format(SCRIPTDIR), shell=True)
+subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True)
+subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
 
 print("\nScript End")

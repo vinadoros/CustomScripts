@@ -167,10 +167,10 @@ if 15 <= args.ostype <= 19:
     isourl = "http://releases.ubuntu.com/16.04/ubuntu-16.04.5-server-amd64.iso"
 if args.ostype == 10:
     vmname = "Packer-Ubuntu-{0}".format(hvname)
-    vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
+    vmprovision_defopts = "-d {0}".format(args.desktopenv)
 if args.ostype == 11:
     vmname = "Packer-UbuntuCLI-{0}".format(hvname)
-    vmprovision_defopts = "-a -x"
+    vmprovision_defopts = "-x"
 if args.ostype == 12:
     vmname = "Packer-UbuntuBare-{0}".format(hvname)
     vmprovision_defopts = "-l -d {0} -b".format(args.desktopenv)
@@ -179,10 +179,10 @@ if args.ostype == 13:
     vmprovision_defopts = "-l -b -x"
 if args.ostype == 15:
     vmname = "Packer-UbuntuLTS-{0}".format(hvname)
-    vmprovision_defopts = "-l -d {0} -a".format(args.desktopenv)
+    vmprovision_defopts = "-l -d {0}".format(args.desktopenv)
 if args.ostype == 16:
     vmname = "Packer-UbuntuLTSCLI-{0}".format(hvname)
-    vmprovision_defopts = "-l -a -x"
+    vmprovision_defopts = "-l -x"
 if args.ostype == 17:
     vmname = "Packer-UbuntuLTSBare-{0}".format(hvname)
     vmprovision_defopts = "-l -d {0} -b".format(args.desktopenv)
