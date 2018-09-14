@@ -79,7 +79,17 @@ openssh-server
 openssh-clients
 avahi
 chntpw
+
+# Filesystem utils
 fstransform
+partclone
+btrfs-progs
+f2fs-tools
+# Needs rpmfusion-free
+# fuse-exfat
+# exfat-utils
+cryptsetup
+device-mapper
 
 # VM Utils
 spice-vdagent
@@ -123,6 +133,8 @@ make install
 cd ..
 rm -rf clonezilla
 
+# Disable selinux
+sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /etc/sysconfig/selinux
 
 # Script run on boot
 cat >> /etc/rc.d/init.d/livesys << EOF
