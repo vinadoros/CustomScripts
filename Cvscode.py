@@ -105,8 +105,11 @@ data["python.linting.flake8Args"] = ["--ignore=E501,E302,E266"]
 data["ruby.lint"] = {}
 data["ruby.lint"]["ruby"] = True
 data["ruby.lint"]["rubocop"] = {}
-data["ruby.lint"]["rubocop"]["lint"] = True
-data["ruby.lint"]["rubocop"]["except"] = ["Metrics/LineLength"]
+# For some reason, lint must be false to enable linting. Maybe bug?
+data["ruby.lint"]["rubocop"]["lint"] = False
+data["ruby.lint"]["rubocop"]["rails"] = True
+# Rubocop rules: https://github.com/rubocop-hq/rubocop/blob/master/config/default.yml
+data["ruby.lint"]["rubocop"]["except"] = ["Metrics/LineLength", "Metrics/ClassLength"]
 # Docker Config
 data["docker.attachShellCommand.linuxContainer"] = "/bin/bash"
 
