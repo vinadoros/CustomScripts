@@ -104,7 +104,9 @@ data["python.linting.flake8Args"] = ["--ignore=E501,E302,E266"]
 # Ruby Config
 data["ruby.lint"] = {}
 data["ruby.lint"]["ruby"] = True
-data["ruby.lint"]["rubocop"] = True
+data["ruby.lint"]["rubocop"] = {}
+data["ruby.lint"]["rubocop"]["lint"] = True
+data["ruby.lint"]["rubocop"]["except"] = ["Metrics/LineLength"]
 # Docker Config
 data["docker.attachShellCommand.linuxContainer"] = "/bin/bash"
 
