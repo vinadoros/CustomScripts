@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """Install Debian in a Chroot"""
 
+# If used in docker, first spin up container:
+#   docker run -it --privileged --name bdeb -v /:/files ubuntu:rolling
+#   apt update; apt install python3 debootstrap qemu-user-static
+# Remount the partition in question with suid and dev in the docker container: mount -o remount,defaults,suid,dev <partition>
+
 # Python includes.
 import argparse
 import os
@@ -23,7 +28,7 @@ parser.add_argument("-g", "--grubtype", type=int, help='Grub Install Number', de
 parser.add_argument("-i", "--grubpartition", help='Grub Custom Parition (if autodetection isnt working, i.e. /dev/sdb)', default=None)
 parser.add_argument("-t", "--type", help='OS Type (debian, ubuntu, etc)', default="debian")
 parser.add_argument("-r", "--release", help='Release Distribution', default="unstable")
-parser.add_argument("-a", "--architecture", help='Architecture (amd64, i386, armhf, etc)', default="amd64")
+parser.add_argument("-a", "--architecture", help='Architecture (amd64, i386, armhf, arm64, etc)', default="amd64")
 parser.add_argument("-z", "--zch", help='Use zch instead of systemd-nspawn', action="store_true")
 parser.add_argument("installpath", help='Path of Installation')
 
@@ -47,7 +52,7 @@ else:
     grubpart = grubautopart
 print("Grub partition to be used:", grubpart)
 print("Architecture to install:", args.architecture)
-if args.type == "ubuntu" and args.architecture == "armhf":
+if args.type == "ubuntu" and "arm" in args.architecture:
     osurl = "http://ports.ubuntu.com/ubuntu-ports/"
 elif args.type == "ubuntu":
     osurl = "http://archive.ubuntu.com/ubuntu/"
@@ -74,19 +79,23 @@ if args.noprompt is False:
 
 # Bootstrap the chroot environment.
 BOOTSTRAPSCRIPT = ""
-if args.architecture == "armhf":
+if "arm" in args.architecture:
+    if args.architecture == "armhf":
+        qemu_cmd = "qemu-arm-static"
+    if args.architecture == "arm64":
+        qemu_cmd = "qemu-aarch64-static"
     # Ensure that certain commands exist.
-    cmdcheck = ["update-binfmts", "qemu-arm-static"]
+    cmdcheck = ["update-binfmts", qemu_cmd]
     for cmd in cmdcheck:
         if not shutil.which(cmd):
             sys.exit("\nError, ensure command {0} is installed.".format(cmd))
     # ARM specific init here.
     BOOTSTRAPSCRIPT += """
 debootstrap --foreign --no-check-gpg --include=ca-certificates --arch {DEBARCH} {DISTROCHOICE} {INSTALLPATH} {URL}
-cp /usr/bin/qemu-arm-static {INSTALLPATH}/usr/bin
+cp -av /usr/bin/{qemu_cmd} {INSTALLPATH}/usr/bin
 update-binfmts --enable
 chroot {INSTALLPATH}/ /debootstrap/debootstrap --second-stage --verbose
-""".format(DEBARCH=args.architecture, DISTROCHOICE=args.release, INSTALLPATH=absinstallpath, URL=osurl)
+""".format(DEBARCH=args.architecture, DISTROCHOICE=args.release, INSTALLPATH=absinstallpath, URL=osurl, qemu_cmd=qemu_cmd)
 else:
     BOOTSTRAPSCRIPT += """
 debootstrap --no-check-gpg --arch {DEBARCH} {DISTROCHOICE} {INSTALLPATH} {URL}
@@ -172,14 +181,17 @@ if [ -f /etc/NetworkManager/conf.d/10-globally-managed-devices.conf ]; then
 fi
 touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
 # Ensure DNS resolution is installed and working
-apt-get install -y resolvconf
+apt-get install -y openresolv
 # Create resolv.conf file if it doesn't exist (and its path)
 if [ ! -f /run/resolvconf/resolv.conf ]; then
     mkdir -p /run/resolvconf
     touch /run/resolvconf/resolv.conf
+    echo "nameserver 1.1.1.1" > /run/resolvconf/resolv.conf
 fi
 # https://askubuntu.com/questions/137037/networkmanager-not-populating-resolv-conf
-dpkg-reconfigure --frontend=noninteractive resolvconf
+# https://www.linuxquestions.org/questions/ubuntu-63/18-04-how-to-force-usage-of-dns-server-assigned-by-dhcp-4175628934/
+# ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
+# DEBIAN_FRONTEND=noninteractive dpkg-reconfigure openresolv
 
 """.format(HOSTNAME=args.hostname, USERNAME=args.username, PASSWORD=args.password, FULLNAME=args.fullname)
 
@@ -200,7 +212,7 @@ if ! grep -i "{DEBRELEASE}-backports main" /etc/apt/sources.list; then
 	add-apt-repository "deb {URL} {DEBRELEASE}-backports main restricted universe multiverse"
 fi
 # Install firmware for armhf architecture.
-if [[ "{DEBARCH}" = "armhf" ]]; then
+if [[ "{DEBARCH}" = "armhf" || "{DEBARCH}" = "arm64" ]]; then
 	apt install -y linux-firmware
 fi
 """.format(DEBRELEASE=args.release, URL=osurl, DEBARCH=args.architecture)
@@ -216,7 +228,7 @@ fi
 # Comment out lines containing httpredir.
 sed -i '/httpredir/ s/^#*/#/' /etc/apt/sources.list
 # Install firmware for armhf architecture.
-if [[ "{DEBARCH}" = "armhf" ]]; then
+if [[ "{DEBARCH}" = "armhf" || "{DEBARCH}" = "arm64" ]]; then
 	apt install -y firmware-linux
 fi
 """.format(DEBRELEASE=args.release, DEBARCH=args.architecture)
@@ -230,7 +242,8 @@ apt update
 apt dist-upgrade -y
 
 # Install software
-DEBIAN_FRONTEND=noninteractive apt install -y synaptic tasksel xorg
+DEBIAN_FRONTEND=noninteractive apt install -y tasksel xorg
+apt install -f
 # Install fs tools.
 DEBIAN_FRONTEND=noninteractive apt install -y btrfs-tools f2fs-tools nbd-client
 # Fix for nbd-client: https://bugs.launchpad.net/ubuntu/+source/nbd/+bug/1487679
@@ -332,7 +345,8 @@ if args.zch is True:
 else:
     subprocess.run("systemd-nspawn -D {0} /setupscript.sh".format(absinstallpath), shell=True)
 # Copy resolv.conf into chroot (needed for chroot)
-shutil.copy2("/etc/resolv.conf", "{0}/etc/resolv.conf".format(absinstallpath))
+if os.path.exists("/etc/resolv.conf"):
+    shutil.copy2("/etc/resolv.conf", "{0}/etc/resolv.conf".format(absinstallpath))
 # Run the grub script.
 subprocess.run("{1}/zch.py {0} -c /grubscript.sh".format(absinstallpath, SCRIPTDIR), shell=True)
 # Restore resolv.conf as symlink
