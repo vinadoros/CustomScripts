@@ -102,6 +102,9 @@ data["python.linting.pylamaArgs"] = ["-i", "E501,E266"]
 data["python.linting.flake8Enabled"] = True
 data["python.linting.flake8Args"] = ["--ignore=E501,E302,E266"]
 # Ruby Config
+data["ruby.codeCompletion"] = "rcodetools"
+data["ruby.format"] = "rubocop"
+data["ruby.intellisense"] = "rubyLocate"
 data["ruby.lint"] = {}
 data["ruby.lint"]["ruby"] = True
 data["ruby.lint"]["rubocop"] = {}
