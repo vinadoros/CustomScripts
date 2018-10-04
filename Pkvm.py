@@ -513,25 +513,19 @@ if 50 <= args.ostype <= 59:
     ET.register_namespace('xsi', "http://www.w3.org/2001/XMLSchema-instance")
 if args.ostype == 50:
     shutil.move(os.path.join(tempunattendfolder, "windows10.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
-if args.ostype == 51:
     # Load the xml file
-    tree = ET.parse(os.path.join(tempunattendfolder, "windows10.xml"))
+    tree = ET.parse(os.path.join(tempunattendfolder, "autounattend.xml"))
     root = tree.getroot()
-    # Find specific ProductKey entries, and delete them.
-    for a in root:
-        if "settings" in a.tag:
-            for b in a:
-                if "component" in b.tag:
-                    for c in b:
-                        if "ProductKey" in c.tag:
-                            # Remove the productkey element from the parent.
-                            b.remove(c)
-                        if "UserData" in c.tag:
-                            for d in c:
-                                if "ProductKey" in d.tag:
-                                    c.remove(d)
+    # Insert ProductKey after OSImage.
+    for element in root.iter():
+        if "UserData" in element.tag:
+            pkey_element = ET.SubElement(element, "ProductKey")
+            key_subel = ET.SubElement(pkey_element, "Key")
+            key_subel.text = "W269N-WFGWX-YVC9B-4J6C9-T83GX"
     # Write the XML file
     tree.write(os.path.join(tempunattendfolder, "autounattend.xml"))
+if args.ostype == 51:
+    shutil.move(os.path.join(tempunattendfolder, "windows10.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
 if args.ostype == 54:
     shutil.move(os.path.join(tempunattendfolder, "windows7.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
 if 55 <= args.ostype <= 59:
@@ -539,29 +533,23 @@ if 55 <= args.ostype <= 59:
     data['builders'][0]["ssh_username"] = "Administrator"
 if 55 <= args.ostype <= 56:
     shutil.move(os.path.join(tempunattendfolder, "windows2016.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
+    # Load the xml file
+    tree = ET.parse(os.path.join(tempunattendfolder, "autounattend.xml"))
+    root = tree.getroot()
+    # Insert ProductKey after OSImage.
+    for element in root.iter():
+        if "UserData" in element.tag:
+            pkey_element = ET.SubElement(element, "ProductKey")
+            key_subel = ET.SubElement(pkey_element, "Key")
+            key_subel.text = "WC2BQ-8NRM3-FDDYY-2BFGV-KHKQY"
+    # Write the XML file
+    tree.write(os.path.join(tempunattendfolder, "autounattend.xml"))
 if args.ostype == 55:
     CFunc.find_replace(tempunattendfolder, "INSERTWINOSIMAGE", "2", "autounattend.xml")
 if args.ostype == 56:
     CFunc.find_replace(tempunattendfolder, "INSERTWINOSIMAGE", "1", "autounattend.xml")
 if args.ostype == 57:
-    # Load the xml file
-    tree = ET.parse(os.path.join(tempunattendfolder, "windows2016.xml"))
-    root = tree.getroot()
-    # Find specific ProductKey entries, and delete them.
-    for a in root:
-        if "settings" in a.tag:
-            for b in a:
-                if "component" in b.tag:
-                    for c in b:
-                        if "ProductKey" in c.tag:
-                            # Remove the productkey element from the parent.
-                            b.remove(c)
-                        if "UserData" in c.tag:
-                            for d in c:
-                                if "ProductKey" in d.tag:
-                                    c.remove(d)
-    # Write the XML file
-    tree.write(os.path.join(tempunattendfolder, "autounattend.xml"))
+    shutil.move(os.path.join(tempunattendfolder, "windows2016.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
     CFunc.find_replace(tempunattendfolder, "INSERTWINOSIMAGE", "1", "autounattend.xml")
 
 

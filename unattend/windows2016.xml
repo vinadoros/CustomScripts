@@ -31,9 +31,6 @@
         <AcceptEula>true</AcceptEula>
         <FullName>INSERTUSERHERE</FullName>
         <Organization/>
-        <ProductKey>
-          <Key>WC2BQ-8NRM3-FDDYY-2BFGV-KHKQY</Key>
-        </ProductKey>
       </UserData>
       <EnableFirewall>true</EnableFirewall>
       <DiskConfiguration>
@@ -98,7 +95,7 @@
       <CEIPEnabled>0</CEIPEnabled>
     </component>
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <ComputerName/>
+      <ComputerName>*</ComputerName>
     </component>
   </settings>
   <settings pass="oobeSystem">
