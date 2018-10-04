@@ -5,7 +5,7 @@
       <SetupUILanguage>
         <UILanguage>en-US</UILanguage>
       </SetupUILanguage>
-      <InputLocale>0c09:00000409</InputLocale>
+      <InputLocale>en-US</InputLocale>
       <SystemLocale>en-US</SystemLocale>
       <UILanguage>en-US</UILanguage>
       <UILanguageFallback>en-US</UILanguageFallback>
@@ -24,11 +24,12 @@
             <DiskID>0</DiskID>
             <PartitionID>2</PartitionID>
           </InstallTo>
+          <InstallToAvailablePartition>false</InstallToAvailablePartition>
         </OSImage>
       </ImageInstall>
       <UserData>
         <AcceptEula>true</AcceptEula>
-        <FullName>user</FullName>
+        <FullName>INSERTUSERHERE</FullName>
         <Organization/>
         <ProductKey>
           <Key>WC2BQ-8NRM3-FDDYY-2BFGV-KHKQY</Key>
@@ -40,8 +41,8 @@
           <CreatePartitions>
             <CreatePartition wcm:action="add">
               <Order>1</Order>
-              <Size>350</Size>
               <Type>Primary</Type>
+              <Size>100</Size>
             </CreatePartition>
             <CreatePartition wcm:action="add">
               <Extend>true</Extend>
@@ -52,17 +53,18 @@
           <ModifyPartitions>
             <ModifyPartition wcm:action="add">
               <Format>NTFS</Format>
-              <Label>System</Label>
+              <Label>System Reserved</Label>
               <Order>1</Order>
               <PartitionID>1</PartitionID>
               <TypeID>0x27</TypeID>
             </ModifyPartition>
             <ModifyPartition wcm:action="add">
+              <Active>true</Active>
+              <Format>NTFS</Format>
+              <Label>OS</Label>
+              <Letter>C</Letter>
               <Order>2</Order>
               <PartitionID>2</PartitionID>
-              <Letter>C</Letter>
-              <Label>OS</Label>
-              <Format>NTFS</Format>
             </ModifyPartition>
           </ModifyPartitions>
           <DiskID>0</DiskID>
@@ -101,26 +103,6 @@
   </settings>
   <settings pass="oobeSystem">
     <component xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-      <FirstLogonCommands>
-        <SynchronousCommand wcm:action="add">
-            <CommandLine>cmd.exe /c a:\win_initial.bat</CommandLine>
-            <Description>Initial changes needed for running scripts</Description>
-            <Order>1</Order>
-            <RequiresUserInput>true</RequiresUserInput>
-        </SynchronousCommand>
-        <SynchronousCommand wcm:action="add">
-            <CommandLine>powershell -ExecutionPolicy Bypass -NoProfile -File a:\win_enablerm.ps1</CommandLine>
-            <Description>Enable WinRM</Description>
-            <Order>2</Order>
-            <RequiresUserInput>true</RequiresUserInput>
-        </SynchronousCommand>
-        <SynchronousCommand wcm:action="add">
-            <CommandLine>cmd.exe /c a:\win_cygssh.bat</CommandLine>
-            <Description>Install SSH</Description>
-            <Order>3</Order>
-            <RequiresUserInput>true</RequiresUserInput>
-        </SynchronousCommand>
-      </FirstLogonCommands>
       <AutoLogon>
         <Password>
           <Value>INSERTPASSWORDHERE</Value>
@@ -136,9 +118,9 @@
         <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
         <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
         <NetworkLocation>Work</NetworkLocation>
-        <ProtectYourPC>1</ProtectYourPC>
-        <SkipMachineOOBE>true</SkipMachineOOBE>
         <SkipUserOOBE>true</SkipUserOOBE>
+        <SkipMachineOOBE>true</SkipMachineOOBE>
+        <ProtectYourPC>3</ProtectYourPC>
       </OOBE>
       <UserAccounts>
         <AdministratorPassword>
@@ -161,6 +143,26 @@
       <RegisteredOrganization/>
       <RegisteredOwner>user</RegisteredOwner>
       <DisableAutoDaylightTimeSet>false</DisableAutoDaylightTimeSet>
+      <FirstLogonCommands>
+        <SynchronousCommand wcm:action="add">
+            <CommandLine>cmd.exe /c a:\win_initial.bat</CommandLine>
+            <Description>Initial changes needed for running scripts</Description>
+            <Order>1</Order>
+            <RequiresUserInput>true</RequiresUserInput>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <CommandLine>powershell -ExecutionPolicy Bypass -NoProfile -File a:\win_enablerm.ps1</CommandLine>
+            <Description>Enable WinRM</Description>
+            <Order>2</Order>
+            <RequiresUserInput>true</RequiresUserInput>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+            <CommandLine>cmd.exe /c a:\win_cygssh.bat</CommandLine>
+            <Description>Install SSH</Description>
+            <Order>3</Order>
+            <RequiresUserInput>true</RequiresUserInput>
+        </SynchronousCommand>
+      </FirstLogonCommands>
       <TimeZone>Eastern Standard Time</TimeZone>
     </component>
   </settings>

@@ -254,7 +254,7 @@ if 55 <= args.ostype <= 59:
     vboxosid = "Windows2016_64"
     vmwareid = "windows9srv-64"
     kvm_os = "windows"
-    kvm_variant = "win2k16"
+    kvm_variant = "win2k12r2"
     vmprovision_defopts = " "
 if args.ostype == 55:
     vmname = "Packer-Windows2016-{0}".format(hvname)
