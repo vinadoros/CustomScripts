@@ -46,6 +46,38 @@ def packerversion_get():
         break
     print("Detected packer version: {0}".format(latestrelease))
     return latestrelease
+def xml_indent(elem, level=0):
+    """
+    Pretty Print XML using Python Standard libraries only
+    http://effbot.org/zone/element-lib.htm#prettyprint
+    """
+    i = "\n" + level * "  "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "  "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for elem in elem:
+            xml_indent(elem, level + 1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
+def xml_insertwindowskey(key, unattendfile):
+    """Insert the windows key into the unattend xml file."""
+    # Load the xml file
+    xmlkey_tree = ET.parse(unattendfile)
+    xmlkey_root = xmlkey_tree.getroot()
+    # Insert ProductKey inside UserData.
+    for element in xmlkey_root.iter():
+        if "UserData" in element.tag:
+            pkey_element = ET.SubElement(element, "ProductKey")
+            key_subel = ET.SubElement(pkey_element, "Key")
+            key_subel.text = key
+    # Write the XML file
+    xml_indent(xmlkey_root)
+    xmlkey_tree.write(unattendfile)
 
 
 # Exit if root.
@@ -241,8 +273,11 @@ if 50 <= args.ostype <= 59:
     kvm_variant = "win10"
     vmprovision_defopts = " "
     isourl = None
+    # Windows KMS key list: https://docs.microsoft.com/en-us/windows-server/get-started/kmsclientkeys
+    windows_key = None
 if args.ostype == 50:
     vmname = "Packer-Windows10-{0}".format(hvname)
+    windows_key = "W269N-WFGWX-YVC9B-4J6C9-T83GX"
 if args.ostype == 51:
     vmname = "Packer-Windows10LTS-{0}".format(hvname)
 if args.ostype == 54:
@@ -256,12 +291,18 @@ if 55 <= args.ostype <= 59:
     kvm_os = "windows"
     kvm_variant = "win2k12r2"
     vmprovision_defopts = " "
+if 55 <= args.ostype <= 56:
+    windows_key = "N69G4-B89J2-4G8F4-WWYCC-J464C"
+if 57 <= args.ostype <= 58:
+    windows_key = "WC2BQ-8NRM3-FDDYY-2BFGV-KHKQY"
 if args.ostype == 55:
-    vmname = "Packer-Windows2016-{0}".format(hvname)
+    vmname = "Packer-Windows2019-{0}".format(hvname)
 if args.ostype == 56:
+    vmname = "Packer-Windows2019Core-{0}".format(hvname)
+if args.ostype == 58:
+    vmname = "Packer-Windows2016-{0}".format(hvname)
+if args.ostype == 59:
     vmname = "Packer-Windows2016Core-{0}".format(hvname)
-if args.ostype == 57:
-    vmname = "Packer-WindowsServerCore-{0}".format(hvname)
 
 
 # Override provision opts if provided.
@@ -513,43 +554,35 @@ if 50 <= args.ostype <= 59:
     ET.register_namespace('xsi', "http://www.w3.org/2001/XMLSchema-instance")
 if args.ostype == 50:
     shutil.move(os.path.join(tempunattendfolder, "windows10.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
-    # Load the xml file
-    tree = ET.parse(os.path.join(tempunattendfolder, "autounattend.xml"))
-    root = tree.getroot()
-    # Insert ProductKey after OSImage.
-    for element in root.iter():
-        if "UserData" in element.tag:
-            pkey_element = ET.SubElement(element, "ProductKey")
-            key_subel = ET.SubElement(pkey_element, "Key")
-            key_subel.text = "W269N-WFGWX-YVC9B-4J6C9-T83GX"
-    # Write the XML file
-    tree.write(os.path.join(tempunattendfolder, "autounattend.xml"))
+    # Insert product key
+    xml_insertwindowskey(windows_key, os.path.join(tempunattendfolder, "autounattend.xml"))
 if args.ostype == 51:
     shutil.move(os.path.join(tempunattendfolder, "windows10.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
 if args.ostype == 54:
     shutil.move(os.path.join(tempunattendfolder, "windows7.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
 if 55 <= args.ostype <= 59:
-    # Username is fixed to Administrator in Server
-    data['builders'][0]["ssh_username"] = "Administrator"
-if 55 <= args.ostype <= 56:
-    shutil.move(os.path.join(tempunattendfolder, "windows2016.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
+    shutil.move(os.path.join(tempunattendfolder, "windows10.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
+    # Insert Windows Server product key
+    xml_insertwindowskey(windows_key, os.path.join(tempunattendfolder, "autounattend.xml"))
     # Load the xml file
     tree = ET.parse(os.path.join(tempunattendfolder, "autounattend.xml"))
     root = tree.getroot()
-    # Insert ProductKey after OSImage.
+    # Insert InstallFrom inside OSImage.
     for element in root.iter():
-        if "UserData" in element.tag:
-            pkey_element = ET.SubElement(element, "ProductKey")
-            key_subel = ET.SubElement(pkey_element, "Key")
-            key_subel.text = "WC2BQ-8NRM3-FDDYY-2BFGV-KHKQY"
+        if "OSImage" in element.tag:
+            infrm_element = ET.SubElement(element, "InstallFrom")
+            metadata_subel = ET.SubElement(infrm_element, "MetaData")
+            metadata_subel.set("wcm:action", "add")
+            key_element = ET.SubElement(metadata_subel, "Key")
+            key_element.text = "/IMAGE/INDEX"
+            value_element = ET.SubElement(metadata_subel, "Value")
+            value_element.text = "INSERTWINOSIMAGE"
     # Write the XML file
+    xml_indent(root)
     tree.write(os.path.join(tempunattendfolder, "autounattend.xml"))
 if args.ostype == 55:
     CFunc.find_replace(tempunattendfolder, "INSERTWINOSIMAGE", "2", "autounattend.xml")
 if args.ostype == 56:
-    CFunc.find_replace(tempunattendfolder, "INSERTWINOSIMAGE", "1", "autounattend.xml")
-if args.ostype == 57:
-    shutil.move(os.path.join(tempunattendfolder, "windows2016.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
     CFunc.find_replace(tempunattendfolder, "INSERTWINOSIMAGE", "1", "autounattend.xml")
 
 

@@ -115,6 +115,7 @@
       <UserAccounts>
         <AdministratorPassword>
           <Value>INSERTPASSWORDHERE</Value>
+          <PlainText>true</PlainText>
         </AdministratorPassword>
         <LocalAccounts>
           <LocalAccount wcm:action="add">
