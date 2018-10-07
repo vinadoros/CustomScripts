@@ -135,6 +135,9 @@ if type mate-session; then
 	gsettings set org.mate.interface icon-theme "Numix-Circle-Light"
 fi
 
+# PackageKit
+# https://ask.fedoraproject.org/en/question/108524/clean-up-packagekit-cache-the-right-way/
+gsettings set org.gnome.software download-updates false
 
 # Gnome specific settings
 if type gnome-session; then
