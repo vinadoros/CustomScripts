@@ -14,17 +14,21 @@ while ! ping -c1 db &>/dev/null; do sleep 5; done
 # Setup env file
 if [ ! -f .env ]; then
   cp .env.example .env
+  sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=mysql/g' .env
+  sed -i 's/^DB_HOST=.*/DB_HOST=db/g' .env
+  sed -i 's/^DB_DATABASE=.*/DB_DATABASE=koel/g' .env
+  sed -i "s/^DB_USERNAME=.*/DB_USERNAME=root/g" .env
+  sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$DBPASSWD/g" .env
+  APPKEY=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
+  JWTKEY=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
+  sed -i "s/^APP_KEY=.*/APP_KEY=$APPKEY/g" .env
+  sed -i "s/^JWT_SECRET=.*/JWT_SECRET=$JWTKEY/g" .env
   # Prepare database (keep trying until successful)
   while ! mysql -h db -u root -p$DBPASSWD -e "CREATE DATABASE IF NOT EXISTS koel;"; do sleep 5; done
   DBEMPTY=1
 else
   DBEMPTY=0
 fi
-sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=mysql/g' .env
-sed -i 's/^DB_HOST=.*/DB_HOST=db/g' .env
-sed -i 's/^DB_DATABASE=.*/DB_DATABASE=koel/g' .env
-sed -i "s/^DB_USERNAME=.*/DB_USERNAME=root/g" .env
-sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$DBPASSWD/g" .env
 if [ $REPOEMPTY = 1 ]; then
   # Install composer packages
   composer install
@@ -44,7 +48,7 @@ if [ $REPOEMPTY = 0 ]; then
 fi
 
 # Start php-fpm
-/etc/init.d/php7.0-fpm start
+/etc/init.d/php7.2-fpm start
 # Set permissions on folder and start nginx
 chown www-data:www-data -R /var/www/
 /etc/init.d/nginx start

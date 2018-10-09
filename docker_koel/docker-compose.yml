@@ -7,8 +7,7 @@
 # ADMINUSER=a@l.c
 # ADMINPASS=password
 
-# Bring up with docker-compose up --build -d
-# Remove with docker-compose stop; docker-compose rm -f
+# docker-compose down; docker-compose up --build -d; docker-compose logs -f
 
 version: '2'
 services:
@@ -26,7 +25,7 @@ services:
       - "${DBADMINERPORT}:8080"
     environment:
       - ADMINER_DESIGN=lucas-sandery
-      - ADMINER_PLUGINS='tables-filter tinymce'
+      - ADMINER_PLUGINS=tables-filter tinymce
     links:
       - db
   web:

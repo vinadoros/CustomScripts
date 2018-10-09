@@ -29,8 +29,8 @@ RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
 # fix: *** stack smashing detected ***: nginx: worker process terminated / [alert] 9#9: worker process *process-id* exited on signal 6
 RUN	openssl req -x509 -nodes -days 3000 -newkey rsa:2048 -keyout /etc/ssl/selfsigned.key -out /etc/ssl/selfsigned.crt -subj "/C=US/ST=State/L=City/O=None/CN=www.example.org" && \
 		rm -f /etc/localtime; ln -s /usr/share/zoneinfo/America/New_York /etc/localtime && \
-		sed -i 's@^upload_max_filesize =.*@upload_max_filesize = 4096M@' /etc/php/7.0/fpm/php.ini && \
-		sed -i 's@^post_max_size =.*@post_max_size = 4096M@' /etc/php/7.0/fpm/php.ini && \
+		sed -i 's@^upload_max_filesize =.*@upload_max_filesize = 4096M@' /etc/php/7.2/fpm/php.ini && \
+		sed -i 's@^post_max_size =.*@post_max_size = 4096M@' /etc/php/7.2/fpm/php.ini && \
 		sed -i "s/worker_processes auto;/worker_processes 1;/g" /etc/nginx/nginx.conf
 
 # Add scripts
