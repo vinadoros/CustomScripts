@@ -93,7 +93,7 @@ if not args.nogui:
     if not args.bare:
         CFunc.dnfinstall("gstreamer1-libav gstreamer1-vaapi gstreamer1-plugins-ugly gstreamer1-plugins-bad-freeworld gstreamer1-plugins-bad-nonfree")
         CFunc.dnfinstall("youtube-dl ffmpeg vlc smplayer mpv")
-        CFunc.dnfinstall("audacious audacious-plugins-freeworld")
+        CFunc.dnfinstall("audacious audacious-plugins")
         # Editors
         CFunc.dnfinstall("code")
         # Syncthing
@@ -122,8 +122,6 @@ if args.desktop == "gnome":
     subprocess.run("{0}/DExtGnome.py -v".format(SCRIPTDIR), shell=True)
     # Adapta
     CFunc.dnfinstall("gnome-shell-theme-adapta adapta-gtk-theme-metacity adapta-gtk-theme-gtk2 adapta-gtk-theme-gtk3")
-    # Remmina Gnome integration
-    CFunc.dnfinstall("remmina-plugins-gnome")
 elif args.desktop == "kde":
     # KDE
     CFunc.dnfinstall("@kde-desktop-environment")

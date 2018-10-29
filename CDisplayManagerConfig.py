@@ -60,7 +60,7 @@ if not os.path.isfile(SynHostFile):
     with open(SynHostFile, 'w') as file:
         file.write("HostnameHere")
     os.chmod(SynHostFile, 0o666)
-    print("Be sure to change the hostname in {0}.")
+    print("Be sure to change the hostname in {0}.".format(SynHostFile))
 
 # LightDM Startup Script
 LDSTART = "/usr/local/bin/ldstart.sh"
