@@ -189,7 +189,7 @@ if not args.bare and not args.nogui:
 
     # Flatpak setup
     CFunc.aptinstall("flatpak xdg-desktop-portal")
-    CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpak")
+    CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo")
 
 
 

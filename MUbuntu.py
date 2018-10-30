@@ -202,7 +202,7 @@ if args.nogui is False and args.bare is False:
     CFunc.aptinstall("tilix")
     # Flatpak
     CFunc.aptinstall("flatpak")
-    CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpak")
+    CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo")
     # Atom Editor
     # CFunc.snap_install("atom", True)
     # Visual Studio Code
