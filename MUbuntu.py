@@ -204,7 +204,7 @@ if args.nogui is False and args.bare is False:
     CFunc.aptinstall("flatpak")
     CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpak")
     # Atom Editor
-    CFunc.snap_install("atom", True)
+    # CFunc.snap_install("atom", True)
     # Visual Studio Code
     subprocess.run("""curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
     mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg""", shell=True)

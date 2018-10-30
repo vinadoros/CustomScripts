@@ -185,12 +185,13 @@ if not args.bare and not args.nogui:
         os.symlink("/var/lib/snapd/snap", "/snap", target_is_directory=True)
 
     # Atom from snap
-    CFunc.snap_install("atom", True)
+    # CFunc.snap_install("atom", True)
 
-    # Atom from script
-    # subprocess.run("{0}/CAtomRPM.py".format(SCRIPTDIR), shell=True)
-    # Atom from flatpak
-    # subprocess.run("flatpak install -y --from https://flathub.org/repo/appstream/io.atom.Atom.flatpakref", shell=True)
+    # Flatpak setup
+    CFunc.aptinstall("flatpak xdg-desktop-portal")
+    CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpak")
+
+
 
 # Disable Selinux
 # To get selinux status: sestatus, getenforce
