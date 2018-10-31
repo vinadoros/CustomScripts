@@ -136,6 +136,14 @@ rm -rf clonezilla
 # Disable selinux
 sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /etc/sysconfig/selinux
 
+# Delete defaults in sudoers.
+if grep -iq $'^Defaults    secure_path' /etc/sudoers; then
+    sed -e 's/^Defaults    env_reset$/Defaults    !env_reset/g' -i /etc/sudoers
+    sed -i $'/^Defaults    mail_badpass/ s/^#*/#/' /etc/sudoers
+    sed -i $'/^Defaults    secure_path/ s/^#*/#/' /etc/sudoers
+fi
+visudo -c
+
 # Script run on boot
 cat >> /etc/rc.d/init.d/livesys << EOF
 
@@ -195,7 +203,7 @@ shortdate = time.strftime("%Y%m%d")
 beforetime = datetime.now()
 isoname = "Fedora-CustomLive-{0}.iso".format(currentdatetime)
 # Start Build
-subprocess.run("livemedia-creator --ks {ks} --no-virt --resultdir {resultdir} --project Fedora-CustomLive --make-iso --volid Fedora-CustomLive-{shortdate} --iso-only --iso-name {isoname} --releasever 28 --title Fedora-CustomLive --macboot --no-virt".format(ks=ks_flat, resultdir=resultsfolder, isoname=isoname, shortdate=shortdate), shell=True)
+subprocess.run("livemedia-creator --ks {ks} --no-virt --resultdir {resultdir} --project Fedora-CustomLive --make-iso --volid Fedora-CustomLive-{shortdate} --iso-only --iso-name {isoname} --releasever 29 --title Fedora-CustomLive --macboot --no-virt".format(ks=ks_flat, resultdir=resultsfolder, isoname=isoname, shortdate=shortdate), shell=True)
 subprocess.run("chmod a+rw -R {0}".format(buildfolder), shell=True)
 print('Run to test in iso folder: "qemu-system-x86_64 -enable-kvm -m 2048 ./{0}"'.format(isoname))
 print("Build completed in :", datetime.now() - beforetime)
