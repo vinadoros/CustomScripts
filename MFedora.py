@@ -184,9 +184,6 @@ if not args.bare and not args.nogui:
     if not os.path.islink("/snap"):
         os.symlink("/var/lib/snapd/snap", "/snap", target_is_directory=True)
 
-    # Atom from snap
-    # CFunc.snap_install("atom", True)
-
     # Flatpak setup
     CFunc.aptinstall("flatpak xdg-desktop-portal")
     CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo")

@@ -207,8 +207,6 @@ if args.nogui is False and args.bare is False:
     CFunc.aptinstall("code")
     # Install snapd
     CFunc.aptinstall("snapd")
-    # Atom from snap
-    CFunc.snap_install("atom", True)
 
 # Network Manager
 CFunc.aptinstall("network-manager network-manager-ssh resolvconf")
