@@ -14,7 +14,10 @@ fi
 [ -z $VMWGUEST ] && ! grep -iq "VMware" "/sys/devices/virtual/dmi/id/product_name" && VMWGUEST=0
 
 # Common settings
-if type atom; then
+if type code; then
+	xdg-mime default code.desktop text/x-shellscript
+	xdg-mime default code.desktop text/plain
+elif type atom; then
 	xdg-mime default atom.desktop text/x-shellscript
 	xdg-mime default atom.desktop text/plain
 fi
