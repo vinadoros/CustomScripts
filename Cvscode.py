@@ -48,7 +48,7 @@ else:
 ### Functions ###
 def ce_ins(extension):
     """Install an extension"""
-    subprocess.run(vscode_cmd + ["--install-extension", "--force", extension])
+    subprocess.run(vscode_cmd + ["--install-extension", extension, "--force"])
 
 
 ### Distro Specific Packages ###
