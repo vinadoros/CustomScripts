@@ -269,9 +269,6 @@ if args.nogui is False and args.bare is False:
     # Numix
     CFunc.addppa("ppa:numix/ppa")
     CFunc.aptinstall("numix-icon-theme-circle")
-    # Adapta
-    CFunc.addppa("ppa:tista/adapta")
-    CFunc.aptinstall("adapta-gtk-theme")
     # KeepassXC
     CFunc.addppa("ppa:phoerious/keepassxc")
     CFunc.aptinstall("keepassxc")
