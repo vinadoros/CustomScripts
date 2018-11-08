@@ -323,11 +323,13 @@ def dnfupdate():
     subprocess.run("dnf update -y", shell=True)
 def dnfinstall(dnfapps):
     """Install application(s) using dnf"""
+    status = None
     print("\nInstalling {0} using dnf.".format(dnfapps))
     if os.geteuid() is 0:
-        subprocess.run("dnf install -y {0}".format(dnfapps), shell=True)
+        status = subprocess.run("dnf install -y {0}".format(dnfapps), shell=True).returncode
     else:
-        subprocess.run("sudo dnf install -y {0}".format(dnfapps), shell=True)
+        status = subprocess.run("sudo dnf install -y {0}".format(dnfapps), shell=True).returncode
+    return status
 def rpmimport(keyurl):
     """Import a gpg key for rpm."""
     subprocess.run("rpm --import {0}".format(keyurl), shell=True, check=True)
