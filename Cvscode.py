@@ -54,10 +54,10 @@ def ce_ins(extension):
 ### Distro Specific Packages ###
 if shutil.which("dnf"):
     print("Install dnf dependencies.")
-    CFunc.dnfinstall("python3-pip")
+    CFunc.dnfinstall("python3-pip shellcheck")
 elif shutil.which("apt-get"):
     print("Install apt dependencies.")
-    CFunc.aptinstall("python3-pip")
+    CFunc.aptinstall("python3-pip shellcheck")
 elif shutil.which("zypper"):
     print("Install zypper dependencies.")
 
@@ -85,7 +85,10 @@ print("\nInstalling VS Code extensions.")
 ce_ins("ms-python.python")
 ce_ins("ms-vscode.cpptools")
 ce_ins("PeterJausovec.vscode-docker")
+ce_ins("mikestead.dotenv")
 ce_ins("rebornix.Ruby")
+ce_ins("streetsidesoftware.code-spell-checker")
+ce_ins("timonwong.shellcheck")
 
 
 ### Configuration ###
