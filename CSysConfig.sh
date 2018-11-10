@@ -33,9 +33,17 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 
-# Set computer to not sleep on lid close
-if ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf; then
-	echo 'HandleLidSwitch=lock' | sudo tee -a /etc/systemd/logind.conf
+# Logind config edits
+if [ -f /etc/systemd/logind.conf ]; then
+	# Set computer to not sleep on lid close
+	sed -i '/^#HandleLidSwitch=.*/s/^#//g' /etc/systemd/logind.conf
+	sed -i 's/^HandleLidSwitch=.*/HandleLidSwitch=lock/g' /etc/systemd/logind.conf
+fi
+# Systemd system config edits
+if [ -f /etc/systemd/system.conf ]; then
+	# Change default stop timeout
+	sed -i '/^#DefaultTimeoutStopSec=.*/s/^#//g' /etc/systemd/system.conf
+	sed -i 's/^DefaultTimeoutStopSec=.*/DefaultTimeoutStopSec=45s/g' /etc/systemd/system.conf
 fi
 
 #Xorg fix for Joysticks
