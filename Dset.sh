@@ -258,6 +258,8 @@ if type kwriteconfig5; then
 	kwriteconfig5 --file kscreenlockerrc --group Daemon --key Autolock --type bool false
 	kwriteconfig5 --file kscreenlockerrc --group Daemon --key LockOnResume --type bool false
 	kwriteconfig5 --file kscreenlockerrc --group Daemon --key Timeout 10
+	kwriteconfig5 --file ksmserverrc --group General --key confirmLogout false
+	kwriteconfig5 --file ksmserverrc --group General --key offerShutdown true
 	# gtk3 theme
 # 	mkdir -p $HOME/.config/gtk-3.0
 # 	kwriteconfig5 --file $HOME/.config/gtk-3.0/settings.ini --group Settings --key gtk-fallback-icon-theme Numix-Light
