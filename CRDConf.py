@@ -61,6 +61,8 @@ if args.vncsd is True or args.x0vnc is True:
         CFunc.zpinstall("tigervnc autocutsel")
     elif shutil.which("dnf"):
         CFunc.dnfinstall("tigervnc tigervnc-server")
+        subprocess.run("dnf copr enable shymega/autocutsel-copr", shell=True)
+        CFunc.dnfinstall("autocutsel")
     elif shutil.which("apt-get"):
         CFunc.aptinstall("tigervnc-standalone-server vnc4server autocutsel")
 
@@ -80,6 +82,7 @@ if args.vncsd is True or args.x2go is True:
 unset SESSION_MANAGER
 unset DBUS_SESSION_BUS_ADDRESS
 # Execute this session. Add more sessions as necessary to autoselect.
+autocutsel -fork
 if type mate-session; then
 	exec mate-session
 elif type openbox-session; then
@@ -132,7 +135,7 @@ PAMName=login
 
 # Clean any existing files in /tmp/.X11-unix environment
 ExecStartPre=/bin/sh -c '/usr/bin/vncserver -kill :5 > /dev/null 2>&1 || :'
-ExecStart={vncservpath} :5 -geometry 1024x768 -fg -alwaysshared -rfbport 5905 -rfbauth "{vncpasspath}" -auth ~/.Xauthority
+ExecStart={vncservpath} :5 -localhost=0 -geometry 1024x768 -fg -alwaysshared -rfbport 5905 -rfbauth "{vncpasspath}" -auth ~/.Xauthority
 ExecStop=/usr/bin/vncserver -kill :5
 PIDFile={userhome}/.vnc/%H:5.pid
 Restart=on-failure
