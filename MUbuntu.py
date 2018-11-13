@@ -234,6 +234,7 @@ if args.desktop == "gnome":
     print("\n Installing gnome desktop")
     CFunc.aptinstall("ubuntu-desktop ubuntu-session gnome-session")
     CFunc.aptinstall("gnome-clocks")
+    CFunc.snap_install("gnome-calculator gnome-characters gnome-logs gnome-system-monitor")
     # Remove ubuntu dock in order to install dashtodock
     subprocess.run("apt-get remove -y gnome-shell-extension-ubuntu-dock", shell=True, check=False)
     CFunc.aptinstall("gnome-shell-extensions gnome-shell-extension-dashtodock gnome-shell-extension-mediaplayer gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste")

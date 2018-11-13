@@ -350,7 +350,7 @@ def flatpak_install(remote, app):
         print("\nInstalling {0} using flatpak using {1}.".format(app, remote))
         subprocess.run("{0}flatpak install -y {1} {2}".format(sudocmd(), remote, app), shell=True)
 # Snap
-def snap_install(app, classic):
+def snap_install(app, classic=False):
     """Install application(s) using snap"""
     # Options
     snap_classic = ""
