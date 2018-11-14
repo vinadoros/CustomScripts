@@ -468,6 +468,8 @@ elif args.vmtype == 2:
     data['builders'][0]["qemuargs"][0] = ["-m", "{0}M".format(args.memory)]
     data['builders'][0]["qemuargs"].append(["--cpu", "host"])
     data['builders'][0]["qemuargs"].append(["--smp", "cores={0}".format(CPUCORES)])
+    # This is a temporary workaround for a bug where sdl is disabled in Debian (and therefore Ubuntu, https://github.com/hashicorp/packer/issues/6136)
+    data['builders'][0]["qemuargs"].append(["-display", "gtk"])
 elif args.vmtype == 3:
     data['builders'][0]["type"] = "vmware-iso"
     data['builders'][0]["version"] = "12"
