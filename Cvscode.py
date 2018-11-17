@@ -94,6 +94,7 @@ ce_ins("timonwong.shellcheck")
 ### Configuration ###
 data = {}
 data["workbench.startupEditor"] = "newUntitledFile"
+data["window.titleBarStyle"] = "custom"
 data["editor.renderWhitespace"] = "all"
 data["editor.wordWrap"] = "on"
 # Python Config
