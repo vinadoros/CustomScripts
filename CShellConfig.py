@@ -239,7 +239,7 @@ elif type dnf &> /dev/null || type yum &> /dev/null; then
     }
     function up () {
         echo "Updating system."
-        $SUDOCMD $PKGMGR update -y
+        $SUDOCMD $PKGMGR upgrade --refresh -y
     }
 fi
 """ % SCRIPTDIR
