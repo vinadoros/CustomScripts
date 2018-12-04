@@ -173,7 +173,7 @@ if 5 <= args.ostype <= 9:
     vmwareid = "fedora-64"
     kvm_os = "linux"
     kvm_variant = "rhel7.4"
-    isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1804.iso"
+    isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1810.iso"
     vmprovisionscript = "MCentOS.py"
 if args.ostype == 5:
     vmname = "Packer-CentOS-{0}".format(hvname)
