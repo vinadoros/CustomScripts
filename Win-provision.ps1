@@ -138,7 +138,7 @@ function Fcn-Software {
 
   # Install VM Tools
   if ( $IsVM -eq $true ) {
-    echo "Installing VM Tools"
+    Write-Output "Installing VM Tools"
     # Handle VMTools
     $temppath = "C:\Windows\Temp"
     $winiso = "C:\Windows\Temp\windows.iso"
@@ -147,25 +147,25 @@ function Fcn-Software {
       Start-Process -Wait "C:\Program Files\7-Zip\7z.exe" -ArgumentList "x","$winiso","-o$vmfolder"
 
       if (Test-Path "$vmfolder\setup64.exe") {
-        echo "Installing VMWare tools"
+        Write-Output "Installing VMWare tools"
         Start-Process -Wait "$vmfolder\setup64.exe" -ArgumentList "/s","/v/qr","REBOOT=R"
       }
 
       if (Test-Path "$vmfolder\VBoxWindowsAdditions.exe") {
-        echo "Installing Virtualbox tools"
+        Write-Output "Installing Virtualbox tools"
         Start-Process -Wait "$vmfolder\cert\VBoxCertUtil.exe" -ArgumentList "add-trusted-publisher","$vmfolder\cert\vbox-sha1.cer" | Out-Null
         Start-Process -Wait "$vmfolder\VBoxWindowsAdditions.exe" -ArgumentList "/S"
       }
 
       # Clean up vmtools
-      echo "Cleaning up VMTools"
+      Write-Output "Cleaning up VMTools"
       Remove-Item -Recurse -Force $winiso
       Remove-Item -Recurse -Force $vmfolder
     }
 
     # QEMU
     if ($VMtype -eq 2) {
-      echo "Installing SPICE/QEMU tools"
+      Write-Output "Installing SPICE/QEMU tools"
       $kvmguestfolder = "$temppath\kvm-guest-drivers-windows"
       Start-Process -Wait "$gitcmdpath\git.exe" -ArgumentList "clone","https://github.com/virtio-win/kvm-guest-drivers-windows","$kvmguestfolder"
       Start-Process -Wait "$kvmguestfolder\Tools\InstallCertificate.bat" -WorkingDirectory "$kvmguestfolder\Tools\"
@@ -178,7 +178,7 @@ function Fcn-Software {
 
   # Install packages not for core.
   if ( $core -eq $false ) {
-    echo "Installing Desktop Apps"
+    Write-Output "Installing Desktop Apps"
     # GUI Apps
     choco upgrade -y googlechrome notepadplusplus tortoisegit bleachbit putty chocolateygui conemu VisualStudioCode winmerge libreoffice-fresh sumatrapdf nomacs jre8 WizTree
     # Tablacus
@@ -281,7 +281,7 @@ function Fcn-Customize {
   powercfg -setacvalueindex 381b4222-f694-41f0-9685-ff5bb260df2e 4f971e89-eebd-4455-a8de-9e59040e7347 5ca83367-6e45-459f-a27b-476b1d01c936 000
 
   # Windows customizations
-  echo "Extra Folder Options"
+  Write-Output "Extra Folder Options"
   # Show OS Files
   New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name ShowSuperHidden -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
   # Launch Windows Explorer in ThisPC
@@ -293,14 +293,14 @@ function Fcn-Customize {
   # Display full paths
   New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name FullPath -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
   New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name FullPathAddress -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
-  echo "Hide Search bar"
+  Write-Output "Hide Search bar"
   New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Search -Name SearchboxTaskbarMode -Value 0 -Force -ErrorAction SilentlyContinue | Out-Null
-  echo "Set small icons for taskbar"
+  Write-Output "Set small icons for taskbar"
   New-ItemProperty -Path Registry::HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name TaskbarSmallIcons -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
-  echo "Show taskbar on multiple displays"
+  Write-Output "Show taskbar on multiple displays"
   New-ItemProperty -Path Registry::HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name MMTaskbarEnabled -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
   New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name MMTaskbarMode -Value 2 -Force -ErrorAction SilentlyContinue | Out-Null
-  echo "Combine taskbar items only when full"
+  Write-Output "Combine taskbar items only when full"
   New-ItemProperty -Path Registry::HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name TaskbarGlomLevel -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
   New-ItemProperty -Path Registry::HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name MMTaskbarGlomLevel -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
   # Remove people button
@@ -314,7 +314,7 @@ function Fcn-Customize {
   # Enable quickedit in shells
   New-ItemProperty -Path Registry::HKCU\Console -Name QuickEdit -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
   # Set Control Panel Icon Size
-  echo "Control Panel icon changes"
+  Write-Output "Control Panel icon changes"
   New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel -Name AllItemsIconView -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
   New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel -Name StartupPage -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
 
@@ -329,7 +329,7 @@ function Fcn-Customize {
 
   # Disable thumbs.db on lower than Windows 8
   if ([Environment]::OSVersion.Version.Major -lt 8){
-    echo "Disable Thumbs.db"
+    Write-Output "Disable Thumbs.db"
     New-ItemProperty -Path Registry::HKCU\Software\Policies\Microsoft\Windows\Explorer -Name DisableThumbsDBOnNetworkFolders -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
     New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name DisableThumbnailCache -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
   }
@@ -409,12 +409,48 @@ function Fcn-DisableWinRM {
   Set-Service -Name winrm -StartupType Disabled
 }
 
+# Disable OneDrive
+function Fcn-OnedriveDisable {
+  Write-Output "Onedrive: Kill Process"
+  taskkill.exe /F /IM "OneDrive.exe"
+
+  Write-Output "Onedrive: Uninstall"
+  if (Test-Path "$env:systemroot\System32\OneDriveSetup.exe") {
+    Start-Process -Wait "$env:systemroot\System32\OneDriveSetup.exe" -ArgumentList "/uninstall"
+  }
+  if (Test-Path "$env:systemroot\SysWOW64\OneDriveSetup.exe") {
+    Start-Process -Wait "$env:systemroot\SysWOW64\OneDriveSetup.exe" -ArgumentList "/uninstall"
+  }
+
+  Write-Output "Onedrive: Removing leftovers trash"
+  rm -Recurse -Force -ErrorAction SilentlyContinue "$env:localappdata\Microsoft\OneDrive"
+  rm -Recurse -Force -ErrorAction SilentlyContinue "$env:programdata\Microsoft OneDrive"
+  rm -Recurse -Force -ErrorAction SilentlyContinue "C:\OneDriveTemp"
+
+  Write-Output "Onedrive: Remove from explorer sidebar"
+  New-PSDrive -PSProvider "Registry" -Root "HKEY_CLASSES_ROOT" -Name "HKCR"
+  mkdir -Force "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}"
+  sp "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" "System.IsPinnedToNameSpaceTree" 0
+  mkdir -Force "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}"
+  sp "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" "System.IsPinnedToNameSpaceTree" 0
+  Remove-PSDrive "HKCR"
+
+  Write-Output "Onedrive: Removing run option for new users"
+  reg load "hku\Default" "C:\Users\Default\NTUSER.DAT"
+  reg delete "HKEY_USERS\Default\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "OneDriveSetup" /f
+  reg unload "hku\Default"
+
+  Write-Output "Onedrive: Removing startmenu junk entry"
+  rm -Force -ErrorAction SilentlyContinue "$env:userprofile\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk"
+}
+
 ### Begin Code ###
 if (-Not $isDotSourced) {
-  echo "Running provision script."
+  Write-Output "Running provision script."
   Fcn-InstallChocolatey
   Fcn-CSClone
   Fcn-Software
+  Fcn-OnedriveDisable
   Fcn-Customize
   if ( $core -eq $true -Or $IsVM -eq $true ) {
     Fcn-DisableDefender
