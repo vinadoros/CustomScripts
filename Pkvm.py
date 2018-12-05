@@ -545,7 +545,13 @@ if 50 <= args.ostype <= 59:
     data['builders'][0]["shutdown_command"] = "shutdown /s /t 60"
     data['builders'][0]["shutdown_timeout"] = "15m"
     # Use ssh for communication instead of winrm (which doesn't work for vmware for some reason)
-    data['builders'][0]["communicator"] = "ssh"
+    data['builders'][0]["communicator"] = "winrm"
+    data['builders'][0]["winrm_insecure"] = True
+    data['builders'][0]["winrm_username"] = "{0}".format(args.vmuser)
+    data['builders'][0]["winrm_password"] = "{0}".format(args.vmpass)
+    data['builders'][0]["winrm_timeout"] = "90m"
+    data['builders'][0]["winrm_use_ssl"] = False
+    data['builders'][0]["winrm_use_ntlm"] = True
     data['builders'][0]["ssh_username"] = "{0}".format(args.vmuser)
     data['builders'][0]["floppy_files"] = [os.path.join(tempscriptbasename, "unattend", "autounattend.xml"),
                                            os.path.join(tempscriptbasename, "unattend", "win_initial.bat"),
