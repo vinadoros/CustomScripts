@@ -90,6 +90,7 @@ f2fs-tools
 # exfat-utils
 cryptsetup
 device-mapper
+extundelete
 
 # VM Utils
 spice-vdagent
