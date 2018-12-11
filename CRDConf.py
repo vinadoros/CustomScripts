@@ -81,8 +81,10 @@ if args.vncsd is True or args.x2go is True:
         VncXstartupFile_handle.write("""#!/bin/bash
 unset SESSION_MANAGER
 unset DBUS_SESSION_BUS_ADDRESS
+# Enable clipboard sharing. Sometimes autocutsel doesn't work, so include vncconfig.
+type autocutsel && autocutsel -fork
+type vncconfig && vncconfig -nowin &
 # Execute this session. Add more sessions as necessary to autoselect.
-autocutsel -fork
 if type mate-session; then
 	exec mate-session
 elif type openbox-session; then
