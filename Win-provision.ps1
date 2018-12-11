@@ -174,6 +174,10 @@ function Fcn-Software {
       Start-Process -Wait "$kvm_exefolder\spice-guest-tools-latest.exe" -ArgumentList "/S"
       Remove-Item -Recurse -Force $kvmguestfolder
     }
+
+    # Enable remote desktop
+    Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Value 0
+    Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
   }
 
   # Install packages not for core.

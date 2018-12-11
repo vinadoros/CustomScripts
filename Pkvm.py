@@ -608,7 +608,6 @@ if args.debug:
 # Save start time.
 beforetime = datetime.now()
 # Initiate logger
-# buildlog_destname = "{0}.log".format(vmname)
 buildlog_path = os.path.join(vmpath, "{0}.log".format(vmname))
 CFunc.log_config(buildlog_path)
 # Call packer.
