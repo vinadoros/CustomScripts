@@ -7,6 +7,7 @@ from datetime import datetime
 import logging
 import os
 import subprocess
+import signal
 import sys
 import time
 import traceback
@@ -46,10 +47,17 @@ def chroot_end():
     umount -l {0}/tmp > /dev/null &
     """.format(rootfsfolder), shell=True)
     return
+def signal_handler(sig, frame):
+    if os.path.isdir(rootfsfolder):
+        chroot_end()
+    print('Exiting due to SIGINT.')
+    sys.exit(1)
 
 
 # Exit if not root.
 CFunc.is_root(True)
+# Attach signal handler.
+signal.signal(signal.SIGINT, signal_handler)
 
 # Get the root user's home folder.
 USERHOME = os.path.expanduser("~root")
