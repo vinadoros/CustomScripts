@@ -102,10 +102,10 @@ try:
     # Mount the chroot filesystems.
     chroot_start()
     chroot_command("apt update")
-    chroot_command("apt-get install --no-install-recommends linux-image-generic systemd-sysv casper software-properties-common")
+    chroot_command("apt-get install -y --no-install-recommends casper software-properties-common")
     chroot_command("add-apt-repository main && add-apt-repository restricted && add-apt-repository universe && add-apt-repository multiverse")
     chroot_command("apt update")
-    chroot_command("apt-get install --no-install-recommends network-manager net-tools wireless-tools curl openssh-client xserver-xorg-core xserver-xorg xinit openbox xterm nano")
+    chroot_command("apt-get install -y --no-install-recommends network-manager net-tools wireless-tools curl openssh-client xserver-xorg-core xserver-xorg xinit openbox xterm nano")
     chroot_command("apt-get clean")
     # Set up NetworkManager
     chroot_command("sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf")
