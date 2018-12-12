@@ -145,7 +145,7 @@ squashfs_file = os.path.join(buildfolder, "image", "casper", "filesystem.squash"
 if os.path.isfile(squashfs_file):
     logging.info("Remove existing {0}.".format(squashfs_file))
     os.remove(squashfs_file)
-CFunc.subpout_logger("mksquashfs {0}/chroot {1}/image/casper/filesystem.squashfs -e boot".format(rootfsfolder, buildfolder))
+CFunc.subpout_logger("mksquashfs {0} {1}/image/casper/filesystem.squashfs -e boot".format(rootfsfolder, buildfolder))
 # Copy kernel and initrd
 CFunc.subpout_logger("cp {0}/boot/vmlinuz-* {1}/image/vmlinuz".format(rootfsfolder, buildfolder))
 CFunc.subpout_logger("cp {0}/boot/initrd.img-* {1}/image/initrd".format(rootfsfolder, buildfolder))
@@ -170,10 +170,8 @@ menuentry "Ubuntu Live" {
 debcustom_path = Path(os.path.join(buildfolder, "image", "DEBIAN_CUSTOM"))
 debcustom_path.touch(exist_ok=True)
 CFunc.subpout_logger('''grub-mkstandalone \
-    --format=i386-pc \
-    --output={0}/scratch/core.img \
-    --install-modules="linux normal iso9660 biosdisk memdisk search tar ls" \
-    --modules="linux normal iso9660 biosdisk search" \
+    --format=x86_64-efi \
+    --output={0}/scratch/bootx64.efi \
     --locales="" \
     --fonts="" \
     "boot/grub/grub.cfg={0}/scratch/grub.cfg"'''.format(buildfolder))
@@ -182,6 +180,14 @@ CFunc.subpout_logger("""cd {0}/scratch && \
     mkfs.vfat efiboot.img && \
     mmd -i efiboot.img efi efi/boot && \
     mcopy -i efiboot.img ./bootx64.efi ::efi/boot/""".format(buildfolder))
+CFunc.subpout_logger('''grub-mkstandalone \
+    --format=i386-pc \
+    --output={0}/scratch/core.img \
+    --install-modules="linux normal iso9660 biosdisk memdisk search tar ls" \
+    --modules="linux normal iso9660 biosdisk search" \
+    --locales="" \
+    --fonts="" \
+    "boot/grub/grub.cfg={0}/scratch/grub.cfg"'''.format(buildfolder))
 CFunc.subpout_logger("cat /usr/lib/grub/i386-pc/cdboot.img {0}/scratch/core.img > {0}/scratch/bios.img".format(buildfolder))
 CFunc.subpout_logger("""xorriso \
     -as mkisofs \
