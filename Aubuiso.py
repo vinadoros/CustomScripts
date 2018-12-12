@@ -155,11 +155,7 @@ os.makedirs(os.path.join(buildfolder, "scratch"), exist_ok=True)
 os.makedirs(os.path.join(buildfolder, "image", "casper"), exist_ok=True)
 
 # Create squashfs
-squashfs_file = os.path.join(buildfolder, "image", "casper", "filesystem.squash")
-if os.path.isfile(squashfs_file):
-    logging.info("Remove existing {0}.".format(squashfs_file))
-    os.remove(squashfs_file)
-CFunc.subpout_logger("mksquashfs {0} {1}/image/casper/filesystem.squashfs -e boot".format(rootfsfolder, buildfolder))
+CFunc.subpout_logger("mksquashfs {0} {1}/image/casper/filesystem.squashfs -e boot -noappend".format(rootfsfolder, buildfolder))
 # Copy kernel and initrd
 CFunc.subpout_logger("cp {0}/boot/vmlinuz-* {1}/image/vmlinuz".format(rootfsfolder, buildfolder))
 CFunc.subpout_logger("cp {0}/boot/initrd.img-* {1}/image/initrd".format(rootfsfolder, buildfolder))
