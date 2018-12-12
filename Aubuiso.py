@@ -105,25 +105,30 @@ CFunc.aptupdate()
 CFunc.aptinstall("debootstrap squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin mtools")
 CFunc.subpout_logger("debootstrap --arch=amd64 --include linux-image-generic {0} {1}  http://us.archive.ubuntu.com/ubuntu/".format(args.release, rootfsfolder))
 
+# Create chroot script.
+with open(os.path.join(rootfsfolder, "chrootscript.sh"), 'w') as cs_handle:
+    cs_handle.write("""#!/bin/bash -e
+apt-get update
+apt-get install -y --no-install-recommends casper software-properties-common
+add-apt-repository main && add-apt-repository restricted && add-apt-repository universe && add-apt-repository multiverse
+apt-get update
+apt-get install -y --no-install-recommends network-manager net-tools wireless-tools curl openssh-client xserver-xorg-core xserver-xorg xinit openbox xterm nano
+apt-get clean
+sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf
+touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
+passwd -u root
+chpasswd <<<"root:asdf"
+""")
+os.chmod(os.path.join(rootfsfolder, "chrootscript.sh"), 0o777)
+
 # Commands to run inside chroot
 try:
     # Mount the chroot filesystems.
     chroot_start()
-    chroot_command("apt update")
-    chroot_command("apt-get install -y --no-install-recommends casper software-properties-common")
-    chroot_command("add-apt-repository main && add-apt-repository restricted && add-apt-repository universe && add-apt-repository multiverse")
-    chroot_command("apt update")
-    chroot_command("apt-get install -y --no-install-recommends network-manager net-tools wireless-tools curl openssh-client xserver-xorg-core xserver-xorg xinit openbox xterm nano")
-    chroot_command("apt-get clean")
-    # Set up NetworkManager
-    chroot_command("sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf")
-    chroot_command("touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf")
-    # Set root password
-    chroot_command("passwd -u root")
-    chroot_command('chpasswd <<<"root:asdf"')
-    subprocess.run("chroot {0} chpasswd".format(rootfsfolder), input='root:asdf', encoding='ascii', shell=True)
+    chroot_command(os.path.join("/", "chrootscript.sh"))
     # Unmount the chroot filesystems when done.
     chroot_end()
+    os.remove(os.path.join(rootfsfolder, "chrootscript.sh"))
 except Exception:
     logging.error("ERROR: Chroot command failed.")
     logging.error(traceback.format_exc())
