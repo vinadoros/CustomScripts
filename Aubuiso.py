@@ -88,7 +88,7 @@ if os.path.isdir(buildfolder):
     print("Work folder {0} already exists.".format(buildfolder))
 else:
     print("Creating work folder {0}.".format(buildfolder))
-    os.mkdir(buildfolder, 0o777)
+    os.makedirs(buildfolder, 0o777)
 
 # Save start time.
 beforetime = datetime.now()

@@ -58,13 +58,13 @@ if args.type == 1:
     print("Ubuntu")
     docker_name = "ubuiso"
     docker_image = "ubuntu:bionic"
-    docker_options = "-v /opt/CustomScripts:/opt/CustomScripts"
+    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -v "{0}":"{0}"'.format(buildfolder)
     docker_destroy(docker_name)
     docker_setup(docker_image, docker_name, docker_options)
     docker_runcmd(docker_name, "apt-get update")
     docker_runcmd(docker_name, "apt-get install -y python3")
-    docker_isocmd = "/opt/CustomScripts/Aubuiso.py -n -w /root/temp"
+    docker_isocmd = '/opt/CustomScripts/Aubuiso.py -n -w "{0}"'.format(buildfolder)
     if args.release:
         docker_isocmd += " -r {0}".format(args.release)
     docker_runcmd(docker_name, docker_isocmd)
-
+    docker_destroy(docker_name)
