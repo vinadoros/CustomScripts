@@ -126,6 +126,8 @@ echo "LANG=en_US.UTF-8" > /etc/locale.conf
 echo "console-setup	console-setup/charmap47	select	UTF-8" | debconf-set-selections
 # Install software
 apt-get install -y network-manager net-tools wireless-tools curl openssh-client xserver-xorg-core xserver-xorg nano lightdm mate-desktop-environment
+# Install VM software
+apt-get install -y dkms spice-vdagent qemu-guest-agent open-vm-tools open-vm-tools-desktop virtualbox-guest-utils virtualbox-guest-dkms virtualbox-guest-x11 build-essential
 apt-get clean
 sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf
 touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
