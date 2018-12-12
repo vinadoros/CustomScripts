@@ -113,7 +113,19 @@ apt-get update
 apt-get install -y --no-install-recommends casper software-properties-common
 add-apt-repository main && add-apt-repository restricted && add-apt-repository universe && add-apt-repository multiverse
 apt-get update
-apt-get install -y --no-install-recommends network-manager net-tools wireless-tools curl openssh-client xserver-xorg-core xserver-xorg xinit openbox xterm nano
+# Install locales
+apt-get install -y locales
+sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+echo 'LANG="en_US.UTF-8"'>/etc/default/locale
+locale-gen --purge en_US en_US.UTF-8
+dpkg-reconfigure --frontend=noninteractive locales
+update-locale
+# Locale fix for gnome-terminal.
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
+# Set keymap for Ubuntu
+echo "console-setup	console-setup/charmap47	select	UTF-8" | debconf-set-selections
+# Install software
+apt-get install -y network-manager net-tools wireless-tools curl openssh-client xserver-xorg-core xserver-xorg nano lightdm mate-desktop-environment
 apt-get clean
 sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf
 touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
