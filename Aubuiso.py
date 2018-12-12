@@ -35,12 +35,12 @@ def chroot_start():
     return
 def chroot_command(cmd):
     """Run a command inside of the chroot."""
-    CFunc.subpout_logger("PATH=$PATH:/sbin:/bin:/usr/sbin:/usr/local/bin chroot {0} {1}".format(rootfsfolder, cmd))
+    CFunc.subpout_logger("chroot {0} {1}".format(rootfsfolder, cmd))
     return
 def chroot_end():
     """Unmount important chroot folders."""
+    logging.info("Unmounting chroot folders.")
     subprocess.run("""
-    echo "Unmounting chroot folders."
     umount -l {0}/dev > /dev/null &
     umount -l {0}/proc > /dev/null &
     umount -l {0}/sys > /dev/null &
@@ -121,6 +121,7 @@ try:
     # Set root password
     chroot_command("passwd -u root")
     chroot_command('chpasswd <<<"root:asdf"')
+    subprocess.run("chroot {0} chpasswd".format(rootfsfolder), input='root:asdf', encoding='ascii', shell=True)
     # Unmount the chroot filesystems when done.
     chroot_end()
 except Exception:
