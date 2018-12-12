@@ -221,3 +221,6 @@ CFunc.subpout_logger("""xorriso \
         "{0}/image" \
         /boot/grub/bios.img={0}/scratch/bios.img \
         /EFI/efiboot.img={0}/scratch/efiboot.img""".format(buildfolder, isoname))
+# Set permissions of iso and log
+os.chmod(os.path.join(buildfolder, isoname), 0o777)
+os.chmod(os.path.join(buildlog_path), 0o777)
