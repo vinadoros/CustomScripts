@@ -6,6 +6,7 @@ import argparse
 from datetime import datetime
 import logging
 import os
+from pathlib import Path
 import subprocess
 import signal
 import sys
@@ -166,7 +167,7 @@ menuentry "Ubuntu Live" {
 }
 """)
 
-debcustom_path = os.path.join(buildfolder, "image", "DEBIAN_CUSTOM")
+debcustom_path = Path(os.path.join(buildfolder, "image", "DEBIAN_CUSTOM"))
 debcustom_path.touch(exist_ok=True)
 CFunc.subpout_logger('''grub-mkstandalone \
     --format=i386-pc \
