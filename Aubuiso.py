@@ -107,8 +107,8 @@ CFunc.aptinstall("debootstrap squashfs-tools xorriso grub-pc-bin grub-efi-amd64-
 CFunc.subpout_logger("debootstrap --arch=amd64 --include linux-image-generic {0} {1}  http://us.archive.ubuntu.com/ubuntu/".format(args.release, rootfsfolder))
 
 # Create chroot script.
-with open(os.path.join(rootfsfolder, "chrootscript.sh"), 'w') as cs_handle:
-    cs_handle.write("""#!/bin/bash -e
+with open(os.path.join(rootfsfolder, "chrootscript.sh"), 'w') as f_handle:
+    f_handle.write("""#!/bin/bash -e
 apt-get update
 apt-get install -y --no-install-recommends casper software-properties-common
 add-apt-repository main && add-apt-repository restricted && add-apt-repository universe && add-apt-repository multiverse
@@ -124,15 +124,188 @@ update-locale
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
 # Set keymap for Ubuntu
 echo "console-setup	console-setup/charmap47	select	UTF-8" | debconf-set-selections
-# Install software
-apt-get install -y network-manager net-tools wireless-tools curl openssh-client xserver-xorg-core xserver-xorg nano lightdm mate-desktop-environment
+
+# Install CLI Software
+apt-get install -y \
+btrfs-progs \
+chntpw \
+clonezilla \
+curl \
+debootstrap \
+dmraid \
+efibootmgr \
+f2fs-tools \
+fsarchiver \
+git \
+iotop \
+less \
+lvm2 \
+mdadm \
+nano \
+rsync \
+screen \
+ssh \
+tmux \
+whois \
+xfsprogs
+
+# Install GUI software
+apt-get install -y \
+avahi-daemon \
+avahi-discover \
+caja-open-terminal \
+chromium-browser \
+dconf-cli \
+gnome-keyring \
+gnome-disk-utility \
+gparted \
+gvfs \
+leafpad \
+lightdm \
+mate-desktop-environment \
+network-manager \
+network-manager-gnome \
+net-tools \
+wireless-tools \
+xserver-xorg
+
 # Install VM software
-apt-get install -y dkms spice-vdagent qemu-guest-agent open-vm-tools open-vm-tools-desktop virtualbox-guest-utils virtualbox-guest-dkms virtualbox-guest-x11 build-essential
-apt-get clean
+apt-get install -y \
+dkms \
+spice-vdagent \
+qemu-guest-agent \
+open-vm-tools \
+open-vm-tools-desktop \
+virtualbox-guest-utils \
+virtualbox-guest-dkms \
+virtualbox-guest-x11 \
+build-essential
+
 sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf
 touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
 passwd -u root
 chpasswd <<<"root:asdf"
+
+[ ! -d /opt/CustomScripts ] && git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts
+[ -d /opt/CustomScripts ] && cd /opt/CustomScripts && git pull
+
+
+# Update CustomScripts on startup
+cat >/etc/systemd/system/updatecs.service <<EOL
+[Unit]
+Description=updatecs service
+Requires=network-online.target
+After=network.target nss-lookup.target network-online.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c "cd /opt/CustomScripts; git pull"
+Restart=on-failure
+RestartSec=3s
+TimeoutStopSec=7s
+
+[Install]
+WantedBy=graphical.target
+EOL
+systemctl enable updatecs.service
+
+# Run MATE Settings script on desktop startup.
+cat >"/etc/xdg/autostart/matesettings.desktop" <<"EOL"
+[Desktop Entry]
+Name=MATE Settings Script
+Exec=/CustomScripts/Dset.sh
+Terminal=false
+Type=Application
+EOL
+
+# Autoset resolution
+cat >"/etc/xdg/autostart/ra.desktop" <<"EOL"
+[Desktop Entry]
+Name=Autoresize Resolution
+Exec=/usr/local/bin/ra.sh
+Terminal=false
+Type=Application
+EOL
+cat >"/usr/local/bin/ra.sh" <<'EOL'
+#!/bin/bash
+while true; do
+    sleep 5
+    if [ -z $DISPLAY ]; then
+        echo "Display variable not set. Exiting."
+        exit 1;
+    fi
+    xhost +localhost
+    # Detect the display output from xrandr.
+    RADISPLAYS=$(xrandr --listmonitors | awk '{print $4}')
+    while true; do
+        sleep 1
+        # Loop through every detected display and autoset them.
+        for disp in ${RADISPLAYS[@]}; do
+            xrandr --output $disp --auto
+        done
+    done
+done
+EOL
+chmod a+rwx /usr/local/bin/ra.sh
+
+# Set computer to not sleep on lid close
+if ! grep -Fxq "HandleLidSwitch=lock" /etc/systemd/logind.conf; then
+    echo 'HandleLidSwitch=lock' >> /etc/systemd/logind.conf
+fi
+
+# Casper script
+cat <<'EOLXYZ' >/usr/share/initramfs-tools/scripts/casper-bottom/99custom
+#!/bin/sh
+
+PREREQ=""
+DESCRIPTION="Disabling unity8's first run wizard..."
+
+prereqs()
+{
+       echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+       prereqs
+       exit 0
+       ;;
+esac
+
+. /scripts/casper-functions
+
+log_begin_msg "$DESCRIPTION"
+
+# Add CustomScripts to path
+SCRIPTBASENAME="/opt/CustomScripts"
+if ! grep "$SCRIPTBASENAME" /root/.bashrc; then
+    cat >>/root/.bashrc <<EOLBASH
+
+if [ -d $SCRIPTBASENAME ]; then
+    export PATH=\$PATH:$SCRIPTBASENAME
+fi
+EOLBASH
+fi
+if ! grep "$SCRIPTBASENAME" /root/home/$USERNAME/.bashrc; then
+    cat >>/root/home/$USERNAME/.bashrc <<EOLBASH
+
+if [ -d $SCRIPTBASENAME ]; then
+    export PATH=\$PATH:$SCRIPTBASENAME:/sbin:/usr/sbin
+fi
+EOLBASH
+fi
+
+log_end_msg
+EOLXYZ
+chmod 755 /usr/share/initramfs-tools/scripts/casper-bottom/99custom
+
+
+# Final initram generation
+update-initramfs -u -k all
+# Clean environment
+apt-get clean
+
 """)
 os.chmod(os.path.join(rootfsfolder, "chrootscript.sh"), 0o777)
 
@@ -151,6 +324,7 @@ except Exception:
     chroot_end()
     sys.exit()
 
+# Create build folders
 os.makedirs(os.path.join(buildfolder, "scratch"), exist_ok=True)
 os.makedirs(os.path.join(buildfolder, "image", "casper"), exist_ok=True)
 

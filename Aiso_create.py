@@ -56,6 +56,7 @@ if args.noprompt is False:
 
 if args.type == 1:
     print("Ubuntu")
+    os.makedirs(buildfolder, mode=0o777, exist_ok=True)
     docker_name = "ubuiso"
     docker_image = "ubuntu:bionic"
     docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -v "{0}":"{0}"'.format(buildfolder)
