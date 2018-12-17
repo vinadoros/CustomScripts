@@ -303,8 +303,29 @@ chmod 755 /usr/share/initramfs-tools/scripts/casper-bottom/99custom
 
 # Final initram generation
 update-initramfs -u -k all
+
 # Clean environment
+apt-get purge -y locales
 apt-get clean
+# From https://git.launchpad.net/livecd-rootfs/tree/live-build/ubuntu-core/hooks/10-remove-documentation.binary
+echo "I: Remove unneeded files from /usr/share/doc "
+find /usr/share/doc -depth -type f ! -name copyright|xargs rm -f || true
+find /usr/share/doc -empty|xargs rmdir || true
+find /usr/share/doc -type f -exec gzip -9 {} \;
+
+echo "I: Remove man/info pages"
+rm -rf /usr/share/man \
+       /usr/share/groff \
+       /usr/share/info \
+       /usr/share/lintian \
+       /usr/share/linda \
+       /var/cache/man
+
+echo "I: Removing /var/lib/apt/lists/*"
+find /var/lib/apt/lists/ -type f | xargs rm -f
+
+echo "I: Removing /var/cache/apt/*.bin"
+rm -f /var/cache/apt/*.bin
 
 """)
 os.chmod(os.path.join(rootfsfolder, "chrootscript.sh"), 0o777)

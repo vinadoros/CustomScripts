@@ -3,12 +3,10 @@
 
 # Python includes.
 import argparse
-from datetime import datetime
 import os
-import shutil
+import signal
 import subprocess
 import sys
-import time
 # Custom includes
 import CFunc
 
@@ -18,22 +16,39 @@ print("Running {0}".format(__file__))
 SCRIPTDIR = sys.path[0]
 
 
-### Functions ###
+######### Begin Functions #########
 def docker_destroy(name):
+    """Destroy the named docker container"""
     subprocess.run("docker stop {0}".format(name), shell=True)
     subprocess.run("docker rm {0}".format(name), shell=True)
     return
+
+
 def docker_setup(image, name, options):
+    """Setup the named docker container"""
     docker_destroy(name)
     subprocess.run("docker run -dt --privileged --name {0} {1} {2} bash".format(name, options, image), shell=True)
     return
+
+
 def docker_runcmd(name, cmd):
+    """Run a command in the named docker container"""
     subprocess.run("docker exec -it --privileged {0} {1}".format(name, cmd), shell=True)
     return
 
 
+def signal_handler(sig, frame):
+    """Handle a SIGINT signal."""
+    docker_destroy(docker_name)
+    print('Exiting due to SIGINT.')
+    sys.exit(1)
+######### End Functions #########
+
+
 # Exit if not root.
 CFunc.is_root(True)
+# Attach signal handler.
+signal.signal(signal.SIGINT, signal_handler)
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Build LiveCD.')
@@ -68,5 +83,38 @@ if args.type == 1:
     docker_isocmd = '/opt/CustomScripts/Aubuiso.py -n -w "{0}"'.format(buildfolder)
     if args.release:
         docker_isocmd += " -r {0}".format(args.release)
-    docker_runcmd(docker_name, docker_isocmd)
+    try:
+        docker_runcmd(docker_name, docker_isocmd)
+    finally:
+        docker_destroy(docker_name)
+if args.type == 2:
+    print("Fedora")
+    os.makedirs(buildfolder, mode=0o777, exist_ok=True)
+    os.chmod(buildfolder, 0o777)
+    docker_name = "fediso"
+    docker_image = "fedora:latest"
+    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -v "{0}":"{0}"'.format(buildfolder)
     docker_destroy(docker_name)
+    docker_setup(docker_image, docker_name, docker_options)
+    docker_runcmd(docker_name, "dnf install -y nano livecd-tools spin-kickstarts pykickstart anaconda util-linux")
+    docker_isocmd = '/opt/CustomScripts/Afediso.py -n -w "{0}" -o "{0}"'.format(buildfolder)
+    try:
+        docker_runcmd(docker_name, docker_isocmd)
+    finally:
+        docker_destroy(docker_name)
+if args.type == 3:
+    print("Debian")
+    os.makedirs(buildfolder, mode=0o777, exist_ok=True)
+    os.chmod(buildfolder, 0o777)
+    docker_name = "debiso"
+    docker_image = "debian:testing"
+    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -v "{0}":"{0}"'.format(buildfolder)
+    docker_destroy(docker_name)
+    docker_setup(docker_image, docker_name, docker_options)
+    docker_runcmd(docker_name, "apt-get update")
+    docker_runcmd(docker_name, "apt-get install -y nano git build-essential debhelper devscripts live-build syslinux isolinux rsync po4a python3")
+    docker_isocmd = '/opt/CustomScripts/Adebiso.py -n -w "{0}" -o "{0}"'.format(buildfolder)
+    try:
+        docker_runcmd(docker_name, docker_isocmd)
+    finally:
+        docker_destroy(docker_name)
