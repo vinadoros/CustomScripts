@@ -76,6 +76,8 @@ if not args.nogui:
     pkg_install("wine-devel wine-gecko-devel wine-mono-devel winetricks")
     # Remote access
     pkg_install("remmina remmina-plugins remmina-plugin-vnc remmina-plugin-rdp")
+    # Editors
+    pkg_install("geany")
 
 # Install software for VMs
 if vmstatus == "VirtualBox":
@@ -93,6 +95,7 @@ if args.desktop == "gnome":
     sysrc_cmd('gdm_enable=yes')
     sysrc_cmd('slim_enable=')
     slim_session_name = "gnome-session"
+    pkg_install("gnome-shell-extension-mediaplayer gnome-shell-extension-dashtodock")
 elif args.desktop == "mate":
     pkg_install("mate")
     # Setup slim
@@ -111,6 +114,28 @@ if args.desktop != "gnome":
     with open(os.path.join(USERHOME, ".xinitrc"), 'w') as file:
         file.write("exec {0}".format(slim_session_name))
 
+# Post-desktop installs
+if not args.nogui:
+    # Numix Icons
+    iconfolder = os.path.join("/", "usr", "local", "share", "icons")
+    os.makedirs(iconfolder, exist_ok=True)
+    # Numix icons must be installed for Circle to display properly.
+    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme"), ignore_errors=True)
+    shutil.rmtree(os.path.join(iconfolder, "Numix"), ignore_errors=True)
+    shutil.rmtree(os.path.join(iconfolder, "Numix-Light"), ignore_errors=True)
+    subprocess.run("git clone https://github.com/numixproject/numix-icon-theme.git {0}".format(os.path.join(iconfolder, "numix-icon-theme")), shell=True)
+    shutil.move(os.path.join(iconfolder, "numix-icon-theme", "Numix"), iconfolder)
+    shutil.move(os.path.join(iconfolder, "numix-icon-theme", "Numix-Light"), iconfolder)
+    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme"), ignore_errors=True)
+    # Numix Circle Icons
+    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
+    shutil.rmtree(os.path.join(iconfolder, "Numix-Circle"), ignore_errors=True)
+    shutil.rmtree(os.path.join(iconfolder, "Numix-Circle-Light"), ignore_errors=True)
+    subprocess.run("git clone https://github.com/numixproject/numix-icon-theme-circle.git {0}".format(os.path.join(iconfolder, "numix-icon-theme-circle")), shell=True)
+    shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle"), iconfolder)
+    shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle-Light"), iconfolder)
+    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
+    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "/Numix-Circle")), shell=True)
 
 # Edit sudoers to add pkg.
 sudoersd_dir = os.path.join("/", "usr", "local", "etc", "sudoers.d")

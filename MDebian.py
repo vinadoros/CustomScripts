@@ -253,6 +253,7 @@ if args.nogui is False and args.bare is False:
     shutil.rmtree(os.path.join(iconfolder, "Numix-Circle"), ignore_errors=True)
     subprocess.run("git clone https://github.com/numixproject/numix-icon-theme-circle.git {0}".format(os.path.join(iconfolder, "numix-icon-theme-circle")), shell=True)
     shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle"), iconfolder)
+    shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle-Light"), iconfolder)
     shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
     subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "/Numix-Circle")), shell=True)
 
