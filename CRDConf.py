@@ -44,16 +44,6 @@ if args.noprompt is False:
     input("Press Enter to continue.")
 
 
-# Install xfce for vncsd and x2go.
-if args.vncsd is True or args.x2go is True:
-    print("Installing xfce.")
-    if shutil.which("zypper"):
-        CFunc.zpinstall("openbox xfce4-panel")
-    elif shutil.which("dnf"):
-        CFunc.dnfinstall("openbox xfce4-panel")
-    elif shutil.which("apt-get"):
-        CFunc.aptinstall("openbox xfce4-panel")
-
 # Install vnc for vncsd and x0vnc.
 if args.vncsd is True or args.x0vnc is True:
     print("Installing vnc.")
@@ -85,11 +75,7 @@ unset DBUS_SESSION_BUS_ADDRESS
 type autocutsel && autocutsel -fork
 type vncconfig && vncconfig -nowin &
 # Execute this session. Add more sessions as necessary to autoselect.
-if type mate-session; then
-	exec mate-session
-elif type openbox-session; then
-	exec openbox-session
-fi
+exec mate-session
 """)
     os.chmod(VncXstartupFile, 0o777)
     # Openbox configuration.
@@ -145,6 +131,7 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target""".format(username=USERNAMEVAR, userhome=USERHOME, vncpasspath=VncPasswordPath, vncservpath=shutil.which("vncserver"))
     CFunc.systemd_createsystemunit("vncuser.service", VncSystemUnitText)
+    print('Edit {0} with correct session. For example, "exec mate-session", or "exec openbox-session"'.format(VncXstartupFile))
 
 # Config for x0vnc
 if args.x0vnc is True:
