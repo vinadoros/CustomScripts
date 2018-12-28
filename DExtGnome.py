@@ -48,7 +48,7 @@ elif shutil.which("apt-get"):
 def gitclone(url, path):
     """Clone a git repository to a given local path."""
     subprocess.run("git clone {0} {1}".format(url, path), shell=True)
-    subprocess.run("chmod a+rw -R {0}".format(path), shell=True)
+    subprocess.run("chmod -R a+rw {0}".format(path), shell=True)
 def cleantempfolder():
     """Remove the temporary folder if it exists."""
     if os.path.isdir(tempfolder):

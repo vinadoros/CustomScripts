@@ -49,6 +49,11 @@ MACHINEARCH = CFunc.machinearch()
 print("Username is:", USERNAMEVAR)
 print("Group Name is:", USERGROUP)
 
+# Override FreeBSD Quarterly repo with latest repo
+os.makedirs("/usr/local/etc/pkg/repos", exist_ok=True)
+with open("/usr/local/etc/pkg/repos/FreeBSD.conf", 'w') as file:
+    file.write('FreeBSD: { url: "pkg+http://pkg.FreeBSD.org/${ABI}/latest" }')
+
 # Update system
 subprocess.run(["freebsd-update", "--not-running-from-cron", "fetch", "install"])
 # Update packages
@@ -91,11 +96,12 @@ if not args.nogui:
     pkg_install("xorg xorg-drivers")
     sysrc_cmd("moused_enable=yes dbus_enable=yes hald_enable=yes")
 if args.desktop == "gnome":
-    pkg_install("gnome")
+    pkg_install("gnome3")
     sysrc_cmd('gdm_enable=yes')
     sysrc_cmd('slim_enable=')
     slim_session_name = "gnome-session"
-    pkg_install("gnome-shell-extension-mediaplayer gnome-shell-extension-dashtodock")
+    pkg_install("gnome-shell-extension-dashtodock")
+    subprocess.run("glib-compile-schemas /usr/local/share/gnome-shell/extensions/dash-to-dock@micxgx.gmail.com/schemas", shell=True)
 elif args.desktop == "mate":
     pkg_install("mate")
     # Setup slim
@@ -155,12 +161,12 @@ subprocess.run("pw usermod {0} -G wheel,video,operator".format(USERNAMEVAR), she
 
 # Extra scripts
 if args.allextra is True:
-    subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("bash {0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CShellConfig.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CCSClone.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("bash {0}/CCSClone.sh".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CVMGeneral.sh".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/Cxdgdirs.sh".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("bash {0}/CVMGeneral.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("bash {0}/Cxdgdirs.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("bash {0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
 
 print("\nScript End")

@@ -317,7 +317,7 @@ else:
 # Only do it if the current user can write to opt
 if os.access("/opt", os.W_OK):
     CFunc.gitclone("https://github.com/Bash-it/bash-it", "/opt/bash-it")
-    subprocess.run("chmod a+rwx -R /opt/bash-it", shell=True)
+    subprocess.run("chmod -R a+rwx /opt/bash-it", shell=True)
 if os.path.isdir("/opt/bash-it"):
     subprocess.run("""
     [ "$(id -u)" = "0" ] && HOME={0}
