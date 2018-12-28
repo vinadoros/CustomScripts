@@ -72,7 +72,7 @@ def volumemixer():
     volumemixer_path = os.path.abspath("{0}/.local/share/gnome-shell/extensions/shell-volume-mixer@derhofbauer.at/".format(USERHOME))
     os.makedirs(volumemixer_path, exist_ok=True)
     subprocess.run("cd {0}; make; 7z x ./shell-volume-mixer*.zip -aoa -o{1}".format(tempfolder, volumemixer_path), shell=True)
-    subprocess.run("chown {0}:{1} -R {2}/.local/".format(USERNAMEVAR, USERGROUP, USERHOME), shell=True)
+    subprocess.run("chown -R {0}:{1} {2}/.local/".format(USERNAMEVAR, USERGROUP, USERHOME), shell=True)
     cleantempfolder()
 def topiconsplus():
     """Top Icons Plus"""
