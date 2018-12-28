@@ -22,9 +22,9 @@ ROOTHOME = os.path.expanduser("~root")
 USERVARHOME = os.path.expanduser("~{0}".format(USERNAMEVAR))
 
 # Detect OS information
-distro, debrelease = CFunc.detectdistro()
+distro, release = CFunc.detectdistro()
 print("Distro is {0}.".format(distro))
-print("Release is {0}.".format(debrelease))
+print("Release is {0}.".format(release))
 
 # Ensure that certain commands exist.
 cmdcheck = ["chsh"]

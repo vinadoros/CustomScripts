@@ -166,7 +166,7 @@ if args.allextra is True:
     subprocess.run("bash {0}/CCSClone.sh".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
     subprocess.run("bash {0}/CVMGeneral.sh".format(SCRIPTDIR), shell=True)
-    subprocess.run("bash {0}/Cxdgdirs.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True)
     subprocess.run("bash {0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
 
 print("\nScript End")

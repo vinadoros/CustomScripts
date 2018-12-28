@@ -124,6 +124,19 @@ def subpout_logger(cmd):
     exitcode = process.wait()
     return exitcode
 ### OS Functions ###
+def os_type():
+    """Get the operating system (kernel) type."""
+    type = ""
+    # Windows
+    if is_windows() is True:
+        type = "Windows"
+    # Linux and FreeBSD
+    elif shutil.which("uname"):
+        type = subpout("uname -s")
+    # Something else?
+    else:
+        type = "Unknown"
+    return type
 def getuserdetails(username):
     """Get group and home folder info about a particular user."""
     # https://docs.python.org/3/library/grp.html
@@ -264,8 +277,13 @@ AllowIsolate=true""")
 # General Distro Functions
 def detectdistro():
     """Detect Distribution and Release from LSB info"""
-    lsb_distro = subpout("lsb_release -si")
-    lsb_release = subpout("lsb_release -sc")
+    lsb_distro = ""
+    lsb_release = ""
+    if os_type() == "Linux" and shutil.which("lsb_release"):
+        lsb_distro = subpout("lsb_release -si")
+        lsb_release = subpout("lsb_release -sc")
+    else:
+        lsb_distro = os_type()
     return (lsb_distro, lsb_release)
 def AddUserAllGroups(username=None):
     """Add a given user to all reasonable groups."""
