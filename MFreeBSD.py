@@ -40,8 +40,7 @@ def sysrc_cmd(cmd):
 
 
 # Exit if not root.
-if os.geteuid() is not 0:
-    sys.exit("\nError: Please run this script as root.\n")
+CFunc.is_root(True)
 
 # Get non-root user information.
 USERNAMEVAR, USERGROUP, USERHOME = CFunc.getnormaluser()

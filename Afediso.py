@@ -15,8 +15,7 @@ import CFunc
 print("Running {0}".format(__file__))
 
 # Exit if not root.
-if os.geteuid() is not 0:
-    sys.exit("\nError: Please run this script as root.\n")
+CFunc.is_root(True)
 
 # Get the root user's home folder.
 USERHOME = os.path.expanduser("~root")

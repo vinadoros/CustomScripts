@@ -10,8 +10,7 @@ import sys
 print("Running {0}".format(__file__))
 
 # Exit if not root.
-if os.geteuid() is not 0:
-    sys.exit("\nError: Please run this script as root.\n")
+CFunc.is_root(True)
 
 MACHINEARCH = platform.machine()
 

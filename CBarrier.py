@@ -24,8 +24,7 @@ parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', actio
 args = parser.parse_args()
 
 # Exit if not root.
-if os.geteuid() is not 0:
-    sys.exit("\nError: Please run this script as root.\n")
+CFunc.is_root(True)
 
 # Get non-root user information.
 USERNAMEVAR, USERGROUP, USERHOME = CFunc.getnormaluser()
