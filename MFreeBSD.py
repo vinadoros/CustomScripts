@@ -3,6 +3,7 @@
 
 # Python includes.
 import argparse
+from datetime import datetime
 import os
 import shutil
 import subprocess
@@ -47,6 +48,8 @@ USERNAMEVAR, USERGROUP, USERHOME = CFunc.getnormaluser()
 MACHINEARCH = CFunc.machinearch()
 print("Username is:", USERNAMEVAR)
 print("Group Name is:", USERGROUP)
+# Time script was started.
+time_start = datetime.now()
 
 # Override FreeBSD Quarterly repo with latest repo
 os.makedirs("/usr/local/etc/pkg/repos", exist_ok=True)
@@ -175,6 +178,9 @@ if args.allextra is True:
     subprocess.run("bash {0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
 
 # Wait for processes to finish before exiting.
+time_finishmain = datetime.now()
 process_portupdate.wait()
+time_finishport = datetime.now()
 
-print("\nScript End")
+print("\nPre-port update finished in {0}".format(str(time_finishmain - time_start)))
+print("Script End in {0}".format(str(time_finishport - time_start)))
