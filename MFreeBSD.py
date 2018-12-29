@@ -57,7 +57,7 @@ with open("/usr/local/etc/pkg/repos/FreeBSD.conf", 'w') as file:
     file.write('FreeBSD: { url: "pkg+http://pkg.FreeBSD.org/${ABI}/latest" }')
 
 # Update ports in background
-process_portupdate = subprocess.Popen("portsnap --interactive auto", shell=True)
+process_portupdate = subprocess.Popen("portsnap --interactive auto", shell=True, stdout=subprocess.DEVNULL, close_fds=True)
 # Update system
 subprocess.run(["freebsd-update", "--not-running-from-cron", "fetch", "install"])
 # Update packages
