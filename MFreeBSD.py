@@ -54,6 +54,8 @@ os.makedirs("/usr/local/etc/pkg/repos", exist_ok=True)
 with open("/usr/local/etc/pkg/repos/FreeBSD.conf", 'w') as file:
     file.write('FreeBSD: { url: "pkg+http://pkg.FreeBSD.org/${ABI}/latest" }')
 
+# Update ports in background
+process_portupdate = subprocess.Popen("portsnap fetch extract update", shell=True)
 # Update system
 subprocess.run(["freebsd-update", "--not-running-from-cron", "fetch", "install"])
 # Update packages
@@ -66,8 +68,10 @@ vmstatus = CFunc.subpout("dmidecode -s baseboard-product-name")
 
 ### Install FreeBSD Software ###
 # Cli tools
-pkg_install("git python3 sudo nano bash zsh tmux rsync p7zip p7zip-codec-rar zip unzip xdg-utils xdg-user-dirs fusefs-sshfs avahi-app")
+pkg_install("git python3 sudo nano bash zsh tmux rsync wget p7zip p7zip-codec-rar zip unzip xdg-utils xdg-user-dirs fusefs-sshfs avahi-app")
 pkg_install("powerline-fonts ubuntu-font roboto-fonts-ttf noto-lite liberation-fonts-ttf")
+# Portmaster
+pkg_install("portmaster")
 # Samba
 pkg_install("samba46")
 sysrc_cmd('samba_server_enable=yes winbindd_enable=yes')
@@ -83,6 +87,8 @@ if not args.nogui:
     pkg_install("remmina remmina-plugins remmina-plugin-vnc remmina-plugin-rdp")
     # Editors
     pkg_install("geany")
+    # Terminator
+    pkg_install("terminator")
 
 # Install software for VMs
 if vmstatus == "VirtualBox":
@@ -168,5 +174,8 @@ if args.allextra is True:
     subprocess.run("bash {0}/CVMGeneral.sh".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True)
     subprocess.run("bash {0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
+
+# Wait for processes to finish before exiting.
+process_portupdate.wait()
 
 print("\nScript End")
