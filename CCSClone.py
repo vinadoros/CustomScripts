@@ -4,6 +4,7 @@
 # Python includes.
 import argparse
 import os
+import shutil
 import sys
 import subprocess
 # Custom includes
@@ -33,8 +34,8 @@ args = parser.parse_args()
 
 # Get external variables from bash file.
 if os.path.isfile(args.variablefile):
-    with open(args.variablefile) as fd:
-        exec(fd.read())
+    variablefile = os.path.abspath(args.variablefile)
+    print("Variable File {0} will be used.".format(variablefile))
 
 # Save the repo name (after the slash) and the user (before the slash).
 fullrepo = args.repo
@@ -57,25 +58,26 @@ if not os.path.isdir(clonepath_final):
 subprocess.run('cd {0}; git config remote.origin.url "https://github.com/{1}.git"; git pull'.format(clonepath_final, fullrepo), shell=True)
 
 # If variables were sourced, set remote details for comitting.
-if GITHUBCOMMITNAME and GITHUBCOMMITEMAIL and os.path.isfile(GITHUBRSAPUB):
+if os.path.isfile(variablefile):
     print("Adding commit information for {0} github account.".format(reponame))
-    subprocess.run("""cd {0}
-git config remote.origin.url "git@gitserv:{0}.git"
+    subprocess.Popen("""cd {clonepath_final}
+source {variablefile}
+git config remote.origin.url "git@gitserv:{fullrepo}.git"
 git config push.default simple
-git config user.name "{1}"
-git config user.email "{2}"
-""".format(reponame, GITHUBCOMMITNAME, GITHUBCOMMITEMAIL), shell=True)
+git config user.name "$GITHUBCOMMITNAME"
+git config user.email "$GITHUBCOMMITEMAIL"
+""".format(fullrepo=fullrepo, variablefile=variablefile, clonepath_final=clonepath_final), shell=True, executable=shutil.which("bash"))
 
 # Update scripts folder every hour.
 if os.path.isdir("/etc/cron.hourly"):
     with open("/etc/cron.hourly/{0}".format(reponame), 'w') as file:
-        file.write('''#!/bin/sh
+        file.write('''#!{2}
 echo "Executing \$0"
 su {0} -s /bin/sh <<'EOL'
     cd {1}
     git pull
 EOL
-'''.format(USERNAMEVAR, clonepath_final))
+'''.format(USERNAMEVAR, clonepath_final, shutil.which("bash")))
 
 # Set permissions of cloneed folder
 subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, clonepath_final), shell=True)
