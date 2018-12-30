@@ -33,6 +33,7 @@ parser.add_argument("-v", "--variablefile", help='Run Extra Scripts', default="/
 args = parser.parse_args()
 
 # Get external variables from bash file.
+variablefile = None
 if os.path.isfile(args.variablefile):
     variablefile = os.path.abspath(args.variablefile)
     print("Variable File {0} will be used.".format(variablefile))
