@@ -54,7 +54,7 @@ def ce_ins(extension):
 ### Distro Specific Packages ###
 if shutil.which("dnf"):
     print("Install dnf dependencies.")
-    CFunc.dnfinstall("python3-pip shellcheck")
+    CFunc.dnfinstall("python3-pip ShellCheck")
 elif shutil.which("apt-get"):
     print("Install apt dependencies.")
     CFunc.aptinstall("python3-pip shellcheck")
