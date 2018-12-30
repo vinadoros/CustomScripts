@@ -126,17 +126,17 @@ def subpout_logger(cmd):
 ### OS Functions ###
 def os_type():
     """Get the operating system (kernel) type."""
-    type = ""
+    ostype = ""
     # Windows
     if is_windows() is True:
-        type = "Windows"
+        ostype = "Windows"
     # Linux and FreeBSD
     elif shutil.which("uname"):
-        type = subpout("uname -s")
+        ostype = subpout("uname -s")
     # Something else?
     else:
-        type = "Unknown"
-    return type
+        ostype = "Unknown"
+    return ostype
 def getuserdetails(username):
     """Get group and home folder info about a particular user."""
     # https://docs.python.org/3/library/grp.html
@@ -174,17 +174,25 @@ def getvmstate():
     """Determine what Virtual Machine guest is running under."""
     # Default state.
     vmstatus = None
-    # Detect QEMU
-    with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
-        if bool("QEMU" in VAR.read().strip()):
-            vmstatus = "kvm"
-    # Detect Virtualbox
-    with open('/sys/devices/virtual/dmi/id/product_name', 'r') as VAR:
-        if bool("VirtualBox" in VAR.read().strip()):
+    if os_type() == "Linux":
+        # Detect QEMU
+        with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
+            if bool("QEMU" in VAR.read().strip()):
+                vmstatus = "kvm"
+        # Detect Virtualbox
+        with open('/sys/devices/virtual/dmi/id/product_name', 'r') as VAR:
+            if bool("VirtualBox" in VAR.read().strip()):
+                vmstatus = "vbox"
+        # Detect VMWare
+        with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
+            if bool("VMware" in VAR.read().strip()):
+                vmstatus = "vmware"
+    # For any OS with dmidecode, like FreeBSD
+    elif shutil.which("dmidecode"):
+        vmstatus_temp = subpout("dmidecode -s baseboard-product-name")
+        if vmstatus_temp == "VirtualBox":
             vmstatus = "vbox"
-    # Detect VMWare
-    with open('/sys/devices/virtual/dmi/id/sys_vendor', 'r') as VAR:
-        if bool("VMware" in VAR.read().strip()):
+        if vmstatus_temp == "VMware":
             vmstatus = "vmware"
     return vmstatus
 def is_root(checkstate=True, state_exit=True):

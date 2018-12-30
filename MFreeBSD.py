@@ -65,7 +65,7 @@ subprocess.run(["pkg", "update", "-f"])
 
 # Get VM State
 pkg_install("dmidecode")
-vmstatus = CFunc.subpout("dmidecode -s baseboard-product-name")
+vmstatus = CFunc.getvmstate()
 
 
 ### Install FreeBSD Software ###
@@ -93,10 +93,10 @@ if not args.nogui:
     pkg_install("terminator")
 
 # Install software for VMs
-if vmstatus == "VirtualBox":
+if vmstatus == "vbox":
     pkg_install("virtualbox-ose-additions")
     sysrc_cmd('vboxguest_enable=yes vboxservice_enable=yes')
-if vmstatus == "VMware":
+if vmstatus == "vmware":
     pkg_install("open-vm-tools")
 
 # Install Desktop Software
