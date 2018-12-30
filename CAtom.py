@@ -39,6 +39,7 @@ elif subprocess.run(apm_flatpak, shell=True).returncode is 0:
 else:
     sys.exit("\nERROR: atom/apm command not found. Exiting.")
 
+
 ### Functions ###
 def atom_ins(extension):
     """Install an extension"""
@@ -58,10 +59,8 @@ sudo zypper in -yl python3-jedi ShellCheck""", shell=True)
 
 ### Detect Windows Commands ###
 if CFunc.is_windows() is True:
-    sudocmd = ""
     pipcmd = "pip"
 else:
-    sudocmd = "sudo -H "
     pipcmd = "pip3"
 ### Language Specific packages ###
 if shutil.which("gem"):
@@ -71,7 +70,7 @@ else:
     print("Ruby/gem not detected. Not installing ruby gems.")
 if shutil.which(pipcmd):
     print("Installing python dependencies.")
-    subprocess.run("{0}{1} install flake8".format(sudocmd, pipcmd), shell=True)
+    subprocess.run("{0}{1} install flake8".format(CFunc.sudocmd(True), pipcmd), shell=True)
 else:
     print("{0} not found. Not install python packages.".format(pipcmd))
 
