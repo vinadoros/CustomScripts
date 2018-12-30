@@ -27,13 +27,13 @@ GITHUBRSAPUB = None
 parser = argparse.ArgumentParser(description='Clone and update CustomScripts.')
 parser.add_argument("-r", "--repo", help='Repository to clone from Github', default="ramesh45345/CustomScripts")
 parser.add_argument("-p", "--clonepath", help='Run Extra Scripts', default="/opt")
-parser.add_argument("-v", "--variablefile", help='Run Extra Scripts', default="/usr/local/bin/privateconfig.sh")
+parser.add_argument("-v", "--variablefile", help='Run Extra Scripts', default=os.path.join("/", "usr", "local", "bin", "privateconfig.sh"))
 
 # Save arguments.
 args = parser.parse_args()
 
 # Get external variables from bash file.
-variablefile = None
+variablefile = args.variablefile
 if os.path.isfile(args.variablefile):
     variablefile = os.path.abspath(args.variablefile)
     print("Variable File {0} will be used.".format(variablefile))
@@ -59,7 +59,7 @@ if not os.path.isdir(clonepath_final):
 subprocess.run('cd {0}; git config remote.origin.url "https://github.com/{1}.git"; git pull'.format(clonepath_final, fullrepo), shell=True)
 
 # If variables were sourced, set remote details for comitting.
-if variablefile and os.path.isfile(variablefile):
+if os.path.isfile(variablefile):
     print("Adding commit information for {0} github account.".format(reponame))
     subprocess.Popen("""cd {clonepath_final}
 source {variablefile}
