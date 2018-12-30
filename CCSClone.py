@@ -59,7 +59,7 @@ if not os.path.isdir(clonepath_final):
 subprocess.run('cd {0}; git config remote.origin.url "https://github.com/{1}.git"; git pull'.format(clonepath_final, fullrepo), shell=True)
 
 # If variables were sourced, set remote details for comitting.
-if os.path.isfile(variablefile):
+if variablefile and os.path.isfile(variablefile):
     print("Adding commit information for {0} github account.".format(reponame))
     subprocess.Popen("""cd {clonepath_final}
 source {variablefile}
