@@ -325,7 +325,7 @@ if os.path.isdir("/opt/bash-it"):
     """.format(ROOTHOME), shell=True)
     subprocess.run("""sed -i -- "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTPATH), shell=True)
     if os.geteuid() is 0:
-        subprocess.run('sudo -u {0} {1} -c "/opt/bash-it/install.sh --silent"'.format(USERNAMEVAR, shutil.which("bash")), shell=True)
+        CFunc.run_as_user(USERNAMEVAR, "/opt/bash-it/install.sh --silent", shutil.which("bash"))
         subprocess.run("""sed -i -- "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0} {1}""".format(BASHROOTSCRIPTPATH, BASHSCRIPTPATH), shell=True)
 
 # Install bash script

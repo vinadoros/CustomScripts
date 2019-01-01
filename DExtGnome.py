@@ -46,7 +46,7 @@ elif shutil.which("apt-get"):
 ### Functions ###
 def gitclone(url, path):
     """Clone a git repository to a given local path."""
-    subprocess.run("git clone {0} {1}".format(url, path), shell=True)
+    CFunc.gitclone(url, path)
     subprocess.run("chmod -R a+rw {0}".format(path), shell=True)
 def cleantempfolder():
     """Remove the temporary folder if it exists."""
@@ -56,13 +56,13 @@ def dashtodock():
     """Dash to Dock"""
     print("\nInstalling Dash to Dock.")
     gitclone("https://github.com/micheleg/dash-to-dock.git", tempfolder)
-    subprocess.run("cd {0}; su {1} -c 'make; make install'".format(tempfolder, USERNAMEVAR), shell=True)
+    CFunc.run_as_user(USERNAMEVAR, "cd {0}; make; make install".format(tempfolder))
     cleantempfolder()
 def mediaplayer():
     """Media Player Extension"""
     print("\nInstalling Media Player Extension.")
     gitclone("https://github.com/JasonLG1979/gnome-shell-extensions-mediaplayer.git", tempfolder)
-    subprocess.run("cd {0}; su {1} -c './build'".format(tempfolder, USERNAMEVAR), shell=True)
+    CFunc.run_as_user(USERNAMEVAR, "cd {0}; ./build".format(tempfolder))
     cleantempfolder()
 def volumemixer():
     """Volume Mixer"""
@@ -77,7 +77,7 @@ def topiconsplus():
     """Top Icons Plus"""
     print("\nInstalling Top Icons Plus.")
     gitclone("https://github.com/phocean/TopIcons-plus", tempfolder)
-    subprocess.run("cd {0}; su {1} -c 'make'".format(tempfolder, USERNAMEVAR), shell=True)
+    CFunc.run_as_user(USERNAMEVAR, "cd {0}; make".format(tempfolder))
     cleantempfolder()
 
 
