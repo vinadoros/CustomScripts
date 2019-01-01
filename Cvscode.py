@@ -102,7 +102,7 @@ data["python.pythonPath"] = "python3"
 data["python.linting.maxNumberOfProblems"] = 500
 data["python.linting.pylintArgs"] = ["--disable=C0301,C0103"]
 data["python.linting.pylamaEnabled"] = True
-data["python.linting.pylamaArgs"] = ["-i", "E501,E266"]
+data["python.linting.pylamaArgs"] = ["-i", "E501,E266,E302"]
 data["python.linting.flake8Enabled"] = True
 data["python.linting.flake8Args"] = ["--ignore=E501,E302,E266"]
 # Ruby Config
