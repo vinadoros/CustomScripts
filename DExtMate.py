@@ -3,6 +3,7 @@
 
 # Python includes.
 import argparse
+import glob
 import os
 import shutil
 import subprocess
@@ -65,20 +66,27 @@ ninja -C build install
 if args.config:
     app_folder = os.path.join(os.path.sep, "usr", "share", "applications")
     # Find application desktop icons, for adding to panel
+    # Find Chromium
     dpath_chromium = None
-    if os.path.isfile(os.path.join(app_folder, "chromium-vaapi.desktop")):
-        # Chromium vaapi
-        dpath_chromium = os.path.join(app_folder, "chromium-vaapi.desktop")
-    elif os.path.isfile(os.path.join(app_folder, "chromium-browser.desktop")):
-        # Stock chromium
-        dpath_chromium = os.path.join(app_folder, "chromium-browser.desktop")
-    elif os.path.isfile(os.path.join(app_folder, "google-chrome.desktop")):
-        # Google Chrome
-        dpath_chromium = os.path.join(app_folder, "google-chrome.desktop")
-
+    files_list = glob.glob('{0}/*[Cc]hromium*.desktop'.format(app_folder), recursive=True)
+    if files_list:
+        dpath_chromium = files_list[0]
+    # Find Chrome if Chromium was not found.
+    if not dpath_chromium:
+        files_list = glob.glob('{0}/*google-chrome*.desktop'.format(app_folder), recursive=True)
+        if files_list:
+            dpath_chromium = files_list[0]
+    # Use Firefox is neither was found.
+    if not dpath_chromium:
+        files_list = glob.glob('{0}/*[Ff]irefox*.desktop'.format(app_folder), recursive=True)
+        if files_list:
+            dpath_chromium = files_list[0]
+    
+    # Tilix
     dpath_tilix = None
-    if os.path.isfile(os.path.join(app_folder, "com.gexperts.Tilix.desktop")):
-        dpath_tilix = os.path.join(app_folder, "com.gexperts.Tilix.desktop")
+    files_list = glob.glob('{0}/*[Tt]ilix*.desktop'.format(app_folder), recursive=True)
+    if files_list:
+        dpath_tilix = files_list[0]
 
     # https://github.com/mate-desktop/mate-panel/blob/master/data/fedora.layout
     # https://github.com/ubuntu-mate/ubuntu-mate-settings/blob/master/usr/share/mate-panel/layouts/familiar.layout
@@ -146,7 +154,7 @@ locked=true
 
     if dpath_chromium:
         mate_config += """
-[Object chromium-browser]
+[Object web-browser]
 object-type=launcher
 launcher-location={0}
 toplevel-id=top
@@ -204,4 +212,4 @@ default-layout='mate-rcustom'
     # https://ubuntu-mate.community/t/ubuntu-mate-14-04-lts-useful-information/25
     # mate-panel --reset --layout mate-rcustom
     # mate-panel --replace &
-    print('Run "mate-panel --layout mate-rcustom; mate-panel --reset; mate-panel replace &" as a normal user to reset the panel.')
+    print('Run "mate-panel --reset; mate-panel --reset --layout mate-rcustom; mate-panel replace &" as a normal user to reset the panel.')
