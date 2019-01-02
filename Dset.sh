@@ -135,7 +135,7 @@ if type mate-session; then
 	dconf write /org/mate/desktop/keybindings/$BINDING/name "'turnoffscreen'"
 
 	# Icon theme
-	gsettings set org.mate.interface icon-theme "Numix-Circle-Light"
+	gsettings set org.mate.interface icon-theme "Numix-Circle"
 fi
 
 # PackageKit
