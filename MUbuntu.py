@@ -131,7 +131,7 @@ subprocess.run("usermod -aG sudo {0}".format(USERNAMEVAR), shell=True)
 subprocess.run("""
 # Delete defaults in sudoers for Debian.
 if grep -iq '^Defaults\tenv_reset' /etc/sudoers; then
-    sed -i '/^Defaults\tenv_reset/ s/^#*/#/' /etc/sudoers
+    sed -e 's/^Defaults\tenv_reset$/Defaults\t!env_reset/g' -i /etc/sudoers
     # Consider changing above line to below line in future (as in Opensuse)
     # sed -e 's/^Defaults env_reset$/Defaults !env_reset/g' -i /etc/sudoers
     sed -i '/^Defaults\tmail_badpass/ s/^#*/#/' /etc/sudoers
