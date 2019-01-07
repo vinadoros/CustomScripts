@@ -81,7 +81,7 @@ if args.config:
         files_list = glob.glob('{0}/*[Ff]irefox*.desktop'.format(app_folder), recursive=True)
         if files_list:
             dpath_chromium = files_list[0]
-    
+
     # Tilix
     dpath_tilix = None
     files_list = glob.glob('{0}/*[Tt]ilix*.desktop'.format(app_folder), recursive=True)
@@ -195,6 +195,8 @@ locked=true
         print("Writing layout to {0} .".format(matepanel_layout_filepath))
         with open(matepanel_layout_filepath, 'w') as file:
             file.write(mate_config)
+        if shutil.which("glib-compile-schemas"):
+            subprocess.run("glib-compile-schemas {0}".format(matepanel_layout_folder), shell=True)
     else:
         print("ERROR: {0} does not exist, not writing configuration.".format(matepanel_layout_folder))
 
