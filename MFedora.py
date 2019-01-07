@@ -74,13 +74,10 @@ if not args.nogui:
     # Management tools
     CFunc.dnfinstall("yumex-dnf dnfdragora dnfdragora-gui gparted")
     # Browsers
-    # RPMFusion Chromium
-    # If Install fails, fall back to official chromium.
-    if CFunc.dnfinstall("chromium-vaapi") != 0:
-        # Official chromium
-        CFunc.dnfinstall("chromium chromium-libs-media")
-        # H264 support from rpmfusion.
-        CFunc.dnfinstall("chromium-libs-media-freeworld")
+    # Official Chromium
+    CFunc.dnfinstall("chromium")
+    # H264 support from rpmfusion.
+    CFunc.dnfinstall("chromium-libs-media-freeworld")
     # Official Google Chrome
     # CFunc.dnfinstall("https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm")
     CFunc.dnfinstall("@firefox freshplayerplugin")
