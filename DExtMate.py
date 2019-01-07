@@ -195,8 +195,6 @@ locked=true
         print("Writing layout to {0} .".format(matepanel_layout_filepath))
         with open(matepanel_layout_filepath, 'w') as file:
             file.write(mate_config)
-        if shutil.which("glib-compile-schemas"):
-            subprocess.run("glib-compile-schemas {0}".format(matepanel_layout_folder), shell=True)
     else:
         print("ERROR: {0} does not exist, not writing configuration.".format(matepanel_layout_folder))
 
@@ -209,6 +207,9 @@ locked=true
             file.write("""[org.mate.panel]
 default-layout='mate-rcustom'
 """)
+        # Ensure the written schema is compiled
+        if shutil.which("glib-compile-schemas"):
+            subprocess.run("glib-compile-schemas {0}".format(schemas_folder), shell=True)
 
     # Refresh MATE panel
     # https://ubuntu-mate.community/t/ubuntu-mate-14-04-lts-useful-information/25
