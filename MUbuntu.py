@@ -263,6 +263,8 @@ elif args.desktop == "mate":
     print("\n Installing mate desktop")
     CFunc.aptinstall("ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop")
     CFunc.aptinstall("ubuntu-mate-lightdm-theme")
+    # Run MATE Configuration
+    subprocess.run("{0}/DExtMate.py -c".format(SCRIPTDIR), shell=True)
 elif args.desktop == "xfce":
     print("\n Installing xfce desktop")
     CFunc.aptinstall("xubuntu-desktop")
