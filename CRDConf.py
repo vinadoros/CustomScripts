@@ -126,6 +126,8 @@ ExecStart={vncservpath} :5 -localhost=0 -geometry 1024x768 -fg -alwaysshared -rf
 ExecStop=/usr/bin/vncserver -kill :5
 PIDFile={userhome}/.vnc/%H:5.pid
 Restart=on-failure
+RestartSec=10s
+StartLimitBurst=10
 
 [Install]
 WantedBy=multi-user.target""".format(username=USERNAMEVAR, userhome=USERHOME, vncpasspath=VncPasswordPath, vncservpath=shutil.which("vncserver"))

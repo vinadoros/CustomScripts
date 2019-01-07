@@ -81,7 +81,7 @@ if args.config:
         files_list = glob.glob('{0}/*[Ff]irefox*.desktop'.format(app_folder), recursive=True)
         if files_list:
             dpath_chromium = files_list[0]
-    
+
     # Tilix
     dpath_tilix = None
     files_list = glob.glob('{0}/*[Tt]ilix*.desktop'.format(app_folder), recursive=True)
@@ -207,6 +207,9 @@ locked=true
             file.write("""[org.mate.panel]
 default-layout='mate-rcustom'
 """)
+        # Ensure the written schema is compiled
+        if shutil.which("glib-compile-schemas"):
+            subprocess.run("glib-compile-schemas {0}".format(schemas_folder), shell=True)
 
     # Refresh MATE panel
     # https://ubuntu-mate.community/t/ubuntu-mate-14-04-lts-useful-information/25
