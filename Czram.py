@@ -6,6 +6,8 @@ import multiprocessing
 import os
 import subprocess
 import sys
+# Custom includes
+import CFunc
 
 print("Running {0}".format(__file__))
 
