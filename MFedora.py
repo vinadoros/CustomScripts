@@ -44,6 +44,7 @@ if not args.bare:
     # RPMFusion
     CFunc.dnfinstall("https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm")
     CFunc.dnfinstall("rpmfusion-nonfree-appstream-data rpmfusion-free-appstream-data")
+    CFunc.dnfinstall("rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted")
     # Adobe Flash
     CFunc.dnfinstall("http://linuxdownload.adobe.com/adobe-release/adobe-release-$(uname -i)-1.0-1.noarch.rpm")
     CFunc.rpmimport("/etc/pki/rpm-gpg/RPM-GPG-KEY-adobe-linux")
@@ -93,7 +94,8 @@ if not args.nogui:
     # Tilix
     CFunc.dnfinstall("tilix tilix-nautilus")
     if not args.bare:
-        CFunc.dnfinstall("gstreamer1-libav gstreamer1-vaapi gstreamer1-plugins-ugly gstreamer1-plugins-bad-freeworld gstreamer1-plugins-bad-nonfree")
+        CFunc.dnfinstall("@multimedia")
+        CFunc.dnfinstall("gstreamer1-vaapi gstreamer1-plugins-bad-nonfree")
         CFunc.dnfinstall("youtube-dl ffmpeg vlc smplayer mpv")
         CFunc.dnfinstall("audacious audacious-plugins")
         # Editors
@@ -187,7 +189,6 @@ if not args.bare and not args.nogui:
     # Flatpak setup
     CFunc.aptinstall("flatpak xdg-desktop-portal")
     CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo")
-
 
 
 # Disable Selinux
