@@ -119,7 +119,7 @@ echo -e "nameserver 1.0.0.1\\nnameserver 1.1.1.1\\nnameserver 2606:4700:4700::11
 git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts
 
 # ShellConfig
-python3 /opt/CustomScripts/CShellCheck.py
+python3 /opt/CustomScripts/CShellConfig.py
 
 # Clonezilla
 git clone https://github.com/stevenshiau/drbl drbl
