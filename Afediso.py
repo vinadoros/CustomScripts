@@ -118,6 +118,9 @@ echo -e "nameserver 1.0.0.1\\nnameserver 1.1.1.1\\nnameserver 2606:4700:4700::11
 # Pull CustomScripts
 git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts
 
+# ShellConfig
+python3 /opt/CustomScripts/CShellCheck.py
+
 # Clonezilla
 git clone https://github.com/stevenshiau/drbl drbl
 cd drbl
@@ -148,7 +151,7 @@ cat >> /etc/rc.d/init.d/livesys << EOF
 
 # Update CustomScripts
 cd /opt/CustomScripts
-git pull
+git pull &
 
 # Change shell to zsh
 chsh -s /bin/zsh root
@@ -202,7 +205,7 @@ shortdate = time.strftime("%Y%m%d")
 beforetime = datetime.now()
 isoname = "Fedora-CustomLive-{0}.iso".format(currentdatetime)
 # Start Build
-subprocess.run("livemedia-creator --ks {ks} --no-virt --resultdir {resultdir} --project Fedora-CustomLive --make-iso --volid Fedora-CustomLive-{shortdate} --iso-only --iso-name {isoname} --releasever 29 --title Fedora-CustomLive --macboot --no-virt".format(ks=ks_flat, resultdir=resultsfolder, isoname=isoname, shortdate=shortdate), shell=True)
+subprocess.run("livemedia-creator --ks {ks} --no-virt --resultdir {resultdir} --logfile {resultdir}/livemedia.log --project Fedora-CustomLive --make-iso --volid Fedora-CustomLive-{shortdate} --iso-only --iso-name {isoname} --releasever 29 --title Fedora-CustomLive --macboot --no-virt".format(ks=ks_flat, resultdir=resultsfolder, isoname=isoname, shortdate=shortdate), shell=True)
 subprocess.run("chmod a+rw -R {0}".format(buildfolder), shell=True)
 print('Run to test in iso folder: "qemu-system-x86_64 -enable-kvm -m 2048 ./{0}"'.format(isoname))
 print("Build completed in :", datetime.now() - beforetime)
