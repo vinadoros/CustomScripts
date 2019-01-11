@@ -45,8 +45,6 @@ def signal_handler(sig, frame):
 ######### End Functions #########
 
 
-# Exit if not root.
-CFunc.is_root(True)
 # Attach signal handler.
 signal.signal(signal.SIGINT, signal_handler)
 
@@ -59,6 +57,9 @@ parser.add_argument("-r", "--release", help='Release of LiveCD')
 
 # Save arguments.
 args = parser.parse_args()
+
+# Exit if not root.
+CFunc.is_root(True)
 
 # Process variables
 buildfolder = os.path.abspath(args.workfolder)
