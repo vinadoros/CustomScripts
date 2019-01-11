@@ -78,6 +78,25 @@ fi
 function sst () {
     ssh -t "$@" "tmux attach || tmux new";
 }
+function rm_common () {
+    for todel in "$@"; do
+        echo "Deleting $(realpath $todel)"
+    done
+    echo "Press enter to continue or Ctrl-C to abort"
+    read
+}
+function rmr () {
+    rm_common "$@"
+    for todel in "$@"; do
+        rm -rf "$(realpath $todel)"
+    done
+}
+function rms () {
+    rm_common "$@"
+    for todel in "$@"; do
+        sudo rm -rf "$(realpath $todel)"
+    done
+}
 function start () {
     echo "Starting systemd service $@."
     $SUDOCMD systemctl start "$@"
