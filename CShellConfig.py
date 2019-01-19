@@ -443,7 +443,7 @@ if args.fish is True and shutil.which('fish'):
             subprocess.Popen("omf install bobthefish", shell=True, executable=shutil.which("fish"))
 
     # Personal note: To uninstall omf completely, use the following command as a normal user:
-    # omf destroy; sudo rm -rf /root/.config/omf/ /root/.cache/omf/ /root/.local/share/omf/ ~/.config/omf/ ~/.cache/omf/ ~/.local/share/omf/
+    # omf destroy; rm -rf ~/.config/omf/ ~/.cache/omf/ ~/.local/share/omf/
 
     # Generate fish script.
     FISHSCRIPT = """
@@ -493,6 +493,25 @@ if [ (id -u) != "0" ]
 end
 function sst
     ssh -t $argv "tmux attach; or tmux new"
+end
+function rm_common
+    for todel in $argv
+        echo Deleting (realpath $todel)
+    end
+    echo "Press enter to continue or Ctrl-C to abort"
+    read
+end
+function rmr
+    rm_common $argv
+    for todel in $argv
+        rm -rf (realpath $todel)
+    end
+end
+function rms
+    rm_common $argv
+    for todel in $argv
+        sudo rm -rf (realpath $todel)
+    end
 end
 function start
     echo "Starting systemd service $argv."
@@ -654,7 +673,7 @@ else if type -q dnf; or type -q yum
     end
     function up
         echo "Updating system."
-        sudo $PKGMGR update -y
+        sudo $PKGMGR update --refresh -y
     end
 end
 """.format(SCRIPTDIR=SCRIPTDIR)
@@ -673,12 +692,12 @@ end
         subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, os.path.dirname(FISHSCRIPTUSERPATH)), shell=True)
 
 
-
 # Fix permissions of home folder if the script was run as root.
 if rootstate is True:
     subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, USERVARHOME), shell=True)
 
 
+######### Default Shell Configuration #########
 # Change the default shell for GUI terminals
 default_shell_value = shutil.which("sh")
 if shutil.which("fish") and args.fish is True:
