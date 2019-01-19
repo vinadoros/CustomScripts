@@ -23,7 +23,7 @@ rootstate = CFunc.is_root(checkstate=True, state_exit=False)
 
 # Create xdg folders
 if rootstate is True and shutil.which("xdg-user-dirs-update"):
-    subprocess.run('sudo -u {0} {1} -c "xdg-user-dirs-update"'.format(USERNAMEVAR, shutil.which("bash")), shell=True)
+    CFunc.run_as_user(USERNAMEVAR, "xdg-user-dirs-update", shutil.which("bash"))
 elif rootstate is False and shutil.which("xdg-user-dirs-update"):
     subprocess.run('xdg-user-dirs-update', shell=True)
 else:
@@ -55,7 +55,7 @@ if os.path.isfile(xdgdirs_file):
         shutil.rmtree(os.path.join(USERVARHOME, "Videos"), ignore_errors=True)
 
 # Create ~/.local/share/applications folder, and set permissions.
-app_folder = os.path.join(USERVARHOME, ".local", "share", "applicatins")
+app_folder = os.path.join(USERVARHOME, ".local", "share", "applications")
 if not os.path.isdir(app_folder):
     os.makedirs(app_folder, exist_ok=True)
     subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, os.path.join(USERVARHOME, ".local")), shell=True)
