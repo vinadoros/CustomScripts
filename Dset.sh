@@ -260,6 +260,14 @@ if type kwriteconfig5; then
 	kwriteconfig5 --file kscreenlockerrc --group Daemon --key Timeout 10
 	kwriteconfig5 --file ksmserverrc --group General --key confirmLogout false
 	kwriteconfig5 --file ksmserverrc --group General --key offerShutdown true
+	kwriteconfig5 --file konsolerc --group "Desktop Entry" --key DefaultProfile "default.profile"
+	mkdir -p ~/.local/share/konsole
+	kwriteconfig5 --file ~/.local/share/konsole/default.profile --group "General" --key Name "default"
+	kwriteconfig5 --file ~/.local/share/konsole/default.profile --group "Scrolling" --key HistoryMode 2
+	kwriteconfig5 --file ~/.local/share/konsole/default.profile --group "Appearance" --key ColorScheme Solarized
+	kwriteconfig5 --file ~/.local/share/konsole/default.profile --group "Appearance" --key Font "Liberation Mono,11,-1,5,50,0,0,0,0,0,Regular"
+	
+
 	# gtk3 theme
 # 	mkdir -p $HOME/.config/gtk-3.0
 # 	kwriteconfig5 --file $HOME/.config/gtk-3.0/settings.ini --group Settings --key gtk-fallback-icon-theme Numix-Light
