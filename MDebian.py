@@ -304,7 +304,7 @@ if args.bare is False:
     if args.allextra is True:
         subprocess.run("{0}/Csdtimers.sh".format(SCRIPTDIR), shell=True)
         subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
-        subprocess.run("{0}/CShellConfig.py".format(SCRIPTDIR), shell=True)
+        subprocess.run("{0}/CShellConfig.py -z".format(SCRIPTDIR), shell=True)
         subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True)
         subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
         subprocess.run("{0}/CVMGeneral.sh".format(SCRIPTDIR), shell=True)

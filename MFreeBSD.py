@@ -170,7 +170,7 @@ subprocess.run("pw usermod {0} -G wheel,video,operator".format(USERNAMEVAR), she
 # Extra scripts
 if args.allextra is True:
     subprocess.run("bash {0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CShellConfig.py".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CShellConfig.py -z".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
     subprocess.run("bash {0}/CVMGeneral.sh".format(SCRIPTDIR), shell=True)

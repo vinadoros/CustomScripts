@@ -122,7 +122,7 @@ git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts
 # Create liveuser ahead of when it will really be created
 useradd -m liveuser
 # ShellConfig
-python3 /opt/CustomScripts/CShellConfig.py
+python3 /opt/CustomScripts/CShellConfig.py -z
 
 # Clonezilla
 git clone https://github.com/stevenshiau/drbl drbl
