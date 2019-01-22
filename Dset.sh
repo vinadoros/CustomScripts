@@ -262,13 +262,13 @@ if type kwriteconfig5; then
 	kwriteconfig5 --file kscreenlockerrc --group Daemon --key Timeout 10
 	kwriteconfig5 --file ksmserverrc --group General --key confirmLogout false
 	kwriteconfig5 --file ksmserverrc --group General --key offerShutdown true
-	kwriteconfig5 --file konsolerc --group "Desktop Entry" --key DefaultProfile "default.profile"
+	kwriteconfig5 --file konsolerc --group "Desktop Entry" --key DefaultProfile "Profile 1.profile"
 	mkdir -p ~/.local/share/konsole
-	kwriteconfig5 --file ~/.local/share/konsole/default.profile --group "General" --key Name "default"
-	kwriteconfig5 --file ~/.local/share/konsole/default.profile --group "General" --key Parent "FALLBACK/"
-	kwriteconfig5 --file ~/.local/share/konsole/default.profile --group "Scrolling" --key HistoryMode 2
-	kwriteconfig5 --file ~/.local/share/konsole/default.profile --group "Appearance" --key ColorScheme Solarized
-	kwriteconfig5 --file ~/.local/share/konsole/default.profile --group "Appearance" --key Font "Liberation Mono,11,-1,5,50,0,0,0,0,0,Regular"
+	kwriteconfig5 --file "~/.local/share/konsole/Profile 1.profile" --group "General" --key Name "Profile 1"
+	kwriteconfig5 --file "~/.local/share/konsole/Profile 1.profile" --group "General" --key Parent "FALLBACK/"
+	kwriteconfig5 --file "~/.local/share/konsole/Profile 1.profile" --group "Scrolling" --key HistoryMode 2
+	kwriteconfig5 --file "~/.local/share/konsole/Profile 1.profile" --group "Appearance" --key ColorScheme Solarized
+	kwriteconfig5 --file "~/.local/share/konsole/Profile 1.profile" --group "Appearance" --key Font "Liberation Mono,11,-1,5,50,0,0,0,0,0,Regular"
 	
 
 	# gtk3 theme
