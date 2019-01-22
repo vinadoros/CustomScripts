@@ -731,6 +731,8 @@ if shutil.which("konsole") and shutil.which("kwriteconfig5"):
     DEFAULT_SHELL_SCRIPT += """
 kwriteconfig5 --file konsolerc --group "Desktop Entry" --key DefaultProfile "default.profile"
 mkdir -p ~/.local/share/konsole
+kwriteconfig5 --file ~/.local/share/konsole/default.profile --group "General" --key Name "default"
+kwriteconfig5 --file ~/.local/share/konsole/default.profile --group "General" --key Parent "FALLBACK/"
 kwriteconfig5 --file ~/.local/share/konsole/default.profile --group "General" --key Command "{0}"
 """.format(default_shell_value)
 

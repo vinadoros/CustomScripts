@@ -237,8 +237,10 @@ if type kwriteconfig5; then
 	kwriteconfig5 --file kdeglobals --group KDE --key SingleClick --type bool false
 	kwriteconfig5 --file kdeglobals --group General	--key XftSubPixel "rgb"
 	# kwriteconfig5 --file kdeglobals --group General	--key fixed "Liberation Mono,10,-1,5,50,0,0,0,0,0,Regular"
-	# kwriteconfig5 --file kdeglobals --group Icons --key Theme "Numix-Circle-Light"
-	# Keyboard shortcuts
+	kwriteconfig5 --file kdeglobals --group Icons --key Theme "Numix-Circle"
+	mkdir -p ~/.kde/share/config
+	kwriteconfig5 --file ~/.kde/share/config/kdeglobals --group Icons --key Theme "Numix-Circle"
+	Keyboard shortcuts
 	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomDown ",Meta+Down,Move Zoomed Area Downwards"
 	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomLeft ",Meta+Left,Move Zoomed Area to Left"
 	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomRight ",Meta+Right,Move Zoomed Area to Right"
@@ -263,6 +265,7 @@ if type kwriteconfig5; then
 	kwriteconfig5 --file konsolerc --group "Desktop Entry" --key DefaultProfile "default.profile"
 	mkdir -p ~/.local/share/konsole
 	kwriteconfig5 --file ~/.local/share/konsole/default.profile --group "General" --key Name "default"
+	kwriteconfig5 --file ~/.local/share/konsole/default.profile --group "General" --key Parent "FALLBACK/"
 	kwriteconfig5 --file ~/.local/share/konsole/default.profile --group "Scrolling" --key HistoryMode 2
 	kwriteconfig5 --file ~/.local/share/konsole/default.profile --group "Appearance" --key ColorScheme Solarized
 	kwriteconfig5 --file ~/.local/share/konsole/default.profile --group "Appearance" --key Font "Liberation Mono,11,-1,5,50,0,0,0,0,0,Regular"
