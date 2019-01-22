@@ -240,7 +240,7 @@ if type kwriteconfig5; then
 	kwriteconfig5 --file kdeglobals --group Icons --key Theme "Numix-Circle"
 	mkdir -p ~/.kde/share/config
 	kwriteconfig5 --file ~/.kde/share/config/kdeglobals --group Icons --key Theme "Numix-Circle"
-	Keyboard shortcuts
+	# Keyboard shortcuts
 	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomDown ",Meta+Down,Move Zoomed Area Downwards"
 	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomLeft ",Meta+Left,Move Zoomed Area to Left"
 	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomRight ",Meta+Right,Move Zoomed Area to Right"
