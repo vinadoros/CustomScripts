@@ -6,8 +6,6 @@ import multiprocessing
 import os
 import subprocess
 import sys
-# Custom includes
-import CFunc
 
 print("Running {0}".format(__file__))
 
@@ -19,7 +17,8 @@ parser.add_argument("-c", "--cputhreads", type=int, help='Number of zram partiti
 args = parser.parse_args()
 
 # Exit if not root.
-CFunc.is_root(True)
+if os.geteuid() is not 0:
+    sys.exit("\nError: Please run this script as root.\n")
 
 # Autodetect cores if not specified above.
 if args.cputhreads is 0:
