@@ -110,9 +110,10 @@ function Fcn-CSClone {
 
   $action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument '-ExecutionPolicy Bypass -WindowStyle Hidden -command "&git pull"' -WorkingDirectory $RepoLocalPath
   $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSPan -Hours 1)
+  $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
   # This task is registered as a normal user for now. By default, it will pop up a small window briefly, and will only run if the user is logged in. To get rid of the window, enable the "Run whether user is logged on or not" option in Task Scheduler for this task.
   # https://stackoverflow.com/questions/1802127/how-to-run-a-powershell-script-without-displaying-a-window#1802836
-  Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "csupdate" -Description "Hourly Update of $RepoName" -User $env:UserName
+  Register-ScheduledTask -Action $action -Trigger $trigger -Settings $settings -TaskName "csupdate" -Description "Hourly Update of $RepoName" -User $env:UserName
   # Set the scheduled task password if the password was set correctly.
   $cs_userpassword = "INSERTPASSWORDHERE"
   $cs_username = "INSERTUSERHERE"
