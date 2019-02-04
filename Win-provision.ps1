@@ -185,7 +185,7 @@ function Fcn-Software {
   if ( $core -eq $false ) {
     Write-Output "Installing Desktop Apps"
     # GUI Apps
-    choco upgrade -y googlechrome notepadplusplus tortoisegit bleachbit putty chocolateygui conemu VisualStudioCode winmerge libreoffice-fresh sumatrapdf nomacs jre8 WizTree
+    choco upgrade -y googlechrome notepadplusplus tortoisegit bleachbit putty chocolateygui conemu VisualStudioCode winmerge libreoffice-fresh sumatrapdf nomacs WizTree
     # Tablacus
     Fcn-Tablacus
     # Install for Windows 8 or above.
