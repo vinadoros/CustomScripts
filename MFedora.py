@@ -135,6 +135,11 @@ elif args.desktop == "mate":
     subprocess.run("systemctl enable -f lightdm", shell=True)
     # Applications
     CFunc.dnfinstall("dconf-editor")
+    # Brisk-menu
+    subprocess.run("dnf copr enable -y rmkrishna/rpms", shell=True)
+    CFunc.dnfinstall("brisk-menu")
+    # Run MATE Configuration
+    subprocess.run("{0}/DExtMate.py -c".format(SCRIPTDIR), shell=True)
 elif args.desktop == "xfce":
     CFunc.dnfinstall("@xfce-desktop-environment")
 elif args.desktop == "lxqt":
