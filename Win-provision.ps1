@@ -201,6 +201,9 @@ function Fcn-Software {
   # Chocolatey Configuration
   choco feature enable -n allowGlobalConfirmation
 
+  # Remove IE11
+  Disable-WindowsOptionalFeature -FeatureName Internet-Explorer-Optional-amd64 -Online -NoRestart
+
   # Non-vm software
   if ( $IsVM -eq $false ) {
     # Install packer
