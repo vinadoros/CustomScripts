@@ -99,6 +99,8 @@ if args.type == 2:
     docker_setup(docker_image, docker_name, docker_options)
     docker_runcmd(docker_name, "dnf install -y nano livecd-tools spin-kickstarts pykickstart anaconda util-linux")
     docker_isocmd = '/opt/CustomScripts/Afediso.py -n -w "{0}" -o "{0}"'.format(buildfolder)
+    if isinstance(args.release, int):
+        docker_isocmd += ' -r {0}'.format(args.release)
     try:
         docker_runcmd(docker_name, docker_isocmd)
     finally:

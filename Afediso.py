@@ -25,6 +25,7 @@ parser = argparse.ArgumentParser(description='Build Fedora LiveCD.')
 parser.add_argument("-n", "--noprompt", help='Do not prompt.', action="store_true")
 parser.add_argument("-w", "--workfolderroot", help='Location of Working Folder (i.e. {0})'.format(USERHOME), default=USERHOME)
 parser.add_argument("-o", "--output", help='Output Location of ISO (i.e. {0})'.format(USERHOME), default=USERHOME)
+parser.add_argument("-r", "--releasever", help='Release Version (i.e. 29)', type=int, default=29)
 
 # Save arguments.
 args = parser.parse_args()
@@ -36,6 +37,7 @@ outfolder = os.path.abspath(args.output)
 print("ISO Output Folder:", outfolder)
 if not os.path.isdir(outfolder):
     sys.exit("\nError, ensure {0} is a folder.".format(outfolder))
+print("Release Version is {0}".format(args.releasever))
 
 if args.noprompt is False:
     input("Press Enter to continue.")
@@ -208,7 +210,7 @@ shortdate = time.strftime("%Y%m%d")
 beforetime = datetime.now()
 isoname = "Fedora-CustomLive-{0}.iso".format(currentdatetime)
 # Start Build
-subprocess.run("livemedia-creator --ks {ks} --no-virt --resultdir {resultdir} --logfile {outfolder}/livemedia.log --project Fedora-CustomLive --make-iso --volid Fedora-CustomLive-{shortdate} --iso-only --iso-name {isoname} --releasever 29 --title Fedora-CustomLive --nomacboot --no-virt".format(ks=ks_flat, resultdir=resultsfolder, isoname=isoname, shortdate=shortdate, outfolder=outfolder), shell=True)
+subprocess.run("livemedia-creator --ks {ks} --resultdir {resultdir} --logfile {outfolder}/livemedia.log --project Fedora-CustomLive --make-iso --volid Fedora-CustomLive-{shortdate} --iso-only --iso-name {isoname} --releasever {releasever} --title Fedora-CustomLive --nomacboot --no-virt".format(ks=ks_flat, resultdir=resultsfolder, isoname=isoname, shortdate=shortdate, outfolder=outfolder, releasever=args.releasever), shell=True)
 subprocess.run("chmod a+rw -R {0}".format(buildfolder), shell=True)
 print('Run to test in iso folder: "qemu-system-x86_64 -enable-kvm -m 2048 ./{0}"'.format(isoname))
 print("Build completed in :", datetime.now() - beforetime)
