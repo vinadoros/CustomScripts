@@ -3,10 +3,13 @@
 
 # Python includes.
 import argparse
+import json
 import os
 import shutil
 import subprocess
 import sys
+import tempfile
+import urllib.request
 # Custom includes
 import CFunc
 
@@ -15,7 +18,7 @@ print("Running {0}".format(__file__))
 # Folder of this script
 SCRIPTDIR = sys.path[0]
 # Temp folder
-tempfolder = "/var/tmp/tempfolder_gse"
+tempfolder = os.path.join("/", "var", "tmp", "tempfolder_gse")
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Install Gnome Extensions.')
@@ -67,12 +70,21 @@ def mediaplayer():
 def volumemixer():
     """Volume Mixer"""
     print("\nInstalling Volume Mixer.")
-    gitclone("https://github.com/aleho/gnome-shell-volume-mixer.git", tempfolder)
+    releasejson_link = "https://api.github.com/repos/aleho/gnome-shell-volume-mixer/releases"
+    # Get the json data from GitHub.
+    with urllib.request.urlopen(releasejson_link) as releasejson_handle:
+        releasejson_data = json.load(releasejson_handle)
+    # Get the url
+    dl_link = releasejson_data[0]['assets'][0]['browser_download_url']
+    # Download
+    dl_path = CFunc.downloadfile(dl_link, tempfile.gettempdir(), overwrite=True)
+    # Create user folder for volume mixer
     volumemixer_path = os.path.abspath("{0}/.local/share/gnome-shell/extensions/shell-volume-mixer@derhofbauer.at/".format(USERHOME))
     os.makedirs(volumemixer_path, exist_ok=True)
-    subprocess.run("cd {0}; make; 7z x ./shell-volume-mixer*.zip -aoa -o{1}".format(tempfolder, volumemixer_path), shell=True)
+    # Extract volumemixer
+    subprocess.run("7z x {0} -aoa -o{1}".format(dl_path[0], volumemixer_path), shell=True)
     subprocess.run("chown -R {0}:{1} {2}/.local/".format(USERNAMEVAR, USERGROUP, USERHOME), shell=True)
-    cleantempfolder()
+    os.remove(dl_path[0])
 def topiconsplus():
     """Top Icons Plus"""
     print("\nInstalling Top Icons Plus.")
