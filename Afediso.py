@@ -126,6 +126,9 @@ useradd -m liveuser
 # ShellConfig
 python3 /opt/CustomScripts/CShellConfig.py -z
 
+# Enable openssh
+systemctl enable sshd
+
 # Clonezilla
 git clone https://github.com/stevenshiau/drbl drbl
 cd drbl
@@ -157,6 +160,10 @@ cat >> /etc/rc.d/init.d/livesys << EOF
 # Update CustomScripts
 cd /opt/CustomScripts
 git pull &
+
+# Set root password
+passwd -u root
+echo "root:asdf" | chpasswd
 
 # Change shell to zsh
 chsh -s /bin/zsh root
