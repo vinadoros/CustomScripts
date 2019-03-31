@@ -81,6 +81,8 @@ openssh-server
 openssh-clients
 avahi
 chntpw
+debootstrap
+gnupg
 
 # Filesystem utils
 fstransform
@@ -166,7 +168,6 @@ passwd -u root
 echo "root:asdf" | chpasswd
 
 # Change shell to zsh
-chsh -s /bin/zsh root
 chsh -s /bin/zsh liveuser
 # Set path
 echo 'PATH=$PATH:/opt/CustomScripts' | tee -a /root/.bashrc /home/liveuser/.bashrc /root/.zshrc /home/liveuser/.zshrc
