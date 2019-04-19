@@ -192,11 +192,11 @@ if 10 <= args.ostype <= 19:
 # Ubuntu latest
 if 10 <= args.ostype <= 14:
     kvm_variant = "ubuntu17.10"
-    isourl = "http://cdimage.ubuntu.com/releases/18.10/release/ubuntu-18.10-server-amd64.iso"
+    isourl = "http://cdimage.ubuntu.com/releases/19.04/release/ubuntu-19.04-server-amd64.iso"
 # Ubuntu LTS
 if 15 <= args.ostype <= 19:
     kvm_variant = "ubuntu17.10"
-    isourl = "http://cdimage.ubuntu.com/releases/18.04/release/ubuntu-18.04.1-server-amd64.iso"
+    isourl = "http://cdimage.ubuntu.com/releases/18.04/release/ubuntu-18.04.2-server-amd64.iso"
 if args.ostype == 10:
     vmname = "Packer-Ubuntu-{0}".format(hvname)
     vmprovision_defopts = "-d {0}".format(args.desktopenv)
