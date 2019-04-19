@@ -178,8 +178,11 @@ if args.nogui is False:
     CFunc.aptinstall("dconf-cli dconf-editor")
     CFunc.aptinstall("synaptic gnome-disk-utility gdebi gparted xdg-utils leafpad")
     CFunc.aptinstall("fonts-powerline fonts-noto fonts-roboto")
-    # MS Fonts (this debian package is a workaround for a download bug, https://askubuntu.com/q/463754)
-    msfntkey = CFunc.downloadfile("http://http.us.debian.org/debian/pool/contrib/m/msttcorefonts/ttf-mscorefonts-installer_3.6_all.deb", "/var/tmp")
+    if args.lts:
+        # MS Fonts (this debian package is a workaround for a download bug, https://askubuntu.com/q/463754)
+        msfntkey = CFunc.downloadfile("http://http.us.debian.org/debian/pool/contrib/m/msttcorefonts/ttf-mscorefonts-installer_3.6_all.deb", "/var/tmp")
+    else:
+        CFunc.aptinstall("ttf-mscorefonts-installer")
     CFunc.aptinstall(msfntkey[0])
     if os.path.isfile(msfntkey[0]):
         os.remove(msfntkey[0])
