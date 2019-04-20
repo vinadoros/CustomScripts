@@ -181,13 +181,14 @@ if args.nogui is False:
     if args.lts:
         # MS Fonts (this debian package is a workaround for a download bug, https://askubuntu.com/q/463754)
         msfntkey = CFunc.downloadfile("http://http.us.debian.org/debian/pool/contrib/m/msttcorefonts/ttf-mscorefonts-installer_3.6_all.deb", "/var/tmp")
+        CFunc.aptinstall(msfntkey[0])
+        if os.path.isfile(msfntkey[0]):
+            os.remove(msfntkey[0])
+        # Don't upgrade this manually installed package.
+        subprocess.run("apt-mark hold ttf-mscorefonts-installer", shell=True)
     else:
+        subprocess.run("echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections", shell=True)
         CFunc.aptinstall("ttf-mscorefonts-installer")
-    CFunc.aptinstall(msfntkey[0])
-    if os.path.isfile(msfntkey[0]):
-        os.remove(msfntkey[0])
-    # Don't upgrade this manually installed package.
-    subprocess.run("apt-mark hold ttf-mscorefonts-installer", shell=True)
 
 # General GUI software
 if args.nogui is False and args.bare is False:
