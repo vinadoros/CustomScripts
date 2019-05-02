@@ -155,7 +155,7 @@ if 1 <= args.ostype <= 4:
     vmwareid = "fedora-64"
     kvm_os = "linux"
     kvm_variant = "fedora26"
-    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/29/Server/x86_64/iso/Fedora-Server-dvd-x86_64-29-1.2.iso"
+    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/30/Server/x86_64/iso/Fedora-Server-dvd-x86_64-30-1.2.iso"
 if args.ostype == 1:
     vmname = "Packer-Fedora-{0}".format(hvname)
     vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
