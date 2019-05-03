@@ -75,7 +75,18 @@ def volumemixer():
     with urllib.request.urlopen(releasejson_link) as releasejson_handle:
         releasejson_data = json.load(releasejson_handle)
     # Get the url
-    dl_link = releasejson_data[0]['assets'][0]['browser_download_url']
+    dl_link = None
+    counter = 0
+    # Try to loop through to get the link 100 times. Fail afterwards.
+    while not dl_link:
+        try:
+            dl_link = releasejson_data[counter]['assets'][0]['browser_download_url']
+        except Exception: 
+            pass
+        if counter >= 100:
+            print("ERROR: Could not find dl_link for Volume extension.")
+            break
+        counter += 1
     # Download
     dl_path = CFunc.downloadfile(dl_link, tempfile.gettempdir(), overwrite=True)
     # Create user folder for volume mixer
