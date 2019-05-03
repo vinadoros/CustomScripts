@@ -116,7 +116,7 @@ if vmstatus == "vmware":
 # Install Desktop Software
 if args.desktop == "gnome":
     # Gnome
-    CFunc.dnfinstall("@workstation-product @gnome-desktop")
+    CFunc.dnfinstall("--allowerasing @workstation-product @gnome-desktop")
     subprocess.run("systemctl enable -f gdm", shell=True)
     # Some Gnome Extensions
     CFunc.dnfinstall("gnome-terminal-nautilus gnome-tweak-tool dconf-editor")
