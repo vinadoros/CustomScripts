@@ -168,8 +168,8 @@ CFunc.aptinstall("intel-microcode")
 
 # Non-bare CLI stuff.
 if args.bare is False:
-    # Zsh
-    CFunc.aptinstall("zsh")
+    # Zsh/fish
+    CFunc.aptinstall("zsh fish")
     # Cron
     CFunc.aptinstall("cron anacron")
     subprocess.run("systemctl disable cron; systemctl disable anacron", shell=True)
@@ -320,7 +320,7 @@ if args.bare is False:
     subprocess.run("{0}/Csdtimers.sh".format(SCRIPTDIR), shell=True)
 
 # Run these extra scripts even in bare config.
-subprocess.run("{0}/CShellConfig.py -z".format(SCRIPTDIR), shell=True)
+subprocess.run("{0}/CShellConfig.py -f -d".format(SCRIPTDIR), shell=True)
 subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
 subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True)
 subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
