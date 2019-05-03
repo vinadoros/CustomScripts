@@ -20,6 +20,7 @@ SCRIPTDIR = sys.path[0]
 parser = argparse.ArgumentParser(description='Configure enhancements for shells.')
 parser.add_argument("-z", "--zsh", help='Configure zsh.', action="store_true")
 parser.add_argument("-f", "--fish", help='Configure fish.', action="store_true")
+parser.add_argument("-d", "--changedefault", help='Change the default shell based on whether zsh or fish is specified.', action="store_true")
 args = parser.parse_args()
 
 # Check if we are root.
@@ -699,49 +700,20 @@ if rootstate is True:
 
 ######### Default Shell Configuration #########
 # Change the default shell for GUI terminals
-default_shell_value = shutil.which("sh")
-if shutil.which("fish") and args.fish is True:
+default_shell_value = None
+if args.changedefault is True and args.fish is True:
     default_shell_value = shutil.which("fish")
-elif shutil.which("zsh") and args.zsh is True:
+elif args.changedefault is True and args.zsh is True:
     default_shell_value = shutil.which("zsh")
-elif shutil.which("bash"):
-    default_shell_value = shutil.which("bash")
-
-# Generate script to run to change the default shells.
-DEFAULT_SHELL_SCRIPT = ""
-# Gnome Terminal
-if shutil.which("gnome-terminal") and shutil.which("dconf"):
-    DEFAULT_SHELL_SCRIPT += """
-dconf write /org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/use-custom-command true
-dconf write /org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/custom-command "'{0}'"
-""".format(default_shell_value)
-# Tilix
-if shutil.which("tilix") and shutil.which("dconf"):
-    DEFAULT_SHELL_SCRIPT += """
-dconf write /com/gexperts/Tilix/profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d/use-custom-command true
-dconf write /com/gexperts/Tilix/profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d/custom-command "'{0}'"
-""".format(default_shell_value)
-# MATE Terminal
-if shutil.which("mate-terminal") and shutil.which("dconf"):
-    DEFAULT_SHELL_SCRIPT += """
-dconf write /org/mate/terminal/profiles/default/use-custom-command true
-dconf write /org/mate/terminal/profiles/default/custom-command "'{0}'"
-""".format(default_shell_value)
-if shutil.which("konsole") and shutil.which("kwriteconfig5"):
-    DEFAULT_SHELL_SCRIPT += """
-kwriteconfig5 --file konsolerc --group "Desktop Entry" --key DefaultProfile "Profile 1.profile"
-mkdir -p ~/.local/share/konsole
-kwriteconfig5 --file "~/.local/share/konsole/Profile 1.profile" --group "General" --key Name "Profile 1"
-kwriteconfig5 --file "~/.local/share/konsole/Profile 1.profile" --group "General" --key Parent "FALLBACK/"
-kwriteconfig5 --file "~/.local/share/konsole/Profile 1.profile" --group "General" --key Command "{0}"
-""".format(default_shell_value)
 
 # Run the script
-if rootstate is True:
+if rootstate is True and args.changedefault is True and default_shell_value:
     # Change shells for user.
-    CFunc.run_as_user(USERNAMEVAR, DEFAULT_SHELL_SCRIPT)
-else:
+    print("Changing shell for user {0} to {1}.".format(USERNAMEVAR, default_shell_value))
+    subprocess.run("chsh -s {0} {1}".format(default_shell_value, USERNAMEVAR), shell=True)
+elif rootstate is False and args.changedefault is True and default_shell_value:
     # Change the shells for this user.
-    subprocess.run(DEFAULT_SHELL_SCRIPT, shell=True)
+    print("Changing shell for the current user to {1}.".format(default_shell_value))
+    subprocess.run("chsh -s {0}".format(default_shell_value), shell=True)
 
 print("Script finished successfully.")
