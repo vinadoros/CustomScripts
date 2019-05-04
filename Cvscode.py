@@ -25,9 +25,9 @@ vscode_userconfig = os.path.join(vscode_userconfigfolder, "settings.json")
 vscode_native = ["code"]
 vscode_flatpak = ["flatpak", "run", "--command=code", "com.visualstudio.code"]
 vscode_flatpak_oss = ["flatpak", "run", "--command=code-oss", "com.visualstudio.code.oss"]
-vscode_windows = os.path.join("C:", "Program Files", "Microsoft VS Code", "bin", "code.cmd")
+vscode_windows = os.path.join("C:", os.sep, "Program Files", "Microsoft VS Code", "bin", "code.cmd")
 vscode_snap = ["snap", "run", "vscode.code"]
-if shutil.which("code"):
+if shutil.which("code") and not CFunc.is_windows():
     print("Detected native code command.")
     vscode_cmd = vscode_native
 elif shutil.which("snap") and subprocess.run(vscode_snap).returncode is 0:
@@ -104,7 +104,8 @@ data["window.titleBarStyle"] = "custom"
 data["editor.renderWhitespace"] = "all"
 data["editor.wordWrap"] = "on"
 # Python Config
-data["python.pythonPath"] = "python3"
+if not CFunc.is_windows():
+    data["python.pythonPath"] = "python3"
 data["python.linting.maxNumberOfProblems"] = 500
 data["python.linting.pylintArgs"] = ["--disable=C0301,C0103"]
 data["python.linting.pylamaEnabled"] = True
