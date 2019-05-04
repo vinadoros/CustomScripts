@@ -173,12 +173,6 @@ if args.nogui is False:
         CFunc.aptinstall("firefox-esr")
     CFunc.aptinstall("browser-plugin-freshplayer-pepperflash")
 
-# Non-bare CLI stuff.
-if args.bare is False:
-    # Cron
-    CFunc.aptinstall("cron anacron")
-    subprocess.run("systemctl disable cron; systemctl disable anacron", shell=True)
-
 # General GUI software
 if args.nogui is False and args.bare is False:
     # Cups-pdf
@@ -302,7 +296,6 @@ if args.bare is False:
 
     # Extra scripts
     if args.allextra is True:
-        subprocess.run("{0}/Csdtimers.sh".format(SCRIPTDIR), shell=True)
         subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
         subprocess.run("{0}/CShellConfig.py -f -d".format(SCRIPTDIR), shell=True)
         subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True)

@@ -88,8 +88,6 @@ if args.scripts is True:
     apt-get update
     apt-get install -y zsh
     {0}/CShellConfig.py
-    {0}/Csdtimers.sh
-    systemctl disable cron
     {0}/Czram.py -c 1
     {0}/Csshconfig.sh
     {0}/CCSClone.py

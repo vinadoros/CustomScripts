@@ -170,9 +170,6 @@ CFunc.aptinstall("intel-microcode")
 if args.bare is False:
     # Zsh/fish
     CFunc.aptinstall("zsh fish")
-    # Cron
-    CFunc.aptinstall("cron anacron")
-    subprocess.run("systemctl disable cron; systemctl disable anacron", shell=True)
 # GUI Software
 if args.nogui is False:
     CFunc.aptinstall("dconf-cli dconf-editor")
@@ -315,9 +312,6 @@ if args.bare is False:
         if status.returncode is not 0:
             print("Visudo status not 0, removing sudoers file.")
             os.remove(CUSTOMSUDOERSPATH)
-
-    # Extra scripts
-    subprocess.run("{0}/Csdtimers.sh".format(SCRIPTDIR), shell=True)
 
 # Run these extra scripts even in bare config.
 subprocess.run("{0}/CShellConfig.py -f -d".format(SCRIPTDIR), shell=True)

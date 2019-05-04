@@ -133,17 +133,6 @@ zypper in -yl noto-sans-fonts ubuntu-fonts liberation-fonts google-roboto-fonts
 # VNC and synergy
 zypper in -yl xorg-x11-Xvnc tigervnc synergy qsynergy
 
-# run-parts and cron
-zypper in -yl perl cron make
-[ -d /tmp/run-parts ] && rm -rf /tmp/run-parts
-git clone https://github.com/wolfbox/run-parts /tmp/run-parts
-cd /tmp/run-parts
-make
-mkdir -p /usr/local/share/man/man1
-make install
-[ -d /tmp/run-parts ] && rm -rf /tmp/run-parts
-systemctl disable cron
-
 # Change to NetworkManager
 systemctl daemon-reload
 systemctl disable wicked
@@ -254,7 +243,6 @@ CFunc.AddUserAllGroups()
 
 # Extra scripts
 if args.allextra is True:
-    subprocess.run("{0}/Csdtimers.sh".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CShellConfig.py -z".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True)

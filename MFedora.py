@@ -206,7 +206,6 @@ subprocess.run("systemctl mask firewalld", shell=True)
 
 # Extra scripts
 if args.allextra is True:
-    subprocess.run("{0}/Csdtimers.sh".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CShellConfig.py -f -d".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True)
