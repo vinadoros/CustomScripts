@@ -121,7 +121,12 @@ if args.desktop == "gnome":
     # Some Gnome Extensions
     CFunc.dnfinstall("gnome-terminal-nautilus gnome-tweak-tool dconf-editor")
     CFunc.dnfinstall("gnome-shell-extension-gpaste gnome-shell-extension-topicons-plus gnome-shell-extension-dash-to-dock")
-    subprocess.run("{0}/DExtGnome.py -v".format(SCRIPTDIR), shell=True)
+    # Install gs installer script.
+    gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
+    os.chmod(gs_installer[0], 0o777)
+    # Install volume extension
+    subprocess.run([gs_installer[0], "--yes", "858"])
+    # subprocess.run("{0}/DExtGnome.py -v".format(SCRIPTDIR), shell=True)
 elif args.desktop == "kde":
     # KDE
     CFunc.dnfinstall("@kde-desktop-environment")
