@@ -125,8 +125,7 @@ if args.desktop == "gnome":
     gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
     os.chmod(gs_installer[0], 0o777)
     # Install volume extension
-    subprocess.run([gs_installer[0], "--yes", "858"])
-    # subprocess.run("{0}/DExtGnome.py -v".format(SCRIPTDIR), shell=True)
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 858".format(gs_installer[0]))
 elif args.desktop == "kde":
     # KDE
     CFunc.dnfinstall("@kde-desktop-environment")
