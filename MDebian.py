@@ -218,7 +218,7 @@ if args.desktop == "gnome":
     print("\n Installing gnome desktop")
     CFunc.aptinstall("task-gnome-desktop")
     CFunc.aptinstall("gnome-clocks")
-    CFunc.aptinstall("gnome-shell-extensions gnome-shell-extension-dashtodock gnome-shell-extension-mediaplayer gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste")
+    CFunc.aptinstall("gnome-shell-extensions gnome-shell-extension-dashtodock gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste")
     subprocess.run("{0}/DExtGnome.py -v".format(SCRIPTDIR), shell=True)
 elif args.desktop == "mate":
     print("\n Installing mate desktop")

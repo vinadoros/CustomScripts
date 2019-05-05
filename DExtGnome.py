@@ -24,7 +24,6 @@ tempfolder = os.path.join("/", "var", "tmp", "tempfolder_gse")
 parser = argparse.ArgumentParser(description='Install Gnome Extensions.')
 parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
 parser.add_argument("-d", "--dashtodock", help='Dash to Dock.', action="store_true")
-parser.add_argument("-m", "--mediaplayer", help='Media Player Extension.', action="store_true")
 parser.add_argument("-v", "--volumemixer", help='Volume Mixer.', action="store_true")
 parser.add_argument("-t", "--topicons", help='Top Icons Plus.', action="store_true")
 args = parser.parse_args()
@@ -60,12 +59,6 @@ def dashtodock():
     print("\nInstalling Dash to Dock.")
     gitclone("https://github.com/micheleg/dash-to-dock.git", tempfolder)
     CFunc.run_as_user(USERNAMEVAR, "cd {0}; make; make install".format(tempfolder))
-    cleantempfolder()
-def mediaplayer():
-    """Media Player Extension"""
-    print("\nInstalling Media Player Extension.")
-    gitclone("https://github.com/JasonLG1979/gnome-shell-extensions-mediaplayer.git", tempfolder)
-    CFunc.run_as_user(USERNAMEVAR, "cd {0}; ./build".format(tempfolder))
     cleantempfolder()
 def volumemixer():
     """Volume Mixer"""
@@ -109,8 +102,6 @@ cleantempfolder()
 try:
     if args.dashtodock is True:
         dashtodock()
-    if args.mediaplayer is True:
-        mediaplayer()
     if args.volumemixer is True:
         volumemixer()
     if args.topicons is True:

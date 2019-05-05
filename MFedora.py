@@ -120,9 +120,7 @@ if args.desktop == "gnome":
     subprocess.run("systemctl enable -f gdm", shell=True)
     # Some Gnome Extensions
     CFunc.dnfinstall("gnome-terminal-nautilus gnome-tweak-tool dconf-editor")
-    CFunc.dnfinstall("gnome-shell-extension-gpaste gnome-shell-extension-media-player-indicator gnome-shell-extension-topicons-plus gnome-shell-extension-dash-to-dock")
-    # Compile schemas if needed.
-    subprocess.run("glib-compile-schemas /usr/share/gnome-shell/extensions/mediaplayer@patapon.info/schemas/", shell=True)
+    CFunc.dnfinstall("gnome-shell-extension-gpaste gnome-shell-extension-topicons-plus gnome-shell-extension-dash-to-dock")
     subprocess.run("{0}/DExtGnome.py -v".format(SCRIPTDIR), shell=True)
 elif args.desktop == "kde":
     # KDE
