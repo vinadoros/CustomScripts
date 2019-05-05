@@ -188,6 +188,8 @@ if type gnome-session; then
 	gsettings set org.gnome.desktop.interface icon-theme 'Numix-Circle'
 	gsettings set org.gnome.desktop.thumbnail-cache maximum-size 100
 	gsettings set org.gnome.desktop.thumbnail-cache maximum-age 90
+	gsettings set org.gnome.desktop.interface show-battery-percentage true
+	gsettings set org.gnome.desktop.interface clock-show-weekday true
 	gsettings set org.gnome.shell.overrides workspaces-only-on-primary false
 	gsettings set org.gnome.FileRoller.UI view-sidebar true
 	gsettings set org.gnome.FileRoller.FileSelector show-hidden true
