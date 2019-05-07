@@ -699,11 +699,9 @@ if rootstate is True:
 
 
 ######### Default Shell Configuration #########
-# Change the default shell for GUI terminals
+# Change the default shell for zsh only.
 default_shell_value = None
-if args.changedefault is True and args.fish is True:
-    default_shell_value = shutil.which("fish")
-elif args.changedefault is True and args.zsh is True:
+if args.changedefault is True and args.zsh is True:
     default_shell_value = shutil.which("zsh")
 
 # Run the script
