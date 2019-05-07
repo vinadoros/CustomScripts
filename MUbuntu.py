@@ -78,6 +78,8 @@ os.chmod('/usr/local/bin/keymissing', 0o777)
 
 ### Begin Code ###
 
+# Set non-interactive flag
+os.environ['DEBIAN_FRONTEND'] = "noninteractive"
 # Get Ubuntu Release
 CFunc.aptupdate()
 CFunc.aptinstall("lsb-release software-properties-common apt-transport-https")
