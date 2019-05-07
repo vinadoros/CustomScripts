@@ -173,7 +173,7 @@ if args.bare is False:
 # GUI Software
 if args.nogui is False:
     CFunc.aptinstall("dconf-cli dconf-editor")
-    CFunc.aptinstall("synaptic gnome-disk-utility gdebi gparted xdg-utils leafpad")
+    CFunc.aptinstall("synaptic gnome-disk-utility gdebi gparted xdg-utils")
     CFunc.aptinstall("fonts-powerline fonts-noto fonts-roboto")
     if args.lts:
         # MS Fonts (this debian package is a workaround for a download bug, https://askubuntu.com/q/463754)
