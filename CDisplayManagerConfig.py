@@ -186,17 +186,6 @@ if shutil.which("gdm") or shutil.which("gdm3"):
     # https://bugs.gentoo.org/show_bug.cgi?id=553446
     # https://major.io/2008/07/30/automatically-starting-synergy-in-gdm-in-ubuntufedora/
 
-    # Disable Wayland in GDM
-    if os.path.isfile(os.path.join(GDMETCPATH, "daemon.conf")):
-        GDMCustomConf = os.path.join(GDMETCPATH, "daemon.conf")
-    else:
-        GDMCustomConf = os.path.join(GDMETCPATH, "custom.conf")
-    if os.path.isfile(GDMCustomConf):
-        subprocess.run("""
-        sed -i '/^#WaylandEnable=.*/s/^#//' "{0}"
-        sed -i 's/^WaylandEnable=.*/WaylandEnable=false/g' "{0}"
-        """.format(GDMCustomConf), shell=True)
-
     # Start xvnc and synergy
     with open("/usr/share/gdm/greeter/autostart/gdm_start.desktop", 'w') as file:
         file.write("""[Desktop Entry]
