@@ -311,6 +311,15 @@ if type kwriteconfig5; then
 	fi
 fi
 
+# Xfce settings
+if type xfconf-query; then
+	xfconf-query -c xsettings -p /Net/IconThemeName -s "Numix-Circle"
+	xfconf-query -c xsettings -p /Net/ThemeName -s "Adwaita"
+	xfconf-query -c xfwm4 -p /general/workspace_count -s 1
+	# shortcuts
+	xfconf-query -c xfce4-keyboard-shortcuts -p /commands/custom/Super_L -t string -s /usr/bin/xfce4-popup-whiskermenu -n
+fi
+
 # Firefox profile prefs.
 function mod_ff () {
 	sed -i 's/user_pref("'$1'",.*);/user_pref("'$1'",'$2');/' prefs.js
