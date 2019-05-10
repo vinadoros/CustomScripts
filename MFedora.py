@@ -67,6 +67,10 @@ CFunc.dnfinstall("powerline-fonts google-roboto-fonts google-noto-sans-fonts")
 # Samba
 CFunc.dnfinstall("samba")
 subprocess.run("systemctl enable smb", shell=True)
+# cifs-utils
+CFunc.dnfinstall("cifs-utils")
+# Enable setuid for mount.cifs to enable mounting as a normal user
+subprocess.run("sudo chmod u+s /sbin/mount.cifs", shell=True)
 # NTP Configuration
 subprocess.run("systemctl enable systemd-timesyncd; timedatectl set-local-rtc false; timedatectl set-ntp 1", shell=True)
 # GUI Packages
