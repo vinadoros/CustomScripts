@@ -79,7 +79,9 @@ su {0} -s /bin/sh <<'EOL'
     git pull
 EOL
 '''.format(USERNAMEVAR, clonepath_final, shutil.which("bash")))
+    # Make script executable
+    os.chmod("/etc/cron.hourly/{0}".format(reponame), 0o777)
 
-# Set permissions of cloneed folder
+# Set permissions of cloned folder
 subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, clonepath_final), shell=True)
 os.chmod(clonepath_final, 0o777)
