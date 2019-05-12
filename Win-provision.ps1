@@ -461,8 +461,15 @@ function Fcn-OnedriveDisable {
 
 function Fcn-oosu {
   Write-Output "OO Shutup10"
-  if (Test-Path "C:\ProgramData\chocolatey\bin\OOSU10.exe") {
-    Start-Process -Wait "C:\ProgramData\chocolatey\bin\OOSU10.exe" -ArgumentList "/quiet","$PSScriptRoot\Win-ooshutup10.cfg"
+  $oosu_path = $null
+  if (Test-Path "$PSScriptRoot\Win-ooshutup10.cfg") {
+    $oosu_path = "$PSScriptRoot\Win-ooshutup10.cfg"
+  }
+  else if (Test-Path "$env:USERPROFILE\CustomScripts\Win-ooshutup10.cfg") {
+    $oosu_path = "$env:USERPROFILE\CustomScripts\Win-ooshutup10.cfg"
+  }
+  if (Test-Path "C:\ProgramData\chocolatey\bin\OOSU10.exe" -And $oosu_path) {
+    Start-Process -Wait "C:\ProgramData\chocolatey\bin\OOSU10.exe" -ArgumentList "/quiet","$oosu_path"
   }
 }
 
