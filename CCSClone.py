@@ -3,6 +3,7 @@
 
 # Python includes.
 import argparse
+import json
 import os
 import shutil
 import sys
@@ -18,19 +19,21 @@ SCRIPTDIR = sys.path[0]
 # Get non-root user information.
 USERNAMEVAR, USERGROUP, USERHOME = CFunc.getnormaluser()
 
-# Private variable file.
-GITHUBCOMMITNAME = None
-GITHUBCOMMITEMAIL = None
-GITHUBRSAPUB = None
-
 # Get arguments
 parser = argparse.ArgumentParser(description='Clone and update CustomScripts.')
 parser.add_argument("-r", "--repo", help='Repository to clone from Github', default="ramesh45345/CustomScripts")
-parser.add_argument("-p", "--clonepath", help='Run Extra Scripts', default="/opt")
-parser.add_argument("-v", "--variablefile", help='Run Extra Scripts', default=os.path.join("/", "usr", "local", "bin", "privateconfig.sh"))
+parser.add_argument("-p", "--clonepath", help='Run Extra Scripts')
+parser.add_argument("-v", "--variablefile", help='Run Extra Scripts', default=os.path.join(USERHOME, "privateconfig.json"))
 
 # Save arguments.
 args = parser.parse_args()
+
+# Get variables
+if args.clonepath is None:
+    if CFunc.is_windows() is True:
+        args.clonepath = USERHOME
+    else:
+        args.clonepath = os.path.join(os.sep, "opt")
 
 # Get external variables from bash file.
 variablefile = args.variablefile
@@ -54,20 +57,22 @@ else:
 ### Begin Code ###
 # Clone if doesn't exist.
 if not os.path.isdir(clonepath_final):
-    subprocess.run('git clone "https://github.com/{0}.git" {1}'.format(fullrepo, clonepath_final), shell=True)
+    subprocess.run(['git', 'clone', "https://github.com/{0}.git".format(fullrepo), clonepath_final], check=True)
 # Git pull.
-subprocess.run('cd {0}; git config remote.origin.url "https://github.com/{1}.git"; git pull'.format(clonepath_final, fullrepo), shell=True)
+os.chdir(clonepath_final)
+subprocess.run(['git', 'config', 'remote.origin.url', "https://github.com/{0}.git".format(fullrepo)], check=True)
+subprocess.run(['git', 'pull'], check=True)
 
 # If variables were sourced, set remote details for comitting.
 if os.path.isfile(variablefile):
     print("Adding commit information for {0} github account.".format(reponame))
-    subprocess.Popen("""cd {clonepath_final}
-source {variablefile}
-git config remote.origin.url "git@gitserv:{fullrepo}.git"
-git config push.default simple
-git config user.name "$GITHUBCOMMITNAME"
-git config user.email "$GITHUBCOMMITEMAIL"
-""".format(fullrepo=fullrepo, variablefile=variablefile, clonepath_final=clonepath_final), shell=True, executable=shutil.which("bash"))
+    with open(variablefile, 'r') as variablefile_handle:
+        json_privdata = json.load(variablefile_handle)
+    os.chdir(clonepath_final)
+    subprocess.run(['git', 'config', 'remote.origin.url', "git@gitserv:{0}.git".format(fullrepo)], check=True)
+    subprocess.run(['git', 'config', 'push.default', 'simple'], check=True)
+    subprocess.run(['git', 'config', 'user.name', json_privdata['GITHUBCOMMITNAME']], check=True)
+    subprocess.run(['git', 'config', 'user.email', json_privdata['GITHUBCOMMITEMAIL']], check=True)
 
 # Update scripts folder every hour.
 if os.path.isdir("/etc/cron.hourly"):
@@ -83,5 +88,6 @@ EOL
     os.chmod("/etc/cron.hourly/{0}".format(reponame), 0o777)
 
 # Set permissions of cloned folder
-subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, clonepath_final), shell=True)
-os.chmod(clonepath_final, 0o777)
+if CFunc.is_windows() is False:
+    subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, clonepath_final), shell=True)
+    os.chmod(clonepath_final, 0o777)
