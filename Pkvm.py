@@ -277,7 +277,7 @@ if 50 <= args.ostype <= 59:
     windows_key = None
 if args.ostype == 50:
     vmname = "Packer-Windows10-{0}".format(hvname)
-    windows_key = "W269N-WFGWX-YVC9B-4J6C9-T83GX"
+    windows_key = "NRG8B-VKK3Q-CXVCJ-9G2XF-6Q84J"
 if args.ostype == 51:
     vmname = "Packer-Windows10LTS-{0}".format(hvname)
     windows_key = "M7XTQ-FN8P6-TTKYV-9D4CC-J462D"
