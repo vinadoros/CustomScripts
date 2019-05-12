@@ -1,4 +1,12 @@
-# Provision script for unattended installs or packer.
+<#
+.SYNOPSIS
+  Provision script for unattended installs or packer.
+.DESCRIPTION
+  This script provisions a Windows installation. It can either be dot sourced, or run with a default set of commands.
+
+.EXAMPLE
+  Run dot sourced: . $MyInvocation.ScriptName
+#>
 
 # Check if dot sourced.
 $isDotSourced = $MyInvocation.InvocationName -eq '.' -or $MyInvocation.Line -eq ''
@@ -451,12 +459,22 @@ function Fcn-OnedriveDisable {
   rm -Force -ErrorAction SilentlyContinue "$env:userprofile\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk"
 }
 
+function Fcn-oosu {
+  Write-Output "OO Shutup10"
+  if (Test-Path "C:\ProgramData\chocolatey\bin\OOSU10.exe") {
+    Start-Process -Wait "C:\ProgramData\chocolatey\bin\OOSU10.exe" -ArgumentList "/quiet $PSScriptRoot\Win-ooshutup10.cfg"
+  }
+}
+
 ### Begin Code ###
 if (-Not $isDotSourced) {
   Write-Output "Running provision script."
   Fcn-InstallChocolatey
   Fcn-CSClone
   Fcn-Software
+  if ( $IsVM -eq $true ) {
+    Fcn-oosu
+  }
   Fcn-OnedriveDisable
   Fcn-Customize
   if ( $core -eq $true -Or $IsVM -eq $true ) {
