@@ -52,6 +52,8 @@ if not args.bare:
     CFunc.rpmimport("https://packages.microsoft.com/keys/microsoft.asc")
     with open("/etc/yum.repos.d/vscode.repo", 'w') as vscoderepofile_write:
         vscoderepofile_write.write('[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc"')
+    # Balena Etcher
+    CFunc.downloadfile("https://balena.io/etcher/static/etcher-rpm.repo", os.path.join(os.sep, "etc", "yum.repos.d"))
 
 
 # Update system after enabling repos.
@@ -104,6 +106,8 @@ if not args.nogui:
         CFunc.dnfinstall("audacious audacious-plugins")
         # Editors
         CFunc.dnfinstall("code")
+        # Etcher
+        CFunc.dnfinstall("balena-etcher-electron")
         # Syncthing
         CFunc.dnfinstall("syncthing")
 
@@ -184,7 +188,7 @@ if os.path.isdir('/etc/sudoers.d'):
 """.format(USERNAMEVAR, shutil.which("dnf")))
     os.chmod(CUSTOMSUDOERSPATH, 0o440)
     status = subprocess.run('visudo -c', shell=True)
-    if status.returncode is not 0:
+    if status.returncode != 0:
         print("Visudo status not 0, removing sudoers file.")
         os.remove(CUSTOMSUDOERSPATH)
 
