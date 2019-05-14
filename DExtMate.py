@@ -113,6 +113,22 @@ toplevel-id=top
 position=1
 locked=true
 
+[Object system-monitor]
+object-type=applet
+applet-iid=MultiLoadAppletFactory::MultiLoadApplet
+toplevel-id=top
+position=20
+panel-right-stick=true
+locked=true
+
+[Object volume-control]
+object-type=applet
+applet-iid=GvcAppletFactory::GvcApplet
+toplevel-id=top
+position=12
+panel-right-stick=true
+locked=true
+
 [Object notification-area]
 object-type=applet
 applet-iid=NotificationAreaAppletFactory::NotificationArea
