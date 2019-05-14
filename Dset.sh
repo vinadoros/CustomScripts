@@ -51,6 +51,11 @@ if type tilix; then
 	dconf write /com/gexperts/Tilix/profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d/background-color "'#263238'"
 	dconf write /com/gexperts/Tilix/profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d/foreground-color "'#A1B0B8'"
 	dconf write /com/gexperts/Tilix/profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d/palette "['#252525', '#FF5252', '#C3D82C', '#FFC135', '#42A5F5', '#D81B60', '#00ACC1', '#F5F5F5', '#708284', '#FF5252', '#C3D82C', '#FFC135', '#42A5F5', '#D81B60', '#00ACC1', '#F5F5F5']"
+	# Fish config for tilix
+	if type fish &> /dev/null; then
+		dconf write /com/gexperts/Tilix/profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d/use-custom-command true
+		dconf write /com/gexperts/Tilix/profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d/custom-command \'$(which fish)\'
+	fi
 fi
 
 # Terminator configuration
@@ -133,9 +138,13 @@ if type mate-session; then
 	dconf write /org/mate/desktop/keybindings/$BINDING/action "'/usr/local/bin/turnoffscreen.sh'"
 	dconf write /org/mate/desktop/keybindings/$BINDING/binding "'<Mod4>q'"
 	dconf write /org/mate/desktop/keybindings/$BINDING/name "'turnoffscreen'"
-
 	# Icon theme
 	gsettings set org.mate.interface icon-theme "Numix-Circle"
+	# Fish config for mate-terminal
+	if type fish &> /dev/null; then
+		dconf write /org/mate/terminal/profiles/default/use-custom-command true
+		dconf write /org/mate/terminal/profiles/default/custom-command \'$(which fish)\'
+	fi
 fi
 
 # PackageKit
@@ -224,6 +233,11 @@ if type gnome-session; then
 	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/ binding '<Super>w'
 	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/ name 'Turn off screen'
 	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/ command /usr/local/bin/turnoffscreen.sh
+	# Fish config for gnome-terminal
+	if type fish &> /dev/null; then
+		dconf write /org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/use-custom-command true
+		dconf write /org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/custom-command \'$(which fish)\'
+	fi
 fi
 
 
@@ -304,6 +318,15 @@ if type kwriteconfig5; then
 # gtk-primary-button-warps-slider=0
 # EOFXYZ
 # 	ln -sf $HOME/.gtkrc-2.0 $HOME/.gtkrc-2.0-kde4
+
+	# Fish config for konsole
+	if type fish &> /dev/null; then
+		kwriteconfig5 --file konsolerc --group "Desktop Entry" --key DefaultProfile "Profile 1.profile"
+		mkdir -p ~/.local/share/konsole
+		kwriteconfig5 --file "~/.local/share/konsole/Profile 1.profile" --group "General" --key Name "Profile 1"
+		kwriteconfig5 --file "~/.local/share/konsole/Profile 1.profile" --group "General" --key Parent "FALLBACK/"
+		kwriteconfig5 --file "~/.local/share/konsole/Profile 1.profile" --group "General" --key Command "$(which fish)"
+	fi
 
 	if type qdbus; then
 		# Reload kwin.
