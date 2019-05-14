@@ -149,8 +149,16 @@ locked=true
 object-type=applet
 applet-iid=ClockAppletFactory::ClockApplet
 toplevel-id=top
+position=1
+panel-right-stick=true
+locked=true
+
+[Object shutdown]
+action-type=shutdown
+object-type=action
 position=0
 panel-right-stick=true
+toplevel-id=top
 locked=true
 
 [Object show-desktop]
