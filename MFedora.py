@@ -136,12 +136,12 @@ if args.desktop == "gnome":
     CFunc.run_as_user(USERNAMEVAR, "{0} --yes 858".format(gs_installer[0]))
 elif args.desktop == "kde":
     # KDE
-    CFunc.dnfinstall("@kde-desktop-environment")
+    CFunc.dnfinstall("--allowerasing @kde-desktop-environment")
     CFunc.dnfinstall("ark latte-dock")
     subprocess.run("systemctl enable -f sddm", shell=True)
 elif args.desktop == "mate":
     # MATE
-    CFunc.dnfinstall("@mate-desktop @mate-applications")
+    CFunc.dnfinstall("--allowerasing @mate-desktop @mate-applications")
     subprocess.run("systemctl enable -f lightdm", shell=True)
     # Applications
     CFunc.dnfinstall("dconf-editor")
@@ -151,9 +151,9 @@ elif args.desktop == "mate":
     # Run MATE Configuration
     subprocess.run("{0}/DExtMate.py -c".format(SCRIPTDIR), shell=True)
 elif args.desktop == "xfce":
-    CFunc.dnfinstall("@xfce-desktop-environment")
+    CFunc.dnfinstall("--allowerasing @xfce-desktop-environment")
 elif args.desktop == "lxqt":
-    CFunc.dnfinstall("@lxqt-desktop-environment")
+    CFunc.dnfinstall("--allowerasing @lxqt-desktop-environment")
 
 if not args.nogui and not args.bare:
     # Numix
