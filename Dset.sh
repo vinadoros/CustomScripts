@@ -147,14 +147,13 @@ if type mate-session; then
 	fi
 
 	# System Monitor applet
-	# NOTE: Doesn't work yet. Need to create the prefs folder somehow.
 	SYSMON_ID="$(dconf read /org/mate/panel/objects/system-monitor/applet-iid)"
-	if [ "$SYSMON_ID" = 'MultiLoadAppletFactory::MultiLoadApplet' ]; then
-		dconf write /org/mate/panel/objects/system-monitor/prefs/speed 1000
-		dconf write /org/mate/panel/objects/system-monitor/prefs/view-diskload true
-		dconf write /org/mate/panel/objects/system-monitor/prefs/view-memload true
-		dconf write /org/mate/panel/objects/system-monitor/prefs/view-netload true
-		dconf write /org/mate/panel/objects/system-monitor/prefs/view-swapload true
+	if [[ "$SYSMON_ID" == *"MultiLoadApplet"* ]]; then
+		gsettings set org.mate.panel.applet.multiload:/org/mate/panel/objects/system-monitor/prefs/ speed 1000
+		gsettings set org.mate.panel.applet.multiload:/org/mate/panel/objects/system-monitor/prefs/ view-diskload true
+		gsettings set org.mate.panel.applet.multiload:/org/mate/panel/objects/system-monitor/prefs/ view-memload true
+		gsettings set org.mate.panel.applet.multiload:/org/mate/panel/objects/system-monitor/prefs/ view-netload true
+		gsettings set org.mate.panel.applet.multiload:/org/mate/panel/objects/system-monitor/prefs/ view-swapload true
 	fi
 fi
 
