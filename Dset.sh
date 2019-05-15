@@ -149,6 +149,7 @@ if type mate-session; then
 	# System Monitor applet
 	SYSMON_ID="$(dconf read /org/mate/panel/objects/system-monitor/applet-iid)"
 	if [[ "$SYSMON_ID" == *"MultiLoadApplet"* ]]; then
+		# To find the relocatable schemas: gsettings list-relocatable-schemas
 		gsettings set org.mate.panel.applet.multiload:/org/mate/panel/objects/system-monitor/prefs/ speed 1000
 		gsettings set org.mate.panel.applet.multiload:/org/mate/panel/objects/system-monitor/prefs/ view-diskload true
 		gsettings set org.mate.panel.applet.multiload:/org/mate/panel/objects/system-monitor/prefs/ view-memload true
