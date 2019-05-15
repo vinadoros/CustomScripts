@@ -468,6 +468,7 @@ function Fcn-oosu {
   else if (Test-Path "$env:USERPROFILE\CustomScripts\Win-ooshutup10.cfg") {
     $oosu_path = "$env:USERPROFILE\CustomScripts\Win-ooshutup10.cfg"
   }
+  Write-Output "OOSU Config path: $oosu_path"
   if (Test-Path "C:\ProgramData\chocolatey\bin\OOSU10.exe" -And $oosu_path) {
     Start-Process -Wait "C:\ProgramData\chocolatey\bin\OOSU10.exe" -ArgumentList "/quiet","$oosu_path"
   }
