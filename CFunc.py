@@ -250,12 +250,12 @@ def run_as_user(user_name, cmd, shell_cmd=None):
 ### Systemd Functions ###
 def systemd_createsystemunit(sysunitname, sysunittext, sysenable=False):
     """Create a systemd system unit."""
-    SystemdSystemUnitPath = "/etc/systemd/system/"
+    SystemdSystemUnitPath = os.path.join(os.sep, "etc", "systemd", "system")
     # Make sure systemd system unit path exists.
     if not os.path.isdir(SystemdSystemUnitPath):
         print("\nError: Systemd system unit path {0} does not exist.\n".format(SystemdSystemUnitPath))
         return 1
-    fullunitpath = SystemdSystemUnitPath + "/" + sysunitname
+    fullunitpath = os.path.join(SystemdSystemUnitPath, sysunitname)
     # Write the unit file.
     print("Creating {0}.".format(fullunitpath))
     with open(fullunitpath, 'w') as fullunitpath_write:
