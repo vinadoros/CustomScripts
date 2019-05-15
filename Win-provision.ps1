@@ -465,7 +465,7 @@ function Fcn-oosu {
   if (Test-Path "$PSScriptRoot\Win-ooshutup10.cfg") {
     $oosu_path = "$PSScriptRoot\Win-ooshutup10.cfg"
   }
-  else if (Test-Path "$env:USERPROFILE\CustomScripts\Win-ooshutup10.cfg") {
+  elseif (Test-Path "$env:USERPROFILE\CustomScripts\Win-ooshutup10.cfg") {
     $oosu_path = "$env:USERPROFILE\CustomScripts\Win-ooshutup10.cfg"
   }
   Write-Output "OOSU Config path: $oosu_path"
