@@ -75,7 +75,45 @@ if os.path.isfile(variablefile):
     subprocess.run(['git', 'config', 'user.email', json_privdata['GITHUBCOMMITEMAIL']], check=True)
 
 # Update scripts folder every hour.
-if os.path.isdir("/etc/cron.hourly"):
+# Make systemd service and timer if available
+if shutil.which("systemctl"):
+    # Systemd service
+    CSUpdate_SystemUnitText = """[Unit]
+Description=Service for CSUpdate
+After=network-online.target graphical.target
+
+[Service]
+Type=simple
+User={username}
+ExecStart=/bin/sh -c "cd {clonepath_final}; git pull"
+Restart=on-failure
+RestartSec=60s
+StartLimitBurst=4""".format(username=USERNAMEVAR, clonepath_final=clonepath_final)
+    CFunc.systemd_createsystemunit("csupdate.service", CSUpdate_SystemUnitText)
+    # Systemd timer
+    CSUpdate_SystemTimerText = """[Unit]
+Description=Timer for CSupdate
+
+[Timer]
+OnBootSec=15sec
+OnActiveSec=15min
+
+[Install]
+WantedBy=timers.target"""
+    SystemdSystemUnitPath = os.path.join(os.sep, "etc", "systemd", "system")
+    fullunitpath = os.path.join(SystemdSystemUnitPath, "csupdate.timer")
+    # Write the unit file.
+    print("Creating {0}.".format(fullunitpath))
+    with open(fullunitpath, 'w') as fullunitpath_write:
+        fullunitpath_write.write(CSUpdate_SystemTimerText)
+    # Enable the timer
+    subprocess.run("systemctl daemon-reload", shell=True)
+    subprocess.run("systemctl enable {0}".format("csupdate.timer"), shell=True)
+    # Remove the cron script if it exists.
+    if os.path.isfile("/etc/cron.hourly/{0}".format(reponame)):
+        os.remove("/etc/cron.hourly/{0}".format(reponame))
+# Fall-back to cron script if systemd is not available.
+elif os.path.isdir("/etc/cron.hourly"):
     with open("/etc/cron.hourly/{0}".format(reponame), 'w') as file:
         file.write('''#!{2}
 echo "Executing \$0"
