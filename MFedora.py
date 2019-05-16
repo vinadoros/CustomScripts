@@ -94,7 +94,7 @@ if not args.nogui:
     # Wine
     CFunc.dnfinstall("wine wine.i686 winetricks playonlinux")
     # Audio/video
-    CFunc.dnfinstall("pulseaudio-module-zeroconf pulseaudio-utils paprefs ladspa-swh-plugins")
+    CFunc.dnfinstall("pulseaudio-module-zeroconf pulseaudio-utils paprefs")
     # Remote access
     CFunc.dnfinstall("remmina remmina-plugins-vnc remmina-plugins-rdp")
     # Tilix
