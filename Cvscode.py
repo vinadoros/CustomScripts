@@ -95,6 +95,7 @@ ce_ins("mikestead.dotenv")
 ce_ins("rebornix.Ruby")
 ce_ins("streetsidesoftware.code-spell-checker")
 ce_ins("timonwong.shellcheck")
+ce_ins("eamodio.gitlens")
 
 
 ### Configuration ###
