@@ -202,7 +202,7 @@ if not args.bare and not args.nogui:
         os.symlink("/var/lib/snapd/snap", "/snap", target_is_directory=True)
 
     # Flatpak setup
-    CFunc.aptinstall("flatpak xdg-desktop-portal")
+    CFunc.dnfinstall("flatpak xdg-desktop-portal")
     CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo")
 
 
