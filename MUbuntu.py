@@ -216,8 +216,6 @@ elif args.desktop == "mate":
     CFunc.aptmark(held_pkgs)
     CFunc.aptinstall("ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop")
     CFunc.aptinstall("ubuntu-mate-lightdm-theme")
-    # Run MATE Configuration
-    subprocess.run("{0}/DExtMate.py -c".format(SCRIPTDIR), shell=True)
 elif args.desktop == "xfce":
     print("\n Installing xfce desktop")
     CFunc.aptmark(held_pkgs)
@@ -283,6 +281,9 @@ if args.nogui is False and args.bare is False:
     CFunc.aptupdate()
     CFunc.aptinstall("code")
 
+# Post-install mate configuration
+if args.desktop == "mate":
+    subprocess.run("{0}/DExtMate.py -c".format(SCRIPTDIR), shell=True)
 
 # Install guest software for VMs
 if vmstatus == "kvm":
