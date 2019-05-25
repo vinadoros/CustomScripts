@@ -365,6 +365,13 @@ def addppa(ppasource):
     """Add a ppa"""
     subprocess.run("add-apt-repository -y '{0}'".format(ppasource), shell=True)
     aptupdate()
+def aptmark(aptapps, mark=True):
+    """Set or unset apt-mark hold for packages. mark=True for holding, mark=False for unholding."""
+    if mark is True:
+        mark_text = "hold"
+    else:
+        mark_text = "unhold"
+    subprocess.run("apt-mark {0} {1}".format(mark_text, aptapps), shell=True)
 # DNF
 def dnfupdate():
     """Update system"""

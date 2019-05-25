@@ -39,6 +39,8 @@ print("Username is:", USERNAMEVAR)
 print("Group Name is:", USERGROUP)
 
 
+### Begin Code ###
+
 # Check if root password is set.
 rootacctstatus = CFunc.subpout("passwd -S root | awk '{{print $2}}'")
 if "P" not in rootacctstatus:
@@ -58,25 +60,6 @@ print("Ubuntu URL is " + URL)
 
 # Get VM State
 vmstatus = CFunc.getvmstate()
-
-# Keymissing script
-with open('/usr/local/bin/keymissing', 'w') as writefile:
-    writefile.write('''#!/bin/bash
-APTLOG=/tmp/aptlog
-sudo apt-get update 2> $APTLOG
-if [ -f $APTLOG ]
-then
-    for key in $(grep "NO_PUBKEY" $APTLOG |sed "s/.*NO_PUBKEY //"); do
-            echo -e "\\nProcessing key: $key"
-            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $key
-            sudo apt-get update
-    done
-    rm $APTLOG
-fi''')
-os.chmod('/usr/local/bin/keymissing', 0o777)
-
-
-### Begin Code ###
 
 # Set non-interactive flag
 os.environ['DEBIAN_FRONTEND'] = "noninteractive"
@@ -172,6 +155,88 @@ CFunc.aptinstall("intel-microcode")
 if args.bare is False:
     # Zsh/fish
     CFunc.aptinstall("zsh fish")
+
+# Network Manager
+CFunc.aptinstall("network-manager network-manager-ssh resolvconf")
+subprocess.run("apt-get install -y network-manager-config-connectivity-ubuntu", shell=True, check=False)
+subprocess.run("sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf", shell=True)
+# https://askubuntu.com/questions/882806/ethernet-device-not-managed
+with open('/etc/NetworkManager/conf.d/10-globally-managed-devices.conf', 'w') as writefile:
+    writefile.write("""[keyfile]
+unmanaged-devices=none""")
+# Ensure DNS resolution is working
+subprocess.run("dpkg-reconfigure --frontend=noninteractive resolvconf", shell=True)
+# Set netplan to use Network Manager
+if os.path.isfile('/etc/netplan/01-netcfg.yaml'):
+    with open('/etc/netplan/01-netcfg.yaml', 'w') as writefile:
+        writefile.write("""network:
+  version: 2
+  renderer: NetworkManager""")
+
+
+# Due to odd GUI recommends on 19.04 and above, the following packages should be held for other desktop environments. They should be unheld for gnome.
+held_pkgs = "gnome-shell gdm3 gnome-session gnome-session-bin ubuntu-session gnome-desktop3-data gnome-control-center cheese"
+
+# Install Desktop Software
+if args.desktop == "gnome":
+    print("\n Installing gnome desktop")
+    CFunc.aptmark(held_pkgs, mark=False)
+    CFunc.aptinstall("ubuntu-desktop ubuntu-session gnome-session")
+    CFunc.aptinstall("gnome-clocks")
+    CFunc.snap_install("gnome-calculator gnome-characters gnome-logs gnome-system-monitor")
+    CFunc.aptinstall("gnome-shell-extensions")
+    # subprocess.run("{0}/DExtGnome.py -t -v -d".format(SCRIPTDIR), shell=True)
+    CFunc.aptinstall("gnome-software-plugin-flatpak")
+    # Install gs installer script.
+    gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
+    os.chmod(gs_installer[0], 0o777)
+    # Install volume extension
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 858".format(gs_installer[0]))
+    # Install topiconsplus extension
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 1031".format(gs_installer[0]))
+    # Install dashtodock extension
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 307".format(gs_installer[0]))
+elif args.desktop == "kde":
+    print("\n Installing kde desktop")
+    CFunc.aptmark(held_pkgs)
+    CFunc.addppa("ppa:kubuntu-ppa/backports")
+    CFunc.addppa("ppa:papirus/papirus")
+    CFunc.aptinstall("kubuntu-desktop")
+elif args.desktop == "neon":
+    print("\n Installing kde neon desktop.")
+    CFunc.aptmark(held_pkgs)
+    subprocess.run("wget -qO - 'http://archive.neon.kde.org/public.key' | apt-key add -", shell=True)
+    subprocess.run("apt-add-repository http://archive.neon.kde.org/user", shell=True)
+    CFunc.aptupdate()
+    CFunc.aptdistupg()
+    CFunc.aptinstall("neon-desktop")
+    CFunc.aptdistupg()
+elif args.desktop == "mate":
+    print("\n Installing mate desktop")
+    CFunc.aptmark(held_pkgs)
+    CFunc.aptinstall("ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop")
+    CFunc.aptinstall("ubuntu-mate-lightdm-theme")
+    # Run MATE Configuration
+    subprocess.run("{0}/DExtMate.py -c".format(SCRIPTDIR), shell=True)
+elif args.desktop == "xfce":
+    print("\n Installing xfce desktop")
+    CFunc.aptmark(held_pkgs)
+    CFunc.aptinstall("xubuntu-desktop")
+elif args.desktop == "budgie":
+    print("\n Installing budgie desktop")
+    CFunc.aptmark(held_pkgs)
+    CFunc.aptinstall("ubuntu-budgie-desktop")
+    CFunc.aptinstall("gnome-software-plugin-flatpak")
+
+# Post DE install stuff.
+if args.nogui is False and args.bare is False:
+    # Numix
+    CFunc.addppa("ppa:numix/ppa")
+    CFunc.aptinstall("numix-icon-theme-circle")
+    # KeepassXC
+    CFunc.addppa("ppa:phoerious/keepassxc")
+    CFunc.aptinstall("keepassxc")
+
 # GUI Software
 if args.nogui is False:
     CFunc.aptinstall("dconf-cli dconf-editor")
@@ -217,78 +282,6 @@ if args.nogui is False and args.bare is False:
     subprocess.run('echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list', shell=True)
     CFunc.aptupdate()
     CFunc.aptinstall("code")
-
-# Network Manager
-CFunc.aptinstall("network-manager network-manager-ssh resolvconf")
-subprocess.run("apt-get install -y network-manager-config-connectivity-ubuntu", shell=True, check=False)
-subprocess.run("sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf", shell=True)
-# https://askubuntu.com/questions/882806/ethernet-device-not-managed
-with open('/etc/NetworkManager/conf.d/10-globally-managed-devices.conf', 'w') as writefile:
-    writefile.write("""[keyfile]
-unmanaged-devices=none""")
-# Ensure DNS resolution is working
-subprocess.run("dpkg-reconfigure --frontend=noninteractive resolvconf", shell=True)
-# Set netplan to use Network Manager
-if os.path.isfile('/etc/netplan/01-netcfg.yaml'):
-    with open('/etc/netplan/01-netcfg.yaml', 'w') as writefile:
-        writefile.write("""network:
-  version: 2
-  renderer: NetworkManager""")
-
-
-# Install Desktop Software
-if args.desktop == "gnome":
-    print("\n Installing gnome desktop")
-    CFunc.aptinstall("ubuntu-desktop ubuntu-session gnome-session")
-    CFunc.aptinstall("gnome-clocks")
-    CFunc.snap_install("gnome-calculator gnome-characters gnome-logs gnome-system-monitor")
-    CFunc.aptinstall("gnome-shell-extensions")
-    # subprocess.run("{0}/DExtGnome.py -t -v -d".format(SCRIPTDIR), shell=True)
-    CFunc.aptinstall("gnome-software-plugin-flatpak")
-    # Install gs installer script.
-    gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
-    os.chmod(gs_installer[0], 0o777)
-    # Install volume extension
-    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 858".format(gs_installer[0]))
-    # Install topiconsplus extension
-    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 1031".format(gs_installer[0]))
-    # Install dashtodock extension
-    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 307".format(gs_installer[0]))
-elif args.desktop == "kde":
-    print("\n Installing kde desktop")
-    CFunc.addppa("ppa:kubuntu-ppa/backports")
-    CFunc.addppa("ppa:papirus/papirus")
-    CFunc.aptinstall("kubuntu-desktop")
-elif args.desktop == "neon":
-    print("\n Installing kde neon desktop.")
-    subprocess.run("wget -qO - 'http://archive.neon.kde.org/public.key' | apt-key add -", shell=True)
-    subprocess.run("apt-add-repository http://archive.neon.kde.org/user", shell=True)
-    CFunc.aptupdate()
-    CFunc.aptdistupg()
-    CFunc.aptinstall("neon-desktop")
-    CFunc.aptdistupg()
-elif args.desktop == "mate":
-    print("\n Installing mate desktop")
-    CFunc.aptinstall("ubuntu-mate-core ubuntu-mate-default-settings ubuntu-mate-desktop")
-    CFunc.aptinstall("ubuntu-mate-lightdm-theme")
-    # Run MATE Configuration
-    subprocess.run("{0}/DExtMate.py -c".format(SCRIPTDIR), shell=True)
-elif args.desktop == "xfce":
-    print("\n Installing xfce desktop")
-    CFunc.aptinstall("xubuntu-desktop")
-elif args.desktop == "budgie":
-    print("\n Installing budgie desktop")
-    CFunc.aptinstall("ubuntu-budgie-desktop")
-    CFunc.aptinstall("gnome-software-plugin-flatpak")
-
-# Post DE install stuff.
-if args.nogui is False and args.bare is False:
-    # Numix
-    CFunc.addppa("ppa:numix/ppa")
-    CFunc.aptinstall("numix-icon-theme-circle")
-    # KeepassXC
-    CFunc.addppa("ppa:phoerious/keepassxc")
-    CFunc.aptinstall("keepassxc")
 
 
 # Install guest software for VMs
