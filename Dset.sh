@@ -351,9 +351,81 @@ if type xfconf-query; then
 	xfconf-query -c xsettings -p /Net/ThemeName -s "Adwaita"
 	xfconf-query -c xfwm4 -p /general/workspace_count -s 1
 	xfconf-query -c xfwm4 -p /general/theme -s "Arc-Darker"
-	# shortcuts
+	# Keyboard Shortcuts
 	xfconf-query -c xfce4-keyboard-shortcuts -p /commands/custom/Super_L -t string -s /usr/bin/xfce4-popup-whiskermenu -n
 	xfconf-query -c xfce4-keyboard-shortcuts -p /commands/custom/Print -t string -s "xfce4-screenshooter" -n
+
+	# List panels
+	# xfconf-query -c xfce4-panel -p /panels -lv
+	# Setup 2 panels
+	xfconf-query -c xfce4-panel -p /panels -t int -s 1 -t int -s 2 -a
+	# Panel settings
+	xfconf-query -c xfce4-panel -p /panels/panel-1/length --type int --set 100 --create
+	xfconf-query -c xfce4-panel -p /panels/panel-2/length --type int --set 100 --create
+	xfconf-query -c xfce4-panel -p /panels/panel-1/size  --type int --set 20 --create
+	xfconf-query -c xfce4-panel -p /panels/panel-2/size  --type int --set 20 --create
+	xfconf-query -c xfce4-panel -p /panels/panel-1/position-locked --type bool --set true --create
+	xfconf-query -c xfce4-panel -p /panels/panel-2/position-locked --type bool --set true --create
+	# Create plugin ids
+	xfconf-query -c xfce4-panel -p /plugins/plugin-1 --type string --set "whiskermenu" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-2 --type string --set "whiskermenu" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-3 --type string --set "whiskermenu" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-4 --type string --set "whiskermenu" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-5 --type string --set "whiskermenu" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-6 --type string --set "whiskermenu" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-7 --type string --set "whiskermenu" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-8 --type string --set "whiskermenu" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-9 --type string --set "whiskermenu" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-10 --type string --set "whiskermenu" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-11 --type string --set "whiskermenu" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-12 --type string --set "whiskermenu" --create
+	
+
+	# List plugins
+	# xfconf-query -c xfce4-panel -p /plugins -lv
+	# Delete all existing plugin ids
+	xfconf-query -c xfce4-panel -p /plugins --reset --recursive
+	# Recreate plugin ids
+	xfconf-query -c xfce4-panel -p /plugins/plugin-1 --type string --set "applicationsmenu" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-2 --type string --set "actions" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-3 --type string --set "tasklist" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-5 --type string --set "clock" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-5/digital-format --type string --set "%a %b %d | %r" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-6 --type string --set "systray" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-7 --type string --set "showdesktop" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-8 --type string --set "separator" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-9 --type string --set "whiskermenu" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-10 --type string --set "directorymenu" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-10/base-directory --type string --set "$HOME" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-11 --type string --set "separator" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-11/expand --type bool --set true --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-11/style --type int --set 0 --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-12 --type string --set "systemload" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-13 --type string --set "diskperf" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-14 --type string --set "xfce4-clipman-plugin" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-15 --type string --set "pulseaudio" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-20 --type string --set "launcher" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-20/items --type string --set "chromium-browser.desktop" --force-array --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-21 --type string --set "launcher" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-21/items --type string --set "Thunar.desktop" --force-array --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-22 --type string --set "launcher" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-22/items --type string --set "com.gexperts.Tilix.desktop" --force-array --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-23 --type string --set "launcher" --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-23/items --type string --set "xfce4-terminal.desktop" --force-array --create
+
+	# List existing array
+	# xfconf-query -c xfce4-panel -p /panels/panel-2/plugin-ids
+	# Delete existing plugin arrays
+	xfconf-query -c xfce4-panel -p /panels/panel-1/plugin-ids -rR
+	xfconf-query -c xfce4-panel -p /panels/panel-2/plugin-ids -rR
+	# Create plugins for panels
+	xfconf-query -c xfce4-panel -p /panels/panel-1/plugin-ids -t int -s 9 -t int -s 1 -t int -s 20 -t int -s 21 -t int -s 22 -t int -s 23 -t int -s 11 -t int -s 12 -t int -s 13 -t int -s 14 -t int -s 15 -t int -s 6 -t int -s 5 -t int -s 2 --force-array --create
+	xfconf-query -c xfce4-panel -p /panels/panel-2/plugin-ids -t int -s 3 --force-array --create
+
+	# Reset the panel
+	if pgrep xfce4-panel &> /dev/null; then
+		xfce4-panel -r &
+	fi
 fi
 
 # Firefox profile prefs.

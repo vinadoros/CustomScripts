@@ -152,6 +152,7 @@ elif args.desktop == "mate":
     subprocess.run("{0}/DExtMate.py -c".format(SCRIPTDIR), shell=True)
 elif args.desktop == "xfce":
     CFunc.dnfinstall("--allowerasing @xfce-desktop-environment")
+    CFunc.dnfinstall("xfce4-whiskermenu-plugin xfce4-systemload-plugin xfce4-diskperf-plugin xfce4-clipman-plugin")
 elif args.desktop == "lxqt":
     CFunc.dnfinstall("--allowerasing @lxqt-desktop-environment")
 
