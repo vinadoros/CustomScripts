@@ -351,9 +351,20 @@ if type xfconf-query; then
 	xfconf-query -c xsettings -p /Net/ThemeName -s "Adwaita"
 	xfconf-query -c xfwm4 -p /general/workspace_count -s 1
 	xfconf-query -c xfwm4 -p /general/theme -s "Arc-Darker"
+	# Launch Gnome services (for keyring)
+	xfconf-query -c xfce4-session -p /compat/LaunchGNOME -t bool -s true --create
 	# Keyboard Shortcuts
 	xfconf-query -c xfce4-keyboard-shortcuts -p /commands/custom/Super_L -t string -s /usr/bin/xfce4-popup-whiskermenu -n
 	xfconf-query -c xfce4-keyboard-shortcuts -p /commands/custom/Print -t string -s "xfce4-screenshooter" -n
+
+	# Thunar settings
+	xfconf-query -c xfce4-panel -p /default-view --type string --set "ThunarDetailsView" --create
+	xfconf-query -c xfce4-panel -p /last-view --type string --set "ThunarDetailsView" --create
+	xfconf-query -c xfce4-panel -p /last-icon-view-zoom-level --type string --set "THUNAR_ZOOM_LEVEL_75_PERCENT" --create
+	xfconf-query -c xfce4-panel -p /last-show-hidden --type bool --set true --create
+	xfconf-query -c xfce4-panel -p /misc-show-delete-action --type bool --set true --create
+	xfconf-query -c xfce4-panel -p /misc-single-click --type bool --set false --create
+	xfconf-query -c xfce4-panel -p /misc-middle-click-in-tab --type bool --set true --create
 
 	# List panels
 	# xfconf-query -c xfce4-panel -p /panels -lv
@@ -379,7 +390,6 @@ if type xfconf-query; then
 	xfconf-query -c xfce4-panel -p /plugins/plugin-10 --type string --set "whiskermenu" --create
 	xfconf-query -c xfce4-panel -p /plugins/plugin-11 --type string --set "whiskermenu" --create
 	xfconf-query -c xfce4-panel -p /plugins/plugin-12 --type string --set "whiskermenu" --create
-	
 
 	# List plugins
 	# xfconf-query -c xfce4-panel -p /plugins -lv
