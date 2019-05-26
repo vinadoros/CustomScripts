@@ -18,6 +18,7 @@ parser.add_argument("-d", "--destport", type=int, help='Port on destination mach
 parser.add_argument("-l", "--localport", type=int, help='Open port on local machine (do not set if open random port is desired).')
 parser.add_argument("-r", "--destserver", help='Server on the destination side to connect to.', default="localhost")
 parser.add_argument("-c", "--command", help='Run commands (none=0, vnc=1, ssh=2)', type=int, default="0")
+parser.add_argument("-n", "--noprompt", help='Do not prompt for exiting ssh', action="store_true")
 
 # Save arguments.
 args = parser.parse_args()
@@ -79,6 +80,7 @@ if args.command is 1:
     subprocess.run('{0} localhost:{1}'.format("vncviewer", networkport), shell=True)
 if args.command is 2:
     subprocess.run('ssh localhost -p {0}'.format(networkport), shell=True)
-input("Press Enter to stop ssh.")
+if not args.noprompt:
+    input("Press Enter to stop ssh.")
 # Stop ssh tunnel.
 p.terminate()
