@@ -25,7 +25,7 @@ parser = argparse.ArgumentParser(description='Build Fedora LiveCD.')
 parser.add_argument("-n", "--noprompt", help='Do not prompt.', action="store_true")
 parser.add_argument("-w", "--workfolderroot", help='Location of Working Folder (i.e. {0})'.format(USERHOME), default=USERHOME)
 parser.add_argument("-o", "--output", help='Output Location of ISO (i.e. {0})'.format(USERHOME), default=USERHOME)
-parser.add_argument("-r", "--releasever", help='Release Version (i.e. 29)', type=int, default=29)
+parser.add_argument("-r", "--releasever", help='Release Version (i.e. 30)', type=int, default=30)
 
 # Save arguments.
 args = parser.parse_args()
