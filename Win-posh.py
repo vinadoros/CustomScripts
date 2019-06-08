@@ -23,11 +23,9 @@ USERNAMEVAR, USERGROUP, USERHOME = CFunc.getnormaluser()
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Install Powershell configuration.')
-parser.add_argument("-f", "--fonts", help='Install powerline fonts.', action="store_true")
 
 # Save arguments.
 args = parser.parse_args()
-print("Powerline fonts:", args.fonts)
 
 
 # Install powershell modules
@@ -82,15 +80,3 @@ Set-Theme agnoster
 os.makedirs(powershell_profile_folder, exist_ok=True)
 with open(powershell_profile_script, 'w') as powershell_profile_script_handle:
     powershell_profile_script_handle.write(powershell_profile_text)
-
-if args.fonts:
-    # Install powerline-fonts
-    print("Installing powerline-fonts")
-    powerline_font_folder = os.path.join(USERHOME, "powerline-fonts")
-    CFunc.gitclone("https://github.com/casz/fonts.git", powerline_font_folder)
-    # Use modified branch with faster powershell install
-    os.chdir(powerline_font_folder)
-    subprocess.run(['git', 'checkout', 'origin/patch-1'], check=True)
-    subprocess.run(os.path.join(powerline_font_folder, "install.ps1"), shell=True, executable=powershell_cmd, check=True)
-    os.chdir(USERHOME)
-    shutil.rmtree(powerline_font_folder)
