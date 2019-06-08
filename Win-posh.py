@@ -32,9 +32,9 @@ args = parser.parse_args()
 print("Install powershell modules.")
 subprocess.run("""Install-PackageProvider -Name NuGet -RequiredVersion 2.8.5.201 -Force
 Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-Install-Module -Name 'posh-git'
-Install-Module -Name 'oh-my-posh'
-Install-Module -Name 'Get-ChildItemColor'
+Install-Module -Name 'posh-git' -AllowClobber
+Install-Module -Name 'oh-my-posh' -AllowClobber
+Install-Module -Name 'Get-ChildItemColor' -AllowClobber
 """, shell=True, executable=powershell_cmd)
 
 # Install powershell profile
