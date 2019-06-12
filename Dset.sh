@@ -377,6 +377,12 @@ if type xfconf-query; then
 	xfconf-query -c xfce4-panel -p /panels/panel-2/size  --type int --set 20 --create
 	xfconf-query -c xfce4-panel -p /panels/panel-1/position-locked --type bool --set true --create
 	xfconf-query -c xfce4-panel -p /panels/panel-2/position-locked --type bool --set true --create
+	xfconf-query -c xfce4-panel -p /panels/panel-1/autohide-behavior --type int --set 0 --create
+	xfconf-query -c xfce4-panel -p /panels/panel-2/autohide-behavior --type int --set 0 --create
+	# Put panel 1 on the top of the screen
+	xfconf-query -c xfce4-panel -p /panels/panel-1/position --type string --set "p=6;x=0;y=0" --create
+	# Put panel 2 on the bottom of the screen
+	xfconf-query -c xfce4-panel -p /panels/panel-2/position --type string --set "p=10;x=0;y=0" --create
 	# Create plugin ids
 	xfconf-query -c xfce4-panel -p /plugins/plugin-1 --type string --set "whiskermenu" --create
 	xfconf-query -c xfce4-panel -p /plugins/plugin-2 --type string --set "whiskermenu" --create
