@@ -154,7 +154,7 @@ CFunc.aptinstall("intel-microcode")
 # Non-bare CLI stuff.
 if args.bare is False:
     # Zsh/fish
-    CFunc.aptinstall("zsh fish")
+    CFunc.aptinstall("zsh")
 
 # Network Manager
 CFunc.aptinstall("network-manager network-manager-ssh resolvconf")
@@ -319,7 +319,7 @@ if args.bare is False:
             os.remove(CUSTOMSUDOERSPATH)
 
 # Run these extra scripts even in bare config.
-subprocess.run("{0}/CShellConfig.py -f -d".format(SCRIPTDIR), shell=True)
+subprocess.run("{0}/CShellConfig.py -z -d".format(SCRIPTDIR), shell=True)
 subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
 subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True)
 subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
