@@ -27,7 +27,6 @@ if os.geteuid() is not 0:
 abschrootpath = os.path.realpath(args.chrootpath)
 
 subprocess.run("""
-echo "Mounting chroot folders."
 mount --rbind /dev {0}/dev
 mount --make-rslave {0}/dev
 mount -t proc /proc {0}/proc
@@ -36,9 +35,7 @@ mount --make-rslave {0}/sys
 mount --rbind /tmp {0}/tmp
 cp /etc/resolv.conf {0}/etc/resolv.conf
 PATH=$PATH:/sbin:/bin:/usr/sbin:/usr/local/bin
-echo "Entering chroot at {0}."
 chroot {0} {1}
-echo "Unmounting chroot folders."
 umount -l {0}/dev > /dev/null &
 umount -l {0}/proc > /dev/null &
 umount -l {0}/sys > /dev/null &
