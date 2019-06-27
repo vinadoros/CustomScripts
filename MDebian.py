@@ -130,7 +130,7 @@ if not args.bare:
     if args.unstable:
         multimedia_release = "sid"
     else:
-        multimedia_release = "testing"
+        multimedia_release = debrelease
     with open('/etc/apt/sources.list.d/debian-multimedia.list', 'w') as stapt_writefile:
         stapt_writefile.write("deb https://www.deb-multimedia.org {0} main non-free".format(multimedia_release))
     subprocess.run("apt-get update -oAcquire::AllowInsecureRepositories=true; apt-get install -y --allow-unauthenticated deb-multimedia-keyring -oAcquire::AllowInsecureRepositories=true", shell=True)

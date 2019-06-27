@@ -237,8 +237,11 @@ if 30 <= args.ostype <= 39:
     kvm_os = "linux"
     kvm_variant = "debiantesting"
 # Debian Testing and Unstable
-if 30 <= args.ostype <= 39:
+if 30 <= args.ostype <= 35:
     isourl = "https://cdimage.debian.org/cdimage/weekly-builds/amd64/iso-cd/debian-testing-amd64-netinst.iso"
+# Debian Stable
+if 36 <= args.ostype <= 38:
+    isourl = "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-9.9.0-amd64-netinst.iso"
 if args.ostype == 30:
     vmname = "Packer-DebianTesting-{0}".format(hvname)
     vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
@@ -257,6 +260,15 @@ if args.ostype == 34:
 if args.ostype == 35:
     vmname = "Packer-DebianUnstableBare-{0}".format(hvname)
     vmprovision_defopts = "-u -b -x"
+if args.ostype == 36:
+    vmname = "Packer-DebianStable-{0}".format(hvname)
+    vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
+if args.ostype == 37:
+    vmname = "Packer-DebianStableCLI-{0}".format(hvname)
+    vmprovision_defopts = "-a -x"
+if args.ostype == 38:
+    vmname = "Packer-DebianStableBare-{0}".format(hvname)
+    vmprovision_defopts = "-b -x"
 if args.ostype == 40:
     vmname = "Packer-FreeBSD-{0}".format(hvname)
     vboxosid = "FreeBSD_64"
