@@ -28,7 +28,7 @@ def docker_destroy(name):
 
 def docker_runcmd(cmd, chk=True):
     """Run a command in the named docker container"""
-    subprocess.run(["docker", "exec", "-it", "--privileged", docker_name] + shlex.split(cmd), check=chk)
+    subprocess.run(["docker", "exec", "-i", "--privileged", docker_name] + shlex.split(cmd), check=chk)
     # subprocess.run("docker exec -it --privileged {0} {1}".format(name, cmd), shell=True)
 
 
@@ -76,7 +76,12 @@ signal.signal(signal.SIGINT, signal_handler)
 ######### Begin Code #########
 
 # Unmount all partitions on the block device, if they are mounted.
-
+for root, dirs, files in os.walk("/dev"):
+    for file in files:
+        absfilepath = os.path.join(root, file)
+        if absfilepath.startswith((blockdevice)):
+            print("Unmounting {0}.".format(absfilepath))
+            subprocess.run("umount {0}; umount -l {0}".format(absfilepath), shell=True, check=False)
 # Create the docker container.
 docker_name = "ubuusb"
 docker_image = "ubuntu:latest"
@@ -119,28 +124,73 @@ try:
     docker_runcmd("mount {0} {1}".format(blockdevice_efi, mountfolder_efi))
     # Run debootstrap
     print("\nRunning debootstrap.")
-    # docker_runcmd("debootstrap {0} {1}".format(args.release, mountfolder_root))
+    docker_runcmd("debootstrap {0} {1}".format(args.release, mountfolder_root))
+    # Generate fstab
+    fstab_uuid_p2 = CFunc.subpout("blkid -s UUID -o value {0}".format(blockdevice_efi))
+    fstab_uuid_p3 = CFunc.subpout("blkid -s UUID -o value {0}".format(blockdevice_root))
+    fstab_text = """
+# /dev/sdd3
+UUID={0}	/	ext4	rw,relatime	0	1
+
+# /dev/sdd2
+UUID={1}	/boot/efi	vfat	defaults,rw,errors=remount-ro	0	2
+""".format(fstab_uuid_p3, fstab_uuid_p2)
+    fstab_path = os.path.join(os.sep, "var", "tmp", "fstab")
+    with open(fstab_path, 'w') as fd:
+        fd.write(fstab_text)
+    subprocess.run(["docker", "cp", fstab_path, "{0}:/".format(docker_name)])
+    if os.path.isfile(fstab_path):
+        os.remove(fstab_path)
+    docker_runcmd("mv /fstab {0}/etc/fstab".format(mountfolder_root))
     # Install kernel and bootloader
     chroot_runcmd("apt-get install -y linux-image-generic grub-pc grub-efi-amd64-bin")
-    chroot_runcmd('grub-install --modules="ext2 part_gpt" {0}'.format(blockdevice))
-    chroot_runcmd("update-grub")
+    chroot_runcmd('sed -i "/^#GRUB_TIMEOUT=.*/s/^#//g" /etc/default/grub')
+    chroot_runcmd('sed -i "/GRUB_HIDDEN_TIMEOUT/ s/^#*/#/"" /etc/default/grub')
+    chroot_runcmd('sed -i "/GRUB_HIDDEN_TIMEOUT_QUIET/ s/^#*/#/" /etc/default/grub')
+    chroot_runcmd('sed -i "s/GRUB_TIMEOUT=.*$/GRUB_TIMEOUT=1/g" /etc/default/grub')
+    chroot_runcmd('sed -i "s/GRUB_HIDDEN_TIMEOUT=.*$/GRUB_HIDDEN_TIMEOUT=1/g" /etc/default/grub')
+    chroot_runcmd('chmod a-x /etc/grub.d/30_os-prober')
+    chroot_runcmd('grub-install --target=i386-pc --recheck {0}'.format(blockdevice))
     chroot_runcmd("grub-install --target=x86_64-efi --boot-directory=/boot --efi-directory=/boot/efi --bootloader-id={0} --recheck --removable".format(rootdiskid))
+    chroot_runcmd("update-grub")
     # Create and copy grub.cfg
-    grubcfg_text = """search --label "{0}" --set prefix
+    grubcfg_text = """search --label {0} --set prefix
 configfile ($prefix)/boot/grub/grub.cfg""".format(rootdiskid)
     grubcfg_path = os.path.join(os.sep, "var", "tmp", "grub.cfg")
     with open(grubcfg_path, 'w') as fd:
         fd.write(grubcfg_text)
-    subprocess.run(["docker", "cp", grubcfg_path, "{0}:/grub.cfg".format(docker_name)])
+    subprocess.run(["docker", "cp", grubcfg_path, "{0}:/".format(docker_name)])
     if os.path.isfile(grubcfg_path):
         os.remove(grubcfg_path)
-    chroot_runcmd("mv /grub.cfg /boot/efi/EFI/BOOT/grub.cfg")
+    docker_runcmd("mv /grub.cfg {0}/EFI/BOOT/grub.cfg".format(mountfolder_efi))
     # Install extra software
     chroot_runcmd("apt-get install -y --no-install-recommends software-properties-common")
     chroot_runcmd("add-apt-repository main")
     chroot_runcmd("add-apt-repository restricted")
     chroot_runcmd("add-apt-repository universe")
     chroot_runcmd("add-apt-repository multiverse")
+    chroot_runcmd("apt-get install -y \
+btrfs-progs \
+chntpw \
+clonezilla \
+curl \
+debootstrap \
+dmraid \
+efibootmgr \
+f2fs-tools \
+fsarchiver \
+git \
+iotop \
+less \
+lvm2 \
+mdadm \
+nano \
+rsync \
+screen \
+ssh \
+tmux \
+whois \
+xfsprogs")
 
     # Cleanup
     # Final initram generation
@@ -162,9 +212,9 @@ configfile ($prefix)/boot/grub/grub.cfg""".format(rootdiskid)
     chroot_runcmd("rm -f /var/cache/apt/*.bin")
     # Unmount the disks
     print("Unmounting disks.")
-    # docker_runcmd("umount -R {0}".format(mountfolder_root), chk=False)
-    # docker_runcmd("umount -Rl {0}".format(mountfolder_root), chk=False)
-    # docker_runcmd("umount -Rf {0}".format(mountfolder_root), chk=False)
+    docker_runcmd("umount -R {0}".format(mountfolder_root), chk=False)
+    docker_runcmd("umount -Rl {0}".format(mountfolder_root), chk=False)
+    docker_runcmd("umount -Rf {0}".format(mountfolder_root), chk=False)
 # Cleanup the docker container
 finally:
     print("Cleaning up docker images.")
