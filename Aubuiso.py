@@ -191,7 +191,7 @@ chpasswd <<<"root:asdf"
 
 
 # Update CustomScripts on startup
-cat >/etc/systemd/system/updatecs.service <<EOL
+cat >"/etc/systemd/system/updatecs.service" <<'EOL'
 [Unit]
 Description=updatecs service
 Requires=network-online.target
@@ -206,7 +206,7 @@ TimeoutStopSec=7s
 
 [Install]
 WantedBy=graphical.target
-EOL
+'EOL'
 systemctl enable updatecs.service
 
 # Run MATE Settings script on desktop startup.
@@ -334,7 +334,7 @@ os.chmod(os.path.join(rootfsfolder, "chrootscript.sh"), 0o777)
 try:
     # Mount the chroot filesystems.
     chroot_start()
-    chroot_command(os.path.join("/", "chrootscript.sh"))
+    chroot_command(os.path.join(os.sep, "chrootscript.sh"))
     # Unmount the chroot filesystems when done.
     chroot_end()
     os.remove(os.path.join(rootfsfolder, "chrootscript.sh"))
