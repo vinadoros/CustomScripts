@@ -83,7 +83,6 @@ caja-open-terminal
 dconf-editor
 gnome-keyring
 dconf-cli
-leafpad
 chromium
 gvfs
 avahi-daemon
