@@ -103,7 +103,7 @@ CFunc.log_config(buildlog_path)
 ### Build LiveCD ###
 
 CFunc.aptupdate()
-CFunc.aptinstall("debootstrap squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin mtools")
+CFunc.aptinstall("debootstrap squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin mtools dosfstools")
 CFunc.subpout_logger("debootstrap --arch=amd64 --include linux-image-generic {0} {1}  http://us.archive.ubuntu.com/ubuntu/".format(args.release, rootfsfolder))
 
 # Create chroot script.
