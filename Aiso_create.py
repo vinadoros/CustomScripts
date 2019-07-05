@@ -94,7 +94,7 @@ if args.type == 2:
     os.chmod(buildfolder, 0o777)
     docker_name = "fediso"
     docker_image = "fedora:latest"
-    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -v "{0}":"{0}"'.format(buildfolder)
+    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -e DEBIAN_FRONTEND=noninteractive -v "{0}":"{0}"'.format(buildfolder)
     docker_destroy(docker_name)
     docker_setup(docker_image, docker_name, docker_options)
     docker_runcmd(docker_name, "dnf install -y nano livecd-tools spin-kickstarts pykickstart anaconda util-linux")
@@ -111,7 +111,7 @@ if args.type == 3:
     os.chmod(buildfolder, 0o777)
     docker_name = "debiso"
     docker_image = "debian:testing"
-    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -v "{0}":"{0}"'.format(buildfolder)
+    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -e DEBIAN_FRONTEND=noninteractive -v "{0}":"{0}"'.format(buildfolder)
     docker_destroy(docker_name)
     docker_setup(docker_image, docker_name, docker_options)
     docker_runcmd(docker_name, "apt-get update")
