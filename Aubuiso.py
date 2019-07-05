@@ -163,6 +163,7 @@ gvfs \
 leafpad \
 lightdm \
 mate-desktop-environment \
+gnome-icon-theme \
 network-manager \
 network-manager-gnome \
 net-tools \
