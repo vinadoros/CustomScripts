@@ -22,6 +22,7 @@ parser = argparse.ArgumentParser(description='Install Docker.')
 parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
 parser.add_argument("-r", "--release", help='Force operating system release. Set this if a particular release should be forced.')
 parser.add_argument("-f", "--force", help='Force re-installation of portainer.', action="store_true")
+parser.add_argument("-e", "--edge", help='Enable edge repositories (for a more current docker).', action="store_true")
 
 # Save arguments.
 args = parser.parse_args()
@@ -54,7 +55,9 @@ if distro == "Ubuntu":
     os.remove(key[0])
     # Write sources list
     with open('/etc/apt/sources.list.d/docker.list', 'w') as stapt_writefile:
-        stapt_writefile.write("deb [arch=amd64] https://download.docker.com/linux/ubuntu {0} stable edge".format(release))
+        stapt_writefile.write("deb [arch=amd64] https://download.docker.com/linux/ubuntu {0} stable".format(release))
+        if args.edge:
+            stapt_writefile.write("\ndeb [arch=amd64] https://download.docker.com/linux/ubuntu {0} edge".format(release))
     # Install.
     subprocess.run('apt-get update; apt-get install -y docker-ce', shell=True)
     subprocess.run("usermod -aG docker {0}".format(USERNAMEVAR), shell=True)
@@ -63,8 +66,9 @@ elif distro == "Fedora":
     subprocess.run("""
 dnf install -y dnf-plugins-core
 dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
-dnf config-manager --set-enabled docker-ce-edge
 """, shell=True, check=True)
+    if args.edge:
+        subprocess.run("dnf config-manager --set-enabled docker-ce-edge", shell=True, check=True)
     # Modify repo file
     if release.isdigit() is True:
         subprocess.run("sed -i 's/$releasever/{0}/g' /etc/yum.repos.d/docker-ce.repo".format(release), shell=True)
@@ -73,10 +77,9 @@ dnf config-manager --set-enabled docker-ce-edge
     subprocess.run("usermod -aG docker {0}".format(USERNAMEVAR), shell=True)
 elif distro == "CentOS":
     # Install repo file.
-    subprocess.run("""
-yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-yum-config-manager --enable docker-ce-edge
-""", shell=True, check=True)
+    subprocess.run("yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo", shell=True, check=True)
+    if args.edge:
+        subprocess.run("yum-config-manager --enable docker-ce-edge", shell=True, check=True)
     # Modify repo file
     if release.isdigit() is True:
         subprocess.run("sed -i 's/$releasever/{0}/g' /etc/yum.repos.d/docker-ce.repo".format(release), shell=True)
