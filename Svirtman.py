@@ -120,6 +120,8 @@ if args.uninstall is False:
   </ip>
 </network>
 """
+    with open(NetXMLPath, mode='w') as f:
+        f.write(NetXMLText)
     subprocess.run("virsh net-destroy default", shell=True)
     subprocess.run("virsh net-undefine default", shell=True)
     # Add accept_ra
