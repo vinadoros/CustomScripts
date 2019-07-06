@@ -356,6 +356,16 @@ if type xfconf-query; then
 	# Keyboard Shortcuts
 	xfconf-query -c xfce4-keyboard-shortcuts -p /commands/custom/Super_L -t string -s /usr/bin/xfce4-popup-whiskermenu -n
 	xfconf-query -c xfce4-keyboard-shortcuts -p /commands/custom/Print -t string -s "xfce4-screenshooter" -n
+	# Lock Screen and Power Management
+	if [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 ]]; then
+		xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/blank-on-ac --type int --set 0 --create
+		xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/dpms-on-ac-off --type int --set 0 --create
+		xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/dpms-on-ac-sleep --type int --set 0 --create
+	else
+		xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/blank-on-ac --type int --set 10 --create
+		xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/dpms-on-ac-off --type int --set 10 --create
+		xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/dpms-on-ac-sleep --type int --set 10 --create
+	fi
 
 	# Thunar settings
 	xfconf-query -c xfce4-panel -p /default-view --type string --set "ThunarDetailsView" --create
