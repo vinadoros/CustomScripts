@@ -66,7 +66,7 @@ if args.uninstall is False:
         subprocess.run("systemctl start libvirtd", shell=True)
         subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True)
     elif shutil.which("apt-get"):
-        CFunc.aptinstall("libvirt-daemon libvirt-daemon-system qemu-kvm ssh-askpass")
+        CFunc.aptinstall("libvirt-daemon libvirt-daemon-system libvirt-client qemu-kvm ssh-askpass")
         if args.vmm:
             CFunc.aptinstall("virt-manager")
         subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True)
