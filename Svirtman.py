@@ -16,7 +16,6 @@ print("Running {0}".format(__file__))
 parser = argparse.ArgumentParser(description='Install/uninstall libvirt and virt-manager.')
 parser.add_argument("-i", "--image", help='Image path, i.e. /mnt/Storage/VMs')
 parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
-parser.add_argument("-v", "--vmm", help='Include virt-manager with libvirt.', action="store_true")
 parser.add_argument("-u", "--uninstall", help='Uninstall libvirt and virt-manager.', action="store_true")
 
 # Save arguments.
@@ -32,10 +31,6 @@ if args.uninstall:
     print("Uninstalling libvirt.")
 else:
     print("Installing libvirt.")
-if args.vmm:
-    print("Also handling virt-manager.")
-else:
-    print("WARNING: Not dealing with virt-manager.")
 if args.image and os.path.isdir(args.image):
     ImagePath = os.path.abspath(args.image)
     print("Path to store Images: {0}".format(ImagePath))
@@ -59,16 +54,12 @@ SysctlAcceptRaPath = os.path.join(os.sep, "etc", "sysctl.d", "99-acceptra.conf")
 if args.uninstall is False:
     print("Installing libvirt")
     if shutil.which("dnf"):
-        CFunc.dnfinstall("libvirt-daemon-config-network libvirt-daemon-kvm qemu-kvm")
-        if args.vmm:
-            CFunc.dnfinstall("@virtualization")
+        CFunc.dnfinstall("@virtualization")
         subprocess.run("systemctl enable libvirtd", shell=True)
         subprocess.run("systemctl start libvirtd", shell=True)
         subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True)
     elif shutil.which("apt-get"):
-        CFunc.aptinstall("libvirt-daemon libvirt-daemon-system libvirt-clients qemu-kvm ssh-askpass")
-        if args.vmm:
-            CFunc.aptinstall("virt-manager")
+        CFunc.aptinstall("virt-manager qemu-kvm ssh-askpass")
         subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True)
         subprocess.run("usermod -aG libvirt-qemu {0}".format(USERNAMEVAR), shell=True)
 
@@ -137,7 +128,7 @@ if args.uninstall is False:
     subprocess.run("virsh net-start default", shell=True)
 
     # Set dconf info
-    if args.vmm:
+    if shutil.which("gsettings"):
         CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager.stats enable-cpu-poll true")
         CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager.stats enable-disk-poll true")
         CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager.stats enable-memory-poll true")
@@ -147,6 +138,8 @@ if args.uninstall is False:
         CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager.vmlist-fields memory-usage true")
         CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager.vmlist-fields network-traffic true")
         CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager.console resize-guest 1")
+    else:
+        print("WARNING: gsettings command not found. Install to set virt-manager defaults.")
 
 # Uninstallation Code
 if args.uninstall is True:
@@ -156,13 +149,9 @@ if args.uninstall is True:
     if shutil.which("dnf"):
         subprocess.run("systemctl stop libvirtd", shell=True)
         subprocess.run("systemctl disable libvirtd", shell=True)
-        subprocess.run("dnf remove libvirt-daemon-config-network libvirt-daemon-kvm qemu-kvm", shell=True)
-        if args.vmm:
-            subprocess.run("dnf remove @virtualization", shell=True)
+        subprocess.run("dnf remove @virtualization", shell=True)
     elif shutil.which("apt-get"):
-        subprocess.run("apt-get --purge remove libvirt-daemon libvirt-daemon-system libvirt-clients qemu-kvm ssh-askpass", shell=True)
-        if args.vmm:
-            subprocess.run("apt-get --purge remove virt-manager", shell=True)
+        subprocess.run("apt-get --purge remove virt-manager qemu-kvm ssh-askpass", shell=True)
     if os.path.isfile(PolkitUserRulePath):
         os.remove(PolkitUserRulePath)
     if os.path.isfile(SysctlAcceptRaPath):
