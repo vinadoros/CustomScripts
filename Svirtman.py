@@ -27,13 +27,6 @@ USERNAMEVAR, USERGROUP, USERHOME = CFunc.getnormaluser()
 print("Username is:", USERNAMEVAR)
 print("Group Name is:", USERGROUP)
 
-# Detect OS information
-distro, release = CFunc.detectdistro()
-if args.release is not None:
-    release = args.release
-print("Distro is {0}.".format(distro))
-print("Release is {0}.".format(release))
-
 # Process arguments
 if args.uninstall:
     print("Uninstalling libvirt.")
