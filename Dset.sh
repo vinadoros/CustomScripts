@@ -464,6 +464,9 @@ if cd ~/.mozilla/firefox/*.default/ && ls prefs.js; then
 	echo "Editing Firefox preferences."
 	mod_ff "general.autoScroll" "true"
 	mod_ff "extensions.pocket.enabled" "false"
+	mod_ff "browser.tabs.drawInTitlebar" "true"
+	mod_ff "general.warnOnAboutConfig" "false"
+	mod_ff "browser.download.useDownloadDir" "false"
 	# Disable notifications
 	mod_ff "dom.webnotifications.enabled" "false"
 fi
