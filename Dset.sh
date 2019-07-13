@@ -467,6 +467,7 @@ if cd ~/.mozilla/firefox/*.default/ && ls prefs.js; then
 	mod_ff "browser.tabs.drawInTitlebar" "true"
 	mod_ff "general.warnOnAboutConfig" "false"
 	mod_ff "browser.download.useDownloadDir" "false"
+	mod_ff "app.shield.optoutstudies.enabled" "false"
 	# Disable notifications
 	mod_ff "dom.webnotifications.enabled" "false"
 fi
