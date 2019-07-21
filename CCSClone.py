@@ -69,7 +69,7 @@ if os.path.isfile(variablefile):
     with open(variablefile, 'r') as variablefile_handle:
         json_privdata = json.load(variablefile_handle)
     os.chdir(clonepath_final)
-    subprocess.run(['git', 'config', 'remote.origin.url', "git@gitserv:{0}.git".format(fullrepo)], check=True)
+    subprocess.run(['git', 'config', 'remote.origin.url', "git@github.com:{0}.git".format(fullrepo)], check=True)
     subprocess.run(['git', 'config', 'push.default', 'simple'], check=True)
     subprocess.run(['git', 'config', 'user.name', json_privdata['GITHUBCOMMITNAME']], check=True)
     subprocess.run(['git', 'config', 'user.email', json_privdata['GITHUBCOMMITEMAIL']], check=True)
