@@ -156,6 +156,12 @@ function dru () {
     echo "Executing systemd daemon-reload for user."
     systemctl --user daemon-reload
 }
+function flatpak_update () {
+    if type flatpak &> /dev/null; then
+        echo "Updating Flatpaks"
+        $SUDOCMD flatpak update --system --assumeyes
+    fi
+}
 
 if type zypper &> /dev/null; then
     function ins () {
@@ -189,6 +195,7 @@ if type zypper &> /dev/null; then
     function dup () {
         echo "Dist-upgrading system."
         $SUDOCMD zypper dup --no-recommends
+        flatpak_update
     }
 elif type -p apt-get &> /dev/null; then
     function ins () {
@@ -227,6 +234,7 @@ elif type -p apt-get &> /dev/null; then
         echo "Updating and Dist-upgrading system."
         $SUDOCMD apt-get update
         $SUDOCMD apt-get dist-upgrade
+        flatpak_update
     }
 elif type dnf &> /dev/null || type yum &> /dev/null; then
     if type dnf &> /dev/null; then
@@ -262,6 +270,7 @@ elif type dnf &> /dev/null || type yum &> /dev/null; then
     function up () {
         echo "Updating system."
         $SUDOCMD $PKGMGR upgrade --refresh -y
+        flatpak_update
     }
 fi
 """ % SCRIPTDIR
@@ -570,6 +579,12 @@ function dru
     echo "Executing systemd daemon-reload for user."
     systemctl --user daemon-reload
 end
+function flatpak_update
+    if type -q flatpak
+        echo "Updating Flatpaks"
+        sudo flatpak update --system --assumeyes
+    end
+end
 # Set package manager functions
 if type -q zypper
     function ins
@@ -599,10 +614,12 @@ if type -q zypper
     function up
         echo "Updating system."
         sudo zypper up -yl --no-recommends
+        flatpak_update
     end
     function dup
         echo "Dist-upgrading system."
         sudo zypper dup --no-recommends
+        flatpak_update
     end
 else if type -q apt-get
     function ins
@@ -641,6 +658,7 @@ else if type -q apt-get
         echo "Updating and Dist-upgrading system."
         sudo apt-get update
         sudo apt-get dist-upgrade
+        flatpak_update
     end
 else if type -q dnf; or type -q yum
     if type -q dnf
@@ -675,6 +693,7 @@ else if type -q dnf; or type -q yum
     function up
         echo "Updating system."
         sudo $PKGMGR update --refresh -y
+        flatpak_update
     end
 end
 """.format(SCRIPTDIR=SCRIPTDIR)
