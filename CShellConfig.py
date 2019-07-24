@@ -162,6 +162,12 @@ function flatpak_update () {
         $SUDOCMD flatpak update --system --assumeyes
     fi
 }
+function flatpak_clean () {
+    if type flatpak &> /dev/null; then
+        echo "Clean unused Flatpaks"
+        $SUDOCMD flatpak uninstall --unused
+    fi
+}
 
 if type zypper &> /dev/null; then
     function ins () {
@@ -229,6 +235,7 @@ elif type -p apt-get &> /dev/null; then
         $SUDOCMD apt-get autoclean
         echo "Auto-removing packages."
         $SUDOCMD apt-get autoremove --purge
+        flatpak_clean
     }
     function up () {
         echo "Updating and Dist-upgrading system."
@@ -266,6 +273,7 @@ elif type dnf &> /dev/null || type yum &> /dev/null; then
     function cln () {
         echo "Auto-removing packages."
         $SUDOCMD $PKGMGR autoremove
+        flatpak_clean
     }
     function up () {
         echo "Updating system."
@@ -585,6 +593,12 @@ function flatpak_update
         sudo flatpak update --system --assumeyes
     end
 end
+function flatpak_clean
+    if type -q flatpak
+        echo "Clean unused Flatpaks"
+        sudo flatpak uninstall --unused
+    end
+end
 # Set package manager functions
 if type -q zypper
     function ins
@@ -653,6 +667,7 @@ else if type -q apt-get
         sudo apt-get autoclean
         echo "Auto-removing packages."
         sudo apt-get autoremove --purge
+        flatpak_clean
     end
     function up
         echo "Updating and Dist-upgrading system."
@@ -689,6 +704,7 @@ else if type -q dnf; or type -q yum
     function cln
         echo "Auto-removing packages."
         sudo $PKGMGR autoremove
+        flatpak_clean
     end
     function up
         echo "Updating system."
