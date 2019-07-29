@@ -20,20 +20,11 @@ SCRIPTDIR = sys.path[0]
 USERNAMEVAR, USERGROUP, USERHOME = CFunc.getnormaluser()
 
 # Get arguments
-parser = argparse.ArgumentParser(description='Clone and update CustomScripts.')
-parser.add_argument("-r", "--repo", help='Repository to clone from Github', default="ramesh45345/CustomScripts")
-parser.add_argument("-p", "--clonepath", help='Run Extra Scripts')
+parser = argparse.ArgumentParser(description='Update and set info for CustomScripts.')
 parser.add_argument("-v", "--variablefile", help='Run Extra Scripts', default=os.path.join(USERHOME, "privateconfig.json"))
 
 # Save arguments.
 args = parser.parse_args()
-
-# Get variables
-if args.clonepath is None:
-    if CFunc.is_windows() is True:
-        args.clonepath = USERHOME
-    else:
-        args.clonepath = os.path.join(os.sep, "opt")
 
 # Get external variables from bash file.
 variablefile = args.variablefile
@@ -42,24 +33,20 @@ if os.path.isfile(args.variablefile):
     print("Variable File {0} will be used.".format(variablefile))
 
 # Save the repo name (after the slash) and the user (before the slash).
-fullrepo = args.repo
+fullrepo = "ramesh45345/CustomScripts"
 repouser = fullrepo.split("/")[0]
 reponame = fullrepo.split("/")[1]
-print("Repo to clone: {0}/{1}".format(repouser, reponame))
-if os.path.isdir(args.clonepath):
-    clonepath = os.path.abspath(args.clonepath)
-    clonepath_final = os.path.join(clonepath, reponame)
-    print("Path to clone into: {0}".format(clonepath_final))
-else:
-    sys.exit("ERROR: Clone path {0} is not a valid folder.".format(args.clonepath))
 
+# Name of this repo
+clonepath = SCRIPTDIR
+
+# Cron variables
+cron_hourly_folder = os.path.join(os.sep, "etc", "cron.hourly")
+cron_hourly_file = os.path.join(cron_hourly_folder, reponame)
 
 ### Begin Code ###
-# Clone if doesn't exist.
-if not os.path.isdir(clonepath_final):
-    subprocess.run(['git', 'clone', "https://github.com/{0}.git".format(fullrepo), clonepath_final], check=True)
 # Git pull.
-os.chdir(clonepath_final)
+os.chdir(clonepath)
 subprocess.run(['git', 'config', 'remote.origin.url', "https://github.com/{0}.git".format(fullrepo)], check=True)
 subprocess.run(['git', 'pull'], check=True)
 
@@ -68,7 +55,7 @@ if os.path.isfile(variablefile):
     print("Adding commit information for {0} github account.".format(reponame))
     with open(variablefile, 'r') as variablefile_handle:
         json_privdata = json.load(variablefile_handle)
-    os.chdir(clonepath_final)
+    os.chdir(clonepath)
     subprocess.run(['git', 'config', 'remote.origin.url', "git@github.com:{0}.git".format(fullrepo)], check=True)
     subprocess.run(['git', 'config', 'push.default', 'simple'], check=True)
     subprocess.run(['git', 'config', 'user.name', json_privdata['GITHUBCOMMITNAME']], check=True)
@@ -85,10 +72,10 @@ After=network-online.target graphical.target
 [Service]
 Type=simple
 User={username}
-ExecStart=/bin/sh -c "cd {clonepath_final}; git pull"
+ExecStart=/bin/sh -c "cd {clonepath}; git pull"
 Restart=on-failure
 RestartSec=60s
-StartLimitBurst=4""".format(username=USERNAMEVAR, clonepath_final=clonepath_final)
+StartLimitBurst=4""".format(username=USERNAMEVAR, clonepath=clonepath)
     CFunc.systemd_createsystemunit("csupdate.service", CSUpdate_SystemUnitText)
     # Systemd timer
     CSUpdate_SystemTimerText = """[Unit]
@@ -113,19 +100,19 @@ WantedBy=timers.target"""
     if os.path.isfile("/etc/cron.hourly/{0}".format(reponame)):
         os.remove("/etc/cron.hourly/{0}".format(reponame))
 # Fall-back to cron script if systemd is not available.
-elif os.path.isdir("/etc/cron.hourly"):
-    with open("/etc/cron.hourly/{0}".format(reponame), 'w') as file:
+elif os.path.isdir(cron_hourly_folder):
+    with open(cron_hourly_file, 'w') as file:
         file.write('''#!{2}
 echo "Executing \$0"
 su {0} -s /bin/sh <<'EOL'
     cd {1}
     git pull
 EOL
-'''.format(USERNAMEVAR, clonepath_final, shutil.which("bash")))
+'''.format(USERNAMEVAR, clonepath, shutil.which("bash")))
     # Make script executable
-    os.chmod("/etc/cron.hourly/{0}".format(reponame), 0o777)
+    os.chmod(cron_hourly_file, 0o777)
 
 # Set permissions of cloned folder
 if CFunc.is_windows() is False:
-    subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, clonepath_final), shell=True)
-    os.chmod(clonepath_final, 0o777)
+    subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, clonepath), shell=True)
+    os.chmod(clonepath, 0o777)
