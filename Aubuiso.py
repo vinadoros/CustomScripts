@@ -357,23 +357,24 @@ CFunc.subpout_logger("cp {0}/boot/vmlinuz-* {1}/image/vmlinuz".format(rootfsfold
 CFunc.subpout_logger("cp {0}/boot/initrd.img-* {1}/image/initrd".format(rootfsfolder, buildfolder))
 
 # Grub config file.
+iso_label = "Ubuntu-{0}".format(currentdatetime)
 with open(os.path.join(buildfolder, "scratch", "grub.cfg"), 'w') as grubcfg_handle:
     grubcfg_handle.write("""
-search --set=root --file /DEBIAN_CUSTOM
+search --set=root --file /{0}
 
 insmod all_video
 
 set default="0"
 set timeout=1
 
-menuentry "Ubuntu Live" {
+menuentry "Ubuntu Live" {{
     linux /vmlinuz boot=casper noprompt
     # Add "earlyprintk serial=tty0 console=ttyS0,115200n8" for debugging
     initrd /initrd
-}
-""")
+}}
+""".format(iso_label))
 
-debcustom_path = Path(os.path.join(buildfolder, "image", "DEBIAN_CUSTOM"))
+debcustom_path = Path(os.path.join(buildfolder, "image", iso_label))
 debcustom_path.touch(exist_ok=True)
 CFunc.subpout_logger('''grub-mkstandalone \
     --format=x86_64-efi \
@@ -399,7 +400,7 @@ CFunc.subpout_logger("""xorriso \
     -as mkisofs \
     -iso-level 3 \
     -full-iso9660-filenames \
-    -volid "DEBIAN_CUSTOM" \
+    -volid "{2}" \
     -eltorito-boot \
         boot/grub/bios.img \
         -no-emul-boot \
@@ -416,7 +417,7 @@ CFunc.subpout_logger("""xorriso \
     -graft-points \
         "{0}/image" \
         /boot/grub/bios.img={0}/scratch/bios.img \
-        /EFI/efiboot.img={0}/scratch/efiboot.img""".format(buildfolder, isoname))
+        /EFI/efiboot.img={0}/scratch/efiboot.img""".format(buildfolder, isoname, iso_label))
 # Set permissions of iso and log
 os.chmod(os.path.join(buildfolder, isoname), 0o777)
 os.chmod(os.path.join(buildlog_path), 0o777)
