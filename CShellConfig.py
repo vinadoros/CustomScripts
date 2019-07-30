@@ -353,18 +353,28 @@ else:
         shutil.chown(BASHSCRIPTPATH, USERNAMEVAR, USERGROUP)
 
 # Install bash-it before modifying bashrc (which automatically deletes bashrc)
-# Only do it if the current user can write to opt
-if os.access("/opt", os.W_OK):
-    CFunc.gitclone("https://github.com/Bash-it/bash-it", "/opt/bash-it")
-    subprocess.run("chmod -R a+rwx /opt/bash-it", shell=True)
-if os.path.isdir("/opt/bash-it"):
+# If /opt exists, use it. If not Windows, make and use /var/opt
+if os.path.isdir(os.path.join(os.sep, "opt")) and os.access(os.path.join(os.sep, "opt")):
+    repos_path = os.path.join(os.sep, "opt")
+elif os.path.isdir(os.path.join(os.sep, "var")) and os.access(os.path.join(os.sep, "var"), os.W_OK) and not CFunc.is_windows():
+    repos_path = os.path.join(os.sep, "var", "opt")
+    os.makedirs(repos_path)
+else:
+    repos_path = os.path.join(USERVARHOME, "opt")
+    os.makedirs(repos_path)
+# Only do it if the current user can write to repos_path
+bashit_path = os.path.join(repos_path, "bash-it")
+if os.access(repos_path, os.W_OK):
+    CFunc.gitclone("https://github.com/Bash-it/bash-it", bashit_path)
+    subprocess.run("chmod -R a+rwx {0}".format(bashit_path), shell=True)
+if os.path.isdir(bashit_path):
     subprocess.run("""
     [ "$(id -u)" = "0" ] && HOME={0}
-    /opt/bash-it/install.sh --silent
-    """.format(ROOTHOME), shell=True)
+    {1}/install.sh --silent
+    """.format(ROOTHOME, bashit_path), shell=True)
     subprocess.run("""sed -i -- "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTPATH), shell=True)
     if rootstate is True:
-        CFunc.run_as_user(USERNAMEVAR, "/opt/bash-it/install.sh --silent", shutil.which("bash"))
+        CFunc.run_as_user(USERNAMEVAR, "{0}/install.sh --silent".format(bashit_path), shutil.which("bash"))
         subprocess.run("""sed -i -- "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0} {1}""".format(BASHROOTSCRIPTPATH, BASHSCRIPTPATH), shell=True)
 
 # Install bash script
