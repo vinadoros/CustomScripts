@@ -354,7 +354,7 @@ else:
 
 # Install bash-it before modifying bashrc (which automatically deletes bashrc)
 # If /opt exists, use it. If not Windows, make and use /var/opt
-if os.path.isdir(os.path.join(os.sep, "opt")) and os.access(os.path.join(os.sep, "opt")):
+if os.path.isdir(os.path.join(os.sep, "opt")) and os.access(os.path.join(os.sep, "opt"), os.W_OK):
     repos_path = os.path.join(os.sep, "opt")
 elif os.path.isdir(os.path.join(os.sep, "var")) and os.access(os.path.join(os.sep, "var"), os.W_OK) and not CFunc.is_windows():
     repos_path = os.path.join(os.sep, "var", "opt")
