@@ -487,14 +487,33 @@ set CUSTOMSCRIPTPATH "{SCRIPTDIR}"
 # Set editor
 set -gx EDITOR nano
 set -gx XZ_OPT "-T0"
+
+# Function to check if in path
+function checkpath
+    set PATHSPLIT (string split " " $PATH)
+    for x in $PATHSPLIT
+        if test "$argv" = "$x"
+            return 1
+        end
+    end
+    return 0
+end
+# Function to add path
+function pathadd
+    if checkpath "$argv"; and test -d "$argv"
+        set -gx PATH $argv $PATH
+    end
+end
 # Set sbin in path
-if not echo $PATH | grep -q "/sbin"
-    set -gx PATH $PATH /usr/local/sbin /usr/sbin /sbin
-end
+pathadd "/sbin"
+pathadd "/usr/sbin"
+pathadd "/usr/local/sbin"
 # Set Custom Scripts in path
-if test -d "$CUSTOMSCRIPTPATH"
-    set -gx PATH $PATH "$CUSTOMSCRIPTPATH"
-end
+pathadd "$CUSTOMSCRIPTPATH"
+# Add snap paths
+pathadd "/snap/bin"
+pathadd "/var/lib/snapd/snap/bin"
+
 function sl
     xhost +localhost >> /dev/null
     env DISPLAY=$DISPLAY sudo bash
