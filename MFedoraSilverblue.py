@@ -25,7 +25,7 @@ def rostreeinstall(apps):
     """Install application(s) using rpm-ostree"""
     status = None
     print("\nInstalling {0} using rpm-ostree.".format(apps))
-    status = subprocess.run("rpm-ostree install {0}".format(apps), shell=True).returncode
+    status = subprocess.run("rpm-ostree install --idempotent {0}".format(apps), shell=True).returncode
     return status
 
 
@@ -63,14 +63,12 @@ rostreeupdate()
 
 ### OSTree Apps ###
 # Cli tools
-rostreeinstall("zsh nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils xdg-user-dirs util-linux-user fuse-sshfs redhat-lsb-core openssh-server openssh-clients avahi")
+rostreeinstall("zsh nano tmux iotop p7zip p7zip-plugins zip unzip xdg-utils xdg-user-dirs util-linux-user fuse-sshfs redhat-lsb-core openssh-server openssh-clients avahi")
 subprocess.run("systemctl enable sshd", shell=True)
 rostreeinstall("powerline-fonts google-roboto-fonts google-noto-sans-fonts")
 # Samba
 rostreeinstall("samba")
 subprocess.run("systemctl enable smb", shell=True)
-# cifs-utils
-rostreeinstall("cifs-utils")
 # NTP Configuration
 subprocess.run("systemctl enable systemd-timesyncd; timedatectl set-local-rtc false; timedatectl set-ntp 1", shell=True)
 # Hdparm
@@ -97,7 +95,7 @@ if vmstatus == "vmware":
 
 # Install Desktop Software
 # Some Gnome Extensions
-rostreeinstall("gnome-terminal-nautilus gnome-tweak-tool dconf-editor")
+rostreeinstall("gnome-tweak-tool dconf-editor")
 rostreeinstall("gnome-shell-extension-gpaste gnome-shell-extension-topicons-plus gnome-shell-extension-dash-to-dock")
 # Install gs installer script.
 gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
