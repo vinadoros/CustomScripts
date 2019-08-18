@@ -63,7 +63,7 @@ rostreeupdate()
 
 ### OSTree Apps ###
 # Cli tools
-rostreeinstall("zsh nano tmux iotop p7zip p7zip-plugins zip unzip xdg-utils xdg-user-dirs util-linux-user fuse-sshfs redhat-lsb-core openssh-server openssh-clients avahi")
+rostreeinstall("zsh nano tmux iotop p7zip p7zip-plugins util-linux-user fuse-sshfs redhat-lsb-core")
 subprocess.run("systemctl enable sshd", shell=True)
 rostreeinstall("powerline-fonts google-roboto-fonts google-noto-sans-fonts")
 # Samba
@@ -134,14 +134,12 @@ if os.path.isdir('/etc/sudoers.d'):
 
 # Install snapd
 rostreeinstall("snapd")
-if not os.path.islink("/snap"):
-    os.symlink("/var/lib/snapd/snap", "/snap", target_is_directory=True)
 
 # Flatpak setup
-rostreeinstall("flatpak xdg-desktop-portal")
 CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo")
 
 # Flatpak apps
+CFunc.flatpak_install("fedora", "org.gnome.gedit")
 CFunc.flatpak_install("flathub", "org.videolan.VLC")
 CFunc.flatpak_install("flathub", "io.github.celluloid_player.Celluloid")
 
