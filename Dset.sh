@@ -460,7 +460,8 @@ function mod_ff () {
 	grep -q $1 prefs.js || echo "user_pref(\"$1\",$2);" >> prefs.js
 }
 
-if cd ~/.mozilla/firefox/*.default/ && ls prefs.js; then
+# TODO: Insert for-loop to do this in every profile detected.
+if cd ~/.mozilla/firefox/*.default*/ && ls prefs.js; then
 	echo "Editing Firefox preferences."
 	mod_ff "general.autoScroll" "true"
 	mod_ff "extensions.pocket.enabled" "false"
