@@ -31,13 +31,10 @@ def rostreeinstall(apps):
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Install Fedora Software.')
-parser.add_argument("-d", "--desktop", help='Desktop Environment (i.e. gnome, kde, mate, etc)')
 parser.add_argument("-a", "--allextra", help='Run Extra Scripts', action="store_true")
-parser.add_argument("-b", "--bare", help='Configure script to set up a bare-minimum environment.', action="store_true")
 
 # Save arguments.
 args = parser.parse_args()
-print("Desktop Environment:", args.desktop)
 print("Run extra scripts:", args.allextra)
 
 # Exit if not root.
@@ -99,8 +96,6 @@ if vmstatus == "vmware":
         rostreeinstall("open-vm-tools-desktop")
 
 # Install Desktop Software
-# Gnome
-rostreeinstall("--allowerasing @workstation-product @gnome-desktop")
 # Some Gnome Extensions
 rostreeinstall("gnome-terminal-nautilus gnome-tweak-tool dconf-editor")
 rostreeinstall("gnome-shell-extension-gpaste gnome-shell-extension-topicons-plus gnome-shell-extension-dash-to-dock")
