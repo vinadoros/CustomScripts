@@ -63,7 +63,7 @@ rostreeupdate()
 
 ### OSTree Apps ###
 # Cli tools
-rostreeinstall("zsh nano tmux iotop p7zip p7zip-plugins util-linux-user fuse-sshfs redhat-lsb-core")
+rostreeinstall("zsh nano tmux iotop p7zip p7zip-plugins util-linux-user fuse-sshfs redhat-lsb-core dbus-tools")
 subprocess.run("systemctl enable sshd", shell=True)
 rostreeinstall("powerline-fonts google-roboto-fonts google-noto-sans-fonts")
 # Samba
@@ -140,8 +140,12 @@ CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo
 
 # Flatpak apps
 CFunc.flatpak_install("fedora", "org.gnome.gedit")
+CFunc.flatpak_install("fedora", "org.gnome.Evince")
+CFunc.flatpak_install("fedora", "org.gnome.eog")
+CFunc.flatpak_install("flathub", "org.keepassxc.KeePassXC")
 CFunc.flatpak_install("flathub", "org.videolan.VLC")
 CFunc.flatpak_install("flathub", "io.github.celluloid_player.Celluloid")
+CFunc.flatpak_install("flathub", "com.visualstudio.code.oss")
 
 # Disable Selinux
 # To get selinux status: sestatus, getenforce
