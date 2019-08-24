@@ -1,108 +1,63 @@
 #!/usr/bin/env python3
 """Create zram startup script"""
 
-import argparse
-import multiprocessing
 import os
 import subprocess
+import shutil
 import sys
+# Custom includes
+import CFunc
 
 print("Running {0}".format(__file__))
-
-# Get arguments
-parser = argparse.ArgumentParser(description='Install zram script.')
-parser.add_argument("-c", "--cputhreads", type=int, help='Number of zram partitions to create (0 is autodetect)', default="1")
-
-# Save arguments.
-args = parser.parse_args()
 
 # Exit if not root.
 if os.geteuid() is not 0:
     sys.exit("\nError: Please run this script as root.\n")
 
-# Autodetect cores if not specified above.
-if args.cputhreads is 0:
-    cpucores = multiprocessing.cpu_count() if multiprocessing.cpu_count() <= 4 else 4
-else:
-    cpucores = args.cputhreads
+memory = CFunc.subpout("free -tb | awk '/Mem:/ {{ print $2 }}'")
+zram_memory = int(int(memory) * 1.5)
 
-print("Zram threads:", cpucores)
+### Begin Code ###
+# Add zram to loaded startup modules.
+moduleload_path = os.path.join(os.sep, "etc", "modules-load.d", "zram.conf")
+if os.path.isdir(os.path.dirname(moduleload_path)):
+    with open(moduleload_path, 'w') as f:
+        f.write("zram")
 
-# File variables
-zramscript = "/usr/local/bin/zramscript"
-systemdfolder = "/etc/systemd/system"
-systemdservicename = "zram.service"
-systemdservice = systemdfolder + "/" + systemdservicename
-if os.path.isdir(systemdfolder):
-    print("Creating {0}".format(zramscript))
-    with open(zramscript, 'w') as zramscript_write:
-        zramscript_write.write("""#!/bin/sh
-### BEGIN INIT INFO
-# Provides:          zram
-# Required-Start:    $local_fs
-# Required-Stop:     $local_fs
-# Default-Start:     S
-# Default-Stop:      0 1 6
-# Short-Description: Use compressed RAM as in-memory swap
-# Description:       Use compressed RAM as in-memory swap
-### END INIT INFO
+# Add zram module options.
+modprobe_path = os.path.join(os.sep, "etc", "modprobe.d", "zram.conf")
+if os.path.isdir(os.path.dirname(modprobe_path)):
+    with open(modprobe_path, 'w') as f:
+        f.write("options zram num_devices=1")
 
-# Author: Antonio Galea <antonio.galea@gmail.com>
-# Thanks to Przemysław Tomczyk for suggesting swapoff parallelization
+# Create udev rule
+zram_blockdevicename = os.path.join(os.sep, "dev", "zram0")
+udevrule_path = os.path.join(os.sep, "etc", "udev", "rules.d", "99-zram.rules")
+if os.path.isdir(os.path.dirname(udevrule_path)):
+    with open(udevrule_path, 'w') as f:
+        f.write('KERNEL=="zram0", ATTR{{disksize}}="{0}" RUN="{1} {2}", TAG+="systemd"'.format(zram_memory, shutil.which("mkswap"), zram_blockdevicename))
 
-FRACTION=150
+# Add zram to fstab
+fstab_path = os.path.join(os.sep, "etc", "fstab")
+fstab_text = "{0}\tswap\tswap\tdefaults,pri=16383,nofail\t0\t0\n".format(zram_blockdevicename)
+if os.path.isfile(fstab_path):
+    # Check for a newline at the end of fstab.
+    with open(fstab_path, 'r') as f:
+        fstab_existing_text = str(f.read())
+    # If a newline doesn't exist, add one.
+    if not fstab_existing_text.endswith("\n"):
+        fstab_text = "\n" + fstab_text
+    # Add the fstab line to fstab if zram is not found in the file.
+    if zram_blockdevicename not in fstab_existing_text:
+        with open(fstab_path, 'a') as f:
+            f.write(fstab_text)
 
-MEMORY="$(free -tb | awk '/Mem\\:/ {{ print $2 }}')"
-# CPUS=`nproc`
-# If CPUs greater than 4, reduce to 4.
-# [[ $CPUS -gt 4 ]] && CPUS=4
-CPUS={0}
+# Cleanup old scripts
+# TODO: Remove later
+if os.path.exists("/etc/systemd/system/zram.service"):
+    subprocess.run("systemctl stop zram", shell=True)
+    subprocess.run("systemctl disable zram", shell=True)
+    os.remove("/etc/systemd/system/zram.service")
 
-SIZE=$(( MEMORY * FRACTION / 100 / CPUS ))
-
-case "$1" in
-  "start")
-    param=`modinfo zram|grep num_devices|cut -f2 -d:|tr -d ' '`
-    modprobe zram $param=$CPUS
-    for n in `seq $CPUS`; do
-      i=$((n - 1))
-      echo $SIZE > /sys/block/zram$i/disksize
-      mkswap /dev/zram$i
-      swapon /dev/zram$i -p 10
-    done
-    ;;
-  "stop")
-    for n in `seq $CPUS`; do
-      i=$((n - 1))
-      swapoff /dev/zram$i && echo "disabled disk $n of $CPUS" &
-    done
-    wait
-    sleep .5
-    modprobe -r zram
-    ;;
-  *)
-    echo "Usage: `basename $0` (start | stop)"
-    exit 1
-    ;;
-esac""".format(cpucores))
-    os.chmod(zramscript, 0o777)
-
-    print("Creating {0}".format(systemdservice))
-    with open(systemdservice, 'w') as systemdservice_write:
-        systemdservice_write.write("""[Unit]
-Description=Zram-based swap (compressed RAM block devices)
-
-[Service]
-Type=simple
-ExecStart={0} start
-ExecStop={0} stop
-RemainAfterExit=yes
-
-[Install]
-WantedBy=multi-user.target
-""".format(zramscript))
-
-    subprocess.run("""
-systemctl daemon-reload
-systemctl enable {0}
-""".format(systemdservicename), shell=True)
+if os.path.exists("/usr/local/bin/zramscript"):
+    os.remove("/usr/local/bin/zramscript")
