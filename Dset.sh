@@ -461,17 +461,20 @@ function mod_ff () {
 }
 
 # TODO: Insert for-loop to do this in every profile detected.
-if cd ~/.mozilla/firefox/*.default*/ && ls prefs.js; then
-	echo "Editing Firefox preferences."
-	mod_ff "general.autoScroll" "true"
-	mod_ff "extensions.pocket.enabled" "false"
-	mod_ff "browser.tabs.drawInTitlebar" "true"
-	mod_ff "general.warnOnAboutConfig" "false"
-	mod_ff "browser.download.useDownloadDir" "false"
-	mod_ff "app.shield.optoutstudies.enabled" "false"
-	# DNS-over-HTTPS
-	mod_ff "network.trr.mode" "2"
-	mod_ff "network.trr.bootstrapAddress" "1.1.1.1"
-	# Disable notifications
-	mod_ff "dom.webnotifications.enabled" "false"
-fi
+for profilefolder in ~/.mozilla/firefox/*.default*/; do
+	if [ -f "$profilefolder/prefs.js" ]; then
+		cd "$profilefolder"
+		echo "Editing Firefox preferences in $profilefolder."
+		mod_ff "general.autoScroll" "true"
+		mod_ff "extensions.pocket.enabled" "false"
+		mod_ff "browser.tabs.drawInTitlebar" "true"
+		mod_ff "general.warnOnAboutConfig" "false"
+		mod_ff "browser.download.useDownloadDir" "false"
+		mod_ff "app.shield.optoutstudies.enabled" "false"
+		# DNS-over-HTTPS
+		mod_ff "network.trr.mode" "2"
+		mod_ff "network.trr.bootstrapAddress" "1.1.1.1"
+		# Disable notifications
+		mod_ff "dom.webnotifications.enabled" "false"
+	fi
+done
