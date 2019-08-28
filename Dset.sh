@@ -460,9 +460,11 @@ function mod_ff () {
 	grep -q $1 prefs.js || echo "user_pref(\"$1\",$2);" >> prefs.js
 }
 
-# TODO: Insert for-loop to do this in every profile detected.
+# If prefs.js for firefox was created, set the profile information.
+firefox_used=false
 for profilefolder in ~/.mozilla/firefox/*.default*/; do
 	if [ -f "$profilefolder/prefs.js" ]; then
+		firefox_used=true
 		cd "$profilefolder"
 		echo "Editing Firefox preferences in $profilefolder."
 		mod_ff "general.autoScroll" "true"
@@ -478,3 +480,17 @@ for profilefolder in ~/.mozilla/firefox/*.default*/; do
 		mod_ff "dom.webnotifications.enabled" "false"
 	fi
 done
+
+# Install firefox gnome theme.
+if [ "$firefox_used" = true ] && [ "$XDG_CURRENT_DESKTOP" = "GNOME" ]; then
+	# Clone or update it
+	if [ -d "$HOME/firefox-gnome-theme" ]; then
+		cd "$HOME/firefox-gnome-theme" && git checkout -f && git pull
+	else
+		git clone https://github.com/rafaelmardojai/firefox-gnome-theme/ ~/firefox-gnome-theme
+	fi
+	# Install it
+	if cd ~/firefox-gnome-theme; then
+		./scripts/install.sh
+	fi
+fi
