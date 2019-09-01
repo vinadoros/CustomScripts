@@ -177,7 +177,27 @@ visudo -c
 subprocess.run(sudoers_script, shell=True)
 
 # Add normal user to all reasonable groups
-CFunc.AddUserAllGroups()
+CFunc.AddUserToGroup("disk")
+CFunc.AddUserToGroup("lp")
+CFunc.AddUserToGroup("wheel")
+CFunc.AddUserToGroup("cdrom")
+CFunc.AddUserToGroup("man")
+CFunc.AddUserToGroup("dialout")
+CFunc.AddUserToGroup("floppy")
+CFunc.AddUserToGroup("games")
+CFunc.AddUserToGroup("tape")
+CFunc.AddUserToGroup("video")
+CFunc.AddUserToGroup("audio")
+CFunc.AddUserToGroup("input")
+CFunc.AddUserToGroup("kvm")
+CFunc.AddUserToGroup("systemd-journal")
+CFunc.AddUserToGroup("systemd-network")
+CFunc.AddUserToGroup("systemd-resolve")
+CFunc.AddUserToGroup("systemd-timesync")
+CFunc.AddUserToGroup("pipewire")
+CFunc.AddUserToGroup("colord")
+CFunc.AddUserToGroup("nm-openconnect")
+CFunc.AddUserToGroup("vboxsf")
 
 # Edit sudoers to add dnf.
 fedora_sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
