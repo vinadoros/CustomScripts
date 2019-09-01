@@ -180,18 +180,9 @@ subprocess.run(sudoers_script, shell=True)
 CFunc.AddUserAllGroups()
 
 # Edit sudoers to add dnf.
-if os.path.isdir('/etc/sudoers.d'):
-    CUSTOMSUDOERSPATH = "/etc/sudoers.d/pkmgt"
-    print("Writing {0}".format(CUSTOMSUDOERSPATH))
-    with open(CUSTOMSUDOERSPATH, 'w') as sudoers_writefile:
-        sudoers_writefile.write("""%wheel ALL=(ALL) ALL
-{0} ALL=(ALL) NOPASSWD: {1}
-""".format(USERNAMEVAR, shutil.which("dnf")))
-    os.chmod(CUSTOMSUDOERSPATH, 0o440)
-    status = subprocess.run('visudo -c', shell=True)
-    if status.returncode != 0:
-        print("Visudo status not 0, removing sudoers file.")
-        os.remove(CUSTOMSUDOERSPATH)
+fedora_sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
+CFunc.AddLineToSudoersFile(fedora_sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
+CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("dnf")))
 
 # Hdparm
 CFunc.dnfinstall("smartmontools hdparm")
@@ -201,10 +192,12 @@ if not args.bare and not args.nogui:
     CFunc.dnfinstall("snapd")
     if not os.path.islink("/snap"):
         os.symlink("/var/lib/snapd/snap", "/snap", target_is_directory=True)
+    CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("snap")))
 
     # Flatpak setup
     CFunc.dnfinstall("flatpak xdg-desktop-portal")
     CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo")
+    CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("flatpak")))
 
 
 # Disable Selinux

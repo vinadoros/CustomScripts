@@ -372,6 +372,7 @@ def CheckRestoreSudoersFile(sudoersfile):
         if os.path.isfile(sudoersfile_backup):
             print("Reverting sudoers change.")
             shutil.copy2(sudoersfile_backup, sudoersfile)
+            os.chmod(sudoersfile, 0o440)
         else:
             print("ERROR: No backup file, can't revert sudoers change!")
     return
@@ -384,6 +385,8 @@ def AddLineToSudoersFile(sudoersfile, line, overwrite=False):
         BackupSudoersFile(sudoersfile)
         with open(sudoersfile, 'a') as sudoers_writefile:
             sudoers_writefile.write("{0}\n".format(line))
+        os.chmod(sudoersfile, 0o440)
+        CheckRestoreSudoersFile(sudoersfile)
     return
 # Apt
 def aptupdate():
