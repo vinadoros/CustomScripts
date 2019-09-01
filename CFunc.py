@@ -10,6 +10,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import urllib.request
 
 ### Detect Windows Function ###
@@ -323,6 +324,8 @@ def AddUserAllGroups(username=None):
         usertuple = getnormaluser()
         USERNAMEVAR = usertuple[0]
         USERGROUP = usertuple[1]
+    else:
+        USERNAMEVAR = username
     # Add normal user to all reasonable groups
     with open("/etc/group", 'r') as groups:
         grparray = []
@@ -344,6 +347,44 @@ def AddUserAllGroups(username=None):
     for group in grparray:
         print("Adding {0} to group {1}.".format(USERNAMEVAR, group))
         subprocess.run("usermod -aG {1} {0}".format(USERNAMEVAR, group), shell=True, check=True)
+def AddUserToGroup(group, username=None):
+    """Add a given user to a single given group."""
+    # Detect user if not passed.
+    if username is None:
+        usertuple = getnormaluser()
+        USERNAMEVAR = usertuple[0]
+    else:
+        USERNAMEVAR = username
+    print("Adding {0} to group {1}.".format(USERNAMEVAR, group))
+    subprocess.run("usermod -aG {1} {0}".format(USERNAMEVAR, group), shell=True, check=False)
+def BackupSudoersFile(sudoersfile):
+    """Backup the sudoers file before an operation."""
+    # Backup the file if it exists.
+    sudoersfile_backup = os.path.join(tempfile.gettempdir(), os.path.basename(sudoersfile))
+    if os.path.isfile(sudoersfile):
+        shutil.copy2(sudoersfile, sudoersfile_backup)
+    return
+def CheckRestoreSudoersFile(sudoersfile):
+    """Check sudoers validity. Restore the sudoers file from a backup if the operation failed."""
+    status = subprocess.run('visudo -c', shell=True)
+    if status.returncode != 0:
+        sudoersfile_backup = os.path.join(tempfile.gettempdir(), os.path.basename(sudoersfile))
+        if os.path.isfile(sudoersfile_backup):
+            print("Reverting sudoers change.")
+            shutil.copy2(sudoersfile_backup, sudoersfile)
+        else:
+            print("ERROR: No backup file, can't revert sudoers change!")
+    return
+def AddLineToSudoersFile(sudoersfile, line, overwrite=False):
+    """Add a line to a sudoers file, and check if it is valid."""
+    if os.path.isdir(os.path.dirname(sudoersfile)):
+        if os.path.isfile(sudoersfile) and overwrite is True:
+            print("Removing existing {0}".format(sudoersfile))
+            os.remove(sudoersfile)
+        BackupSudoersFile(sudoersfile)
+        with open(sudoersfile, 'a') as sudoers_writefile:
+            sudoers_writefile.write("{0}\n".format(line))
+    return
 # Apt
 def aptupdate():
     """Update apt sources"""
