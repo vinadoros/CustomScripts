@@ -501,7 +501,7 @@ end
 # Function to add path
 function pathadd
     if checkpath "$argv"; and test -d "$argv"
-        set -gx PATH $argv $PATH
+        set -gx PATH $PATH $argv
     end
 end
 # Set sbin in path
