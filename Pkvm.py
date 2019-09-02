@@ -533,6 +533,9 @@ if args.ostype == 9:
     data['builders'][0]["boot_command"] = ["<tab> inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/silverblue.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} -s 1; reboot".format(vmprovisionscript)
+    data['provisioners'][0]["expect_disconnect"] = True
+    data['provisioners'].append('')
+    data['provisioners'][1] = {}
     data['provisioners'][1]["type"] = "shell"
     data['provisioners'][1]["inline"] = "/opt/CustomScripts/{0} -s 2".format(vmprovisionscript)
     data['provisioners'][1]["pause_before"] = "60s"

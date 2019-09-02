@@ -25,7 +25,7 @@ def rostreeinstall(apps):
     """Install application(s) using rpm-ostree"""
     status = None
     print("\nInstalling {0} using rpm-ostree.".format(apps))
-    status = subprocess.run("rpm-ostree install --idempotent {0}".format(apps), shell=True).returncode
+    status = subprocess.run("rpm-ostree install --idempotent --allow-inactive {0}".format(apps), shell=True).returncode
     return status
 
 
@@ -62,14 +62,15 @@ if args.stage == 1:
 
     ### OSTree Apps ###
     # Cli tools
-    rostreeinstall("zsh nano tmux iotop p7zip p7zip-plugins util-linux-user fuse-sshfs redhat-lsb-core dbus-tools powerline-fonts google-roboto-fonts google-noto-sans-fonts samba smartmontools hdparm cups-pdf pulseaudio-module-zeroconf pulseaudio-utils paprefs tilix tilix-nautilus syncthing")
+    rostreeinstall("zsh nano tmux iotop p7zip p7zip-plugins util-linux-user fuse-sshfs redhat-lsb-core dbus-tools powerline-fonts google-roboto-fonts google-noto-sans-fonts samba smartmontools hdparm cups-pdf pulseaudio-module-zeroconf paprefs tilix tilix-nautilus syncthing")
     subprocess.run("systemctl enable sshd", shell=True)
     # NTP Configuration
     subprocess.run("systemctl enable systemd-timesyncd; timedatectl set-local-rtc false; timedatectl set-ntp 1", shell=True)
 
     # Install software for VMs
     if vmstatus == "kvm":
-        rostreeinstall("spice-vdagent qemu-guest-agent")
+        rostreeinstall("spice-vdagent")
+        rostreeinstall("qemu-guest-agent")
     if vmstatus == "vbox":
         rostreeinstall("virtualbox-guest-additions virtualbox-guest-additions-ogl")
     if vmstatus == "vmware":
@@ -97,7 +98,6 @@ if args.stage == 1:
 
     # Install snapd
     rostreeinstall("snapd")
-    CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("snap")))
 
     # Flatpak setup
     CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("flatpak")))
@@ -126,6 +126,8 @@ if args.stage == 2:
     os.chmod(gs_installer[0], 0o777)
     # Install volume extension
     CFunc.run_as_user(USERNAMEVAR, "{0} --yes 858".format(gs_installer[0]))
+
+    CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("snap")))
 
     # Add normal user to all reasonable groups
     CFunc.AddUserToGroup("disk")
