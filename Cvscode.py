@@ -74,11 +74,6 @@ else:
     pipcmd = "pip3"
 
 ### Language Specific packages ###
-if shutil.which("gem"):
-    print("Installing ruby gems.")
-    subprocess.run("{0}gem install rubocop rcodetools".format(CFunc.sudocmd(True)), shell=True)
-else:
-    print("Ruby/gem not detected. Not installing ruby gems.")
 if shutil.which(pipcmd):
     print("Installing python dependencies.")
     subprocess.run("{0}{1} install pylama pylama-pylint flake8".format(CFunc.sudocmd(True), pipcmd), shell=True)
@@ -90,10 +85,8 @@ else:
 print("\nInstalling VS Code extensions.")
 ce_ins("ms-python.python")
 ce_ins("ms-vscode.cpptools")
-ce_ins("PeterJausovec.vscode-docker")
+ce_ins("ms-azuretools.vscode-docker")
 ce_ins("mikestead.dotenv")
-ce_ins("rebornix.Ruby")
-ce_ins("streetsidesoftware.code-spell-checker")
 ce_ins("timonwong.shellcheck")
 ce_ins("eamodio.gitlens")
 
@@ -113,20 +106,6 @@ data["python.linting.pylamaEnabled"] = True
 data["python.linting.pylamaArgs"] = ["-i", "E501,E266,E302"]
 data["python.linting.flake8Enabled"] = True
 data["python.linting.flake8Args"] = ["--ignore=E501,E302,E266"]
-# Ruby Config
-data["ruby.codeCompletion"] = "rcodetools"
-data["ruby.format"] = "rubocop"
-data["ruby.intellisense"] = "rubyLocate"
-data["ruby.lint"] = {}
-data["ruby.lint"]["ruby"] = True
-data["ruby.lint"]["rubocop"] = {}
-# For some reason, lint must be false to enable linting. Maybe bug?
-data["ruby.lint"]["rubocop"]["lint"] = False
-data["ruby.lint"]["rubocop"]["rails"] = True
-# Rubocop rules: https://github.com/rubocop-hq/rubocop/blob/master/config/default.yml
-data["ruby.lint"]["rubocop"]["except"] = ["Metrics/LineLength", "Metrics/ClassLength"]
-# Docker Config
-data["docker.attachShellCommand.linuxContainer"] = "/bin/bash"
 
 # Print the json data for debugging purposes.
 # print(json.dumps(data, indent=2))
