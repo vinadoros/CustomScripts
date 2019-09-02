@@ -51,6 +51,7 @@ vmstatus = CFunc.getvmstate()
 
 
 ### Begin Code ###
+fedora_sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
 if args.stage == 0:
     print("Please select a stage.")
 if args.stage == 1:
@@ -95,7 +96,6 @@ if args.stage == 1:
     subprocess.run(sudoers_script, shell=True)
 
     # Edit sudoers to add dnf.
-    fedora_sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
     CFunc.AddLineToSudoersFile(fedora_sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
     CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("rpm-ostree")))
 
