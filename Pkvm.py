@@ -192,7 +192,7 @@ if args.ostype == 9:
     kvm_variant = "fedora26"
     isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/30/Silverblue/x86_64/iso/Fedora-Silverblue-ostree-x86_64-30-1.2.iso"
     vmname = "Packer-FedoraSilverblue-{0}".format(hvname)
-    vmprovision_defopts = "-a"
+    vmprovision_defopts = ""
 if 10 <= args.ostype <= 19:
     vboxosid = "Ubuntu_64"
     vmwareid = "ubuntu-64"
@@ -532,7 +532,11 @@ if 5 <= args.ostype <= 8:
 if args.ostype == 9:
     data['builders'][0]["boot_command"] = ["<tab> inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/silverblue.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
+    data['provisioners'][0]["inline"] = "git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} -s 1; reboot".format(vmprovisionscript)
+    data['provisioners'][1]["type"] = "shell"
+    data['provisioners'][1]["inline"] = "/opt/CustomScripts/{0} -s 2".format(vmprovisionscript)
+    data['provisioners'][1]["pause_before"] = "60s"
+    data['provisioners'][1]["timeout"] = "90m"
 if 10 <= args.ostype <= 19:
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:{vmuser} -R ~{vmuser}; apt install -y git; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser)

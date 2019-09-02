@@ -30,12 +30,12 @@ def rostreeinstall(apps):
 
 
 # Get arguments
-parser = argparse.ArgumentParser(description='Install Fedora Software.')
-parser.add_argument("-a", "--allextra", help='Run Extra Scripts', action="store_true")
+parser = argparse.ArgumentParser(description='Install Fedora Silverblue Software.')
+parser.add_argument("-s", "--stage", help='Stage of installation to run.', type=int, default=0)
 
 # Save arguments.
 args = parser.parse_args()
-print("Run extra scripts:", args.allextra)
+print("Stage:", args.stage)
 
 # Exit if not root.
 CFunc.is_root(True)
@@ -49,108 +49,117 @@ print("Group Name is:", USERGROUP)
 # Get VM State
 vmstatus = CFunc.getvmstate()
 
-### Fedora Repos ###
-# RPMFusion
-rostreeinstall("https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm")
-rostreeinstall("rpmfusion-nonfree-appstream-data rpmfusion-free-appstream-data")
-rostreeinstall("rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted")
 
+### Begin Code ###
+if args.stage == 0:
+    print("Please select a stage.")
+if args.stage == 1:
+    print("Stage 1")
 
-# Update system after enabling repos.
-rostreeupdate()
+    ### Fedora Repos ###
+    # RPMFusion
+    rostreeinstall("https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm")
 
-### Install Fedora Software ###
+    ### OSTree Apps ###
+    # Cli tools
+    rostreeinstall("zsh nano tmux iotop p7zip p7zip-plugins util-linux-user fuse-sshfs redhat-lsb-core dbus-tools powerline-fonts google-roboto-fonts google-noto-sans-fonts samba smartmontools hdparm cups-pdf pulseaudio-module-zeroconf pulseaudio-utils paprefs tilix tilix-nautilus syncthing")
+    subprocess.run("systemctl enable sshd", shell=True)
+    # NTP Configuration
+    subprocess.run("systemctl enable systemd-timesyncd; timedatectl set-local-rtc false; timedatectl set-ntp 1", shell=True)
 
-### OSTree Apps ###
-# Cli tools
-rostreeinstall("zsh nano tmux iotop p7zip p7zip-plugins util-linux-user fuse-sshfs redhat-lsb-core dbus-tools")
-subprocess.run("systemctl enable sshd", shell=True)
-rostreeinstall("powerline-fonts google-roboto-fonts google-noto-sans-fonts")
-# Samba
-rostreeinstall("samba")
-subprocess.run("systemctl enable smb", shell=True)
-# NTP Configuration
-subprocess.run("systemctl enable systemd-timesyncd; timedatectl set-local-rtc false; timedatectl set-ntp 1", shell=True)
-# Hdparm
-rostreeinstall("smartmontools hdparm")
-# GUI Packages
-# Cups
-rostreeinstall("cups-pdf")
-# Audio/video
-rostreeinstall("pulseaudio-module-zeroconf pulseaudio-utils paprefs")
-# Tilix
-rostreeinstall("tilix tilix-nautilus")
-# Syncthing
-rostreeinstall("syncthing")
+    # Install software for VMs
+    if vmstatus == "kvm":
+        rostreeinstall("spice-vdagent qemu-guest-agent")
+    if vmstatus == "vbox":
+        rostreeinstall("virtualbox-guest-additions virtualbox-guest-additions-ogl")
+    if vmstatus == "vmware":
+        rostreeinstall("open-vm-tools open-vm-tools-desktop")
 
-# Install software for VMs
-if vmstatus == "kvm":
-    rostreeinstall("spice-vdagent qemu-guest-agent")
-if vmstatus == "vbox":
-    rostreeinstall("virtualbox-guest-additions virtualbox-guest-additions-ogl")
-if vmstatus == "vmware":
-    rostreeinstall("open-vm-tools")
-    if not args.nogui:
-        rostreeinstall("open-vm-tools-desktop")
+    # Some Gnome Extensions
+    rostreeinstall("gnome-tweak-tool dconf-editor")
+    rostreeinstall("gnome-shell-extension-gpaste gnome-shell-extension-topicons-plus gnome-shell-extension-dash-to-dock")
 
-# Install Desktop Software
-# Some Gnome Extensions
-rostreeinstall("gnome-tweak-tool dconf-editor")
-rostreeinstall("gnome-shell-extension-gpaste gnome-shell-extension-topicons-plus gnome-shell-extension-dash-to-dock")
-# Install gs installer script.
-gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
-os.chmod(gs_installer[0], 0o777)
-# Install volume extension
-CFunc.run_as_user(USERNAMEVAR, "{0} --yes 858".format(gs_installer[0]))
+    sudoers_script = """
+    # Delete defaults in sudoers.
+    if grep -iq $'^Defaults    secure_path' /etc/sudoers; then
+        sed -e 's/^Defaults    env_reset$/Defaults    !env_reset/g' -i /etc/sudoers
+        sed -i $'/^Defaults    mail_badpass/ s/^#*/#/' /etc/sudoers
+        sed -i $'/^Defaults    secure_path/ s/^#*/#/' /etc/sudoers
+    fi
+    visudo -c
+    """
+    subprocess.run(sudoers_script, shell=True)
 
+    # Edit sudoers to add dnf.
+    fedora_sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
+    CFunc.AddLineToSudoersFile(fedora_sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
+    CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("rpm-ostree")))
 
-# Add normal user to all reasonable groups
-# TODO: Change to specific groups, added one at a time.
+    # Install snapd
+    rostreeinstall("snapd")
+    CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("snap")))
 
-sudoers_script = """
-# Delete defaults in sudoers.
-if grep -iq $'^Defaults    secure_path' /etc/sudoers; then
-    sed -e 's/^Defaults    env_reset$/Defaults    !env_reset/g' -i /etc/sudoers
-    sed -i $'/^Defaults    mail_badpass/ s/^#*/#/' /etc/sudoers
-    sed -i $'/^Defaults    secure_path/ s/^#*/#/' /etc/sudoers
-fi
-visudo -c
-"""
-subprocess.run(sudoers_script, shell=True)
+    # Flatpak setup
+    CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("flatpak")))
+    CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo")
+    subprocess.run('chmod -R "ugo=rwX" /var/lib/flatpak/', shell=True)
 
-# Edit sudoers to add dnf.
-fedora_sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
-CFunc.AddLineToSudoersFile(fedora_sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
-CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("rpm-ostree")))
+    # Disable Selinux
+    # To get selinux status: sestatus, getenforce
+    # To enable or disable selinux temporarily: setenforce 1 (to enable), setenforce 0 (to disable)
+    subprocess.run("sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /etc/sysconfig/selinux", shell=True)
 
-# Install snapd
-rostreeinstall("snapd")
-CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("snap")))
+    # Disable the firewall
+    subprocess.run("systemctl mask firewalld", shell=True)
 
-# Flatpak setup
-CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("flatpak")))
-CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo")
-subprocess.run('chmod -R "ugo=rwX" /var/lib/flatpak/', shell=True)
+    # Update system after completing stage 1.
+    rostreeupdate()
 
-# Flatpak apps
-CFunc.flatpak_install("fedora", "org.gnome.gedit")
-CFunc.flatpak_install("fedora", "org.gnome.Evince")
-CFunc.flatpak_install("fedora", "org.gnome.eog")
-CFunc.flatpak_install("flathub", "org.keepassxc.KeePassXC")
-CFunc.flatpak_install("flathub", "org.videolan.VLC")
-CFunc.flatpak_install("flathub", "io.github.celluloid_player.Celluloid")
-CFunc.flatpak_install("flathub", "com.visualstudio.code.oss")
+if args.stage == 2:
+    print("Stage 2")
+    rostreeinstall("rpmfusion-nonfree-appstream-data rpmfusion-free-appstream-data")
+    rostreeinstall("rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted")
+    subprocess.run("systemctl enable smb", shell=True)
 
-# Disable Selinux
-# To get selinux status: sestatus, getenforce
-# To enable or disable selinux temporarily: setenforce 1 (to enable), setenforce 0 (to disable)
-subprocess.run("sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /etc/sysconfig/selinux", shell=True)
+    # Install gs installer script.
+    gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
+    os.chmod(gs_installer[0], 0o777)
+    # Install volume extension
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 858".format(gs_installer[0]))
 
-# Disable the firewall
-subprocess.run("systemctl mask firewalld", shell=True)
+    # Add normal user to all reasonable groups
+    CFunc.AddUserToGroup("disk")
+    CFunc.AddUserToGroup("lp")
+    CFunc.AddUserToGroup("wheel")
+    CFunc.AddUserToGroup("cdrom")
+    CFunc.AddUserToGroup("man")
+    CFunc.AddUserToGroup("dialout")
+    CFunc.AddUserToGroup("floppy")
+    CFunc.AddUserToGroup("games")
+    CFunc.AddUserToGroup("tape")
+    CFunc.AddUserToGroup("video")
+    CFunc.AddUserToGroup("audio")
+    CFunc.AddUserToGroup("input")
+    CFunc.AddUserToGroup("kvm")
+    CFunc.AddUserToGroup("systemd-journal")
+    CFunc.AddUserToGroup("systemd-network")
+    CFunc.AddUserToGroup("systemd-resolve")
+    CFunc.AddUserToGroup("systemd-timesync")
+    CFunc.AddUserToGroup("pipewire")
+    CFunc.AddUserToGroup("colord")
+    CFunc.AddUserToGroup("nm-openconnect")
+    CFunc.AddUserToGroup("vboxsf")
 
-# Extra scripts
-if args.allextra is True:
+    # Flatpak apps
+    CFunc.flatpak_install("fedora", "org.gnome.gedit")
+    CFunc.flatpak_install("fedora", "org.gnome.Evince")
+    CFunc.flatpak_install("fedora", "org.gnome.eog")
+    CFunc.flatpak_install("flathub", "org.keepassxc.KeePassXC")
+    CFunc.flatpak_install("flathub", "org.videolan.VLC")
+    CFunc.flatpak_install("flathub", "io.github.celluloid_player.Celluloid")
+    CFunc.flatpak_install("flathub", "com.visualstudio.code.oss")
+
+    # Extra scripts
     subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CShellConfig.py -z -d".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True)
