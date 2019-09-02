@@ -60,6 +60,9 @@ if args.stage == 1:
     # RPMFusion
     rostreeinstall("https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm")
 
+    # Update system.
+    rostreeupdate()
+
     ### OSTree Apps ###
     # Cli tools
     rostreeinstall("zsh nano tmux iotop p7zip p7zip-plugins util-linux-user fuse-sshfs redhat-lsb-core dbus-tools powerline-fonts google-roboto-fonts google-noto-sans-fonts samba smartmontools hdparm cups-pdf pulseaudio-module-zeroconf paprefs tilix tilix-nautilus syncthing")
@@ -111,9 +114,6 @@ if args.stage == 1:
 
     # Disable the firewall
     subprocess.run("systemctl mask firewalld", shell=True)
-
-    # Update system after completing stage 1.
-    rostreeupdate()
 
 if args.stage == 2:
     print("Stage 2")
