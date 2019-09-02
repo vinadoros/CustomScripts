@@ -72,9 +72,6 @@ if args.stage == 1:
     subprocess.run("systemctl enable systemd-timesyncd; timedatectl set-local-rtc false; timedatectl set-ntp 1", shell=True)
 
     # Install software for VMs
-    if vmstatus == "kvm":
-        rostreeinstall("spice-vdagent")
-        rostreeinstall("qemu-guest-agent")
     if vmstatus == "vbox":
         rostreeinstall("virtualbox-guest-additions virtualbox-guest-additions-ogl")
     if vmstatus == "vmware":
