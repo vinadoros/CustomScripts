@@ -89,6 +89,8 @@ ce_ins("ms-azuretools.vscode-docker")
 ce_ins("mikestead.dotenv")
 ce_ins("timonwong.shellcheck")
 ce_ins("eamodio.gitlens")
+ce_ins("donjayamanne.githistory")
+ce_ins("vscode-icons-team.vscode-icons")
 
 
 ### Configuration ###
@@ -106,6 +108,7 @@ data["python.linting.pylamaEnabled"] = True
 data["python.linting.pylamaArgs"] = ["-i", "E501,E266,E302"]
 data["python.linting.flake8Enabled"] = True
 data["python.linting.flake8Args"] = ["--ignore=E501,E302,E266"]
+data["workbench.iconTheme"] = "vscode-icons"
 
 # Print the json data for debugging purposes.
 # print(json.dumps(data, indent=2))
