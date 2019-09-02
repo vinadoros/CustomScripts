@@ -118,25 +118,19 @@ visudo -c
 """
 subprocess.run(sudoers_script, shell=True)
 
-# Edit sudoers to add commands.
-if os.path.isdir('/etc/sudoers.d'):
-    CUSTOMSUDOERSPATH = "/etc/sudoers.d/pkmgt"
-    print("Writing {0}".format(CUSTOMSUDOERSPATH))
-    with open(CUSTOMSUDOERSPATH, 'w') as sudoers_writefile:
-        sudoers_writefile.write("""%wheel ALL=(ALL) ALL
-{0} ALL=(ALL) NOPASSWD: {1}, {2}
-""".format(USERNAMEVAR, shutil.which("flatpak"), shutil.which("rpm-ostree")))
-    os.chmod(CUSTOMSUDOERSPATH, 0o440)
-    vsudo_status = subprocess.run('visudo -c', shell=True)
-    if vsudo_status.returncode != 0:
-        print("Visudo status not 0, removing sudoers file.")
-        os.remove(CUSTOMSUDOERSPATH)
+# Edit sudoers to add dnf.
+fedora_sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
+CFunc.AddLineToSudoersFile(fedora_sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
+CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("rpm-ostree")))
 
 # Install snapd
 rostreeinstall("snapd")
+CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("snap")))
 
 # Flatpak setup
+CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("flatpak")))
 CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo")
+subprocess.run('chmod -R "ugo=rwX" /var/lib/flatpak/', shell=True)
 
 # Flatpak apps
 CFunc.flatpak_install("fedora", "org.gnome.gedit")
