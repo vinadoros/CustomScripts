@@ -66,7 +66,7 @@ if args.stage == 1:
 
     ### OSTree Apps ###
     # Cli tools
-    rostreeinstall("zsh nano tmux iotop p7zip p7zip-plugins util-linux-user fuse-sshfs redhat-lsb-core dbus-tools powerline-fonts google-roboto-fonts google-noto-sans-fonts samba smartmontools hdparm cups-pdf pulseaudio-module-zeroconf paprefs tilix tilix-nautilus syncthing")
+    rostreeinstall("zsh nano tmux iotop p7zip p7zip-plugins util-linux-user fuse-sshfs redhat-lsb-core dbus-tools powerline-fonts google-roboto-fonts google-noto-sans-fonts samba smartmontools hdparm cups-pdf pulseaudio-module-zeroconf paprefs tilix tilix-nautilus syncthing numix-icon-theme numix-icon-theme-circle")
     subprocess.run("systemctl enable sshd", shell=True)
     # NTP Configuration
     subprocess.run("systemctl enable systemd-timesyncd; timedatectl set-local-rtc false; timedatectl set-ntp 1", shell=True)
@@ -156,6 +156,7 @@ if args.stage == 2:
     CFunc.flatpak_install("flathub", "org.keepassxc.KeePassXC")
     CFunc.flatpak_install("flathub", "org.videolan.VLC")
     CFunc.flatpak_install("flathub", "io.github.celluloid_player.Celluloid")
+    CFunc.flatpak_install("flathub", "io.github.quodlibet.QuodLibet")
     CFunc.flatpak_install("flathub", "com.visualstudio.code.oss")
 
     # Extra scripts
