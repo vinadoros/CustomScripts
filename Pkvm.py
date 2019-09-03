@@ -538,7 +538,7 @@ if args.ostype == 9:
     data['provisioners'][1] = {}
     data['provisioners'][1]["type"] = "shell"
     data['provisioners'][1]["inline"] = "/opt/CustomScripts/{0} -s 2".format(vmprovisionscript)
-    data['provisioners'][1]["pause_before"] = "60s"
+    data['provisioners'][1]["pause_before"] = "15s"
     data['provisioners'][1]["timeout"] = "90m"
 if 10 <= args.ostype <= 19:
     data['provisioners'][0]["type"] = "shell"
