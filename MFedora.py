@@ -83,8 +83,6 @@ if not args.nogui:
     # Browsers
     # Official Chromium
     CFunc.dnfinstall("chromium")
-    # H264 support from rpmfusion.
-    CFunc.dnfinstall("chromium-libs-media-freeworld")
     # Official Google Chrome
     # CFunc.dnfinstall("https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm")
     CFunc.dnfinstall("@firefox freshplayerplugin")
@@ -102,7 +100,7 @@ if not args.nogui:
     if not args.bare:
         CFunc.dnfinstall("@multimedia")
         CFunc.dnfinstall("gstreamer1-vaapi gstreamer1-plugins-bad-nonfree")
-        CFunc.dnfinstall("youtube-dl ffmpeg vlc smplayer mpv")
+        CFunc.dnfinstall("youtube-dl ffmpeg smplayer mpv")
         CFunc.dnfinstall("audacious audacious-plugins")
         # Editors
         CFunc.dnfinstall("code")
@@ -219,6 +217,11 @@ if not args.bare and not args.nogui:
     CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo")
     CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("flatpak")))
 
+    # Flatpak apps
+    CFunc.flatpak_install("flathub", "org.keepassxc.KeePassXC")
+    CFunc.flatpak_install("flathub", "org.videolan.VLC")
+    CFunc.flatpak_install("flathub", "io.github.celluloid_player.Celluloid")
+    CFunc.flatpak_install("flathub", "io.github.quodlibet.QuodLibet")
 
 # Disable Selinux
 # To get selinux status: sestatus, getenforce
