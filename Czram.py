@@ -39,7 +39,7 @@ if os.path.isdir(os.path.dirname(udevrule_path)):
 
 # Add zram to fstab
 fstab_path = os.path.join(os.sep, "etc", "fstab")
-fstab_text = "{0}\tswap\tswap\tdefaults,pri=16383,nofail\t0\t0\n".format(zram_blockdevicename)
+fstab_text = "{0}\tnone\tswap\tdefaults,pri=16383,nofail\t0\t0\n".format(zram_blockdevicename)
 if os.path.isfile(fstab_path):
     # Check for a newline at the end of fstab.
     with open(fstab_path, 'r') as f:
