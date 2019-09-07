@@ -250,7 +250,7 @@ if 30 <= args.ostype <= 35:
     isourl = "https://cdimage.debian.org/cdimage/weekly-builds/amd64/iso-cd/debian-testing-amd64-netinst.iso"
 # Debian Stable
 if 36 <= args.ostype <= 38:
-    isourl = "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-9.9.0-amd64-netinst.iso"
+    isourl = "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-10.0.0-amd64-netinst.iso"
 if args.ostype == 30:
     vmname = "Packer-DebianTesting-{0}".format(hvname)
     vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
