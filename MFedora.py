@@ -89,8 +89,6 @@ if not args.nogui:
     CFunc.dnfinstall("flash-plugin")
     # Cups
     CFunc.dnfinstall("cups-pdf")
-    # Wine
-    CFunc.dnfinstall("wine wine.i686 winetricks playonlinux")
     # Audio/video
     CFunc.dnfinstall("pulseaudio-module-zeroconf pulseaudio-utils paprefs")
     # Remote access

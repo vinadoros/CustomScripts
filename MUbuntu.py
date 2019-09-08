@@ -260,8 +260,6 @@ if args.nogui is False and args.bare is False:
     CFunc.aptinstall("vlc audacious ffmpeg youtube-dl smplayer")
     CFunc.aptinstall("alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pulseaudio-module-bluetooth swh-plugins")
     CFunc.aptinstall("gstreamer1.0-vaapi")
-    # Wine
-    CFunc.aptinstall("playonlinux wine64-development wine32-development")
     # For Office 2010
     CFunc.aptinstall("winbind")
     # Browsers

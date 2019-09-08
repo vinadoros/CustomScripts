@@ -182,8 +182,6 @@ if args.nogui is False and args.bare is False:
     CFunc.aptinstall("alsa-utils pavucontrol pulseaudio-module-zeroconf pulseaudio-module-bluetooth swh-plugins")
     CFunc.aptinstall("paprefs")
     CFunc.aptinstall("gstreamer1.0-vaapi")
-    # Wine
-    CFunc.aptinstall("playonlinux wine64 wine32")
     # For Office 2010
     CFunc.aptinstall("winbind")
     CFunc.aptinstall("fonts-powerline fonts-noto fonts-roboto")
