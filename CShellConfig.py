@@ -168,6 +168,18 @@ function flatpak_clean () {
         $SUDOCMD flatpak uninstall --unused
     fi
 }
+function flatpak_search () {
+    if type flatpak &> /dev/null; then
+        echo "Searching Flatpaks"
+        $SUDOCMD flatpak search $@
+    fi
+}
+function snap_search () {
+    if type snap &> /dev/null; then
+        echo "Searching Snaps"
+        $SUDOCMD snap find $@
+    fi
+}
 
 if type -p apt-get &> /dev/null; then
     function ins () {
@@ -195,6 +207,8 @@ if type -p apt-get &> /dev/null; then
         apt-cache search $@
         echo "Policy for $@."
         apt-cache policy $@
+        snap_search "$@"
+        flatpak_search "$@"
     }
     function cln () {
         echo "Auto-cleaning cache."
@@ -235,6 +249,8 @@ elif type dnf &> /dev/null || type yum &> /dev/null; then
         $SUDOCMD $PKGMGR list installed | grep -i "$@"
         echo -e "\nInfo for $@."
         $SUDOCMD $PKGMGR info "$@"
+        snap_search "$@"
+        flatpak_search "$@"
     }
     function cln () {
         echo "Auto-removing packages."
@@ -594,6 +610,18 @@ function flatpak_clean
         sudo flatpak uninstall --unused
     end
 end
+function flatpak_search
+    if type -q flatpak
+        echo "Search Flatpaks"
+        sudo flatpak search $argv
+    end
+end
+function snap_search
+    if type -q snap
+        echo "Search Snaps"
+        sudo snap find $argv
+    end
+end
 # Set package manager functions
 if type -q apt-get
     function ins
@@ -621,6 +649,8 @@ if type -q apt-get
         apt-cache search $argv
         echo "Policy for $argv."
         apt-cache policy $argv
+        snap_search $argv
+        flatpak_search $argv
     end
     function cln
         echo "Auto-cleaning cache."
@@ -660,6 +690,8 @@ else if type -q dnf; or type -q yum
         sudo $PKGMGR list installed | grep -i $argv
         echo -e "\\nInfo for $argv."
         sudo $PKGMGR info $argv
+        snap_search $argv
+        flatpak_search $argv
     end
     function cln
         echo "Auto-removing packages."
