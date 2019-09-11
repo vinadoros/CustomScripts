@@ -51,11 +51,6 @@ if shutil.which("dnf"):
     CFunc.dnfinstall("ShellCheck python3-jedi")
 elif shutil.which("apt-get"):
     CFunc.aptinstall("shellcheck python3-jedi python3-pip")
-elif shutil.which("zypper"):
-    subprocess.run("""	sudo zypper ar -f http://download.opensuse.org/repositories/devel:/languages:/python3/openSUSE_Tumbleweed/ languages-python3
-sudo zypper ar -f http://download.opensuse.org/repositories/devel:/languages:/python/openSUSE_Tumbleweed/ languages-python
-sudo zypper --non-interactive --gpg-auto-import-keys refresh
-sudo zypper in -yl python3-jedi ShellCheck""", shell=True)
 
 ### Detect Windows Commands ###
 if CFunc.is_windows() is True:

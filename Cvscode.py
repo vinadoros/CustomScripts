@@ -64,8 +64,6 @@ if shutil.which("dnf"):
 elif shutil.which("apt-get"):
     print("Install apt dependencies.")
     CFunc.aptinstall("python3-pip shellcheck")
-elif shutil.which("zypper"):
-    print("Install zypper dependencies.")
 
 ### Detect Windows Commands ###
 if CFunc.is_windows() is True:

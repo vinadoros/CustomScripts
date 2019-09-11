@@ -439,11 +439,6 @@ def dnfinstall(dnfapps):
 def rpmimport(keyurl):
     """Import a gpg key for rpm."""
     subprocess.run("rpm --import {0}".format(keyurl), shell=True, check=True)
-# Zypper
-def zpinstall(zpapps):
-    """Install application(s) using zypper"""
-    print("\nInstalling {0} using zypper.".format(zpapps))
-    subprocess.run("zypper in -yl {0}".format(zpapps), shell=True)
 # Flatpak
 def flatpak_addremote(remotename, remoteurl):
     """Add a remote to flatpak."""

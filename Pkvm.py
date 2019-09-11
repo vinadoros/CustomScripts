@@ -230,15 +230,6 @@ if args.ostype == 17:
 if args.ostype == 18:
     vmname = "Packer-UbuntuLTSBareCLI-{0}".format(hvname)
     vmprovision_defopts = "-l -b -x"
-if args.ostype == 20:
-    vmname = "Packer-OpenSuseTW-{0}".format(hvname)
-    vboxosid = "OpenSUSE_64"
-    vmwareid = "ubuntu-64"
-    vmprovisionscript = "MOpensuse.py"
-    vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
-    kvm_os = "linux"
-    kvm_variant = "opensusetumbleweed"
-    isourl = "http://download.opensuse.org/tumbleweed/iso/openSUSE-Tumbleweed-NET-x86_64-Current.iso"
 if 30 <= args.ostype <= 39:
     vboxosid = "Debian_64"
     vmwareid = "debian-64"
@@ -547,10 +538,6 @@ if 10 <= args.ostype <= 14:
     data['builders'][0]["boot_command"] = ["<enter><wait><f6><wait><esc><home>url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu.cfg hostname=ubuntu locale=en_US keyboard-configuration/modelcode=SKIP netcfg/choose_interface=auto <enter>"]
 if 15 <= args.ostype <= 19:
     data['builders'][0]["boot_command"] = ["<enter><wait><down><wait><f6><wait><esc><home>url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu.cfg hostname=ubuntu locale=en_US keyboard-configuration/modelcode=SKIP netcfg/choose_interface=auto <enter>"]
-if 20 <= args.ostype <= 21:
-    data['builders'][0]["boot_command"] = ["<wait><down><wait><f4><wait><esc><wait>autoyast2=http://{{ .HTTPIP }}:{{ .HTTPPort }}/opensuse.cfg textmode=1<enter>"]
-    data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:users -R ~{vmuser}; while ! zypper install -yl --no-recommends git; do sleep 5; done; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser)
 if 30 <= args.ostype <= 39:
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:{vmuser} -R ~{vmuser}; apt install -y git; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser)

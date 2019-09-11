@@ -169,41 +169,7 @@ function flatpak_clean () {
     fi
 }
 
-if type zypper &> /dev/null; then
-    function ins () {
-        echo "Installing $@."
-        $SUDOCMD zypper install --no-recommends $@
-    }
-    function inr () {
-        echo "Installing $@ with recommends."
-        $SUDOCMD zypper install $@
-    }
-    function iny () {
-        echo "Installing $@."
-        $SUDOCMD zypper install -yl $@
-    }
-    function rmv () {
-        echo "Removing $@."
-        $SUDOCMD zypper remove -u $@
-    }
-    function se () {
-        echo "Searching for $@."
-        $SUDOCMD zypper search "$@"
-        $SUDOCMD zypper info "$@"
-    }
-    function cln () {
-        echo "No clean yet."
-    }
-    function up () {
-        echo "Updating system."
-        $SUDOCMD zypper up -yl --no-recommends
-    }
-    function dup () {
-        echo "Dist-upgrading system."
-        $SUDOCMD zypper dup --no-recommends
-        flatpak_update
-    }
-elif type -p apt-get &> /dev/null; then
+if type -p apt-get &> /dev/null; then
     function ins () {
         echo "Installing $@."
         $SUDOCMD apt-get install $@
@@ -629,42 +595,7 @@ function flatpak_clean
     end
 end
 # Set package manager functions
-if type -q zypper
-    function ins
-        echo "Installing $argv."
-        sudo zypper install --no-recommends $argv
-    end
-    function inr
-        echo "Installing $argv with recommends."
-        sudo zypper install $argv
-    end
-    function iny
-        echo "Installing $argv."
-        sudo zypper install -yl $argv
-    end
-    function rmv
-        echo "Removing $argv."
-        sudo zypper remove -u $argv
-    end
-    function se
-        echo "Searching for $argv."
-        sudo zypper search $argv
-        sudo zypper info $argv
-    end
-    function cln
-        echo "No clean yet."
-    end
-    function up
-        echo "Updating system."
-        sudo zypper up -yl --no-recommends
-        flatpak_update
-    end
-    function dup
-        echo "Dist-upgrading system."
-        sudo zypper dup --no-recommends
-        flatpak_update
-    end
-else if type -q apt-get
+if type -q apt-get
     function ins
         echo "Installing $argv."
         sudo apt-get install $argv

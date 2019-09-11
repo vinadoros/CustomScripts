@@ -46,9 +46,7 @@ if args.noprompt is False:
 # Install vnc for vncsd and x0vnc.
 if args.vncsd is True or args.x0vnc is True:
     print("Installing vnc.")
-    if shutil.which("zypper"):
-        CFunc.zpinstall("tigervnc autocutsel")
-    elif shutil.which("dnf"):
+    if shutil.which("dnf"):
         CFunc.dnfinstall("tigervnc tigervnc-server")
         subprocess.run("dnf copr enable shymega/autocutsel-copr", shell=True)
         CFunc.dnfinstall("autocutsel")
@@ -154,9 +152,7 @@ WantedBy=default.target
 # Config for x2go
 if args.x2go is True:
     print("Installing x2go.")
-    if shutil.which("zypper"):
-        CFunc.zpinstall("x2goserver")
-    elif shutil.which("dnf"):
+    if shutil.which("dnf"):
         CFunc.dnfinstall("x2goserver fuse-sshfs")
     elif shutil.which("apt-get"):
         CFunc.addppa("ppa:x2go/stable")
