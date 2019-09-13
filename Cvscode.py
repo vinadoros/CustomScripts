@@ -30,20 +30,20 @@ vscode_snap = ["snap", "run", "vscode.code"]
 if shutil.which("code") and not CFunc.is_windows():
     print("Detected native code command.")
     vscode_cmd = vscode_native
-elif shutil.which("snap") and subprocess.run(vscode_snap).returncode is 0:
+elif shutil.which("snap") and subprocess.run(vscode_snap).returncode == 0:
     print("Detected snap code command.")
     vscode_cmd = vscode_snap
-elif shutil.which("flatpak") and subprocess.run(vscode_flatpak + ["-h"]).returncode is 0:
+elif shutil.which("flatpak") and subprocess.run(vscode_flatpak + ["-h"]).returncode == 0:
     print("Detected flatpak code command.")
     vscode_cmd = vscode_flatpak
-    vscode_userconfigfolder = os.path.join(userhome, ".var", "app", "com.visualstudio.code", "data")
+    vscode_userconfigfolder = os.path.join(userhome, ".var", "app", "com.visualstudio.code", "config", "Code", "User")
     vscode_userconfig = os.path.join(vscode_userconfigfolder, "settings.json")
-elif shutil.which("flatpak") and subprocess.run(vscode_flatpak_oss + ["-h"]).returncode is 0:
+elif shutil.which("flatpak") and subprocess.run(vscode_flatpak_oss + ["-h"]).returncode == 0:
     print("Detected flatpak code-oss command.")
     vscode_cmd = vscode_flatpak_oss
-    vscode_userconfigfolder = os.path.join(userhome, ".var", "app", "com.visualstudio.code.oss", "data")
+    vscode_userconfigfolder = os.path.join(userhome, ".var", "app", "com.visualstudio.code.oss", "config", "Code - OSS", "User")
     vscode_userconfig = os.path.join(vscode_userconfigfolder, "settings.json")
-elif CFunc.is_windows() and os.path.exists(vscode_windows) and subprocess.run([vscode_windows, "-h"]).returncode is 0:
+elif CFunc.is_windows() and os.path.exists(vscode_windows) and subprocess.run([vscode_windows, "-h"]).returncode == 0:
     print("Detected Windows code command.")
     vscode_cmd = [vscode_windows]
     vscode_userconfig = os.path.join(userhome, "AppData", "Roaming", "Code", "User", "settings.json")
@@ -65,18 +65,19 @@ elif shutil.which("apt-get"):
     print("Install apt dependencies.")
     CFunc.aptinstall("python3-pip shellcheck")
 
-### Detect Windows Commands ###
-if CFunc.is_windows() is True:
-    pipcmd = "pip"
-else:
-    pipcmd = "pip3"
 
-### Language Specific packages ###
-if shutil.which(pipcmd):
-    print("Installing python dependencies.")
+### Pip Commands ###
+pip_packages = "pylama pylama-pylint flake8"
+if CFunc.is_windows() is True and shutil.which("pip"):
+    pipcmd = "pip"
+    subprocess.run("{0} install {1}".format(pipcmd, pip_packages), shell=True)
+elif vscode_cmd == vscode_flatpak_oss:
+    subprocess.run("flatpak run --command=pip3 com.visualstudio.code.oss install {0} --user".format(pip_packages), shell=True)
+elif shutil.which("pip3"):
+    pipcmd = "pip3"
     subprocess.run("{0}{1} install pylama pylama-pylint flake8".format(CFunc.sudocmd(True), pipcmd), shell=True)
 else:
-    print("{0} not found. Not install python packages.".format(pipcmd))
+    pipcmd = None
 
 
 ### Extensions ###
