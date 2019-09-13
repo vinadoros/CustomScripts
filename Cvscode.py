@@ -98,6 +98,9 @@ data["workbench.startupEditor"] = "newUntitledFile"
 data["window.titleBarStyle"] = "custom"
 data["editor.renderWhitespace"] = "all"
 data["editor.wordWrap"] = "on"
+if vscode_cmd == vscode_flatpak_oss:
+    data["terminal.integrated.shell.linux"] = "flatpak-spawn"
+    data["terminal.integrated.shellArgs.linux"] = ["--host", "bash"]
 # Python Config
 if not CFunc.is_windows():
     data["python.pythonPath"] = "python3"
