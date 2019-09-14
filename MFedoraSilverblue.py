@@ -164,7 +164,7 @@ if args.stage == 2:
     subprocess.run("{0}/CShellConfig.py -z -d".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CVMGeneral.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/CVMGeneral.py".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True)
     subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
