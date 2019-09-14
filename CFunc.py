@@ -394,6 +394,36 @@ def AddLineToSudoersFile(sudoersfile, line, overwrite=False):
         os.chmod(sudoersfile, 0o440)
         CheckRestoreSudoersFile(sudoersfile)
     return
+def Fstab_CheckStringInFile(fstab_path, stringtocheck):
+    """Check for a given string in fstab. Returns True if found, False if not found."""
+    status = None
+    if os.path.isfile(fstab_path):
+        with open(fstab_path, 'r') as f:
+            fstab_existing_text = str(f.read())
+        if stringtocheck in fstab_existing_text:
+            status = True
+        else:
+            status = False
+    else:
+        print("ERROR, no such file {0}".format(fstab_path))
+    return status
+def Fstab_AddLine(fstab_path, linetoadd):
+    """Add a line to fstab."""
+    if os.path.isfile(fstab_path):
+        # Check for a newline at the end of fstab.
+        with open(fstab_path, 'r') as f:
+            fstab_existing_text = str(f.read())
+        # If a newline doesn't exist, add one.
+        if not fstab_existing_text.endswith("\n"):
+            linetoadd = "\n" + linetoadd
+        # Add a newline to the end of the linetoadd.
+        linetoadd = linetoadd + "\n"
+        # Add the fstab line to fstab if zram is not found in the file.
+        with open(fstab_path, 'a') as f:
+            f.write(linetoadd)
+    else:
+        print("ERROR, no such file {0}".format(fstab_path))
+    return
 # Apt
 def aptupdate():
     """Update apt sources"""
