@@ -248,6 +248,26 @@ def run_as_user(user_name, cmd, shell_cmd=None):
     process = subprocess.Popen(cmd, preexec_fn=demote(user_uid, user_gid), cwd=cwd, env=env, shell=True, executable=shell_cmd)
     process.wait()
     return process.returncode
+def chown_recursive(path, user_name, group_name):
+    """Recursive chown."""
+    print("Running chown on {0}.".format(path))
+    uid = pwd.getpwnam(user_name).pw_uid
+    gid = grp.getgrnam(group_name).gr_gid
+    os.chown(path, uid, gid)
+    # Drill down into the folder if it is a folder.
+    if os.path.isdir(path):
+        for dirpath, dirnames, filenames in os.walk(path):
+            for dname in dirnames:
+                try:
+                    os.chown(os.path.join(dirpath, dname), uid, gid)
+                except:
+                    print("ERROR, chown failed for {0}".format(os.path.join(dirpath, dname)))
+            for fname in filenames:
+                try:
+                    os.chown(os.path.join(dirpath, fname), uid, gid)
+                except:
+                    print("ERROR, chown failed for {0}".format(os.path.join(dirpath, fname)))
+    return
 ### Systemd Functions ###
 def systemd_createsystemunit(sysunitname, sysunittext, sysenable=False):
     """Create a systemd system unit."""
@@ -300,7 +320,7 @@ AllowIsolate=true""")
     os.symlink(SystemdUser_UnitFilePath, SystemdUser_DefaultTargetUserUnitSymlinkPath)
     # Set proper ownership if running as root.
     if os.geteuid() is 0:
-        subprocess.run("chown {0}:{1} -R {2}/.config".format(USERNAMEVAR, USERGROUP, USERHOME), shell=True)
+        chown_recursive(os.path.join(USERHOME, ".config"), USERNAMEVAR, USERGROUP)
     else:
         # Run daemon-reload if not running as root.
         subprocess.run("systemctl --user daemon-reload", shell=True)
