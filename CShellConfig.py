@@ -186,14 +186,6 @@ if type -p apt-get &> /dev/null; then
         echo "Installing $@."
         $SUDOCMD apt-get install $@
     }
-    function iny () {
-        echo "Installing $@."
-        $SUDOCMD apt-get install -y $@
-    }
-    function afix () {
-        echo "Running apt-get -f install."
-        $SUDOCMD apt-get -f install
-    }
     function rmv () {
         echo "Removing $@."
         $SUDOCMD apt-get --purge remove $@
@@ -234,10 +226,6 @@ elif type dnf &> /dev/null || type yum &> /dev/null; then
         echo "Installing $@."
         $SUDOCMD $PKGMGR install $@
     }
-    function iny () {
-        echo "Installing $@."
-        $SUDOCMD $PKGMGR install -y $@
-    }
     function rmv () {
         echo "Removing $@."
         $SUDOCMD $PKGMGR remove $@
@@ -260,6 +248,29 @@ elif type dnf &> /dev/null || type yum &> /dev/null; then
     function up () {
         echo "Updating system."
         $SUDOCMD $PKGMGR upgrade --refresh -y
+        flatpak_update
+    }
+elif type rpm-ostree &> /dev/null; then
+    function ins () {
+        echo "Installing $@."
+        $SUDOCMD rpm-ostree install $@
+    }
+    function rmv () {
+        echo "Removing $@."
+        $SUDOCMD rpm-ostree remove $@
+    }
+    function se () {
+        echo -e "\nSearching for $@."
+        snap_search "$@"
+        flatpak_search "$@"
+    }
+    function cln () {
+        echo "Auto-removing packages."
+        flatpak_clean
+    }
+    function up () {
+        echo "Updating system."
+        $SUDOCMD rpm-ostree upgrade
         flatpak_update
     }
 fi
@@ -628,14 +639,6 @@ if type -q apt-get
         echo "Installing $argv."
         sudo apt-get install $argv
     end
-    function iny
-        echo "Installing $argv."
-        sudo apt-get install -y $argv
-    end
-    function afix
-        echo "Running apt-get -f install."
-        sudo apt-get -f install
-    end
     function rmv
         echo "Removing $argv."
         sudo apt-get --purge remove $argv
@@ -675,10 +678,6 @@ else if type -q dnf; or type -q yum
         echo "Installing $argv."
         sudo $PKGMGR install $argv
     end
-    function iny
-        echo "Installing $argv."
-        sudo $PKGMGR install -y $argv
-    end
     function rmv
         echo "Removing $argv."
         sudo $PKGMGR remove $argv
@@ -701,6 +700,29 @@ else if type -q dnf; or type -q yum
     function up
         echo "Updating system."
         sudo $PKGMGR update --refresh -y
+        flatpak_update
+    end
+else if type -q rpm-ostree
+    function ins
+        echo "Installing $argv."
+        sudo rpm-ostree install $argv
+    end
+    function rmv
+        echo "Removing $argv."
+        sudo rpm-ostree remove $argv
+    end
+    function se
+        echo -e "\\nSearching for $argv."
+        snap_search $argv
+        flatpak_search $argv
+    end
+    function cln
+        echo "Auto-removing packages."
+        flatpak_clean
+    end
+    function up
+        echo "Updating system."
+        sudo rpm-ostree upgrade
         flatpak_update
     end
 end
