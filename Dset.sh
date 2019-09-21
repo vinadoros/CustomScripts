@@ -475,6 +475,7 @@ for profilefolder in ~/.mozilla/firefox/*.default*/; do
 		mod_ff "general.warnOnAboutConfig" "false"
 		mod_ff "browser.download.useDownloadDir" "false"
 		mod_ff "app.shield.optoutstudies.enabled" "false"
+		mod_ff "browser.newtabpage.activity-stream.showSponsored" "false"
 		# DNS-over-HTTPS
 		mod_ff "network.trr.mode" "2"
 		mod_ff "network.trr.bootstrapAddress" "1.1.1.1"
