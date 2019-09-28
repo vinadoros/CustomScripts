@@ -513,7 +513,7 @@ if 1 <= args.ostype <= 4:
 if 5 <= args.ostype <= 8:
     data['builders'][0]["boot_command"] = ["<tab> ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos8-ks.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "dnf install -y git python3; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
+    data['provisioners'][0]["inline"] = "git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
 if args.ostype == 9:
     data['builders'][0]["boot_command"] = ["<tab> inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/silverblue.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
