@@ -36,19 +36,18 @@ print("Group Name is:", USERGROUP)
 vmstatus = CFunc.getvmstate()
 
 ### Fedora Repos ###
-if not args.bare:
-    # EPEL
-    CFunc.dnfinstall("https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm")
-    # RPMFusion
-    CFunc.dnfinstall("https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm")
-    CFunc.dnfinstall("rpmfusion-nonfree-appstream-data rpmfusion-free-appstream-data")
-    CFunc.dnfinstall("rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted")
-    # Visual Studio Code
-    CFunc.rpmimport("https://packages.microsoft.com/keys/microsoft.asc")
-    with open("/etc/yum.repos.d/vscode.repo", 'w') as vscoderepofile_write:
-        vscoderepofile_write.write('[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc"')
-    # Balena Etcher
-    CFunc.downloadfile("https://balena.io/etcher/static/etcher-rpm.repo", os.path.join(os.sep, "etc", "yum.repos.d"))
+# EPEL
+CFunc.dnfinstall("https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm")
+# RPMFusion
+CFunc.dnfinstall("https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm")
+CFunc.dnfinstall("rpmfusion-nonfree-appstream-data rpmfusion-free-appstream-data")
+CFunc.dnfinstall("rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted")
+# Visual Studio Code
+CFunc.rpmimport("https://packages.microsoft.com/keys/microsoft.asc")
+with open("/etc/yum.repos.d/vscode.repo", 'w') as vscoderepofile_write:
+    vscoderepofile_write.write('[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc"')
+# Balena Etcher
+CFunc.downloadfile("https://balena.io/etcher/static/etcher-rpm.repo", os.path.join(os.sep, "etc", "yum.repos.d"))
 
 
 # Update system after enabling repos.
@@ -170,14 +169,13 @@ subprocess.run("sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /e
 subprocess.run("systemctl mask firewalld", shell=True)
 
 # Extra scripts
-if args.allextra is True:
-    subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CShellConfig.py -z -d".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CVMGeneral.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
+subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
+subprocess.run("{0}/CShellConfig.py -z -d".format(SCRIPTDIR), shell=True)
+subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True)
+subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
+subprocess.run("{0}/CVMGeneral.py".format(SCRIPTDIR), shell=True)
+subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True)
+subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True)
+subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
 
 print("\nScript End")
