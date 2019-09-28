@@ -168,22 +168,16 @@ if args.ostype == 3:
 if args.ostype == 4:
     vmname = "Packer-FedoraCLIBare-{0}".format(hvname)
     vmprovision_defopts = "-x -b"
-if 5 <= args.ostype <= 9:
+if 5 <= args.ostype <= 8:
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
     kvm_os = "linux"
-    kvm_variant = "rhel7.4"
-    isourl = "https://mirrors.kernel.org/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1810.iso"
-    vmprovisionscript = "MCentOS.py"
+    kvm_variant = "rhel8.0"
+    isourl = "https://mirrors.edge.kernel.org/centos/8-stream/isos/x86_64/CentOS-Stream-x86_64-boot.iso"
+    vmprovisionscript = "MCentOS8.py"
 if args.ostype == 5:
-    vmname = "Packer-CentOS-{0}".format(hvname)
-    vmprovision_defopts = "-g {0}".format(args.desktopenv)
-if args.ostype == 6:
-    vmname = "Packer-CentOSCLI-{0}".format(hvname)
-    vmprovision_defopts = "-d -r"
-if args.ostype == 7:
-    vmname = "Packer-CentOSOrig-{0}".format(hvname)
-    vmprovision_defopts = " "
+    vmname = "Packer-CentOSStream-{0}".format(hvname)
+    vmprovision_defopts = "-t 1"
 if args.ostype == 9:
     vmprovisionscript = "MFedoraSilverblue.py"
     vboxosid = "Fedora_64"
@@ -517,9 +511,9 @@ if 1 <= args.ostype <= 4:
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "dnf install -y git; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
 if 5 <= args.ostype <= 8:
-    data['builders'][0]["boot_command"] = ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos7-ks.cfg<enter><wait>"]
+    data['builders'][0]["boot_command"] = ["<tab> ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos8-ks.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "yum install -y git; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
+    data['provisioners'][0]["inline"] = "dnf install -y git python3; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
 if args.ostype == 9:
     data['builders'][0]["boot_command"] = ["<tab> inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/silverblue.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
