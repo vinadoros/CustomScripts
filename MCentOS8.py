@@ -41,7 +41,6 @@ CFunc.dnfinstall("https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.no
 # RPMFusion
 CFunc.dnfinstall("https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm")
 CFunc.dnfinstall("rpmfusion-nonfree-appstream-data rpmfusion-free-appstream-data")
-CFunc.dnfinstall("rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted")
 # Visual Studio Code
 CFunc.rpmimport("https://packages.microsoft.com/keys/microsoft.asc")
 with open("/etc/yum.repos.d/vscode.repo", 'w') as vscoderepofile_write:
