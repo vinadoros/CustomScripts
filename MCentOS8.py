@@ -56,7 +56,7 @@ CFunc.dnfupdate()
 # Cli tools
 CFunc.dnfinstall("zsh nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils xdg-user-dirs util-linux-user fuse-sshfs redhat-lsb-core openssh-server openssh-clients avahi dnf-plugin-system-upgrade")
 subprocess.run("systemctl enable sshd", shell=True)
-CFunc.dnfinstall("powerline-fonts google-roboto-fonts google-noto-sans-fonts")
+CFunc.dnfinstall("google-noto-sans-fonts")
 # Samba
 CFunc.dnfinstall("samba")
 subprocess.run("systemctl enable smb", shell=True)
@@ -80,6 +80,8 @@ elif args.type == 3:
 
 # GUI Packages
 if args.type == 1 or args.type == 2:
+    # Enable graphical target
+    subprocess.run("systemctl set-default graphical.target", shell=True)
     # Browsers
     CFunc.dnfinstall("firefox")
     # Editors
