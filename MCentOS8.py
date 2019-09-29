@@ -40,7 +40,6 @@ vmstatus = CFunc.getvmstate()
 CFunc.dnfinstall("https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm")
 # RPMFusion
 CFunc.dnfinstall("https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm")
-CFunc.dnfinstall("rpmfusion-nonfree-appstream-data rpmfusion-free-appstream-data")
 # Visual Studio Code
 CFunc.rpmimport("https://packages.microsoft.com/keys/microsoft.asc")
 with open("/etc/yum.repos.d/vscode.repo", 'w') as vscoderepofile_write:
@@ -54,7 +53,7 @@ CFunc.dnfupdate()
 
 ### Install CentOS Software ###
 # Cli tools
-CFunc.dnfinstall("zsh nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils xdg-user-dirs util-linux-user fuse-sshfs redhat-lsb-core openssh-server openssh-clients avahi dnf-plugin-system-upgrade")
+CFunc.dnfinstall("zsh nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils xdg-user-dirs util-linux-user redhat-lsb-core openssh-server openssh-clients avahi")
 subprocess.run("systemctl enable sshd", shell=True)
 CFunc.dnfinstall("google-noto-sans-fonts")
 # Samba
@@ -88,8 +87,6 @@ if args.type == 1 or args.type == 2:
     CFunc.dnfinstall("code")
     # Etcher
     CFunc.dnfinstall("balena-etcher-electron")
-    # Syncthing
-    CFunc.dnfinstall("syncthing")
     # Flameshot
     CFunc.dnfinstall("flameshot")
     os.makedirs(os.path.join(USERHOME, ".config", "autostart"), exist_ok=True)
