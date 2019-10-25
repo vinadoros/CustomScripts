@@ -39,7 +39,7 @@ if os.path.isdir(os.path.dirname(udevrule_path)):
 
 # Add zram to fstab
 fstab_path = os.path.join(os.sep, "etc", "fstab")
-fstab_text = "{0}\tnone\tswap\tdefaults,pri=16383,nofail\t0\t0".format(zram_blockdevicename)
+fstab_text = "{0}\tnone\tswap\tdefaults\t0\t0".format(zram_blockdevicename)
 if not CFunc.Fstab_CheckStringInFile(os.path.join(os.sep, "etc", "fstab"), zram_blockdevicename):
     CFunc.Fstab_AddLine(os.path.join(os.sep, "etc", "fstab"), fstab_text)
 
