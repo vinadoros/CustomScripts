@@ -129,12 +129,14 @@ if args.desktop == "gnome":
     subprocess.run("systemctl enable -f gdm", shell=True)
     # Some Gnome Extensions
     CFunc.dnfinstall("gnome-terminal-nautilus gnome-tweak-tool dconf-editor")
-    CFunc.dnfinstall("gnome-shell-extension-gpaste gnome-shell-extension-topicons-plus gnome-shell-extension-dash-to-dock")
+    CFunc.dnfinstall("gnome-shell-extension-gpaste gnome-shell-extension-topicons-plus")
     # Install gs installer script.
     gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
     os.chmod(gs_installer[0], 0o777)
     # Install volume extension
     CFunc.run_as_user(USERNAMEVAR, "{0} --yes 858".format(gs_installer[0]))
+    # Install dashtodock extension
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 307".format(gs_installer[0]))
 elif args.desktop == "kde":
     # KDE
     CFunc.dnfinstall("--allowerasing @kde-desktop-environment")
