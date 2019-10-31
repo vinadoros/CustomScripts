@@ -180,6 +180,8 @@ if type gnome-session; then
 	gsettings set org.gnome.nautilus.icon-view default-zoom-level small
 	gsettings set org.gnome.nautilus.list-view use-tree-view true
 	gsettings set org.gnome.nautilus.icon-view captions "['size', 'none', 'none']"
+	gsettings set org.gnome.nautilus.list-view default-visible-columns "['name', 'size', 'type', 'date_modified']"
+	gsettings set org.gnome.nautilus.compression default-compression-format '7z'
 	gsettings set org.gnome.desktop.peripherals.touchpad scroll-method edge-scrolling
 	gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click true
 	gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll false
