@@ -201,7 +201,7 @@ if type gnome-session; then
 	gsettings set org.gnome.settings-daemon.plugins.xsettings hinting slight
 	gsettings set org.gnome.desktop.interface text-scaling-factor 1.0
 	gsettings set org.gnome.desktop.interface clock-show-date true
-	gsettings set org.gnome.shell enabled-extensions "['window-list@gnome-shell-extensions.gcampax.github.com', 'dash-to-dock@micxgx.gmail.com', 'GPaste@gnome-shell-extensions.gnome.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'shell-volume-mixer@derhofbauer.at', 'TopIcons@phocean.net', 'ubuntu-appindicators@ubuntu.com']"
+	gsettings set org.gnome.shell enabled-extensions "['window-list@gnome-shell-extensions.gcampax.github.com', 'dash-to-dock@micxgx.gmail.com', 'GPaste@gnome-shell-extensions.gnome.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'shell-volume-mixer@derhofbauer.at', 'TopIcons@phocean.net', 'ubuntu-appindicators@ubuntu.com', 'donotdisturb@kylecorry31.github.io']"
 	gsettings set org.gnome.desktop.wm.preferences button-layout :minimize,maximize,close
 	gsettings set org.gnome.settings-daemon.peripherals.mouse locate-pointer false
 	gsettings set org.gnome.desktop.datetime automatic-timezone true
