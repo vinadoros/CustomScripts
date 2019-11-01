@@ -221,6 +221,9 @@ if type gnome-session; then
 	gsettings set org.freedesktop.Tracker.Miner.Files enable-monitors false
 	dconf write /org/gnome/shell/extensions/dash-to-dock/intellihide "true"
 	dconf write /org/gnome/shell/extensions/dash-to-dock/multi-monitor "true"
+	# Blocked by https://github.com/micheleg/dash-to-dock/issues/1025
+	# dconf write /org/gnome/shell/extensions/dash-to-dock/show-mounts "false"
+	dconf write /org/gnome/shell/extensions/dash-to-dock/show-trash "false"
 	gsettings set org.gnome.shell.extensions.dash-to-dock intellihide true
 	gsettings set org.gnome.shell.extensions.dash-to-dock click-action 'minimize'
 	gsettings set org.gnome.shell.extensions.dash-to-dock intellihide-mode 'FOCUS_APPLICATION_WINDOWS'
