@@ -155,7 +155,7 @@ if 1 <= args.ostype <= 4:
     vmwareid = "fedora-64"
     kvm_os = "linux"
     kvm_variant = "fedora26"
-    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/30/Server/x86_64/iso/Fedora-Server-dvd-x86_64-30-1.2.iso"
+    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/31/Server/x86_64/iso/Fedora-Server-dvd-x86_64-31-1.9.iso"
 if args.ostype == 1:
     vmname = "Packer-Fedora-{0}".format(hvname)
     vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
@@ -184,7 +184,7 @@ if args.ostype == 9:
     vmwareid = "fedora-64"
     kvm_os = "linux"
     kvm_variant = "fedora26"
-    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/30/Silverblue/x86_64/iso/Fedora-Silverblue-ostree-x86_64-30-1.2.iso"
+    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/31/Silverblue/x86_64/iso/Fedora-Silverblue-ostree-x86_64-31-1.9.iso"
     vmname = "Packer-FedoraSilverblue-{0}".format(hvname)
     vmprovision_defopts = ""
 if 10 <= args.ostype <= 19:
@@ -195,7 +195,7 @@ if 10 <= args.ostype <= 19:
 # Ubuntu latest
 if 10 <= args.ostype <= 14:
     kvm_variant = "ubuntu18.04"
-    isourl = "http://cdimage.ubuntu.com/releases/19.04/release/ubuntu-19.04-server-amd64.iso"
+    isourl = "http://cdimage.ubuntu.com/releases/19.10/release/ubuntu-19.10-server-amd64.iso"
 # Ubuntu LTS
 if 15 <= args.ostype <= 19:
     kvm_variant = "ubuntu18.04"
