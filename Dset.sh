@@ -161,6 +161,7 @@ fi
 # PackageKit
 # https://ask.fedoraproject.org/en/question/108524/clean-up-packagekit-cache-the-right-way/
 gsettings set org.gnome.software download-updates false
+gsettings set org.gnome.software download-updates-notify false
 
 # Gnome specific settings
 if type gnome-session; then
