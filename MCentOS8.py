@@ -7,6 +7,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 # Custom includes
 import CFunc
 
@@ -46,7 +47,9 @@ with open("/etc/yum.repos.d/vscode.repo", 'w') as vscoderepofile_write:
     vscoderepofile_write.write('[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc"')
 # Balena Etcher
 CFunc.downloadfile("https://balena.io/etcher/static/etcher-rpm.repo", os.path.join(os.sep, "etc", "yum.repos.d"))
-
+# EL Repo
+# https://elrepo.org
+subprocess.run("rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org ; dnf install -y https://www.elrepo.org/elrepo-release-8.0-2.el8.elrepo.noarch.rpm ; dnf config-manager --enable elrepo-kernel", shell=True)
 
 # Update system after enabling repos.
 CFunc.dnfupdate()
@@ -65,6 +68,14 @@ CFunc.dnfinstall("cifs-utils")
 subprocess.run("sudo chmod u+s /sbin/mount.cifs", shell=True)
 # NTP Configuration
 subprocess.run("systemctl enable systemd-timesyncd; timedatectl set-local-rtc false; timedatectl set-ntp 1", shell=True)
+# Install kernel
+CFunc.dnfinstall("dnf install -y kernel-ml kernel-ml-devel kernel-ml-modules-extra")
+# Install powerline fonts
+powerline_git_path = os.path.join(tempfile.gettempdir(), "pl-fonts")
+CFunc.gitclone("https://github.com/powerline/fonts", powerline_git_path)
+subprocess.run(os.path.join(powerline_git_path, "install.sh"), shell=True)
+CFunc.run_as_user(USERNAMEVAR, os.path.join(powerline_git_path, "install.sh"))
+shutil.rmtree(powerline_git_path)
 # Groups
 if args.type == 1:
     # Workstation
@@ -94,6 +105,19 @@ if args.type == 1 or args.type == 2:
     if os.path.isfile(os.path.join(os.sep, "usr", "share", "applications", "flameshot.desktop")):
         shutil.copy(os.path.join(os.sep, "usr", "share", "applications", "flameshot.desktop"), os.path.join(USERHOME, ".config", "autostart"))
     CFunc.chown_recursive(os.path.join(USERHOME, ".config", ), USERNAMEVAR, USERGROUP)
+
+    # Gnome Shell extensions
+    # Install gs installer script.
+    gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
+    os.chmod(gs_installer[0], 0o777)
+    # Install volume extension
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 858".format(gs_installer[0]))
+    # Install dashtodock extension
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 307".format(gs_installer[0]))
+    # Install Do Not Disturb extension
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 1480".format(gs_installer[0]))
+    # Topicons plus
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 1031".format(gs_installer[0]))
 
 # Install software for VMs
 if vmstatus == "kvm":
