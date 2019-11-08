@@ -106,6 +106,8 @@ if args.type == 1 or args.type == 2:
         shutil.copy(os.path.join(os.sep, "usr", "share", "applications", "flameshot.desktop"), os.path.join(USERHOME, ".config", "autostart"))
     CFunc.chown_recursive(os.path.join(USERHOME, ".config", ), USERNAMEVAR, USERGROUP)
 
+    # Gnome Stuff
+    CFunc.dnfinstall("gnome-tweaks")
     # Gnome Shell extensions
     # Install gs installer script.
     gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
