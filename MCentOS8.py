@@ -69,7 +69,7 @@ subprocess.run("sudo chmod u+s /sbin/mount.cifs", shell=True)
 # NTP Configuration
 subprocess.run("systemctl enable systemd-timesyncd; timedatectl set-local-rtc false; timedatectl set-ntp 1", shell=True)
 # Install kernel
-CFunc.dnfinstall("dnf install -y kernel-ml kernel-ml-devel kernel-ml-modules-extra")
+CFunc.dnfinstall("kernel-ml kernel-ml-devel kernel-ml-modules-extra")
 # Install powerline fonts
 powerline_git_path = os.path.join(tempfile.gettempdir(), "pl-fonts")
 CFunc.gitclone("https://github.com/powerline/fonts", powerline_git_path)
