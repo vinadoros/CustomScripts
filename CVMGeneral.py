@@ -58,6 +58,7 @@ done
 """
     with open(ra_script_path, 'w') as f:
         f.write(ra_script_text)
+    os.chmod(ra_script_path, 0o777)
     # Create ra user service
     ra_service_text = """[Unit]
 Description=Display Resize script
