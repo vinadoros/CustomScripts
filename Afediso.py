@@ -25,7 +25,7 @@ parser = argparse.ArgumentParser(description='Build Fedora LiveCD.')
 parser.add_argument("-n", "--noprompt", help='Do not prompt.', action="store_true")
 parser.add_argument("-w", "--workfolderroot", help='Location of Working Folder (i.e. {0})'.format(USERHOME), default=USERHOME)
 parser.add_argument("-o", "--output", help='Output Location of ISO (i.e. {0})'.format(USERHOME), default=USERHOME)
-parser.add_argument("-r", "--releasever", help='Release Version (i.e. 30)', type=int, default=30)
+parser.add_argument("-r", "--releasever", help='Release Version (i.e. 31)', type=int, default=31)
 
 # Save arguments.
 args = parser.parse_args()
@@ -130,6 +130,9 @@ python3 /opt/CustomScripts/CShellConfig.py -z
 
 # Enable openssh
 systemctl enable sshd
+# Enable ssh root login with password
+sed -i 's/PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config
+sed -i '/^#PermitRootLogin.*/s/^#//g' /etc/ssh/sshd_config
 
 # Clonezilla
 git clone https://github.com/stevenshiau/drbl drbl
