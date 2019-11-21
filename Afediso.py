@@ -159,6 +159,21 @@ if grep -iq $'^Defaults    secure_path' /etc/sudoers; then
 fi
 visudo -c
 
+# Loop Turn off screen script
+if [ ! -f /usr/local/bin/whileoffscreen.sh ]; then
+    echo -e '#!/bin/bash\nwhile true; do\n\tsleep 10s\n\txset dpms force off\ndone' | sudo tee /usr/local/bin/whileoffscreen.sh
+    sudo chmod a+x /usr/local/bin/whileoffscreen.sh
+fi
+
+# Run MATE Settings script on desktop startup.
+cat >"/etc/xdg/autostart/mate-dset.desktop" <<"EOL"
+[Desktop Entry]
+Name=MATE Settings Script
+Exec=/opt/CustomScripts/Dset.sh
+Terminal=false
+Type=Application
+EOL
+
 # Script run on boot
 cat >> /etc/rc.d/init.d/livesys << EOF
 
