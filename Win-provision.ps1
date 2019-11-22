@@ -18,6 +18,8 @@ $RepoUser = "ramesh45345"
 $RepoName = "CustomScripts"
 $Repo = "$RepoUser/$RepoName"
 $RepoLocalPath = "$CSRootPath\$RepoName"
+$cs_userpassword = "INSERTPASSWORDHERE"
+$cs_username = "INSERTUSERHERE"
 # Check if Virtual Machine
 $VMstring = gwmi -q "select * from win32_computersystem"
 if ( $VMstring.Model -imatch "vmware" ) {
@@ -123,8 +125,6 @@ function Fcn-CSClone {
   # https://stackoverflow.com/questions/1802127/how-to-run-a-powershell-script-without-displaying-a-window#1802836
   Register-ScheduledTask -Action $action -Trigger $trigger -Settings $settings -TaskName "csupdate" -Description "Hourly Update of $RepoName" -User $env:UserName
   # Set the scheduled task password if the password was set correctly.
-  $cs_userpassword = "INSERTPASSWORDHERE"
-  $cs_username = "INSERTUSERHERE"
   if ( -Not ( $cs_userpassword.Contains("PASSWORD") ) ) {
     schtasks /Change /RU $cs_username /RP $cs_userpassword /TN "csupdate"
   }
@@ -178,15 +178,23 @@ function Fcn-Software {
       $kvmguestfolder = "$temppath\kvm-guest-drivers-windows"
       Start-Process -Wait "$gitcmdpath\git.exe" -ArgumentList "clone","https://github.com/virtio-win/kvm-guest-drivers-windows","$kvmguestfolder"
       Start-Process -Wait "$kvmguestfolder\Tools\InstallCertificate.bat" -WorkingDirectory "$kvmguestfolder\Tools\"
-      $kvm_exefolder = "$env:PUBLIC\Desktop\"
-      Invoke-WebRequest -Uri https://www.spice-space.org/download/windows/spice-guest-tools/spice-guest-tools-latest.exe -OutFile "$kvm_exefolder\spice-guest-tools-latest.exe"
-      Start-Process -Wait "$kvm_exefolder\spice-guest-tools-latest.exe" -ArgumentList "/S"
+      $desktop_folder = "$env:PUBLIC\Desktop\"
+      Invoke-WebRequest -Uri https://www.spice-space.org/download/windows/spice-guest-tools/spice-guest-tools-latest.exe -OutFile "$desktop_folder\spice-guest-tools-latest.exe"
+      Start-Process -Wait "$desktop_folder\spice-guest-tools-latest.exe" -ArgumentList "/S"
       Remove-Item -Recurse -Force $kvmguestfolder
+
+      # Add script to add network share
+      Set-Content -Path "$desktop_folder\share.bat" -Value "@echo off`nnet use * `"\\192.168.122.1\rootfs`" /PERSISTENT:YES /SAVECRED"
     }
 
     # Enable remote desktop
     Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Value 0
     Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+
+    # Share files from C Drive
+    if ( -Not ( $cs_username.Contains("INSERTUSERHERE") ) ) {
+      New-SmbShare -Name "rootfs" -Path "C:\" -FullAccess $cs_username
+    }
   }
 
   # Install packages not for core.
