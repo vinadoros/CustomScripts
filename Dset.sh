@@ -35,10 +35,9 @@ fi
 if ! test -w /usr/local/bin/; then
 	sudo chmod a+rwx /usr/local/bin/
 fi
-if [ ! -f /usr/local/bin/turnoffscreen.sh ]; then
-	echo -e '#!/bin/bash'"\n"'sleep 1s'"\n"'xset dpms force off' | sudo tee /usr/local/bin/turnoffscreen.sh
-	sudo chmod a+x /usr/local/bin/turnoffscreen.sh
-fi
+echo -e '#!/bin/bash\nsleep 1s\nxset dpms force off' | sudo tee /usr/local/bin/turnoffscreen.sh
+echo -e '#!/bin/bash\nwhile true; do\n\tsleep 10s\n\txset dpms force off\ndone' | sudo tee /usr/local/bin/whileoffscreen.sh
+sudo chmod a+rx /usr/local/bin/turnoffscreen.sh /usr/local/bin/whileoffscreen.sh
 
 # Tilix configuration
 if type tilix; then

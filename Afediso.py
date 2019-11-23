@@ -159,12 +159,6 @@ if grep -iq $'^Defaults    secure_path' /etc/sudoers; then
 fi
 visudo -c
 
-# Loop Turn off screen script
-if [ ! -f /usr/local/bin/whileoffscreen.sh ]; then
-    echo -e '#!/bin/bash\nwhile true; do\n\tsleep 10s\n\txset dpms force off\ndone' | sudo tee /usr/local/bin/whileoffscreen.sh
-    sudo chmod a+x /usr/local/bin/whileoffscreen.sh
-fi
-
 # Run MATE Settings script on desktop startup.
 cat >"/etc/xdg/autostart/mate-dset.desktop" <<"EOL"
 [Desktop Entry]
