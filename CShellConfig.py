@@ -274,6 +274,23 @@ elif type rpm-ostree &> /dev/null; then
         flatpak_update
     }
 fi
+
+# Load tmux upon interactive ssh connection
+# References:
+# https://stackoverflow.com/questions/27613209/how-to-automatically-start-tmux-on-ssh-session
+# https://jordanelver.co.uk/blog/2010/11/27/automatically-attaching-to-a-tmux-session-via-ssh/
+#
+# If statement explanations:
+# type tmux &> /dev/null : Check if the tmux command exists.
+# [[ $- == *i* ]] : Check if the interactive flag has been set for the shell.
+# [[ -z "$TMUX" ]] : Check if tmux is already running.
+# [[ -n "$SSH_TTY" ]] : Ensure ssh tty exists.
+if type tmux &> /dev/null && [[ $- == *i* ]] && [[ -z "$TMUX" ]] && [[ -n "$SSH_TTY" ]]; then
+  # Connect to existing session, and if that fails, create a new session.
+  tmux attach-session -t ssh_tmux || tmux new-session -s ssh_tmux
+  # Exit ssh session if exiting tmux
+  exit
+fi
 """ % SCRIPTDIR
 # C-style printf string formatting was used to avoid collision with curly braces above.
 # https://docs.python.org/3/library/stdtypes.html#old-string-formatting
@@ -435,6 +452,30 @@ fi
         file.write(ZSHSCRIPT)
 else:
     print("zsh not detected, skipping configuration.")
+
+
+######### tmux config Section #########
+if shutil.which("tmux"):
+    tmux_cfg_path = os.path.join(repos_path, ".tmux")
+    # Clone tmux config repo
+    CFunc.gitclone("https://github.com/gpakosz/.tmux.git", tmux_cfg_path)
+    subprocess.run("chmod -R a+rw {0}".format(tmux_cfg_path), shell=True)
+    tmux_cfg_common = os.path.join(tmux_cfg_path, ".tmux.conf")
+    tmux_cfg_common_local = os.path.join(tmux_cfg_path, ".tmux.conf.local")
+    # Modify Local settings before copying
+    subprocess.run("""sed -i 's/tmux_conf_copy_to_os_clipboard=false/tmux_conf_copy_to_os_clipboard=true/g' {0}
+sed -i 's/#set -g mouse on/set -g mouse on/g' {0}
+sed -i 's/#set -g history-limit 10000/set -g history-limit 10000/g' {0}
+""".format(tmux_cfg_common_local), shell=True)
+    # Install tmux config
+    if not os.path.exists(os.path.join(USERVARHOME, ".tmux.conf")):
+        os.symlink(tmux_cfg_common, os.path.join(USERVARHOME, ".tmux.conf"))
+    shutil.copy(os.path.join(tmux_cfg_path, ".tmux.conf.local"), USERVARHOME)
+    shutil.chown(os.path.join(USERVARHOME, ".tmux.conf.local"), USERNAMEVAR, USERGROUP)
+    if rootstate is True:
+        if not os.path.exists(os.path.join(ROOTHOME, ".tmux.conf")):
+            os.symlink(tmux_cfg_common, os.path.join(ROOTHOME, ".tmux.conf"))
+        shutil.copy(os.path.join(tmux_cfg_path, ".tmux.conf.local"), ROOTHOME)
 
 
 ######### Fish Section #########
@@ -753,7 +794,7 @@ default_shell_value = None
 if args.changedefault is True and args.zsh is True:
     default_shell_value = shutil.which("zsh")
 
-# Run the script
+# Perform the shell change
 if rootstate is True and args.changedefault is True and default_shell_value:
     # Change shells for user.
     print("Changing shell for user {0} to {1}.".format(USERNAMEVAR, default_shell_value))
