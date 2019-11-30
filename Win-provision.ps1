@@ -342,6 +342,14 @@ function Fcn-Customize {
   New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel -Name AllItemsIconView -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
   New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel -Name StartupPage -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
 
+  # Remove pinned apps, like Edge and Store
+  # https://stackoverflow.com/questions/45152335/unpin-the-microsoft-edge-and-store-taskbar-shortcuts-programmatically
+  $appnames = "^Microsoft Edge$|^Microsoft Store$|^Mail$"
+((New-Object -Com Shell.Application).NameSpace('shell:::{4234d49b-0245-4df3-b780-3893943456e1}').Items() | 
+    Where-Object{$_.Name -match $appnames}).Verbs() | 
+    Where-Object{$_.Name.replace('&','') -match 'Unpin from taskbar'} | 
+    ForEach-Object{$_.DoIt(); $exec = $true}
+
   # Set pagefile
   wmic computersystem set AutomaticManagedPagefile=False
   wmic pagefileset delete
