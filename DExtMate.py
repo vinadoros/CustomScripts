@@ -50,7 +50,7 @@ if args.brisk:
     if shutil.which("dnf"):
         CFunc.dnfinstall("meson ninja-build gcc gtk3-devel mate-panel-devel mate-menus-devel libnotify-devel")
     try:
-        CFunc.gitclone("https://github.com/solus-project/brisk-menu", tempfolder)
+        CFunc.gitclone("https://github.com/getsolus/brisk-menu", tempfolder)
         subprocess.run("chmod -R a+rw {0}".format(tempfolder), shell=True)
         subprocess.run("""cd {0}
 meson --buildtype plain build --prefix=/usr
@@ -179,7 +179,7 @@ locked=true
 
     if dpath_firefox:
         mate_config += """
-[Object web-browser]
+[Object firefox-browser]
 object-type=launcher
 launcher-location={0}
 toplevel-id=top
@@ -189,11 +189,11 @@ locked=true
 
     if dpath_chromium:
         mate_config += """
-[Object web-browser]
+[Object chromium-browser]
 object-type=launcher
 launcher-location={0}
 toplevel-id=top
-position=10
+position=11
 locked=true
 """.format(dpath_chromium)
 
