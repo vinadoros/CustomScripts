@@ -87,7 +87,7 @@ function Add-EnvPath {
 # Rudimentary CS Clone.
 function Fcn-CSClone {
   # Ensure git is installed.
-  choco install -y git.install --params "/GitOnlyOnPath /NoShellIntegration /NoAutoCrlf"
+  choco install -y git --params "/GitOnlyOnPath /NoShellIntegration /NoAutoCrlf"
   # Git executable
   $gitcmdpath = "C:\Program Files\Git\bin"
 
