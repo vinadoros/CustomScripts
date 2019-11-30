@@ -443,9 +443,9 @@ if type xfconf-query; then
 	xfconf-query -c xfce4-panel -p /plugins/plugin-21 --type string --set "launcher" --create
 	xfconf-query -c xfce4-panel -p /plugins/plugin-21/items --type string --set "Thunar.desktop" --force-array --create
 	xfconf-query -c xfce4-panel -p /plugins/plugin-22 --type string --set "launcher" --create
-	xfconf-query -c xfce4-panel -p /plugins/plugin-22/items --type string --set "com.gexperts.Tilix.desktop" --force-array --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-22/items --type string --set "xfce4-terminal.desktop" --force-array --create
 	xfconf-query -c xfce4-panel -p /plugins/plugin-23 --type string --set "launcher" --create
-	xfconf-query -c xfce4-panel -p /plugins/plugin-23/items --type string --set "xfce4-terminal.desktop" --force-array --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-23/items --type string --set "com.gexperts.Tilix.desktop" --force-array --create
 
 	# List existing array
 	# xfconf-query -c xfce4-panel -p /panels/panel-2/plugin-ids
