@@ -66,6 +66,11 @@ ninja -C build install
 if args.config:
     app_folder = os.path.join(os.path.sep, "usr", "share", "applications")
     # Find application desktop icons, for adding to panel
+    # Find Firefox
+    dpath_firefox = None
+    files_list = glob.glob('{0}/*[Ff]irefox*.desktop'.format(app_folder), recursive=True)
+    if files_list:
+        dpath_firefox = files_list[0]
     # Find Chromium
     dpath_chromium = None
     files_list = glob.glob('{0}/*[Cc]hromium*.desktop'.format(app_folder), recursive=True)
@@ -76,11 +81,7 @@ if args.config:
         files_list = glob.glob('{0}/*google-chrome*.desktop'.format(app_folder), recursive=True)
         if files_list:
             dpath_chromium = files_list[0]
-    # Use Firefox is neither was found.
-    if not dpath_chromium:
-        files_list = glob.glob('{0}/*[Ff]irefox*.desktop'.format(app_folder), recursive=True)
-        if files_list:
-            dpath_chromium = files_list[0]
+
 
     # Tilix
     dpath_tilix = None
@@ -175,6 +176,16 @@ toplevel-id=bottom
 position=20
 locked=true
 """
+
+    if dpath_firefox:
+        mate_config += """
+[Object web-browser]
+object-type=launcher
+launcher-location={0}
+toplevel-id=top
+position=10
+locked=true
+""".format(dpath_firefox)
 
     if dpath_chromium:
         mate_config += """
