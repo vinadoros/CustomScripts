@@ -121,6 +121,17 @@ if args.type == 1 or args.type == 2:
     # Topicons plus
     CFunc.run_as_user(USERNAMEVAR, "{0} --yes 1031".format(gs_installer[0]))
 
+    # Numix Circle Icons
+    iconfolder = os.path.join(os.sep, "usr", "local", "share", "icons")
+    os.makedirs(iconfolder, exist_ok=True)
+    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
+    shutil.rmtree(os.path.join(iconfolder, "Numix-Circle"), ignore_errors=True)
+    CFunc.gitclone("https://github.com/numixproject/numix-icon-theme-circle.git", os.path.join(iconfolder, "numix-icon-theme-circle"))
+    shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle"), iconfolder)
+    shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle-Light"), iconfolder)
+    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
+    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "/Numix-Circle")), shell=True)
+
 # Install software for VMs
 if vmstatus == "kvm":
     CFunc.dnfinstall("spice-vdagent qemu-guest-agent")
