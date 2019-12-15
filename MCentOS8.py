@@ -127,6 +127,7 @@ if args.type == 1 or args.type == 2:
     # Numix Icon Theme
     shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme"), ignore_errors=True)
     shutil.rmtree(os.path.join(iconfolder, "Numix"), ignore_errors=True)
+    shutil.rmtree(os.path.join(iconfolder, "Numix-Light"), ignore_errors=True)
     CFunc.gitclone("https://github.com/numixproject/numix-icon-theme.git", os.path.join(iconfolder, "numix-icon-theme"))
     shutil.move(os.path.join(iconfolder, "numix-icon-theme", "Numix"), iconfolder)
     shutil.move(os.path.join(iconfolder, "numix-icon-theme", "Numix-Light"), iconfolder)
@@ -135,6 +136,7 @@ if args.type == 1 or args.type == 2:
     # Numix Circle Icons
     shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
     shutil.rmtree(os.path.join(iconfolder, "Numix-Circle"), ignore_errors=True)
+    shutil.rmtree(os.path.join(iconfolder, "Numix-Circle-Light"), ignore_errors=True)
     CFunc.gitclone("https://github.com/numixproject/numix-icon-theme-circle.git", os.path.join(iconfolder, "numix-icon-theme-circle"))
     shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle"), iconfolder)
     shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle-Light"), iconfolder)
