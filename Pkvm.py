@@ -288,11 +288,6 @@ if args.ostype == 50:
 if args.ostype == 51:
     vmname = "Packer-Windows10LTS-{0}".format(hvname)
     windows_key = "M7XTQ-FN8P6-TTKYV-9D4CC-J462D"
-if args.ostype == 54:
-    vmname = "Packer-Windows7-{0}".format(hvname)
-    vboxosid = "Windows7_64"
-    vmwareid = "windows7-64"
-    kvm_variant = "win7"
 if 55 <= args.ostype <= 59:
     vboxosid = "Windows2016_64"
     vmwareid = "windows9srv-64"
@@ -596,8 +591,6 @@ if args.ostype == 51:
     shutil.move(os.path.join(tempunattendfolder, "windows10.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
     # Insert product key
     xml_insertwindowskey(windows_key, os.path.join(tempunattendfolder, "autounattend.xml"))
-if args.ostype == 54:
-    shutil.move(os.path.join(tempunattendfolder, "windows7.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
 if 55 <= args.ostype <= 59:
     shutil.move(os.path.join(tempunattendfolder, "windows10.xml"), os.path.join(tempunattendfolder, "autounattend.xml"))
     # Insert Windows Server product key

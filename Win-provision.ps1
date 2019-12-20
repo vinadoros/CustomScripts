@@ -202,16 +202,9 @@ function Fcn-Software {
     Write-Output "Installing Desktop Apps"
     # GUI Apps
     choco upgrade -y firefox notepadplusplus tortoisegit bleachbit putty chocolateygui conemu VisualStudioCode libreoffice-fresh sumatrapdf nomacs WizTree meld
+    choco upgrade -y open-shell ShutUp10
     # Tablacus
     Fcn-Tablacus
-    # Install for Windows 8 or above.
-    if ([Environment]::OSVersion.Version.Major -ge 8){
-      choco upgrade -y open-shell ShutUp10
-    }
-    # Install for lower than Windows 8
-    if ([Environment]::OSVersion.Version.Major -lt 8){
-      choco upgrade -y ie11
-    }
   }
 
   # Chocolatey Configuration
@@ -225,7 +218,7 @@ function Fcn-Software {
     # Install packer
     choco upgrade -y packer
     # Install python dependancies
-    Start-Process -Wait "C:\Python37\Scripts\pip.exe" -ArgumentList "install","passlib"
+    Start-Process -Wait "C:\Python38\Scripts\pip.exe" -ArgumentList "install","passlib"
   }
 }
 
@@ -358,13 +351,6 @@ function Fcn-Customize {
   $PageFile.InitialSize = 64
   $PageFile.MaximumSize = 2048
   $PageFile.Put()
-
-  # Disable thumbs.db on lower than Windows 8
-  if ([Environment]::OSVersion.Version.Major -lt 8){
-    Write-Output "Disable Thumbs.db"
-    New-ItemProperty -Path Registry::HKCU\Software\Policies\Microsoft\Windows\Explorer -Name DisableThumbsDBOnNetworkFolders -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
-    New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name DisableThumbnailCache -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
-  }
 
   # Set EST as timezone
   tzutil /s "Eastern Standard Time"
