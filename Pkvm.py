@@ -636,7 +636,7 @@ if 70 <= args.ostype <= 79:
                                            "<wait15s>y<enter>"
                                            ]
     data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "sleep 10m; adduser -D -g '{fullname}' {vmuser}; echo '{vmuser}:{encpass}' | chpasswd -e; addgroup {vmuser} wheel; mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown -R {vmuser}:{vmuser} ~{vmuser}; apk add git python3; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser, encpass=sha512_password, fullname=args.fullname)
+    data['provisioners'][0]["inline"] = "adduser -D -g '{fullname}' {vmuser}; echo '{vmuser}:{encpass}' | chpasswd -e; addgroup {vmuser} wheel; mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown -R {vmuser}:{vmuser} ~{vmuser}; apk add git python3; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser, encpass=sha512_password, fullname=args.fullname)
 
 
 # Write packer json file.
