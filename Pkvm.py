@@ -430,10 +430,13 @@ if os.path.isdir(os.path.join(SCRIPTDIR, "unattend")):
     CFunc.find_replace(tempunattendfolder, "INSERTPASSWORDHERE", args.vmpass, "*")
     CFunc.find_replace(tempscriptfolderpath, "INSERTPASSWORDHERE", args.vmpass, "Win-provision.ps1")
     CFunc.find_replace(tempunattendfolder, "INSERTFULLNAMEHERE", args.fullname, "*")
-    CFunc.find_replace(tempunattendfolder, "INSERTHOSTNAMENAMEHERE", vmname, "*")
+    if 70 <= args.ostype <= 79:
+        CFunc.find_replace(tempunattendfolder, "INSERTHOSTNAMENAMEHERE", vmname.lower(), "*")
+    else:
+        CFunc.find_replace(tempunattendfolder, "INSERTHOSTNAMENAMEHERE", vmname, "*")
     CFunc.find_replace(tempunattendfolder, "INSERTHASHEDPASSWORDHERE", sha512_password, "*")
     CFunc.find_replace(tempunattendfolder, "INSERTSSHKEYHERE", sshkey, "*")
-    # Change sda to vda when using virtiofs in kvm.
+    # Change sda to vda when using virtio in kvm.
     if ALPINE_DISK is not None:
         CFunc.find_replace(tempunattendfolder, "INSERTALPINEDISKHERE", ALPINE_DISK, "alpine*")
 
