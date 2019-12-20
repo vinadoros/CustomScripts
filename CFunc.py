@@ -319,7 +319,7 @@ AllowIsolate=true""")
     # Create the symlink.
     os.symlink(SystemdUser_UnitFilePath, SystemdUser_DefaultTargetUserUnitSymlinkPath)
     # Set proper ownership if running as root.
-    if os.geteuid() is 0:
+    if os.geteuid() == 0:
         chown_recursive(os.path.join(USERHOME, ".config"), USERNAMEVAR, USERGROUP)
     else:
         # Run daemon-reload if not running as root.
@@ -457,7 +457,7 @@ def aptdistupg():
 def aptinstall(aptapps):
     """Install application(s) using apt"""
     print("\nInstalling {0} using apt.".format(aptapps))
-    if os.geteuid() is 0:
+    if os.geteuid() == 0:
         subprocess.run("apt-get install -y {0}".format(aptapps), shell=True)
     else:
         subprocess.run("sudo apt-get install -y {0}".format(aptapps), shell=True)
@@ -481,7 +481,7 @@ def dnfinstall(dnfapps):
     """Install application(s) using dnf"""
     status = None
     print("\nInstalling {0} using dnf.".format(dnfapps))
-    if os.geteuid() is 0:
+    if os.geteuid() == 0:
         status = subprocess.run("dnf install -y {0}".format(dnfapps), shell=True).returncode
     else:
         status = subprocess.run("sudo dnf install -y {0}".format(dnfapps), shell=True).returncode
