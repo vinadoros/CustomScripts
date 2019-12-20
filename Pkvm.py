@@ -301,16 +301,10 @@ if 55 <= args.ostype <= 59:
     vmprovision_defopts = " "
 if 55 <= args.ostype <= 56:
     windows_key = "N69G4-B89J2-4G8F4-WWYCC-J464C"
-if 57 <= args.ostype <= 58:
-    windows_key = "WC2BQ-8NRM3-FDDYY-2BFGV-KHKQY"
 if args.ostype == 55:
     vmname = "Packer-Windows2019-{0}".format(hvname)
 if args.ostype == 56:
     vmname = "Packer-Windows2019Core-{0}".format(hvname)
-if args.ostype == 58:
-    vmname = "Packer-Windows2016-{0}".format(hvname)
-if args.ostype == 59:
-    vmname = "Packer-Windows2016Core-{0}".format(hvname)
 if args.ostype == 70:
     vmname = "Packer-Alpine-{0}".format(hvname)
     vboxosid = "Fedora_64"
