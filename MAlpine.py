@@ -53,10 +53,13 @@ with open(os.path.join(os.sep, "etc", "apk", "repositories"), 'w') as tfile:
     tfile.writelines(lines)
 subprocess.run("apk upgrade --update-cache --available", shell=True)
 
-# Software
+### Software ###
 apkinstall("git nano sudo bash zsh")
 # Setup Sudo
 subprocess.run("sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers", shell=True)
+# Avahi
+apkinstall("avahi")
+subprocess.run("rc-update add avahi-daemon", shell=True)
 
 
 # GUI Packages
