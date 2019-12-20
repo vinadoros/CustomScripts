@@ -48,8 +48,8 @@ vmstatus = CFunc.getvmstate()
 with open(os.path.join(os.sep, "etc", "apk", "repositories"), 'r') as sfile:
     lines = sfile.readlines()
 with open(os.path.join(os.sep, "etc", "apk", "repositories"), 'w') as tfile:
-    # Replace the # on the 2nd line.
-    lines[1] = re.sub("#", "", lines[1])
+    # Replace the # on the 3rd line.
+    lines[2] = re.sub("#", "", lines[2])
     tfile.writelines(lines)
 subprocess.run("apk upgrade --update-cache --available", shell=True)
 
