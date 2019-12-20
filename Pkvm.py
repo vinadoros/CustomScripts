@@ -316,7 +316,7 @@ if args.ostype == 70:
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
     vmprovisionscript = "MAlpine.py"
-    vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
+    vmprovision_defopts = "-d {0}".format(args.desktopenv)
     kvm_os = "linux"
     kvm_variant = "alpinelinux3.8"
     isourl = "http://dl-cdn.alpinelinux.org/alpine/latest-stable/releases/x86_64/alpine-standard-3.11.0-x86_64.iso"
@@ -626,6 +626,7 @@ if args.ostype == 55:
 if args.ostype == 56:
     CFunc.find_replace(tempunattendfolder, "INSERTWINOSIMAGE", "1", "autounattend.xml")
 if 70 <= args.ostype <= 79:
+    data['builders'][0]["shutdown_command"] = "poweroff"
     data['builders'][0]["boot_command"] = ["<wait10>root<enter><wait>",
                                            "ifconfig eth0 up && udhcpc -i eth0<enter><wait10>",
                                            "sed -i 's/rc-service $svc start//' /sbin/setup-sshd<enter><wait>"
