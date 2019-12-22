@@ -54,7 +54,7 @@ with open(os.path.join(os.sep, "etc", "apk", "repositories"), 'w') as tfile:
 subprocess.run("apk upgrade --update-cache --available", shell=True)
 
 ### Software ###
-apkinstall("git nano sudo bash zsh")
+apkinstall("git nano sudo bash zsh shadow")
 # Setup Sudo
 subprocess.run("sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers", shell=True)
 # Avahi
@@ -70,7 +70,7 @@ if not args.nogui:
     subprocess.run("rc-update add udev", shell=True)
     # Xorg
     subprocess.run("setup-xorg-base xf86-input-keyboard xf86-input-synaptics xf86-input-evdev xf86-input-libinput xf86-input-mouse xf86-input-vmmouse xf86-video-modesetting xf86-video-intel xf86-video-dummy xf86-video-nouveau xf86-video-i740 xf86-video-amdgpu xf86-video-s3virge xf86-video-ast xf86-video-apm xf86-video-s3 xf86-video-siliconmotion xf86-video-vmware xf86-video-sunleo xf86-video-fbdev xf86-video-ati xf86-video-rendition xf86-video-i128 xf86-video-tdfx xf86-video-chips xf86-video-sis xf86-video-qxl xf86-video-vesa xf86-video-xgixp xf86-video-glint xf86-video-r128 xf86-video-nv xf86-video-openchrome xf86-video-ark xf86-video-savage", shell=True)
-    apkinstall("xhost xrandr")
+    apkinstall("xhost xrandr ttf-ubuntu-font-family ttf-dejavu ttf-liberation font-noto")
     # Gvfs
     apkinstall("gvfs-cdda gvfs-goa gvfs-mtp gvfs-smb gvfs gvfs-afc gvfs-nfs gvfs-archive gvfs-fuse gvfs-gphoto2 gvfs-avahi")
     # Browsers
@@ -99,7 +99,9 @@ if vmstatus == "vbox":
     apkinstall("virtualbox-guest-additions")
     if not args.nogui:
         apkinstall("virtualbox-guest-additions-x11")
+    subprocess.run("rc-update add virtualbox-guest-additions", shell=True)
 if vmstatus == "vmware":
     apkinstall("open-vm-tools open-vm-tools-openrc")
     if not args.nogui:
         apkinstall("open-vm-tools-gtk")
+    subprocess.run("rc-update add open-vm-tools", shell=True)
