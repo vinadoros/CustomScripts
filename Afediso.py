@@ -48,6 +48,10 @@ subprocess.run('sed -i "s/^timeout.*/timeout 1/g" /usr/share/lorax/templates.d/9
 subprocess.run('sed -i "s/^timeout.*/timeout 10/g" /usr/share/lorax/templates.d/99-generic/config_files/x86/isolinux.cfg /usr/share/lorax/templates.d/99-generic/live/config_files/x86/isolinux.cfg', shell=True)
 subprocess.run('sed -i "/menu default/d" /usr/share/lorax/templates.d/99-generic/config_files/x86/isolinux.cfg /usr/share/lorax/templates.d/99-generic/live/config_files/x86/isolinux.cfg', shell=True)
 subprocess.run('sed -i "/label linux/a \ \ menu default" /usr/share/lorax/templates.d/99-generic/config_files/x86/isolinux.cfg /usr/share/lorax/templates.d/99-generic/live/config_files/x86/isolinux.cfg', shell=True)
+# Modify kickstart repos
+with open(os.path.join(os.sep, "usr", "share", "spin-kickstarts", "fedora-repo.ks"), 'w') as f:
+    f.write("%include fedora-repo-not-rawhide.ks")
+
 
 ### Prep Environment ###
 # https://fedoraproject.org/wiki/Livemedia-creator-_How_to_create_and_use_a_Live_CD
