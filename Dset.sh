@@ -486,6 +486,8 @@ for profilefolder in ~/.mozilla/firefox/*.default*/; do
 		mod_ff "network.trr.bootstrapAddress" "1.1.1.1"
 		# Disable notifications
 		mod_ff "dom.webnotifications.enabled" "false"
+		# Autoplay (5 blocks audio and video for all sites by default)
+		mod_ff "media.autoplay.default" "5"
 
 		# Install firefox gnome theme.
 		if [ "$XDG_CURRENT_DESKTOP" = "GNOME" ]; then
