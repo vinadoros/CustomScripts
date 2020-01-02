@@ -132,7 +132,7 @@ if args.type == 1 or args.type == 2:
     shutil.move(os.path.join(iconfolder, "numix-icon-theme", "Numix"), iconfolder)
     shutil.move(os.path.join(iconfolder, "numix-icon-theme", "Numix-Light"), iconfolder)
     shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
-    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "/Numix")), shell=True)
+    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "Numix")), shell=True)
     # Numix Circle Icons
     shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
     shutil.rmtree(os.path.join(iconfolder, "Numix-Circle"), ignore_errors=True)
@@ -141,7 +141,8 @@ if args.type == 1 or args.type == 2:
     shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle"), iconfolder)
     shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle-Light"), iconfolder)
     shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
-    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "/Numix-Circle")), shell=True)
+    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "Numix-Circle")), shell=True)
+    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "Numix-Circle-Light")), shell=True)
 
 # Install software for VMs
 if vmstatus == "kvm":
