@@ -79,10 +79,10 @@ shutil.rmtree(powerline_git_path)
 # Groups
 if args.type == 1:
     # Workstation
-    CFunc.dnfinstall("@workstation")
+    CFunc.dnfinstall("@workstation --skip-broken")
 elif args.type == 2:
     # Server with GUI
-    CFunc.dnfinstall('@"Server with GUI"')
+    CFunc.dnfinstall('@"Server with GUI" --skip-broken')
 elif args.type == 3:
     # Server
     CFunc.dnfinstall("@server")

@@ -174,7 +174,7 @@ if 5 <= args.ostype <= 8:
     vmwareid = "fedora-64"
     kvm_os = "linux"
     kvm_variant = "rhel8.0"
-    isourl = "https://mirrors.edge.kernel.org/centos/8-stream/isos/x86_64/CentOS-Stream-x86_64-boot.iso"
+    isourl = "https://mirrors.edge.kernel.org/centos/8-stream/isos/x86_64/CentOS-Stream-8-x86_64-20191219-boot.iso"
     vmprovisionscript = "MCentOS8.py"
 if args.ostype == 5:
     vmname = "Packer-CentOSStream-{0}".format(hvname)
