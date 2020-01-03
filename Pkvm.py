@@ -23,6 +23,7 @@ print("Running {0}".format(__file__))
 # Folder of this script
 SCRIPTDIR = sys.path[0]
 
+
 ### Functions ###
 def md5sum(md5_filename, blocksize=65536):
     """
@@ -148,7 +149,6 @@ elif args.vmtype == 4:
     hvname = "hyperv"
 
 # Set OS options.
-ALPINE_DISK = None
 # KVM os options can be found by running "osinfo-query os"
 if 1 <= args.ostype <= 4:
     vmprovisionscript = "MFedora.py"
@@ -300,19 +300,6 @@ if args.ostype == 55:
     vmname = "Packer-Windows2019-{0}".format(hvname)
 if args.ostype == 56:
     vmname = "Packer-Windows2019Core-{0}".format(hvname)
-if args.ostype == 70:
-    vmname = "Packer-Alpine-{0}".format(hvname)
-    vboxosid = "Fedora_64"
-    vmwareid = "fedora-64"
-    vmprovisionscript = "MAlpine.py"
-    vmprovision_defopts = "-d {0}".format(args.desktopenv)
-    kvm_os = "linux"
-    kvm_variant = "alpinelinux3.8"
-    isourl = "http://dl-cdn.alpinelinux.org/alpine/latest-stable/releases/x86_64/alpine-standard-3.11.0-x86_64.iso"
-    if args.vmtype == 2:
-        ALPINE_DISK = "vda"
-    else:
-        ALPINE_DISK = "sda"
 
 
 # Override provision opts if provided.
@@ -419,15 +406,9 @@ if os.path.isdir(os.path.join(SCRIPTDIR, "unattend")):
     CFunc.find_replace(tempunattendfolder, "INSERTPASSWORDHERE", args.vmpass, "*")
     CFunc.find_replace(tempscriptfolderpath, "INSERTPASSWORDHERE", args.vmpass, "Win-provision.ps1")
     CFunc.find_replace(tempunattendfolder, "INSERTFULLNAMEHERE", args.fullname, "*")
-    if 70 <= args.ostype <= 79:
-        CFunc.find_replace(tempunattendfolder, "INSERTHOSTNAMENAMEHERE", vmname.lower(), "*")
-    else:
-        CFunc.find_replace(tempunattendfolder, "INSERTHOSTNAMENAMEHERE", vmname, "*")
+    CFunc.find_replace(tempunattendfolder, "INSERTHOSTNAMENAMEHERE", vmname, "*")
     CFunc.find_replace(tempunattendfolder, "INSERTHASHEDPASSWORDHERE", sha512_password, "*")
     CFunc.find_replace(tempunattendfolder, "INSERTSSHKEYHERE", sshkey, "*")
-    # Change sda to vda when using virtio in kvm.
-    if ALPINE_DISK is not None:
-        CFunc.find_replace(tempunattendfolder, "INSERTALPINEDISKHERE", ALPINE_DISK, "alpine*")
 
 
 # Get hash for iso.
@@ -615,19 +596,6 @@ if args.ostype == 55:
     CFunc.find_replace(tempunattendfolder, "INSERTWINOSIMAGE", "2", "autounattend.xml")
 if args.ostype == 56:
     CFunc.find_replace(tempunattendfolder, "INSERTWINOSIMAGE", "1", "autounattend.xml")
-if 70 <= args.ostype <= 79:
-    data['builders'][0]["shutdown_command"] = "poweroff"
-    data['builders'][0]["boot_command"] = ["<wait10>root<enter><wait>",
-                                           "ifconfig eth0 up && udhcpc -i eth0<enter><wait10>",
-                                           "sed -i 's/rc-service $svc start//' /sbin/setup-sshd<enter><wait>"
-                                           "wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/alpine-answers<enter><wait>",
-                                           "setup-alpine -f $PWD/alpine-answers; mount /dev/{0}3 /mnt; echo 'PermitRootLogin yes' >> /mnt/etc/ssh/sshd_config; reboot<enter><wait5>".format(ALPINE_DISK),
-                                           "{0}<enter><wait>".format(args.vmpass),
-                                           "{0}<enter><wait>".format(args.vmpass),
-                                           "<wait15s>y<enter>"
-                                           ]
-    data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "adduser -D -g '{fullname}' {vmuser}; echo '{vmuser}:{encpass}' | chpasswd -e; addgroup {vmuser} wheel; mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown -R {vmuser}:{vmuser} ~{vmuser}; apk add git python3; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser, encpass=sha512_password, fullname=args.fullname)
 
 
 # Write packer json file.
