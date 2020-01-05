@@ -99,7 +99,7 @@ if args.type == 1 or args.type == 2:
     # Etcher
     CFunc.dnfinstall("balena-etcher-electron")
     # Misc tools
-    CFunc.dnfinstall("dconf-editor")
+    CFunc.dnfinstall("dconf-editor chrome-gnome-shell")
     # Flameshot
     CFunc.dnfinstall("flameshot")
     os.makedirs(os.path.join(USERHOME, ".config", "autostart"), exist_ok=True)
