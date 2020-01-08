@@ -159,19 +159,19 @@ function dru () {
 function flatpak_update () {
     if type flatpak &> /dev/null; then
         echo "Updating Flatpaks"
-        $SUDOCMD flatpak update --system --assumeyes
+        flatpak update --system --assumeyes
     fi
 }
 function flatpak_clean () {
     if type flatpak &> /dev/null; then
         echo "Clean unused Flatpaks"
-        $SUDOCMD flatpak uninstall --unused
+        flatpak uninstall --system --delete-data --unused
     fi
 }
 function flatpak_search () {
     if type flatpak &> /dev/null; then
         echo "Searching Flatpaks"
-        $SUDOCMD flatpak search $@
+        flatpak search $@
     fi
 }
 function snap_search () {
@@ -653,19 +653,19 @@ end
 function flatpak_update
     if type -q flatpak
         echo "Updating Flatpaks"
-        sudo flatpak update --system --assumeyes
+        flatpak update --system --assumeyes
     end
 end
 function flatpak_clean
     if type -q flatpak
         echo "Clean unused Flatpaks"
-        sudo flatpak uninstall --unused
+        flatpak uninstall --system --delete-data --unused
     end
 end
 function flatpak_search
     if type -q flatpak
         echo "Search Flatpaks"
-        sudo flatpak search $argv
+        flatpak search $argv
     end
 end
 function snap_search
