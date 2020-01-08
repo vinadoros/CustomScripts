@@ -249,11 +249,7 @@ if type gnome-session; then
 	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/ binding '<Super>w'
 	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/ name 'Turn off screen'
 	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/ command /usr/local/bin/turnoffscreen.sh
-	# Fish config for gnome-terminal
-	if type fish &> /dev/null; then
-		dconf write /org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/use-custom-command true
-		dconf write /org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/custom-command \'$(which fish)\'
-	fi
+	# No Fish config for gnome-terminal, does not change folders when using "Open in Terminal"
 fi
 
 
@@ -469,7 +465,6 @@ function mod_ff () {
 }
 
 # If prefs.js for firefox was created, set the profile information.
-firefox_used=false
 for profilefolder in ~/.mozilla/firefox/*.default*/; do
 	if [ -f "$profilefolder/prefs.js" ]; then
 		cd "$profilefolder"
