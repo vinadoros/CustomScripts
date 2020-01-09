@@ -54,6 +54,8 @@ if type tilix; then
 	if type fish &> /dev/null; then
 		dconf write /com/gexperts/Tilix/profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d/use-custom-command true
 		dconf write /com/gexperts/Tilix/profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d/custom-command \'$(which fish)\'
+	else
+		dconf write /com/gexperts/Tilix/profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d/use-custom-command false
 	fi
 fi
 
@@ -143,6 +145,8 @@ if type mate-session; then
 	if type fish &> /dev/null; then
 		dconf write /org/mate/terminal/profiles/default/use-custom-command true
 		dconf write /org/mate/terminal/profiles/default/custom-command \'$(which fish)\'
+	else
+		dconf write /org/mate/terminal/profiles/default/use-custom-command false
 	fi
 
 	# System Monitor applet
