@@ -179,6 +179,12 @@ if 5 <= args.ostype <= 8:
 if args.ostype == 5:
     vmname = "Packer-CentOSStream-{0}".format(hvname)
     vmprovision_defopts = "-t 1"
+if args.ostype == 6:
+    vmname = "Packer-CentOSStreamSvr-{0}".format(hvname)
+    vmprovision_defopts = "-t 2"
+if args.ostype == 7:
+    vmname = "Packer-CentOSStreamCLI-{0}".format(hvname)
+    vmprovision_defopts = "-t 3"
 if args.ostype == 9:
     vmprovisionscript = "MFedoraSilverblue.py"
     vboxosid = "Fedora_64"

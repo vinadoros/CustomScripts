@@ -10,6 +10,7 @@ import sys
 import tempfile
 # Custom includes
 import CFunc
+import CFuncExt
 
 print("Running {0}".format(__file__))
 
@@ -123,28 +124,8 @@ if args.type == 1 or args.type == 2:
     # Topicons plus
     CFunc.run_as_user(USERNAMEVAR, "{0} --yes 1031".format(gs_installer[0]))
 
-    # Icons
-    iconfolder = os.path.join(os.sep, "usr", "local", "share", "icons")
-    os.makedirs(iconfolder, exist_ok=True)
     # Numix Icon Theme
-    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme"), ignore_errors=True)
-    shutil.rmtree(os.path.join(iconfolder, "Numix"), ignore_errors=True)
-    shutil.rmtree(os.path.join(iconfolder, "Numix-Light"), ignore_errors=True)
-    CFunc.gitclone("https://github.com/numixproject/numix-icon-theme.git", os.path.join(iconfolder, "numix-icon-theme"))
-    shutil.move(os.path.join(iconfolder, "numix-icon-theme", "Numix"), iconfolder)
-    shutil.move(os.path.join(iconfolder, "numix-icon-theme", "Numix-Light"), iconfolder)
-    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
-    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "Numix")), shell=True)
-    # Numix Circle Icons
-    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
-    shutil.rmtree(os.path.join(iconfolder, "Numix-Circle"), ignore_errors=True)
-    shutil.rmtree(os.path.join(iconfolder, "Numix-Circle-Light"), ignore_errors=True)
-    CFunc.gitclone("https://github.com/numixproject/numix-icon-theme-circle.git", os.path.join(iconfolder, "numix-icon-theme-circle"))
-    shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle"), iconfolder)
-    shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle-Light"), iconfolder)
-    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
-    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "Numix-Circle")), shell=True)
-    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "Numix-Circle-Light")), shell=True)
+    CFuncExt.numix_icons(os.path.join(os.sep, "usr", "local", "share", "icons"))
 
 # Install software for VMs
 if vmstatus == "kvm":
