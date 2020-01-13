@@ -171,7 +171,7 @@ function flatpak_clean () {
 function flatpak_search () {
     if type flatpak &> /dev/null; then
         echo "Searching Flatpaks"
-        flatpak search $@
+        $SUDOCMD flatpak search $@
     fi
 }
 function snap_search () {
@@ -665,7 +665,7 @@ end
 function flatpak_search
     if type -q flatpak
         echo "Search Flatpaks"
-        flatpak search $argv
+        sudo flatpak search $argv
     end
 end
 function snap_search
