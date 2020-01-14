@@ -133,7 +133,7 @@ if not args.bare:
     CFunc.aptinstall("syncthing syncthing-inotify")
 
 # Cli Software
-CFunc.aptinstall("ssh tmux btrfs-tools f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs")
+CFunc.aptinstall("ssh tmux zsh fish btrfs-tools f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs")
 # Timezone stuff
 subprocess.run("dpkg-reconfigure -f noninteractive tzdata", shell=True)
 # Needed for systemd user sessions.
@@ -150,11 +150,6 @@ CFunc.aptinstall("avahi-daemon avahi-discover libnss-mdns")
 CFunc.aptinstall("default-jre")
 # Drivers
 CFunc.aptinstall("intel-microcode")
-
-# Non-bare CLI stuff.
-if args.bare is False:
-    # Zsh/fish
-    CFunc.aptinstall("zsh")
 
 # Network Manager
 CFunc.aptinstall("network-manager network-manager-ssh resolvconf")
@@ -233,9 +228,6 @@ if args.nogui is False and args.bare is False:
     # Numix
     CFunc.addppa("ppa:numix/ppa")
     CFunc.aptinstall("numix-icon-theme-circle")
-    # KeepassXC
-    CFunc.addppa("ppa:phoerious/keepassxc")
-    CFunc.aptinstall("keepassxc")
 
 # GUI Software
 if args.nogui is False:
@@ -259,7 +251,7 @@ if args.nogui is False and args.bare is False:
     # Cups-pdf
     CFunc.aptinstall("printer-driver-cups-pdf")
     # Media Playback
-    CFunc.aptinstall("vlc audacious ffmpeg youtube-dl smplayer")
+    CFunc.aptinstall("audacious ffmpeg youtube-dl smplayer")
     CFunc.aptinstall("alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pulseaudio-module-bluetooth swh-plugins")
     CFunc.aptinstall("gstreamer1.0-vaapi")
     # For Office 2010
@@ -280,6 +272,11 @@ if args.nogui is False and args.bare is False:
     subprocess.run('echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list', shell=True)
     CFunc.aptupdate()
     CFunc.aptinstall("code")
+    # Flatpak apps
+    CFunc.flatpak_install("flathub", "org.keepassxc.KeePassXC")
+    CFunc.flatpak_install("flathub", "org.videolan.VLC")
+    CFunc.flatpak_install("flathub", "io.github.celluloid_player.Celluloid")
+    CFunc.flatpak_install("flathub", "io.github.quodlibet.QuodLibet")
 
 # Post-install mate configuration
 if args.desktop == "mate":
@@ -304,22 +301,36 @@ subprocess.run("apt-get install -y --no-install-recommends smartmontools", shell
 
 if args.bare is False:
     # Add normal user to all reasonable groups
-    CFunc.AddUserAllGroups()
+    CFunc.AddUserToGroup("disk")
+    CFunc.AddUserToGroup("lp")
+    CFunc.AddUserToGroup("sudo")
+    CFunc.AddUserToGroup("cdrom")
+    CFunc.AddUserToGroup("man")
+    CFunc.AddUserToGroup("dialout")
+    CFunc.AddUserToGroup("floppy")
+    CFunc.AddUserToGroup("games")
+    CFunc.AddUserToGroup("tape")
+    CFunc.AddUserToGroup("video")
+    CFunc.AddUserToGroup("audio")
+    CFunc.AddUserToGroup("input")
+    CFunc.AddUserToGroup("kvm")
+    CFunc.AddUserToGroup("systemd-journal")
+    CFunc.AddUserToGroup("systemd-network")
+    CFunc.AddUserToGroup("systemd-resolve")
+    CFunc.AddUserToGroup("systemd-timesync")
+    CFunc.AddUserToGroup("pipewire")
+    CFunc.AddUserToGroup("colord")
+    CFunc.AddUserToGroup("nm-openconnect")
+    CFunc.AddUserToGroup("vboxsf")
 
     # Edit sudoers to add apt.
-    if os.path.isdir('/etc/sudoers.d'):
-        CUSTOMSUDOERSPATH = "/etc/sudoers.d/pkmgt"
-        print("Writing {0}".format(CUSTOMSUDOERSPATH))
-        with open(CUSTOMSUDOERSPATH, 'w') as sudoers_writefile:
-            sudoers_writefile.write("{0} ALL=(ALL) NOPASSWD: {1}\n{0} ALL=(ALL) NOPASSWD: {2}\n".format(USERNAMEVAR, shutil.which("apt"), shutil.which("apt-get")))
-        os.chmod(CUSTOMSUDOERSPATH, 0o440)
-        status = subprocess.run('visudo -c', shell=True)
-        if status.returncode is not 0:
-            print("Visudo status not 0, removing sudoers file.")
-            os.remove(CUSTOMSUDOERSPATH)
+    sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
+    CFunc.AddLineToSudoersFile(sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
+    CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt")))
+    CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt-get")))
 
 # Run these extra scripts even in bare config.
-subprocess.run("{0}/CShellConfig.py -z -d".format(SCRIPTDIR), shell=True)
+subprocess.run("{0}/CShellConfig.py -z -f -d".format(SCRIPTDIR), shell=True)
 subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
 subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True)
 subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
