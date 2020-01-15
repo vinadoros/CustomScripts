@@ -467,6 +467,9 @@ if shutil.which("tmux"):
 sed -i 's/#set -g mouse on/set -g mouse on/g' {0}
 sed -i 's/#set -g history-limit 10000/set -g history-limit 10000/g' {0}
 """.format(tmux_cfg_common_local), shell=True)
+    # Rebind n and p to cycle windows
+    with open(tmux_cfg_common_local, 'a') as f:
+        f.write("\nbind p previous-window\nbind n next-window\n")
     # Install tmux config
     if not os.path.exists(os.path.join(USERVARHOME, ".tmux.conf")):
         os.symlink(tmux_cfg_common, os.path.join(USERVARHOME, ".tmux.conf"))
