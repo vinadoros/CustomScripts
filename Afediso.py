@@ -236,5 +236,9 @@ isoname = "Fedora-CustomLive-{0}.iso".format(currentdatetime)
 # Start Build
 subprocess.run("livemedia-creator --ks {ks} --resultdir {resultdir} --logfile {outfolder}/livemedia.log --project Fedora-CustomLive --make-iso --volid Fedora-CustomLive-{shortdate} --iso-only --iso-name {isoname} --releasever {releasever} --title Fedora-CustomLive --nomacboot --no-virt".format(ks=ks_flat, resultdir=resultsfolder, isoname=isoname, shortdate=shortdate, outfolder=outfolder, releasever=args.releasever), shell=True)
 subprocess.run("chmod a+rw -R {0}".format(buildfolder), shell=True)
-print('Run to test in iso folder: "qemu-system-x86_64 -enable-kvm -m 2048 ./{0}"'.format(isoname))
+if os.path.isfile(os.path.join(buildfolder, "results", isoname)):
+    shutil.move(os.path.join(buildfolder, "results", isoname), outfolder)
+    print('Run to test in iso folder: "qemu-system-x86_64 -enable-kvm -m 2048 ./{0}"'.format(isoname))
+else:
+    print("ERROR: Build failed, iso not found.")
 print("Build completed in :", datetime.now() - beforetime)
