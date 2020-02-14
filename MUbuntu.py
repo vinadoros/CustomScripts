@@ -222,6 +222,9 @@ elif args.desktop == "budgie":
     CFunc.aptmark(held_pkgs)
     CFunc.aptinstall("ubuntu-budgie-desktop")
     CFunc.aptinstall("gnome-software-plugin-flatpak")
+elif args.desktop == "cinnamon":
+    print("\n Installing cinnamon desktop")
+    CFunc.aptinstall("cinnamon-desktop-environment lightdm")
 
 # Post DE install stuff.
 if args.nogui is False and args.bare is False:

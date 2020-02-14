@@ -160,6 +160,8 @@ elif args.desktop == "xfce":
     CFunc.dnfinstall("xfce4-whiskermenu-plugin xfce4-systemload-plugin xfce4-diskperf-plugin xfce4-clipman-plugin")
 elif args.desktop == "lxqt":
     CFunc.dnfinstall("--allowerasing @lxqt-desktop-environment")
+elif args.desktop == "cinnamon":
+    CFunc.dnfinstall("--allowerasing @cinnamon-desktop-environment")
 
 if not args.nogui and not args.bare:
     # Numix
