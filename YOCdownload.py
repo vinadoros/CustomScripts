@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
+"""Download files from OCRemix"""
 
 # Python includes.
 import argparse
-import urllib.request
 from html.parser import HTMLParser
+import urllib.request
 import urllib.parse
 import os
 from multiprocessing import Pool
 
 # Variables.
-BASEOCURL="http://ocremix.org/remix/OCR0"
+BASEOCURL = "http://ocremix.org/remix/OCR0"
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Download a numeric range of mixes from ocremix.org.')
@@ -22,23 +23,24 @@ parser.add_argument('ocend', type=int,
 args = parser.parse_args()
 ocstart = args.ocstart
 ocend = args.ocend
-print("Start OCMix: " + format(ocstart) + ", End: " + format(ocend) + ", Total: " + format(ocend-ocstart+1) + ", Downloading to " + os.getcwd())
+print("Start OCMix: " + format(ocstart) + ", End: " + format(ocend) + ", Total: " + format(ocend - ocstart + 1) + ", Downloading to " + os.getcwd())
 input("Press Enter to continue.")
 
 ### Functions ###
 # Parser documentation: https://docs.python.org/3/library/html.parser.html
 # More info: http://stackoverflow.com/a/822341
 class ImgSrcHTMLParser(HTMLParser):
-  def __init__(self):
-    HTMLParser.__init__(self)
-    self.srcs = []
+    def __init__(self):
+        HTMLParser.__init__(self)
+        self.srcs = []
 
-  def handle_starttag(self, tag, attrs):
-    if tag == 'a':
-      self.srcs.append(dict(attrs).get('href'))
+    def handle_starttag(self, tag, attrs):
+        if tag == 'a':
+            self.srcs.append(dict(attrs).get('href'))
 
-# Store the OCRemix urls, number of mirrors, and modulus.
+
 def ocremix_geturls(mixnumber):
+    """Store the OCRemix urls, number of mirrors, and modulus."""
     # global ocmp3_urls, ocmirror_number, ocmirror_modulus
     global threadnumber
     print("Processing URL for mix " + format(mixnumber))
@@ -63,10 +65,11 @@ def ocremix_geturls(mixnumber):
     threadnumber = len(ocmp3_urls)
     ocmirror_modulus = mixnumber % ocmirror_number
     # Return the modulus url.
-    return ocmp3_urls[ocmirror_modulus];
+    return ocmp3_urls[ocmirror_modulus]
 
-# Download the mix.
+
 def ocremix_download(url):
+    """Download the mix."""
     # Remove invalid characters from url
     url = url.replace("\\", "")
 
@@ -78,7 +81,6 @@ def ocremix_download(url):
     print("Downloading mix " + ocfilename + " from mirror " + url)
     urllib.request.urlretrieve(url, ocfilename)
 
-    return;
 
 ### Begin Code ###
 
@@ -90,7 +92,7 @@ ocremix_geturls(ocstart)
 # Use Pool instead of ThreadPool to really use multiprocessing instead of multiprocessing.dummy.
 pool = Pool(threadnumber)
 # Loop through each mix, ending at ocend. Range is ocend+1 since range function needs to include ocend.
-allurls = pool.map(ocremix_geturls, range(ocstart, ocend+1))
+allurls = pool.map(ocremix_geturls, range(ocstart, ocend + 1))
 # Pass the function and array of urls to the pool for downloading.
 results = pool.map(ocremix_download, allurls)
 # Close the queue (no more data will be added to the queue).
