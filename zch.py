@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Enter chroot"""
 
 # Python includes.
 import argparse
