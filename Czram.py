@@ -37,18 +37,26 @@ if os.path.isdir(os.path.dirname(udevrule_path)):
     with open(udevrule_path, 'w') as f:
         f.write('KERNEL=="zram0", ATTR{{disksize}}="{0}" RUN="{1} {2}", TAG+="systemd"'.format(zram_memory, shutil.which("mkswap"), zram_blockdevicename))
 
-# Add zram to fstab
-fstab_path = os.path.join(os.sep, "etc", "fstab")
-fstab_text = "{0}\tnone\tswap\tdefaults\t0\t0".format(zram_blockdevicename)
-if not CFunc.Fstab_CheckStringInFile(os.path.join(os.sep, "etc", "fstab"), zram_blockdevicename):
-    CFunc.Fstab_AddLine(os.path.join(os.sep, "etc", "fstab"), fstab_text)
+# Create systemd service
+systemdservice_path = os.path.join(os.sep, "etc", "systemd", "system")
+systemdservice_name = "zram.service"
+systemdservice_file = os.path.join(systemdservice_path, systemdservice_name)
+print("Creating {0}".format(systemdservice_file))
+with open(systemdservice_file, 'w') as systemdservice_write:
+    systemdservice_write.write("""[Unit]
+Description=Zram-based swap (compressed RAM block devices)
 
-# Cleanup old scripts
-# TODO: Remove later
-if os.path.exists("/etc/systemd/system/zram.service"):
-    subprocess.run("systemctl stop zram", shell=True)
-    subprocess.run("systemctl disable zram", shell=True)
-    os.remove("/etc/systemd/system/zram.service")
+[Service]
+Type=simple
+ExecStart=swapon -p 32767 {0}
+ExecStop=swapoff {0}
+RemainAfterExit=yes
 
-if os.path.exists("/usr/local/bin/zramscript"):
-    os.remove("/usr/local/bin/zramscript")
+[Install]
+WantedBy=multi-user.target
+""".format(zram_blockdevicename))
+
+subprocess.run("""
+systemctl daemon-reload
+systemctl enable {0}
+""".format(systemdservice_name), shell=True)
