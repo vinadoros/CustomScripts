@@ -53,97 +53,6 @@ autologin-user={0}""".format(USERNAMEVAR))
 if os.path.isfile("/etc/lightdm/lightdm.conf"):
     subprocess.run("sed -i 's/#greeter-hide-users=false/greeter-hide-users=false/g' /etc/lightdm/lightdm.conf", shell=True)
 
-# Synergyc host text file.
-SynHostFile = "/usr/local/bin/synhost.txt"
-if not os.path.isfile(SynHostFile):
-    with open(SynHostFile, 'w') as file:
-        file.write("HostnameHere")
-    os.chmod(SynHostFile, 0o666)
-    print("Be sure to change the hostname in {0}.".format(SynHostFile))
-
-# LightDM Startup Script
-LDSTART = "/usr/local/bin/ldstart.sh"
-with open(LDSTART, 'w') as file:
-    file.write("""#!/bin/bash
-echo "Executing $0"
-
-# https://wiki.freedesktop.org/www/Software/LightDM/CommonConfiguration/
-# https://bazaar.launchpad.net/~lightdm-team/lightdm/trunk/view/head:/data/lightdm.conf
-
-SERVER="$(<{0})"
-
-if [ -z $DISPLAY ]; then
-    echo "Setting variables for xvnc."
-    DISPLAY=:0
-fi
-
-if type -p barrierc &> /dev/null && [[ "$SERVER" != "HostnameHere" ]]; then
-    echo "Starting Barrier client."
-    barrierc "$SERVER"
-elif type -p synergyc &> /dev/null && [[ "$SERVER" != "HostnameHere" ]]; then
-    echo "Starting Synergy client."
-    synergyc "$SERVER"
-fi
-
-if type -p x0vncserver &> /dev/null && [ -f /etc/vncpasswd ]; then
-    echo "Starting vnc."
-    x0vncserver -passwordfile /etc/vncpasswd -rfbport 5900 &
-fi
-
-# Don't run if gdm is running.
-if type -p xset &> /dev/null && ! pgrep gdm &> /dev/null; then
-    echo "Starting xset dpms."
-    # http://shallowsky.com/linux/x-screen-blanking.html
-    # http://www.x.org/releases/X11R7.6/doc/man/man1/xset.1.xhtml
-    # Turn screen off in 60 seconds.
-    xset s 60
-    xset dpms 60 60 60
-fi
-
-exit 0
-""".format(SynHostFile))
-os.chmod(LDSTART, 0o777)
-
-# LightDM Stop Script
-LDSTOP = "/usr/local/bin/ldstop.sh"
-with open(LDSTOP, 'w') as file:
-    file.write("""#!/bin/bash
-echo "Executing $0"
-
-# Kill synergy/barrier client.
-pgrep synergyc && killall synergyc
-pgrep barrierc && killall barrierc
-
-# Kill X VNC server.
-if pgrep x0vncserver; then
-    killall x0vncserver
-fi
-
-# Set xset parameters back to defaults.
-if type -p xset &> /dev/null && ! pgrep gdm &> /dev/null; then
-    xset s
-fi
-
-exit 0
-""")
-os.chmod(LDSTOP, 0o777)
-
-# Run startup script
-LightDM_Config = "/etc/lightdm/lightdm.conf"
-if os.path.isfile(LightDM_Config):
-    subprocess.run("""
-    # Uncomment lines
-    sed -i '/^#display-setup-script=.*/s/^#//g' {LightDM_Config}
-    sed -i '/^#session-setup-script=.*/s/^#//g' {LightDM_Config}
-    # Add startup scripts to session
-    sed -i "s@display-setup-script=.*@display-setup-script={LDSTART}@g" {LightDM_Config}
-    sed -i "s@session-setup-script=.*@session-setup-script={LDSTOP}@g" {LightDM_Config}
-""".format(LightDM_Config=LightDM_Config, LDSTART=LDSTART, LDSTOP=LDSTOP), shell=True)
-elif not os.path.isfile(LightDM_Config) and os.path.isdir("/etc/lightdm/lightdm.conf.d"):
-    with open('/etc/lightdm/lightdm.conf.d/11-startup.conf', 'w') as file:
-        file.write("""[Seat:*]
-display-setup-script={LDSTART}
-session-setup-script={LDSTOP}""".format(LDSTART=LDSTART, LDSTOP=LDSTOP))
 
 ### GDM Section ###
 if shutil.which("gdm") or shutil.which("gdm3"):
@@ -180,28 +89,6 @@ if shutil.which("gdm") or shutil.which("gdm3"):
         subprocess.run("""sed -i '/^load-module .*/s/^/#/g' '{0}'""".format(os.path.join(PulsePath, "default.pa")), shell=True)
         subprocess.run('chown -R {0}:{1} "{2}/"'.format(GDMUID, GDMGID, GDMPATH), shell=True)
 
-    #### Enable synergy and vnc in gdm ####
-    # https://help.gnome.org/admin/gdm/stable/configuration.html.en
-    # https://forums-lb.gentoo.org/viewtopic-t-1027688.html
-    # https://bugs.gentoo.org/show_bug.cgi?id=553446
-    # https://major.io/2008/07/30/automatically-starting-synergy-in-gdm-in-ubuntufedora/
-
-    # Start xvnc and synergy
-    with open("/usr/share/gdm/greeter/autostart/gdm_start.desktop", 'w') as file:
-        file.write("""[Desktop Entry]
-Type=Application
-Name=GDM Startup
-X-GNOME-Autostart-enabled=true
-X-GNOME-AutoRestart=true
-Exec={0}
-NoDisplay=true""".format(LDSTART))
-
-    # Stop apps after login. Add this right after script declaration.
-    subprocess.run("""#!/bin/bash
-    if ! grep "^{LDSTOP}" "{GDMETCPATH}/PreSession/Default"; then
-        sed -i "/#\!\/bin\/sh/a {LDSTOP}" "{GDMETCPATH}/PreSession/Default"
-    fi
-    """.format(LDSTOP=LDSTOP, GDMETCPATH=GDMETCPATH), shell=True)
 
 ### SDDM Section ###
 if shutil.which("sddm"):
