@@ -314,13 +314,11 @@ if [ -z "$EDITOR" ] || [ "$EDITOR" != "nano" ]; then
     export EDITOR=nano
 fi
 
-""".format(SCRIPTDIR)
-    if distro == "Debian":
-        customprofile_text += """# Add debian paths
-if [ "${PATH#*/sbin}" = "${PATH}" ]; then
+# Add sbin paths for debian if not in path
+if [ "${{PATH#*/sbin}}" = "${{PATH}}" ]; then
     export PATH=/sbin:/usr/sbin:/usr/local/sbin:$PATH
 fi
-"""
+    """.format(SCRIPTDIR)
     with open(customprofile_path, 'w') as file:
         file.write(customprofile_text)
 else:
