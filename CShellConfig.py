@@ -78,6 +78,21 @@ if [ $(id -u) != "0" ]; then
         unset EXISTPATH
     }
 fi
+
+# Expand $PATH to include the CustomScripts path.
+if [ "${PATH#*$CUSTOMSCRIPTPATH}" = "${PATH}" ] && [ -d "$CUSTOMSCRIPTPATH" ]; then
+    export PATH=$PATH:$CUSTOMSCRIPTPATH
+fi
+
+# Set editor to nano
+export EDITOR=nano
+
+# Add sbin paths for debian if not in path
+if [ "${PATH#*/sbin}" = "${PATH}" ]; then
+    export PATH=/sbin:/usr/sbin:/usr/local/sbin:$PATH
+fi
+
+# Functions
 function sst () {
     ssh -t "$@" "tmux attach || tmux new";
 }
@@ -317,8 +332,7 @@ fi
 # Add sbin paths for debian if not in path
 if [ "${{PATH#*/sbin}}" = "${{PATH}}" ]; then
     export PATH=/sbin:/usr/sbin:/usr/local/sbin:$PATH
-fi
-    """.format(SCRIPTDIR)
+fi""".format(SCRIPTDIR)
     with open(customprofile_path, 'w') as file:
         file.write(customprofile_text)
 else:
