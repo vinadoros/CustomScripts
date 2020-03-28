@@ -101,12 +101,6 @@ CFunc.aptdistupg()
 
 ### Software ###
 
-CFunc.aptinstall("sudo")
-subprocess.run("usermod -aG sudo {0}".format(USERNAMEVAR), shell=True)
-# Sudoers changes
-CFuncExt.SudoersEnvSettings()
-
-
 if not args.bare:
     # Syncthing
     # Import keyfile
@@ -114,7 +108,7 @@ if not args.bare:
     subprocess.run("apt-key add {0}".format(key[0]), shell=True, check=True)
     os.remove(key[0])
     # Write syncthing sources list
-    with open('/etc/apt/sources.list.d/syncthing-release.list', 'w') as stapt_writefile:
+    with open(os.path.join(os.sep, "etc", "apt", "sources.list.d", "syncthing-release.list"), 'w') as stapt_writefile:
         stapt_writefile.write("deb http://apt.syncthing.net/ syncthing release")
     # Update and install syncthing:
     CFunc.aptupdate()
@@ -135,7 +129,7 @@ if not args.bare:
     CFunc.aptdistupg()
 
 # Cli Software
-CFunc.aptinstall("ssh tmux zsh btrfs-tools f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs")
+CFunc.aptinstall("ssh tmux zsh btrfs-tools f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs sudo")
 # Firmware
 CFunc.aptinstall("firmware-linux")
 subprocess.run("""echo "firmware-ipw2x00 firmware-ipw2x00/license/accepted boolean true" | debconf-set-selections
@@ -231,19 +225,8 @@ elif args.desktop == "lxqt":
 
 # Post DE install stuff.
 if args.nogui is False and args.bare is False:
-    # Numix icons must be installed for Circle to display properly.
-    CFunc.aptinstall("numix-icon-theme")
-    # Numix Circle Icons
-    iconfolder = os.path.join("/", "usr", "local", "share", "icons")
-    os.makedirs(iconfolder, exist_ok=True)
-    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
-    shutil.rmtree(os.path.join(iconfolder, "Numix-Circle"), ignore_errors=True)
-    shutil.rmtree(os.path.join(iconfolder, "Numix-Circle-Light"), ignore_errors=True)
-    CFunc.gitclone("https://github.com/numixproject/numix-icon-theme-circle.git", os.path.join(iconfolder, "numix-icon-theme-circle"))
-    shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle"), iconfolder)
-    shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle-Light"), iconfolder)
-    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
-    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "/Numix-Circle")), shell=True)
+    # Numix Icon Theme
+    CFuncExt.numix_icons(os.path.join(os.sep, "usr", "local", "share", "icons"))
 
 
 # Install guest software for VMs
@@ -266,19 +249,35 @@ if os.path.isfile("/etc/apt/apt.conf.d/20auto-upgrades"):
 
 if args.bare is False:
     # Add normal user to all reasonable groups
-    CFunc.AddUserAllGroups()
+    CFunc.AddUserToGroup("disk")
+    CFunc.AddUserToGroup("lp")
+    CFunc.AddUserToGroup("sudo")
+    CFunc.AddUserToGroup("cdrom")
+    CFunc.AddUserToGroup("man")
+    CFunc.AddUserToGroup("dialout")
+    CFunc.AddUserToGroup("floppy")
+    CFunc.AddUserToGroup("games")
+    CFunc.AddUserToGroup("tape")
+    CFunc.AddUserToGroup("video")
+    CFunc.AddUserToGroup("audio")
+    CFunc.AddUserToGroup("input")
+    CFunc.AddUserToGroup("kvm")
+    CFunc.AddUserToGroup("systemd-journal")
+    CFunc.AddUserToGroup("systemd-network")
+    CFunc.AddUserToGroup("systemd-resolve")
+    CFunc.AddUserToGroup("systemd-timesync")
+    CFunc.AddUserToGroup("pipewire")
+    CFunc.AddUserToGroup("colord")
+    CFunc.AddUserToGroup("nm-openconnect")
+    CFunc.AddUserToGroup("vboxsf")
 
+    # Sudoers changes
+    CFuncExt.SudoersEnvSettings()
     # Edit sudoers to add apt.
-    if os.path.isdir('/etc/sudoers.d'):
-        CUSTOMSUDOERSPATH = "/etc/sudoers.d/pkmgt"
-        print("Writing {0}".format(CUSTOMSUDOERSPATH))
-        with open(CUSTOMSUDOERSPATH, 'w') as sudoers_writefile:
-            sudoers_writefile.write("{0} ALL=(ALL) NOPASSWD: {1}\n{0} ALL=(ALL) NOPASSWD: {2}\n".format(USERNAMEVAR, shutil.which("apt"), shutil.which("apt-get")))
-        os.chmod(CUSTOMSUDOERSPATH, 0o440)
-        status = subprocess.run('visudo -c', shell=True)
-        if status.returncode is not 0:
-            print("Visudo status not 0, removing sudoers file.")
-            os.remove(CUSTOMSUDOERSPATH)
+    sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
+    CFunc.AddLineToSudoersFile(sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
+    CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt")))
+    CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt-get")))
 
     # Modify system path
     # https://serverfault.com/questions/166383/how-set-path-for-all-users-in-debian

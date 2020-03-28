@@ -337,36 +337,6 @@ def detectdistro():
     else:
         lsb_distro = os_type()
     return (lsb_distro, lsb_release)
-def AddUserAllGroups(username=None):
-    """Add a given user to all reasonable groups."""
-    # Detect user if not passed.
-    if username is None:
-        usertuple = getnormaluser()
-        USERNAMEVAR = usertuple[0]
-        USERGROUP = usertuple[1]
-    else:
-        USERNAMEVAR = username
-    # Add normal user to all reasonable groups
-    with open("/etc/group", 'r') as groups:
-        grparray = []
-        # Split the grouplist into lines
-        grouplist = groups.readlines()
-        # Iterate through all groups in grouplist
-        for line in grouplist:
-            # Remove portion after :
-            splitline = line.split(":")[0]
-            # Check group before adding it.
-            if splitline != "root" and \
-                splitline != "users" and \
-                splitline != "nobody" and \
-                splitline != "nogroup" and \
-                    splitline != USERGROUP:
-                # Add group to array.
-                grparray.append(line.split(":")[0])
-    # Add all detected groups to the current user.
-    for group in grparray:
-        print("Adding {0} to group {1}.".format(USERNAMEVAR, group))
-        subprocess.run("usermod -aG {1} {0}".format(USERNAMEVAR, group), shell=True, check=True)
 def AddUserToGroup(group, username=None):
     """Add a given user to a single given group."""
     # Detect user if not passed.

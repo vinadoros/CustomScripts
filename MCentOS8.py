@@ -137,9 +137,6 @@ if vmstatus == "vmware":
     if args.type == 1 or args.type == 2:
         CFunc.dnfinstall("open-vm-tools-desktop")
 
-# Sudoers changes
-CFuncExt.SudoersEnvSettings()
-
 # Add normal user to all reasonable groups
 CFunc.AddUserToGroup("disk")
 CFunc.AddUserToGroup("lp")
@@ -162,6 +159,8 @@ CFunc.AddUserToGroup("pipewire")
 CFunc.AddUserToGroup("colord")
 CFunc.AddUserToGroup("nm-openconnect")
 
+# Sudoers changes
+CFuncExt.SudoersEnvSettings()
 # Edit sudoers to add dnf.
 fedora_sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
 CFunc.AddLineToSudoersFile(fedora_sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)

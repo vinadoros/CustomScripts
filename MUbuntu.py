@@ -82,7 +82,7 @@ add-apt-repository multiverse
 """, shell=True)
 
 # Add updates, security, and backports.
-with open('/etc/apt/sources.list', 'r') as VAR:
+with open(os.path.join(os.sep, "etc", "apt", "sources.list"), 'r') as VAR:
     DATA = VAR.read()
     # Updates
     if not "{0}-updates main".format(debrelease) in DATA:
@@ -116,8 +116,8 @@ CFunc.aptdistupg()
 if not args.bare:
     subprocess.run("wget -qO- https://syncthing.net/release-key.txt | apt-key add -", shell=True)
     # Write syncthing sources list
-    with open('/etc/apt/sources.list.d/syncthing-release.list', 'w') as stapt_writefile:
-        stapt_writefile.write("deb http://apt.syncthing.net/ syncthing release")
+    with open(os.path.join(os.sep, "etc", "apt", "sources.list.d", "syncthing-release.list"), 'w') as f:
+        f.write("deb http://apt.syncthing.net/ syncthing release")
     # Update and install syncthing:
     CFunc.aptupdate()
     CFunc.aptinstall("syncthing syncthing-inotify")
