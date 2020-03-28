@@ -9,6 +9,7 @@ import subprocess
 import sys
 # Custom includes
 import CFunc
+import CFuncExt
 
 print("Running {0}".format(__file__))
 
@@ -111,17 +112,6 @@ CFunc.aptdistupg()
 
 ### Software ###
 
-CFunc.aptinstall("sudo")
-subprocess.run("usermod -aG sudo {0}".format(USERNAMEVAR), shell=True)
-subprocess.run("""
-# Delete defaults in sudoers for Debian.
-if grep -iq '^Defaults\tenv_reset' /etc/sudoers; then
-    sed -e 's/^Defaults\tenv_reset$/Defaults\t!env_reset/g' -i /etc/sudoers
-    sed -i '/^Defaults\tmail_badpass/ s/^#*/#/' /etc/sudoers
-    sed -i '/^Defaults\tsecure_path/ s/^#*/#/' /etc/sudoers
-fi
-visudo -c""", shell=True)
-
 # Syncthing
 if not args.bare:
     subprocess.run("wget -qO- https://syncthing.net/release-key.txt | apt-key add -", shell=True)
@@ -133,7 +123,7 @@ if not args.bare:
     CFunc.aptinstall("syncthing syncthing-inotify")
 
 # Cli Software
-CFunc.aptinstall("ssh tmux zsh fish btrfs-tools f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs")
+CFunc.aptinstall("ssh tmux zsh fish btrfs-tools f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs sudo")
 # Timezone stuff
 subprocess.run("dpkg-reconfigure -f noninteractive tzdata", shell=True)
 # Needed for systemd user sessions.
@@ -326,6 +316,8 @@ if args.bare is False:
     CFunc.AddUserToGroup("nm-openconnect")
     CFunc.AddUserToGroup("vboxsf")
 
+    # Sudoers changes
+    CFuncExt.SudoersEnvSettings()
     # Edit sudoers to add apt.
     sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
     CFunc.AddLineToSudoersFile(sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)

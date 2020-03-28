@@ -9,6 +9,7 @@ import subprocess
 import sys
 # Custom includes
 import CFunc
+import CFuncExt
 
 print("Running {0}".format(__file__))
 
@@ -16,7 +17,7 @@ print("Running {0}".format(__file__))
 SCRIPTDIR = sys.path[0]
 
 # Get arguments
-parser = argparse.ArgumentParser(description='Install Ubuntu Software.')
+parser = argparse.ArgumentParser(description='Install Debian Software.')
 parser.add_argument("-d", "--desktop", help='Desktop Environment (i.e. gnome, kde, mate, etc)')
 parser.add_argument("-a", "--allextra", help='Run Extra Scripts', action="store_true")
 parser.add_argument("-u", "--unstable", help='Upgrade to unstable.', action="store_true")
@@ -102,14 +103,8 @@ CFunc.aptdistupg()
 
 CFunc.aptinstall("sudo")
 subprocess.run("usermod -aG sudo {0}".format(USERNAMEVAR), shell=True)
-subprocess.run("""
-# Delete defaults in sudoers for Debian.
-if grep -iq '^Defaults\tenv_reset' /etc/sudoers; then
-    sed -e 's/^Defaults\tenv_reset$/Defaults\t!env_reset/g' -i /etc/sudoers
-    sed -i '/^Defaults\tmail_badpass/ s/^#*/#/' /etc/sudoers
-    sed -i '/^Defaults\tsecure_path/ s/^#*/#/' /etc/sudoers
-fi
-visudo -c""", shell=True)
+# Sudoers changes
+CFuncExt.SudoersEnvSettings()
 
 
 if not args.bare:

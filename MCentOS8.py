@@ -137,16 +137,8 @@ if vmstatus == "vmware":
     if args.type == 1 or args.type == 2:
         CFunc.dnfinstall("open-vm-tools-desktop")
 
-sudoers_script = """
-# Delete defaults in sudoers.
-if grep -iq $'^Defaults    secure_path' /etc/sudoers; then
-    sed -e 's/^Defaults    env_reset$/Defaults    !env_reset/g' -i /etc/sudoers
-    sed -i $'/^Defaults    mail_badpass/ s/^#*/#/' /etc/sudoers
-    sed -i $'/^Defaults    secure_path/ s/^#*/#/' /etc/sudoers
-fi
-visudo -c
-"""
-subprocess.run(sudoers_script, shell=True)
+# Sudoers changes
+CFuncExt.SudoersEnvSettings()
 
 # Add normal user to all reasonable groups
 CFunc.AddUserToGroup("disk")

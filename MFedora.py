@@ -9,6 +9,7 @@ import subprocess
 import sys
 # Custom includes
 import CFunc
+import CFuncExt
 
 print("Running {0}".format(__file__))
 
@@ -172,16 +173,6 @@ if not args.nogui and not args.bare:
 if not args.nogui:
     subprocess.run("systemctl set-default graphical.target", shell=True)
 
-sudoers_script = """
-# Delete defaults in sudoers.
-if grep -iq $'^Defaults    secure_path' /etc/sudoers; then
-    sed -e 's/^Defaults    env_reset$/Defaults    !env_reset/g' -i /etc/sudoers
-    sed -i $'/^Defaults    mail_badpass/ s/^#*/#/' /etc/sudoers
-    sed -i $'/^Defaults    secure_path/ s/^#*/#/' /etc/sudoers
-fi
-visudo -c
-"""
-subprocess.run(sudoers_script, shell=True)
 
 # Add normal user to all reasonable groups
 CFunc.AddUserToGroup("disk")
@@ -206,6 +197,8 @@ CFunc.AddUserToGroup("colord")
 CFunc.AddUserToGroup("nm-openconnect")
 CFunc.AddUserToGroup("vboxsf")
 
+# Sudoers changes
+CFuncExt.SudoersEnvSettings()
 # Edit sudoers to add dnf.
 fedora_sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
 CFunc.AddLineToSudoersFile(fedora_sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)

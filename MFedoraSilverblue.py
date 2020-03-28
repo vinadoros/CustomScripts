@@ -9,6 +9,7 @@ import subprocess
 import sys
 # Custom includes
 import CFunc
+import CFuncExt
 
 print("Running {0}".format(__file__))
 
@@ -81,17 +82,8 @@ if args.stage == 1:
     rostreeinstall("gnome-tweak-tool dconf-editor")
     rostreeinstall("gnome-shell-extension-gpaste gnome-shell-extension-topicons-plus gnome-shell-extension-dash-to-dock")
 
-    sudoers_script = """
-    # Delete defaults in sudoers.
-    if grep -iq $'^Defaults    secure_path' /etc/sudoers; then
-        sed -e 's/^Defaults    env_reset$/Defaults    !env_reset/g' -i /etc/sudoers
-        sed -i $'/^Defaults    mail_badpass/ s/^#*/#/' /etc/sudoers
-        sed -i $'/^Defaults    secure_path/ s/^#*/#/' /etc/sudoers
-    fi
-    visudo -c
-    """
-    subprocess.run(sudoers_script, shell=True)
-
+    # Sudoers changes
+    CFuncExt.SudoersEnvSettings()
     # Edit sudoers to add dnf.
     CFunc.AddLineToSudoersFile(fedora_sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
     CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("rpm-ostree")))
