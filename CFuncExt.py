@@ -65,4 +65,16 @@ def SudoersEnvSettings(sudoers_file=os.path.join(os.sep, "etc", "sudoers")):
 
 
 if __name__ == '__main__':
-    print("Warning, {0} is meant to be imported by a python script.".format(__file__))
+    import argparse
+
+    # Get arguments
+    parser = argparse.ArgumentParser(description='CFunc Extras.')
+    parser.add_argument("-s", "--sudoenv", help='Sudo Environment Changes', action="store_true")
+    parser.add_argument("-n", "--numix", help='Numix Circle Icons', action="store_true")
+    args = parser.parse_args()
+
+    # Run functions
+    if args.numix:
+        numix_icons()
+    if args.sudoenv:
+        SudoersEnvSettings()
