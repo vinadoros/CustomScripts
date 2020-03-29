@@ -187,18 +187,15 @@ if args.nogui is False and args.bare is False:
     CFunc.aptinstall("snapd")
 
 # Network Manager
-CFunc.aptinstall("network-manager network-manager-ssh resolvconf")
-subprocess.run("sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf", shell=True)
-# https://askubuntu.com/questions/882806/ethernet-device-not-managed
-with open('/etc/NetworkManager/conf.d/10-globally-managed-devices.conf', 'w') as writefile:
-    writefile.write("""[keyfile]
-unmanaged-devices=none""")
-# Ensure DNS resolution is working
-subprocess.run("dpkg-reconfigure --frontend=noninteractive resolvconf", shell=True)
+CFunc.aptinstall("network-manager network-manager-ssh")
+# Remove interfaces from /etc/network/interfaces
+with open(os.path.join(os.sep, "etc", "network", "interfaces"), 'w') as writefile:
+    writefile.write("""source /etc/network/interfaces.d/*
 
-# Disable apport if it exists
-# if os.path.isfile("/etc/default/apport"):
-#     subprocess.run("sed -i 's/^enabled=.*/enabled=0/g' /etc/default/apport", shell=True)
+# The loopback network interface
+auto lo
+iface lo net loopback
+""")
 
 # Install Desktop Software
 if args.desktop == "gnome":
