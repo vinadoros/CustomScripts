@@ -129,7 +129,7 @@ if not args.bare:
     CFunc.aptdistupg()
 
 # Cli Software
-CFunc.aptinstall("ssh tmux zsh btrfs-tools f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs sudo")
+CFunc.aptinstall("ssh tmux zsh fish btrfs-progs f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs sudo")
 # Firmware
 CFunc.aptinstall("firmware-linux")
 subprocess.run("""echo "firmware-ipw2x00 firmware-ipw2x00/license/accepted boolean true" | debconf-set-selections
@@ -287,7 +287,7 @@ if args.bare is False:
     # Extra scripts
     if args.allextra is True:
         subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
-        subprocess.run("{0}/CShellConfig.py -z -d".format(SCRIPTDIR), shell=True)
+        subprocess.run("{0}/CShellConfig.py -z -f -d".format(SCRIPTDIR), shell=True)
         subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True)
         subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
         subprocess.run("{0}/CVMGeneral.py".format(SCRIPTDIR), shell=True)
