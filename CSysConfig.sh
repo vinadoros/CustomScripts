@@ -64,25 +64,6 @@ if ! grep -iq "^flat-volumes = no" /etc/pulse/daemon.conf; then
 	sed -i '/^;.*flat-volumes =.*/s/^;//g' /etc/pulse/daemon.conf
 	sed -i 's/flat-volumes =.*/flat-volumes = no/g' /etc/pulse/daemon.conf
 fi
-# Enable pulseaudio ladspa sc4 plugin
-if [ -f /etc/pulse/default.pa ]; then
-	# Make the folder if it doesn't exist.
-	mkdir -p "$USERHOME/.config/pulse"
-	# Copy config file
-	cp -a /etc/pulse/default.pa "$USERHOME/.config/pulse/"
-	# Add ladspa config to default.pa
-	cat >> "$USERHOME/.config/pulse/default.pa" <<'EOL'
-
-# Dynamic Compressor
-.ifexists module-ladspa-sink.so
-.nofail
-load-module module-ladspa-sink sink_name=compressor plugin=sc4_1882 label=sc4 control=0.5,1.5,401,-30,20,5,12
-.fail
-.endif
-EOL
-	# Set owners appropriately for config folder.
-	chown $USERNAMEVAR:$USERGROUP -R "$USERHOME/.config"
-fi
 
 
 # Modify journald log size
