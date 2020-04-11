@@ -186,13 +186,13 @@ function flatpak_clean () {
 function flatpak_search () {
     if type flatpak &> /dev/null; then
         echo "Searching Flatpaks"
-        $SUDOCMD flatpak search $@
+        flatpak search $@
     fi
 }
 function snap_search () {
     if type snap &> /dev/null; then
         echo "Searching Snaps"
-        $SUDOCMD snap find $@
+        snap find $@
     fi
 }
 
@@ -680,13 +680,13 @@ end
 function flatpak_search
     if type -q flatpak
         echo "Search Flatpaks"
-        sudo flatpak search $argv
+        flatpak search $argv
     end
 end
 function snap_search
     if type -q snap
         echo "Search Snaps"
-        sudo snap find $argv
+        snap find $argv
     end
 end
 # Set package manager functions
