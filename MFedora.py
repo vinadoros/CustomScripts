@@ -76,6 +76,9 @@ CFunc.dnfinstall("cifs-utils")
 subprocess.run("sudo chmod u+s /sbin/mount.cifs", shell=True)
 # NTP Configuration
 subprocess.run("systemctl enable systemd-timesyncd; timedatectl set-local-rtc false; timedatectl set-ntp 1", shell=True)
+# EarlyOOM
+CFunc.dnfinstall("earlyoom")
+subprocess.run("systemctl enable earlyoom", shell=True)
 # GUI Packages
 if not args.nogui:
     CFunc.dnfinstall("@fonts @base-x @networkmanager-submodules")
@@ -95,7 +98,8 @@ if not args.nogui:
     # Tilix
     CFunc.dnfinstall("tilix tilix-nautilus")
     if not args.bare:
-        CFunc.dnfinstall("@multimedia")
+        # Exclude chromium-libs-media-freeworld from multimedia
+        CFunc.dnfinstall("-x chromium-libs-media-freeworld @multimedia")
         CFunc.dnfinstall("gstreamer1-vaapi gstreamer1-plugins-bad-nonfree")
         CFunc.dnfinstall("youtube-dl ffmpeg smplayer mpv")
         CFunc.dnfinstall("audacious audacious-plugins")

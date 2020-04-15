@@ -424,13 +424,13 @@ def aptdistupg():
     print("\nPerforming (dist)upgrade.")
     subprocess.run("apt-get upgrade -y", shell=True)
     subprocess.run("apt-get dist-upgrade -y", shell=True)
-def aptinstall(aptapps):
+def aptinstall(aptapps, error_on_fail=True):
     """Install application(s) using apt"""
     print("\nInstalling {0} using apt.".format(aptapps))
     if os.geteuid() == 0:
-        subprocess.run("apt-get install -y {0}".format(aptapps), shell=True)
+        subprocess.run("apt-get install -y {0}".format(aptapps), shell=True, check=error_on_fail)
     else:
-        subprocess.run("sudo apt-get install -y {0}".format(aptapps), shell=True)
+        subprocess.run("sudo apt-get install -y {0}".format(aptapps), shell=True, check=error_on_fail)
 def addppa(ppasource):
     """Add a ppa"""
     subprocess.run("add-apt-repository -y '{0}'".format(ppasource), shell=True)
@@ -447,14 +447,14 @@ def dnfupdate():
     """Update system"""
     print("\nPerforming system update.")
     subprocess.run("dnf update -y", shell=True)
-def dnfinstall(dnfapps):
+def dnfinstall(dnfapps, error_on_fail=True):
     """Install application(s) using dnf"""
     status = None
     print("\nInstalling {0} using dnf.".format(dnfapps))
     if os.geteuid() == 0:
-        status = subprocess.run("dnf install -y {0}".format(dnfapps), shell=True).returncode
+        status = subprocess.run("dnf install -y {0}".format(dnfapps), shell=True, check=error_on_fail).returncode
     else:
-        status = subprocess.run("sudo dnf install -y {0}".format(dnfapps), shell=True).returncode
+        status = subprocess.run("sudo dnf install -y {0}".format(dnfapps), shell=True, check=error_on_fail).returncode
     return status
 def rpmimport(keyurl):
     """Import a gpg key for rpm."""
