@@ -87,8 +87,7 @@ if not args.nogui:
     CFunc.dnfinstall("chromium")
     # Official Google Chrome
     # CFunc.dnfinstall("https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm")
-    CFunc.dnfinstall("@firefox freshplayerplugin")
-    CFunc.dnfinstall("flash-plugin")
+    CFunc.dnfinstall("@firefox")
     # Cups
     CFunc.dnfinstall("cups-pdf")
     # Audio/video
@@ -98,9 +97,10 @@ if not args.nogui:
     # Tilix
     CFunc.dnfinstall("tilix tilix-nautilus")
     if not args.bare:
+        CFunc.dnfinstall("freshplayerplugin flash-plugin")
         # Exclude chromium-libs-media-freeworld from multimedia
         CFunc.dnfinstall("-x chromium-libs-media-freeworld @multimedia")
-        CFunc.dnfinstall("gstreamer1-vaapi gstreamer1-plugins-bad-nonfree")
+        CFunc.dnfinstall("gstreamer1-vaapi")
         CFunc.dnfinstall("youtube-dl ffmpeg smplayer mpv")
         CFunc.dnfinstall("audacious audacious-plugins")
         # Editors
