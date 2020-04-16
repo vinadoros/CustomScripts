@@ -120,10 +120,10 @@ if not args.bare:
         f.write("deb http://apt.syncthing.net/ syncthing release")
     # Update and install syncthing:
     CFunc.aptupdate()
-    CFunc.aptinstall("syncthing syncthing-inotify")
+    CFunc.aptinstall("syncthing")
 
 # Cli Software
-CFunc.aptinstall("ssh tmux zsh fish btrfs-tools f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs sudo")
+CFunc.aptinstall("ssh tmux zsh fish btrfs-progs f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs sudo")
 # Timezone stuff
 subprocess.run("dpkg-reconfigure -f noninteractive tzdata", shell=True)
 # Needed for systemd user sessions.
