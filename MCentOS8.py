@@ -178,7 +178,6 @@ if args.type == 1 or args.type == 2:
     # Flatpak apps
     CFunc.flatpak_install("flathub", "org.keepassxc.KeePassXC")
     CFunc.flatpak_install("flathub", "org.videolan.VLC")
-    CFunc.flatpak_install("flathub", "io.github.celluloid_player.Celluloid")
     CFunc.flatpak_install("flathub", "io.github.quodlibet.QuodLibet")
 
 # Disable Selinux

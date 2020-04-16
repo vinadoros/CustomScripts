@@ -147,7 +147,6 @@ if args.stage == 2:
     CFunc.flatpak_install("fedora", "org.gnome.eog")
     CFunc.flatpak_install("flathub", "org.keepassxc.KeePassXC")
     CFunc.flatpak_install("flathub", "org.videolan.VLC")
-    CFunc.flatpak_install("flathub", "io.github.celluloid_player.Celluloid")
     CFunc.flatpak_install("flathub", "io.github.quodlibet.QuodLibet")
     CFunc.flatpak_install("flathub", "com.visualstudio.code.oss")
 
