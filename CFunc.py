@@ -34,9 +34,9 @@ SCRIPTDIR = sys.path[0]
 ### Functions ###
 
 ### General helper functions ###
-def subpout(cmd):
+def subpout(cmd, error_on_fail=True):
     """Get output from subprocess"""
-    output = subprocess.run("{0}".format(cmd), shell=True, stdout=subprocess.PIPE, universal_newlines=True).stdout.strip()
+    output = subprocess.run("{0}".format(cmd), shell=True, stdout=subprocess.PIPE, universal_newlines=True, check=error_on_fail).stdout.strip()
     return output
 def dlProgress(count, blockSize, totalSize):
     """Get the progress of a download"""

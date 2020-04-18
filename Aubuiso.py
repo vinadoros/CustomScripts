@@ -104,7 +104,7 @@ CFunc.log_config(buildlog_path)
 # https://github.com/mvallim/live-custom-ubuntu-from-scratch
 
 CFunc.aptupdate()
-CFunc.aptinstall("debootstrap binutils squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin mtools dosfstools")
+CFunc.aptinstall("debootstrap binutils squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin mtools dosfstools unzip")
 CFunc.subpout_logger("debootstrap --arch=amd64 --variant=minbase {0} {1}  http://us.archive.ubuntu.com/ubuntu/".format(args.release, rootfsfolder))
 
 # Create chroot script.
@@ -176,7 +176,8 @@ screen \
 ssh \
 tmux \
 whois \
-xfsprogs
+xfsprogs \
+zsh
 
 # Install GUI software
 apt-get install -y \
@@ -416,36 +417,36 @@ insmod all_video
 set default="0"
 set timeout=1
 
-menuentry "Try Ubuntu FS without installing" {{
+menuentry "Try Ubuntu FS without installing" {
    linux /casper/vmlinuz boot=casper quiet splash ---
    initrd /casper/initrd
-}}
+}
 
-menuentry "Install Ubuntu FS" {{
+menuentry "Install Ubuntu FS" {
    linux /casper/vmlinuz boot=casper only-ubiquity quiet splash ---
    initrd /casper/initrd
-}}
+}
 
-menuentry "Check disc for defects" {{
+menuentry "Check disc for defects" {
    linux /casper/vmlinuz boot=casper integrity-check quiet splash ---
    initrd /casper/initrd
-}}
+}
 
-menuentry "Test memory Memtest86+ (BIOS)" {{
+menuentry "Test memory Memtest86+ (BIOS)" {
    linux16 /install/memtest86+
-}}
+}
 
-menuentry "Test memory Memtest86 (UEFI, long load time)" {{
+menuentry "Test memory Memtest86 (UEFI, long load time)" {
    insmod part_gpt
    insmod search_fs_uuid
    insmod chain
    loopback loop /install/memtest86
    chainloader (loop,gpt1)/efi/boot/BOOTX64.efi
-}}
+}
 """)
 
 # Create manifest
-CFunc.subpout_logger("chroot chroot dpkg-query -W --showformat='${{Package}} ${{Version}}\n' | tee image/casper/filesystem.manifest")
+CFunc.subpout_logger("chroot chroot dpkg-query -W --showformat='${Package} ${Version}\n' | tee image/casper/filesystem.manifest")
 CFunc.subpout_logger("cp -v image/casper/filesystem.manifest image/casper/filesystem.manifest-desktop")
 CFunc.subpout_logger("sed -i '/ubiquity/d' image/casper/filesystem.manifest-desktop")
 CFunc.subpout_logger("sed -i '/casper/d' image/casper/filesystem.manifest-desktop")
@@ -455,7 +456,7 @@ CFunc.subpout_logger("sed -i '/os-prober/d' image/casper/filesystem.manifest-des
 
 # Compress the chroot
 # Create squashfs
-CFunc.subpout_logger("mksquashfs -noappend chroot {0}/image/casper/filesystem.squashfs".format(buildfolder))
+CFunc.subpout_logger("mksquashfs chroot {0}/image/casper/filesystem.squashfs -noappend".format(buildfolder))
 # Write the filesystem.size
 with open(os.path.join(buildfolder, "image", "casper", "filesystem.size"), 'w') as f:
     f.write(CFunc.subpout('du -sx --block-size=1 "{0}" | cut -f1'.format(os.path.join(buildfolder, "chroot"))))
