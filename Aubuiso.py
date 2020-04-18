@@ -101,16 +101,30 @@ buildlog_path = os.path.join(buildfolder, "{0}.log".format(isoname))
 CFunc.log_config(buildlog_path)
 
 ### Build LiveCD ###
+# https://github.com/mvallim/live-custom-ubuntu-from-scratch
 
 CFunc.aptupdate()
-CFunc.aptinstall("debootstrap squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin mtools dosfstools")
-CFunc.subpout_logger("debootstrap --arch=amd64 --include linux-image-generic {0} {1}  http://us.archive.ubuntu.com/ubuntu/".format(args.release, rootfsfolder))
+CFunc.aptinstall("debootstrap binutils squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin mtools dosfstools")
+CFunc.subpout_logger("debootstrap --arch=amd64 --variant=minbase {0} {1}  http://us.archive.ubuntu.com/ubuntu/".format(args.release, rootfsfolder))
 
 # Create chroot script.
 with open(os.path.join(rootfsfolder, "chrootscript.sh"), 'w') as f_handle:
     f_handle.write("""#!/bin/bash -e
+# Setup
+export HOME=/root
+export LC_ALL=C
+export DEBIAN_FRONTEND=noninteractive
+echo "ubuntu-fs-live" > /etc/hostname
 apt-get update
-apt-get install -y --no-install-recommends casper software-properties-common
+# Install systemd
+apt-get install -y systemd-sysv
+# Configure machine-id and divert
+dbus-uuidgen > /etc/machine-id
+ln -fs /etc/machine-id /var/lib/dbus/machine-id
+dpkg-divert --local --rename --add /sbin/initctl
+ln -s /bin/true /sbin/initctl
+
+apt-get install -y --no-install-recommends software-properties-common
 add-apt-repository main && add-apt-repository restricted && add-apt-repository universe && add-apt-repository multiverse
 apt-get update
 # Install locales
@@ -124,6 +138,21 @@ update-locale
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
 # Set keymap for Ubuntu
 echo "console-setup	console-setup/charmap47	select	UTF-8" | debconf-set-selections
+
+# Live System software
+apt-get install -y \
+casper \
+lupin-casper \
+discover \
+laptop-detect \
+os-prober \
+network-manager \
+resolvconf \
+net-tools \
+wireless-tools \
+wpagui \
+locales \
+linux-generic
 
 # Install CLI Software
 apt-get install -y \
@@ -182,8 +211,18 @@ virtualbox-guest-dkms \
 virtualbox-guest-x11 \
 build-essential
 
-sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf
-touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
+cat <<EOF > /etc/NetworkManager/NetworkManager.conf
+[main]
+rc-manager=resolvconf
+plugins=ifupdown,keyfile
+dns=dnsmasq
+
+[ifupdown]
+managed=false
+EOF
+dpkg-reconfigure network-manager
+dpkg-reconfigure --frontend=noninteractive resolvconf
+
 passwd -u root
 chpasswd <<<"root:asdf"
 
@@ -328,6 +367,12 @@ find /var/lib/apt/lists/ -type f | xargs rm -f
 echo "I: Removing /var/cache/apt/*.bin"
 rm -f /var/cache/apt/*.bin
 
+# Cleanup the chroot environment
+truncate -s 0 /etc/machine-id
+rm /sbin/initctl
+dpkg-divert --rename --remove /sbin/initctl
+rm -rf /tmp/* ~/.bash_history
+export HISTSIZE=0
 """)
 os.chmod(os.path.join(rootfsfolder, "chrootscript.sh"), 0o777)
 
@@ -346,78 +391,141 @@ except Exception:
     chroot_end()
     sys.exit()
 
-# Create build folders
-os.makedirs(os.path.join(buildfolder, "scratch"), exist_ok=True)
+
+# Create the CD image directory and populate it
+os.chdir(buildfolder)
 os.makedirs(os.path.join(buildfolder, "image", "casper"), exist_ok=True)
+os.makedirs(os.path.join(buildfolder, "image", "isolinux"), exist_ok=True)
+os.makedirs(os.path.join(buildfolder, "image", "install"), exist_ok=True)
+CFunc.subpout_logger("cp {0}/chroot/boot/vmlinuz-**-**-generic {0}/image/casper/vmlinuz".format(buildfolder))
+CFunc.subpout_logger("cp {0}/chroot/boot/initrd.img-**-**-generic {0}/image/casper/initrd".format(buildfolder))
+CFunc.subpout_logger("cp {0}/chroot/boot/memtest86+.bin {0}/image/install/memtest86+".format(buildfolder))
+CFunc.subpout_logger("wget --progress=dot https://www.memtest86.com/downloads/memtest86-usb.zip -O {0}/image/install/memtest86-usb.zip".format(buildfolder))
+CFunc.subpout_logger("unzip -p {0}/image/install/memtest86-usb.zip memtest86-usb.img > {0}/image/install/memtest86".format(buildfolder))
+os.remove(os.path.join(buildfolder, "image", "install", "memtest86-usb.zip"))
 
-# Create squashfs
-CFunc.subpout_logger("mksquashfs {0} {1}/image/casper/filesystem.squashfs -noappend -e boot".format(rootfsfolder, buildfolder))
-# Copy kernel and initrd
-CFunc.subpout_logger("cp {0}/boot/vmlinuz-* {1}/image/vmlinuz".format(rootfsfolder, buildfolder))
-CFunc.subpout_logger("cp {0}/boot/initrd.img-* {1}/image/initrd".format(rootfsfolder, buildfolder))
-
-# Grub config file.
+# Grub configuration
 iso_label = "Ubuntu-{0}".format(currentdatetime)
-with open(os.path.join(buildfolder, "scratch", "grub.cfg"), 'w') as grubcfg_handle:
-    grubcfg_handle.write("""
-search --set=root --file /{0}
+debcustom_path = Path(os.path.join(buildfolder, "image", iso_label))
+debcustom_path.touch(exist_ok=True)
+with open(os.path.join(buildfolder, "image", "isolinux", "grub.cfg"), 'w') as f:
+    f.write("""search --set=root --file /{0}
 
 insmod all_video
 
 set default="0"
 set timeout=1
 
-menuentry "Ubuntu Live" {{
-    linux /vmlinuz boot=casper noprompt
-    # Add "earlyprintk serial=tty0 console=ttyS0,115200n8" for debugging
-    initrd /initrd
+menuentry "Try Ubuntu FS without installing" {{
+   linux /casper/vmlinuz boot=casper quiet splash ---
+   initrd /casper/initrd
+}}
+
+menuentry "Install Ubuntu FS" {{
+   linux /casper/vmlinuz boot=casper only-ubiquity quiet splash ---
+   initrd /casper/initrd
+}}
+
+menuentry "Check disc for defects" {{
+   linux /casper/vmlinuz boot=casper integrity-check quiet splash ---
+   initrd /casper/initrd
+}}
+
+menuentry "Test memory Memtest86+ (BIOS)" {{
+   linux16 /install/memtest86+
+}}
+
+menuentry "Test memory Memtest86 (UEFI, long load time)" {{
+   insmod part_gpt
+   insmod search_fs_uuid
+   insmod chain
+   loopback loop /install/memtest86
+   chainloader (loop,gpt1)/efi/boot/BOOTX64.efi
 }}
 """.format(iso_label))
 
-debcustom_path = Path(os.path.join(buildfolder, "image", iso_label))
-debcustom_path.touch(exist_ok=True)
+# Create manifest
+CFunc.subpout_logger("chroot chroot dpkg-query -W --showformat='${{Package}} ${{Version}}\n' | tee image/casper/filesystem.manifest")
+CFunc.subpout_logger("cp -v image/casper/filesystem.manifest image/casper/filesystem.manifest-desktop")
+CFunc.subpout_logger("sed -i '/ubiquity/d' image/casper/filesystem.manifest-desktop")
+CFunc.subpout_logger("sed -i '/casper/d' image/casper/filesystem.manifest-desktop")
+CFunc.subpout_logger("sed -i '/discover/d' image/casper/filesystem.manifest-desktop")
+CFunc.subpout_logger("sed -i '/laptop-detect/d' image/casper/filesystem.manifest-desktop")
+CFunc.subpout_logger("sed -i '/os-prober/d' image/casper/filesystem.manifest-desktop")
+
+# Compress the chroot
+# Create squashfs
+CFunc.subpout_logger("mksquashfs -noappend chroot {0}/image/casper/filesystem.squashfs".format(buildfolder))
+# Write the filesystem.size
+with open(os.path.join(buildfolder, "image", "casper", "filesystem.size"), 'w') as f:
+    f.write(CFunc.subpout('du -sx --block-size=1 "{0}" | cut -f1'.format(os.path.join(buildfolder, "chroot"))))
+
+# Create diskdefines
+with open(os.path.join(buildfolder, "image", "README.diskdefines"), 'w') as f:
+    f.write("""#define DISKNAME  Ubuntu from scratch
+#define TYPE  binary
+#define TYPEbinary  1
+#define ARCH  amd64
+#define ARCHamd64  1
+#define DISKNUM  1
+#define DISKNUM1  1
+#define TOTALNUM  0
+#define TOTALNUM0  1""")
+
+# Begin ISO creation
+os.chdir(os.path.join(buildfolder, "image"))
+# Create grub UEFI image
 CFunc.subpout_logger('''grub-mkstandalone \
     --format=x86_64-efi \
-    --output={0}/scratch/bootx64.efi \
+    --output=isolinux/bootx64.efi \
     --locales="" \
     --fonts="" \
-    "boot/grub/grub.cfg={0}/scratch/grub.cfg"'''.format(buildfolder))
-CFunc.subpout_logger("""cd {0}/scratch && \
+    "boot/grub/grub.cfg=isolinux/grub.cfg"''')
+# Create a FAT16 UEFI boot disk image containing the EFI bootloader
+CFunc.subpout_logger("""(
+    cd isolinux && \
     dd if=/dev/zero of=efiboot.img bs=1M count=10 && \
     mkfs.vfat efiboot.img && \
-    mmd -i efiboot.img efi efi/boot && \
-    mcopy -i efiboot.img ./bootx64.efi ::efi/boot/""".format(buildfolder))
+    LC_CTYPE=C mmd -i efiboot.img efi efi/boot && \
+    LC_CTYPE=C mcopy -i efiboot.img ./bootx64.efi ::efi/boot/
+)""")
+# Create a grub BIOS image
+os.chdir(os.path.join(buildfolder, "image"))
 CFunc.subpout_logger('''grub-mkstandalone \
     --format=i386-pc \
-    --output={0}/scratch/core.img \
-    --install-modules="linux normal iso9660 biosdisk memdisk search tar ls" \
-    --modules="linux normal iso9660 biosdisk search" \
+    --output=isolinux/core.img \
+    --install-modules="linux16 linux normal iso9660 biosdisk memdisk search tar ls" \
+    --modules="linux16 linux normal iso9660 biosdisk search" \
     --locales="" \
     --fonts="" \
-    "boot/grub/grub.cfg={0}/scratch/grub.cfg"'''.format(buildfolder))
-CFunc.subpout_logger("cat /usr/lib/grub/i386-pc/cdboot.img {0}/scratch/core.img > {0}/scratch/bios.img".format(buildfolder))
+    "boot/grub/grub.cfg=isolinux/grub.cfg"''')
+# Combine a bootable Grub cdboot.img
+CFunc.subpout_logger("cat /usr/lib/grub/i386-pc/cdboot.img {0}/image/isolinux/core.img > {0}/image/isolinux/bios.img".format(buildfolder))
+# Generate md5sum.txt
+with open(os.path.join(buildfolder, "image", "md5sum.txt"), 'w') as f:
+    f.write(CFunc.subpout('find . -type f -print0 | xargs -0 md5sum | grep -v "./md5sum.txt"'))
+# Create iso from the image directory using the command-line
 CFunc.subpout_logger("""xorriso \
     -as mkisofs \
     -iso-level 3 \
     -full-iso9660-filenames \
     -volid "{2}" \
-    -eltorito-boot \
-        boot/grub/bios.img \
-        -no-emul-boot \
-        -boot-load-size 4 \
-        -boot-info-table \
-        --eltorito-catalog boot/grub/boot.cat \
+    -eltorito-boot boot/grub/bios.img \
+    -no-emul-boot \
+    -boot-load-size 4 \
+    -boot-info-table \
+    --eltorito-catalog boot/grub/boot.cat \
     --grub2-boot-info \
     --grub2-mbr /usr/lib/grub/i386-pc/boot_hybrid.img \
     -eltorito-alt-boot \
-        -e EFI/efiboot.img \
-        -no-emul-boot \
-    -append_partition 2 0xef {0}/scratch/efiboot.img \
+    -e EFI/efiboot.img \
+    -no-emul-boot \
+    -append_partition 2 0xef isolinux/efiboot.img \
     -output "{0}/{1}" \
     -graft-points \
-        "{0}/image" \
-        /boot/grub/bios.img={0}/scratch/bios.img \
-        /EFI/efiboot.img={0}/scratch/efiboot.img""".format(buildfolder, isoname, iso_label))
+        "." \
+        /boot/grub/bios.img=isolinux/bios.img \
+        /EFI/efiboot.img=isolinux/efiboot.img""".format(buildfolder, isoname, iso_label))
 # Set permissions of iso and log
 os.chmod(os.path.join(buildfolder, isoname), 0o777)
 os.chmod(os.path.join(buildlog_path), 0o777)
