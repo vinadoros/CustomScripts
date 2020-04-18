@@ -253,7 +253,7 @@ systemctl enable updatecs.service
 cat >"/etc/xdg/autostart/matesettings.desktop" <<"EOL"
 [Desktop Entry]
 Name=MATE Settings Script
-Exec=/CustomScripts/Dset.sh
+Exec=/opt/CustomScripts/Dset.sh
 Terminal=false
 Type=Application
 EOL
@@ -406,10 +406,10 @@ os.remove(os.path.join(buildfolder, "image", "install", "memtest86-usb.zip"))
 
 # Grub configuration
 iso_label = "Ubuntu-{0}".format(currentdatetime)
-debcustom_path = Path(os.path.join(buildfolder, "image", iso_label))
+debcustom_path = Path(os.path.join(buildfolder, "image", "ubuntu"))
 debcustom_path.touch(exist_ok=True)
 with open(os.path.join(buildfolder, "image", "isolinux", "grub.cfg"), 'w') as f:
-    f.write("""search --set=root --file /{0}
+    f.write("""search --set=root --file /ubuntu
 
 insmod all_video
 
@@ -442,7 +442,7 @@ menuentry "Test memory Memtest86 (UEFI, long load time)" {{
    loopback loop /install/memtest86
    chainloader (loop,gpt1)/efi/boot/BOOTX64.efi
 }}
-""".format(iso_label))
+""")
 
 # Create manifest
 CFunc.subpout_logger("chroot chroot dpkg-query -W --showformat='${{Package}} ${{Version}}\n' | tee image/casper/filesystem.manifest")
