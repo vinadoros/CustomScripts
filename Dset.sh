@@ -176,7 +176,6 @@ if type gnome-session; then
 	gsettings set org.gnome.gedit.preferences.editor tabs-size 4
 	gsettings set org.gtk.Settings.FileChooser show-hidden true
 	gsettings set org.gtk.Settings.FileChooser sort-directories-first true
-	gsettings set org.gnome.nautilus.preferences sort-directories-first true
 	gsettings set org.gnome.nautilus.preferences executable-text-activation ask
 	gsettings set org.gnome.nautilus.preferences click-policy double
 	gsettings set org.gnome.nautilus.list-view use-tree-view true
@@ -186,28 +185,26 @@ if type gnome-session; then
 	gsettings set org.gnome.nautilus.icon-view captions "['size', 'none', 'none']"
 	gsettings set org.gnome.nautilus.list-view default-visible-columns "['name', 'size', 'type', 'date_modified']"
 	gsettings set org.gnome.nautilus.compression default-compression-format '7z'
-	gsettings set org.gnome.desktop.peripherals.touchpad scroll-method edge-scrolling
 	gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click true
 	gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll false
 	gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 3600
 	gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type nothing
 	gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 1800
 	gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type nothing
-	gsettings set org.gnome.settings-daemon.plugins.power lid-close-ac-action 'blank'
-	gsettings set org.gnome.settings-daemon.plugins.power lid-close-battery-action 'blank'
 	gsettings set org.gnome.desktop.screensaver lock-enabled false
 	if [[ $VBOXGUEST = 1 || $QEMUGUEST = 1 || $VMWGUEST = 1 ]]; then
 		gsettings set org.gnome.desktop.session idle-delay 0
 	else
 		gsettings set org.gnome.desktop.session idle-delay 300
 	fi
-	gsettings set org.gnome.settings-daemon.plugins.xsettings antialiasing grayscale
-	gsettings set org.gnome.settings-daemon.plugins.xsettings hinting slight
+	gsettings set org.gnome.settings-daemon.plugins.xsettings antialiasing rgba
+	gsettings set org.gnome.settings-daemon.plugins.xsettings hinting full
 	gsettings set org.gnome.desktop.interface text-scaling-factor 1.0
 	gsettings set org.gnome.desktop.interface clock-show-date true
 	gsettings set org.gnome.shell enabled-extensions "['window-list@gnome-shell-extensions.gcampax.github.com', 'dash-to-dock@micxgx.gmail.com', 'GPaste@gnome-shell-extensions.gnome.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'shell-volume-mixer@derhofbauer.at', 'TopIcons@phocean.net', 'ubuntu-appindicators@ubuntu.com', 'donotdisturb@kylecorry31.github.io']"
 	gsettings set org.gnome.desktop.wm.preferences button-layout :minimize,maximize,close
-	gsettings set org.gnome.settings-daemon.peripherals.mouse locate-pointer false
+	gsettings set org.gnome.desktop.interface locate-pointer true
+	gsettings set org.gnome.mutter locate-pointer-key 'Control_R'
 	gsettings set org.gnome.desktop.datetime automatic-timezone true
 	gsettings set org.gnome.desktop.interface clock-format 12h
 	gsettings set org.gnome.desktop.interface clock-show-date true
@@ -228,14 +225,9 @@ if type gnome-session; then
 	# Blocked by https://github.com/micheleg/dash-to-dock/issues/1025
 	# dconf write /org/gnome/shell/extensions/dash-to-dock/show-mounts "false"
 	dconf write /org/gnome/shell/extensions/dash-to-dock/show-trash "false"
-	gsettings set org.gnome.shell.extensions.dash-to-dock intellihide true
-	gsettings set org.gnome.shell.extensions.dash-to-dock click-action 'minimize'
-	gsettings set org.gnome.shell.extensions.dash-to-dock intellihide-mode 'FOCUS_APPLICATION_WINDOWS'
-	gsettings set org.gnome.shell.extensions.dash-to-dock require-pressure-to-show true
-	gsettings set org.gnome.shell.extensions.dash-to-dock icon-size-fixed false
-	gsettings set org.gnome.shell.extensions.dash-to-dock isolate-monitors false
-	gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed false
-	gsettings set org.gnome.shell.extensions.dash-to-dock extend-height false
+	dconf write /org/gnome/shell/extensions/dash-to-dock/dock-fixed "false"
+	dconf write /org/gnome/shell/extensions/dash-to-dock/intellihide-mode "'ALL_WINDOWS'"
+	dconf write /org/gnome/shell/extensions/dash-to-dock/require-pressure-to-show "true"
 	dconf write /org/gnome/shell/extensions/window-list/show-on-all-monitors "true"
 	# Set gnome-terminal scrollback
 	dconf write /org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/scrollback-unlimited true
