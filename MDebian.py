@@ -112,7 +112,7 @@ if not args.bare:
         stapt_writefile.write("deb http://apt.syncthing.net/ syncthing release")
     # Update and install syncthing:
     CFunc.aptupdate()
-    CFunc.aptinstall("syncthing syncthing-inotify")
+    CFunc.aptinstall("syncthing")
 
     # Debian Multimedia
     # Write sources list
