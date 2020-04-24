@@ -1,0 +1,33 @@
+# https://wiki.ubuntu.com/FoundationsTeam/AutomatedServerInstalls
+# https://wiki.ubuntu.com/FoundationsTeam/AutomatedServerInstalls/ConfigReference
+autoinstall:
+    version: 1
+    locale: en_US
+    keyboard:
+        layout: en
+        variant: us
+    storage:
+        layout:
+            name: direct
+    identity:
+        hostname: INSERTHOSTNAMENAMEHERE
+        username: INSERTUSERHERE
+        password: INSERTHASHEDPASSWORDHERE
+        realname: INSERTFULLNAMEHERE
+    ssh:
+        install-server: yes
+        authorized-keys:
+        - INSERTSSHKEYHERE
+        allow-pw: yes
+    packages:
+        - libreoffice
+        - dns-server^
+    user-data:
+        disable_root: false
+        chpasswd:
+            list: |
+                root:INSERTHASHEDPASSWORDHERE
+    late-commands:
+        - sed -ie 's/GRUB_TIMEOUT=.*/GRUB_TIMEOUT=1/' /target/etc/default/grub
+        - sed -i 's/PermitRootLogin.*/PermitRootLogin yes/g' /target/etc/ssh/sshd_config
+        - sed -i '/^#PermitRootLogin.*/s/^#//g' /target/etc/ssh/sshd_config
