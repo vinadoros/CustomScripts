@@ -246,6 +246,15 @@ if type gnome-session; then
 	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/ name 'Turn off screen'
 	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/ command /usr/local/bin/turnoffscreen.sh
 	# No Fish config for gnome-terminal, does not change folders when using "Open in Terminal"
+	if type file-roller &> /dev/null; then
+		# Run "xdg-mime query default <mime type>" to get current association.
+		xdg-mime default org.gnome.FileRoller.desktop application/x-7z-compressed
+		xdg-mime default org.gnome.FileRoller.desktop application/x-xz-compressed-tar
+		xdg-mime default org.gnome.FileRoller.desktop application/zip
+		xdg-mime default org.gnome.FileRoller.desktop application/x-compressed-tar
+		xdg-mime default org.gnome.FileRoller.desktop application/x-bzip-compressed-tar
+		xdg-mime default org.gnome.FileRoller.desktop application/x-tar
+	fi
 fi
 
 
