@@ -152,7 +152,7 @@ CFunc.aptinstall("default-jre")
 
 # GUI programs
 if args.nogui is False:
-    CFunc.aptinstall("synaptic gnome-disk-utility gdebi gparted xdg-utils leafpad")
+    CFunc.aptinstall("synaptic gnome-disk-utility gdebi gparted xdg-utils")
     CFunc.aptinstall("dconf-editor")
     # Browsers
     CFunc.aptinstall("chromium pepperflashplugin-nonfree")
