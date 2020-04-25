@@ -202,7 +202,7 @@ if 10 <= args.ostype <= 19:
 # Ubuntu latest
 if 10 <= args.ostype <= 14:
     kvm_variant = "ubuntu18.04"
-    isourl = "http://cdimage.ubuntu.com/releases/19.10/release/ubuntu-19.10-server-amd64.iso"
+    isourl = "http://cdimage.ubuntu.com/ubuntu-server/daily/current/focal-legacy-server-amd64.iso"
 # Ubuntu LTS
 if 15 <= args.ostype <= 19:
     kvm_variant = "ubuntu18.04"
