@@ -1,3 +1,4 @@
+#cloud-config
 # https://wiki.ubuntu.com/FoundationsTeam/AutomatedServerInstalls
 # https://wiki.ubuntu.com/FoundationsTeam/AutomatedServerInstalls/ConfigReference
 autoinstall:
