@@ -258,38 +258,38 @@ if not CFunc.find_pattern_infile(grub_config, "mitigations=off"):
             f.write(line)
     subprocess.run("update-grub2", shell=True)
 
+# Add normal user to all reasonable groups
+CFunc.AddUserToGroup("disk")
+CFunc.AddUserToGroup("lp")
+CFunc.AddUserToGroup("sudo")
+CFunc.AddUserToGroup("cdrom")
+CFunc.AddUserToGroup("man")
+CFunc.AddUserToGroup("dialout")
+CFunc.AddUserToGroup("floppy")
+CFunc.AddUserToGroup("games")
+CFunc.AddUserToGroup("tape")
+CFunc.AddUserToGroup("video")
+CFunc.AddUserToGroup("audio")
+CFunc.AddUserToGroup("input")
+CFunc.AddUserToGroup("kvm")
+CFunc.AddUserToGroup("systemd-journal")
+CFunc.AddUserToGroup("systemd-network")
+CFunc.AddUserToGroup("systemd-resolve")
+CFunc.AddUserToGroup("systemd-timesync")
+CFunc.AddUserToGroup("pipewire")
+CFunc.AddUserToGroup("colord")
+CFunc.AddUserToGroup("nm-openconnect")
+CFunc.AddUserToGroup("vboxsf")
+
+# Sudoers changes
+CFuncExt.SudoersEnvSettings()
+# Edit sudoers to add apt.
+sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
+CFunc.AddLineToSudoersFile(sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
+CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt")))
+CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt-get")))
+
 if args.bare is False:
-    # Add normal user to all reasonable groups
-    CFunc.AddUserToGroup("disk")
-    CFunc.AddUserToGroup("lp")
-    CFunc.AddUserToGroup("sudo")
-    CFunc.AddUserToGroup("cdrom")
-    CFunc.AddUserToGroup("man")
-    CFunc.AddUserToGroup("dialout")
-    CFunc.AddUserToGroup("floppy")
-    CFunc.AddUserToGroup("games")
-    CFunc.AddUserToGroup("tape")
-    CFunc.AddUserToGroup("video")
-    CFunc.AddUserToGroup("audio")
-    CFunc.AddUserToGroup("input")
-    CFunc.AddUserToGroup("kvm")
-    CFunc.AddUserToGroup("systemd-journal")
-    CFunc.AddUserToGroup("systemd-network")
-    CFunc.AddUserToGroup("systemd-resolve")
-    CFunc.AddUserToGroup("systemd-timesync")
-    CFunc.AddUserToGroup("pipewire")
-    CFunc.AddUserToGroup("colord")
-    CFunc.AddUserToGroup("nm-openconnect")
-    CFunc.AddUserToGroup("vboxsf")
-
-    # Sudoers changes
-    CFuncExt.SudoersEnvSettings()
-    # Edit sudoers to add apt.
-    sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
-    CFunc.AddLineToSudoersFile(sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
-    CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt")))
-    CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt-get")))
-
     # Modify system path
     # https://serverfault.com/questions/166383/how-set-path-for-all-users-in-debian
     logindefs_file = os.path.join("/", "etc", "login.defs")
