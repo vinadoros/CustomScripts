@@ -532,6 +532,8 @@ if 10 <= args.ostype <= 14:
     pathlib.Path(os.path.join(tempscriptfolderpath, "unattend", "meta-data")).touch(exist_ok=True)
     data['builders'][0]["boot_wait"] = "1s"
     data['builders'][0]["boot_command"] = ["<space><wait><enter><wait><f6><wait><esc><home>ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ autoinstall <enter>"]
+    # Workaround for ssh being enabled on livecd. Remove this when a method to disable ssh on livecd is found.
+    data['builders'][0]["ssh_handshake_attempts"] = "9999"
 if 15 <= args.ostype <= 19:
     data['builders'][0]["boot_command"] = ["<enter><wait><down><wait><f6><wait><esc><home>url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu.cfg hostname=ubuntu locale=en_US keyboard-configuration/modelcode=SKIP netcfg/choose_interface=auto <enter>"]
 if 30 <= args.ostype <= 39:
