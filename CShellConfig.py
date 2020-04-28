@@ -496,6 +496,8 @@ sed -i 's/#set -g history-limit 10000/set -g history-limit 10000/g' {0}
 ######### Fish Section #########
 # Check if fish exists
 if args.fish is True and shutil.which('fish'):
+    # Change to temp dir. User can't install omf if current dir is root home folder.
+    os.chdir(tempfile.gettempdir())
 
     # Test for omf
     if rootstate is True:
