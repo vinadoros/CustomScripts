@@ -233,6 +233,10 @@ if not args.bare and not args.nogui:
 # To enable or disable selinux temporarily: setenforce 1 (to enable), setenforce 0 (to disable)
 subprocess.run("sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /etc/sysconfig/selinux", shell=True)
 
+# Disable mitigations
+CFunc.dnfinstall("grubby")
+subprocess.run('grubby --update-kernel=ALL --args="mitigations=off"', shell=True)
+
 # Disable the firewall
 subprocess.run("systemctl mask firewalld", shell=True)
 

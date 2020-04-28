@@ -104,6 +104,9 @@ if args.stage == 1:
     # Disable the firewall
     subprocess.run("systemctl mask firewalld", shell=True)
 
+    # Disable mitigations
+    subprocess.run("rpm-ostree kargs --append=mitigations=off", shell=True)
+
 if args.stage == 2:
     print("Stage 2")
     rostreeinstall("rpmfusion-nonfree-appstream-data rpmfusion-free-appstream-data")
