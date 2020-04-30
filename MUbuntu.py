@@ -142,6 +142,15 @@ CFunc.aptinstall("default-jre")
 # Drivers
 CFunc.aptinstall("intel-microcode")
 
+# Sudoers changes
+CFuncExt.SudoersEnvSettings()
+# Edit sudoers to add apt.
+sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
+CFunc.AddLineToSudoersFile(sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
+CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt")))
+CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt-get")))
+CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("snap")))
+
 # Network Manager
 CFunc.aptinstall("network-manager network-manager-ssh resolvconf")
 subprocess.run("apt-get install -y network-manager-config-connectivity-ubuntu", shell=True, check=False)
@@ -259,6 +268,7 @@ if args.nogui is False and args.bare is False:
     # Flatpak
     CFunc.aptinstall("flatpak")
     CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo")
+    CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("flatpak")))
     # Visual Studio Code
     subprocess.run("""curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
     mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg""", shell=True)
@@ -328,14 +338,6 @@ if args.bare is False:
     CFunc.AddUserToGroup("colord")
     CFunc.AddUserToGroup("nm-openconnect")
     CFunc.AddUserToGroup("vboxsf")
-
-    # Sudoers changes
-    CFuncExt.SudoersEnvSettings()
-    # Edit sudoers to add apt.
-    sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
-    CFunc.AddLineToSudoersFile(sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
-    CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt")))
-    CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt-get")))
 
 # Run these extra scripts even in bare config.
 subprocess.run("{0}/CShellConfig.py -z -f -d".format(SCRIPTDIR), shell=True)

@@ -151,6 +151,14 @@ CFunc.aptinstall("avahi-daemon avahi-discover libnss-mdns")
 # Java
 CFunc.aptinstall("default-jre")
 
+# Sudoers changes
+CFuncExt.SudoersEnvSettings()
+# Edit sudoers to add apt.
+sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
+CFunc.AddLineToSudoersFile(sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
+CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt")))
+CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt-get")))
+
 # GUI programs
 if args.nogui is False:
     CFunc.aptinstall("synaptic gnome-disk-utility gdebi gparted xdg-utils")
@@ -186,6 +194,11 @@ if args.nogui is False and args.bare is False:
     CFunc.aptinstall("code")
     # Install snapd
     CFunc.aptinstall("snapd")
+    CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("snap")))
+    # Flatpak
+    CFunc.aptinstall("flatpak")
+    CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo")
+    CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("flatpak")))
 
 # Network Manager
 CFunc.aptinstall("network-manager network-manager-ssh")
@@ -280,14 +293,6 @@ CFunc.AddUserToGroup("pipewire")
 CFunc.AddUserToGroup("colord")
 CFunc.AddUserToGroup("nm-openconnect")
 CFunc.AddUserToGroup("vboxsf")
-
-# Sudoers changes
-CFuncExt.SudoersEnvSettings()
-# Edit sudoers to add apt.
-sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
-CFunc.AddLineToSudoersFile(sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
-CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt")))
-CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt-get")))
 
 if args.bare is False:
     # Modify system path
