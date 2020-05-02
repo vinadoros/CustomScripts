@@ -68,7 +68,7 @@ workfolder_default = os.path.join(USERHOME, "ubulive")
 parser = argparse.ArgumentParser(description='Build LiveCD.')
 parser.add_argument("-n", "--noprompt", help='Do not prompt.', action="store_true")
 parser.add_argument("-w", "--workfolder", help='Location of Working Folder (i.e. {0})'.format(workfolder_default), default=workfolder_default)
-parser.add_argument("-r", "--release", help='Ubuntu Release', default="bionic")
+parser.add_argument("-r", "--release", help='Ubuntu Release', default="focal")
 
 # Save arguments.
 args = parser.parse_args()
@@ -152,7 +152,8 @@ net-tools \
 wireless-tools \
 wpagui \
 locales \
-linux-generic
+linux-generic \
+memtest86+
 
 # Install CLI Software
 apt-get install -y \
@@ -179,20 +180,23 @@ whois \
 xfsprogs \
 zsh
 
+# Hold gnome packages (not needed for MATE desktop)
+apt-mark hold gnome-shell gdm3 gnome-session gnome-session-bin ubuntu-session gnome-desktop3-data gnome-control-center cheese
+
 # Install GUI software
 apt-get install -y \
 avahi-daemon \
 avahi-discover \
 caja-open-terminal \
-chromium-browser \
+firefox \
 dconf-cli \
 gnome-keyring \
 gnome-disk-utility \
 gparted \
 gvfs \
-leafpad \
 lightdm \
 mate-desktop-environment \
+ubuntu-mate-core \
 gnome-icon-theme \
 network-manager \
 network-manager-gnome \
@@ -250,10 +254,10 @@ WantedBy=graphical.target
 'EOL'
 systemctl enable updatecs.service
 
-# Run MATE Settings script on desktop startup.
-cat >"/etc/xdg/autostart/matesettings.desktop" <<"EOL"
+# Dset
+cat >"/etc/xdg/autostart/dset.desktop" <<"EOL"
 [Desktop Entry]
-Name=MATE Settings Script
+Name=Dset
 Exec=/opt/CustomScripts/Dset.sh
 Terminal=false
 Type=Application
@@ -530,3 +534,9 @@ CFunc.subpout_logger("""xorriso \
 # Set permissions of iso and log
 os.chmod(os.path.join(buildfolder, isoname), 0o777)
 os.chmod(os.path.join(buildlog_path), 0o777)
+
+if os.path.isfile(os.path.join(buildfolder, isoname)):
+    print('Run to test: "qemu-system-x86_64 -enable-kvm -m 2048 {0}"'.format(os.path.join(buildfolder, isoname)))
+else:
+    print("ERROR: Build failed, iso not found.")
+print("Build completed in :", datetime.now() - beforetime)

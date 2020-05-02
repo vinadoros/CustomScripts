@@ -4,6 +4,7 @@
 # Python includes.
 import argparse
 import os
+import shutil
 import signal
 import subprocess
 import sys
@@ -54,6 +55,7 @@ parser.add_argument("-n", "--noprompt", help='Do not prompt.', action="store_tru
 parser.add_argument("-w", "--workfolder", help='Location of Working Folder')
 parser.add_argument("-t", "--type", help='1=Ubuntu, 2=Fedora, 3=Debian', type=int, default=0)
 parser.add_argument("-r", "--release", help='Release of LiveCD')
+parser.add_argument("-c", "--clean", help='Remove ISO folder before starting.', action="store_true")
 
 # Save arguments.
 args = parser.parse_args()
@@ -66,16 +68,26 @@ buildfolder = os.path.abspath(args.workfolder)
 print("Using work folder {0}.".format(buildfolder))
 print("Type: {0}".format(args.type))
 print("Release: {0}".format(args.release))
+print("Clean: {0}".format(args.clean))
 
 if args.noprompt is False:
     input("Press Enter to continue.")
+
+workfolder = os.path.abspath(args.workfolder)
+# Clean folder.
+if os.path.isdir(workfolder) and args.clean:
+    shutil.rmtree(workfolder)
+# Create folder.
+if not os.path.isdir(workfolder):
+    os.makedirs(workfolder)
+
 
 if args.type == 1:
     print("Ubuntu")
     os.makedirs(buildfolder, mode=0o777, exist_ok=True)
     os.chmod(buildfolder, 0o777)
     docker_name = "ubuiso"
-    docker_image = "ubuntu:bionic"
+    docker_image = "ubuntu:focal"
     docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -v "{0}":"{0}"'.format(buildfolder)
     docker_destroy(docker_name)
     docker_setup(docker_image, docker_name, docker_options)
