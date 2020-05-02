@@ -25,7 +25,7 @@ parser = argparse.ArgumentParser(description='Build Fedora LiveCD.')
 parser.add_argument("-n", "--noprompt", help='Do not prompt.', action="store_true")
 parser.add_argument("-w", "--workfolderroot", help='Location of Working Folder (i.e. {0})'.format(USERHOME), default=USERHOME)
 parser.add_argument("-o", "--output", help='Output Location of ISO (i.e. {0})'.format(USERHOME), default=USERHOME)
-parser.add_argument("-r", "--releasever", help='Release Version (i.e. 31)', type=int, default=31)
+parser.add_argument("-r", "--releasever", help='Release Version (i.e. 32)', type=int, default=32)
 
 # Save arguments.
 args = parser.parse_args()
@@ -234,7 +234,7 @@ shortdate = time.strftime("%Y%m%d")
 beforetime = datetime.now()
 isoname = "Fedora-CustomLive-{0}.iso".format(currentdatetime)
 # Start Build
-subprocess.run("livemedia-creator --ks {ks} --resultdir {resultdir} --logfile {outfolder}/livemedia.log --project Fedora-CustomLive --make-iso --volid Fedora-CustomLive-{shortdate} --iso-only --iso-name {isoname} --releasever {releasever} --title Fedora-CustomLive --nomacboot --no-virt".format(ks=ks_flat, resultdir=resultsfolder, isoname=isoname, shortdate=shortdate, outfolder=outfolder, releasever=args.releasever), shell=True)
+subprocess.run("livemedia-creator --ks {ks} --resultdir {resultdir} --logfile {outfolder}/livemedia.log --project Fedora-CustomLive --make-iso --volid Fedora-CustomLive-{shortdate} --iso-only --iso-name {isoname} --releasever {releasever} --fs-label Fedora-CustomLive --nomacboot --no-virt".format(ks=ks_flat, resultdir=resultsfolder, isoname=isoname, shortdate=shortdate, outfolder=outfolder, releasever=args.releasever), shell=True)
 subprocess.run("chmod a+rw -R {0}".format(buildfolder), shell=True)
 if os.path.isfile(os.path.join(buildfolder, "results", isoname)):
     shutil.move(os.path.join(buildfolder, "results", isoname), outfolder)

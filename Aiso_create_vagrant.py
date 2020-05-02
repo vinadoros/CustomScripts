@@ -92,7 +92,7 @@ if args.type == 1:
     if isinstance(args.release, int):
         release = args.release
     else:
-        release = 31
+        release = 32
 
     # Vagrantfile for fedora iso
     vagrantfile_fed_text = """Vagrant.configure("2") do |config|
