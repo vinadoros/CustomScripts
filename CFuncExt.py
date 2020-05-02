@@ -31,7 +31,7 @@ def numix_icons(iconfolder=os.path.join(os.sep, "usr", "local", "share", "icons"
     CFunc.gitclone("https://github.com/numixproject/numix-icon-theme.git", os.path.join(iconfolder, "numix-icon-theme"))
     shutil.move(os.path.join(iconfolder, "numix-icon-theme", "Numix"), iconfolder)
     shutil.move(os.path.join(iconfolder, "numix-icon-theme", "Numix-Light"), iconfolder)
-    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
+    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme"), ignore_errors=True)
     subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "Numix")), shell=True)
     # Numix Circle Icons
     shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
