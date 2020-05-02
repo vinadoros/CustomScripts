@@ -6,12 +6,12 @@ if [ "$(id -u)" = "0" ]; then
 fi
 
 # Detect virtualbox.
-[ -z $VBOXGUEST ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1
-[ -z $VBOXGUEST ] && ! grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=0
-[ -z $QEMUGUEST ] && grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=1
-[ -z $QEMUGUEST ] && ! grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=0
-[ -z $VMWGUEST ] && grep -iq "VMware" "/sys/devices/virtual/dmi/id/product_name" && VMWGUEST=1
-[ -z $VMWGUEST ] && ! grep -iq "VMware" "/sys/devices/virtual/dmi/id/product_name" && VMWGUEST=0
+[ -z "$VBOXGUEST" ] && grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=1
+[ -z "$VBOXGUEST" ] && ! grep -iq "VirtualBox" "/sys/devices/virtual/dmi/id/product_name" && VBOXGUEST=0
+[ -z "$QEMUGUEST" ] && grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=1
+[ -z "$QEMUGUEST" ] && ! grep -iq "QEMU" "/sys/devices/virtual/dmi/id/sys_vendor" && QEMUGUEST=0
+[ -z "$VMWGUEST" ] && grep -iq "VMware" "/sys/devices/virtual/dmi/id/product_name" && VMWGUEST=1
+[ -z "$VMWGUEST" ] && ! grep -iq "VMware" "/sys/devices/virtual/dmi/id/product_name" && VMWGUEST=0
 
 # Common settings
 if type code; then
@@ -140,7 +140,9 @@ if type mate-session; then
 	dconf write /org/mate/desktop/keybindings/$BINDING/binding "'<Mod4>q'"
 	dconf write /org/mate/desktop/keybindings/$BINDING/name "'turnoffscreen'"
 	# Icon theme
-	gsettings set org.mate.interface icon-theme "Numix-Circle"
+	if [ -d "/usr/share/icons/Numix-Circle" ] || [ -d "/usr/local/share/icons/Numix-Circle" ]; then
+		gsettings set org.mate.interface icon-theme "Numix-Circle"
+	fi
 	# Fish config for mate-terminal
 	if type fish &> /dev/null; then
 		dconf write /org/mate/terminal/profiles/default/use-custom-command true
@@ -208,7 +210,9 @@ if type gnome-session; then
 	gsettings set org.gnome.desktop.datetime automatic-timezone true
 	gsettings set org.gnome.desktop.interface clock-format 12h
 	gsettings set org.gnome.desktop.interface clock-show-date true
-	gsettings set org.gnome.desktop.interface icon-theme 'Numix-Circle'
+	if [ -d "/usr/share/icons/Numix-Circle" ] || [ -d "/usr/local/share/icons/Numix-Circle" ]; then
+		gsettings set org.gnome.desktop.interface icon-theme 'Numix-Circle'
+	fi
 	gsettings set org.gnome.desktop.thumbnail-cache maximum-size 100
 	gsettings set org.gnome.desktop.thumbnail-cache maximum-age 90
 	gsettings set org.gnome.desktop.interface show-battery-percentage true
@@ -254,6 +258,7 @@ if type gnome-session; then
 		xdg-mime default org.gnome.FileRoller.desktop application/x-compressed-tar
 		xdg-mime default org.gnome.FileRoller.desktop application/x-bzip-compressed-tar
 		xdg-mime default org.gnome.FileRoller.desktop application/x-tar
+		xdg-mime default org.gnome.FileRoller.desktop application/x-xz
 	fi
 fi
 
@@ -270,9 +275,11 @@ if type kwriteconfig5; then
 	kwriteconfig5 --file kdeglobals --group KDE --key SingleClick --type bool false
 	kwriteconfig5 --file kdeglobals --group General	--key XftSubPixel "rgb"
 	# kwriteconfig5 --file kdeglobals --group General	--key fixed "Liberation Mono,10,-1,5,50,0,0,0,0,0,Regular"
-	kwriteconfig5 --file kdeglobals --group Icons --key Theme "Numix-Circle"
 	mkdir -p ~/.kde/share/config
-	kwriteconfig5 --file ~/.kde/share/config/kdeglobals --group Icons --key Theme "Numix-Circle"
+	if [ -d "/usr/share/icons/Numix-Circle" ] || [ -d "/usr/local/share/icons/Numix-Circle" ]; then
+		kwriteconfig5 --file kdeglobals --group Icons --key Theme "Numix-Circle"
+		kwriteconfig5 --file ~/.kde/share/config/kdeglobals --group Icons --key Theme "Numix-Circle"
+	fi
 	# Keyboard shortcuts
 	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomDown ",Meta+Down,Move Zoomed Area Downwards"
 	kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomLeft ",Meta+Left,Move Zoomed Area to Left"
@@ -340,9 +347,9 @@ if type kwriteconfig5; then
 	if type fish &> /dev/null; then
 		kwriteconfig5 --file konsolerc --group "Desktop Entry" --key DefaultProfile "Profile 1.profile"
 		mkdir -p ~/.local/share/konsole
-		kwriteconfig5 --file "~/.local/share/konsole/Profile 1.profile" --group "General" --key Name "Profile 1"
-		kwriteconfig5 --file "~/.local/share/konsole/Profile 1.profile" --group "General" --key Parent "FALLBACK/"
-		kwriteconfig5 --file "~/.local/share/konsole/Profile 1.profile" --group "General" --key Command "$(which fish)"
+		kwriteconfig5 --file "$HOME/.local/share/konsole/Profile 1.profile" --group "General" --key Name "Profile 1"
+		kwriteconfig5 --file "$HOME/.local/share/konsole/Profile 1.profile" --group "General" --key Parent "FALLBACK/"
+		kwriteconfig5 --file "$HOME/.local/share/konsole/Profile 1.profile" --group "General" --key Command "$(which fish)"
 	fi
 
 	if type qdbus; then
@@ -353,7 +360,9 @@ fi
 
 # Xfce settings
 if type xfconf-query; then
-	xfconf-query -c xsettings -p /Net/IconThemeName -s "Numix-Circle"
+	if [ -d "/usr/share/icons/Numix-Circle" ] || [ -d "/usr/local/share/icons/Numix-Circle" ]; then
+		xfconf-query -c xsettings -p /Net/IconThemeName -s "Numix-Circle"
+	fi
 	xfconf-query -c xsettings -p /Net/ThemeName -s "Adwaita"
 	xfconf-query -c xfwm4 -p /general/workspace_count -s 1
 	xfconf-query -c xfwm4 -p /general/theme -s "Arc-Darker"
