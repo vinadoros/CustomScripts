@@ -72,8 +72,8 @@ CFunc.dnfinstall("samba")
 subprocess.run("systemctl enable smb", shell=True)
 # cifs-utils
 CFunc.dnfinstall("cifs-utils")
-# Enable setuid for mount.cifs to enable mounting as a normal user
-subprocess.run("sudo chmod u+s /sbin/mount.cifs", shell=True)
+# Enable setuid for mount.cifs to enable mounting as a normal user: sudo chmod u+s /usr/sbin/mount.cifs
+os.chmod(os.path.join(os.sep, "usr", "sbin", "mount.cifs"), stat.S_ISUID | 0o755)
 # NTP Configuration
 subprocess.run("systemctl enable systemd-timesyncd; timedatectl set-local-rtc false; timedatectl set-ntp 1", shell=True)
 # EarlyOOM
