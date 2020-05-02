@@ -21,7 +21,7 @@ parser.add_argument("-c", "--chrootcommand", default="/bin/bash", help='Command 
 args = parser.parse_args()
 
 # Exit if not root.
-if os.geteuid() is not 0:
+if os.geteuid() != 0:
     sys.exit("\nError: Please run this script as root.\n")
 
 # Get absolute path of the given path.
