@@ -236,7 +236,7 @@ subprocess.run("sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /e
 
 # Disable mitigations
 CFunc.dnfinstall("grubby")
-subprocess.run('grubby --update-kernel=ALL --args="mitigations=off"', shell=True)
+subprocess.run('grubby --update-kernel=ALL --args="mitigations=off"', shell=True, check=True)
 
 # Disable the firewall
 subprocess.run("systemctl mask firewalld", shell=True)
