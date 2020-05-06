@@ -47,7 +47,11 @@ cron_hourly_file = os.path.join(cron_hourly_folder, reponame)
 ### Begin Code ###
 # Git pull.
 os.chdir(clonepath)
-subprocess.run(['git', 'config', 'remote.origin.url', "https://github.com/{0}.git".format(fullrepo)], check=True)
+current_remote_url = CFunc.subpout("git remote get-url origin")
+if "git@github" not in current_remote_url:
+    subprocess.run(['git', 'config', 'remote.origin.url', "https://github.com/{0}.git".format(fullrepo)], check=True)
+else:
+    print("SSH config already enabled for github remote. Not setting remote config.")
 subprocess.run(['git', 'pull'], check=True)
 
 # If variables were sourced, set remote details for comitting.
