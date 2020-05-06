@@ -80,6 +80,20 @@ def xml_insertwindowskey(key, unattendfile):
     # Write the XML file
     xml_indent(xmlkey_root)
     xmlkey_tree.write(unattendfile)
+def git_branch_retrieve():
+    """Retrieve the current branch of this script's git repo."""
+    git_branch = None
+    if shutil.which("git"):
+        os.chdir(SCRIPTDIR)
+        git_branch = CFunc.subpout("git rev-parse --abbrev-ref HEAD")
+    else:
+        git_branch = "master"
+    return git_branch
+def git_cmdline(destination=os.path.join(os.sep, "opt", "CustomScripts")):
+    """Compose the git command line to check out the repo."""
+    git_branch = git_branch_retrieve()
+    git_cmd = "git clone https://github.com/ramesh45345/CustomScripts {0} -b {1}".format(destination, git_branch)
+    return git_cmd
 
 
 # Exit if root.
@@ -506,15 +520,15 @@ data['provisioners'][0] = {}
 if 1 <= args.ostype <= 4:
     data['builders'][0]["boot_command"] = ["<tab> inst.text inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/fedora.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "dnf install -y git; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
+    data['provisioners'][0]["inline"] = "dnf install -y git; {2}; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts, git_cmdline())
 if 5 <= args.ostype <= 8:
     data['builders'][0]["boot_command"] = ["<tab> ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos8-ks.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts)
+    data['provisioners'][0]["inline"] = "{2}; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts, git_cmdline())
 if args.ostype == 9:
     data['builders'][0]["boot_command"] = ["<tab> inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/silverblue.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{0} -s 1; systemctl reboot".format(vmprovisionscript)
+    data['provisioners'][0]["inline"] = "{1}; /opt/CustomScripts/{0} -s 1; systemctl reboot".format(vmprovisionscript, git_cmdline())
     data['provisioners'][0]["expect_disconnect"] = True
     data['provisioners'].append('')
     data['provisioners'][1] = {}
@@ -524,7 +538,7 @@ if args.ostype == 9:
     data['provisioners'][1]["timeout"] = "90m"
 if 10 <= args.ostype <= 19:
     data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:{vmuser} -R ~{vmuser}; apt install -y git; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser)
+    data['provisioners'][0]["inline"] = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:{vmuser} -R ~{vmuser}; apt install -y git; {gitcmd}; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser, gitcmd=git_cmdline())
 if 10 <= args.ostype <= 14:
     # Create user-data and meta-data.
     # https://cloudinit.readthedocs.io/en/latest/topics/datasources/nocloud.html
@@ -538,14 +552,14 @@ if 15 <= args.ostype <= 19:
     data['builders'][0]["boot_command"] = ["<enter><wait><down><wait><f6><wait><esc><home>url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu.cfg hostname=ubuntu locale=en_US keyboard-configuration/modelcode=SKIP netcfg/choose_interface=auto <enter>"]
 if 30 <= args.ostype <= 39:
     data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:{vmuser} -R ~{vmuser}; apt install -y git; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser)
+    data['provisioners'][0]["inline"] = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:{vmuser} -R ~{vmuser}; apt install -y git; {gitcmd}; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser, gitcmd=git_cmdline())
     data['builders'][0]["boot_command"] = ["<esc>auto url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/debian.cfg hostname=debian locale=en_US keyboard-configuration/modelcode=SKIP netcfg/choose_interface=auto <enter>"]
 if 40 <= args.ostype <= 41:
     data['builders'][0]["boot_command"] = ["<wait2><enter><wait30><right><wait><enter><wait>dhclient -b vtnet0<enter><wait>dhclient -b em0<enter><wait10>fetch -o /tmp/installerconfig http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd<wait><enter><wait>bsdinstall script /tmp/installerconfig<wait><enter>"]
     data['provisioners'][0]["type"] = "shell"
     # Needed for freebsd: https://www.packer.io/docs/provisioners/shell.html#execute_command
     data['provisioners'][0]["execute_command"] = "chmod +x {{ .Path }}; env {{ .Vars }} {{ .Path }}"
-    data['provisioners'][0]["inline"] = '''export ASSUME_ALWAYS_YES=yes; pw useradd -n {vmuser} -m; pw usermod {vmuser} -c "{fullname}"; chpass -p '{encpass}' {vmuser}; mkdir -m 700 -p /root/.ssh; echo "{sshkey}" > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo "{sshkey}" > ~{vmuser}/.ssh/authorized_keys; chown -R {vmuser}:{vmuser} ~{vmuser}; pkg update -f; pkg install -y git python3; git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}'''.format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser, encpass=sha512_password, fullname=args.fullname)
+    data['provisioners'][0]["inline"] = '''export ASSUME_ALWAYS_YES=yes; pw useradd -n {vmuser} -m; pw usermod {vmuser} -c "{fullname}"; chpass -p '{encpass}' {vmuser}; mkdir -m 700 -p /root/.ssh; echo "{sshkey}" > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo "{sshkey}" > ~{vmuser}/.ssh/authorized_keys; chown -R {vmuser}:{vmuser} ~{vmuser}; pkg update -f; pkg install -y git python3; {gitcmd}; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}'''.format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser, encpass=sha512_password, fullname=args.fullname, gitcmd=git_cmdline())
     data['builders'][0]["shutdown_command"] = "shutdown -p now"
 if 50 <= args.ostype <= 59:
     # Reboot after initial script
