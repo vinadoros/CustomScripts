@@ -84,8 +84,10 @@ def git_branch_retrieve():
     """Retrieve the current branch of this script's git repo."""
     git_branch = None
     if shutil.which("git"):
+        original_working_folder = os.getcwd()
         os.chdir(SCRIPTDIR)
         git_branch = CFunc.subpout("git rev-parse --abbrev-ref HEAD")
+        os.chdir(original_working_folder)
     else:
         git_branch = "master"
     return git_branch
