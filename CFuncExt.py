@@ -62,6 +62,54 @@ def SudoersEnvSettings(sudoers_file=os.path.join(os.sep, "etc", "sudoers")):
         CFunc.CheckRestoreSudoersFile(sudoers_file)
     else:
         print("ERROR: {0} does not exists, not modifying sudoers.".format(sudoers_file))
+def GrubEnvAdd(grub_config_file, grub_line_detect, grub_line_add):
+    """
+    Add parameters to a given config line in the grub default config.
+    grub_config = os.path.join(os.sep, "etc", "default", "grub")
+    grub_line_detect = "GRUB_CMDLINE_LINUX_DEFAULT"
+    grub_line_add = "mitigations=off"
+    """
+    if os.path.isfile(grub_config_file):
+        if not CFunc.find_pattern_infile(grub_config_file, grub_line_add):
+            with open(grub_config_file, 'r') as sources:
+                grub_lines = sources.readlines()
+            with open(grub_config_file, mode='w') as f:
+                for line in grub_lines:
+                    # Add mitigations line.
+                    if grub_line_detect in line:
+                        line = re.sub(r'{0}="(.*)"'.format(grub_line_detect), r'{0}="\g<1> {1}"'.format(grub_line_detect, grub_line_add), line)
+                    f.write(line)
+        else:
+            print("NOTE: file {0} already modified config {1}.".format(grub_config_file, grub_line_detect))
+    else:
+        print("ERROR, file {0} does not exist.".format(grub_config_file))
+def GrubUpdate():
+    """
+    Update grub configuration, if detected.
+    """
+    grub_default_cfg = os.path.join(os.sep, "etc", "default", "grub")
+    if os.path.isfile(grub_default_cfg):
+        # Uncomment
+        subprocess.run("sed -i '/^#GRUB_TIMEOUT=.*/s/^#//g' {0}".format(grub_default_cfg), shell=True)
+        # Comment
+        subprocess.run("sed -i '/GRUB_HIDDEN_TIMEOUT/ s/^#*/#/' {0}".format(grub_default_cfg), shell=True)
+        subprocess.run("sed -i '/GRUB_HIDDEN_TIMEOUT_QUIET/ s/^#*/#/' {0}".format(grub_default_cfg), shell=True)
+        # Change timeout
+        subprocess.run("sed -i 's/GRUB_TIMEOUT=.*$/GRUB_TIMEOUT=1/g' {0}".format(grub_default_cfg), shell=True)
+        subprocess.run("sed -i 's/GRUB_HIDDEN_TIMEOUT=.*$/GRUB_HIDDEN_TIMEOUT=1/g' {0}".format(grub_default_cfg), shell=True)
+        # Update grub
+        if shutil.which("update-grub2"):
+            print("Updating grub config using update-grub2.")
+            subprocess.run("update-grub2", shell=True)
+        elif os.path.isfile(os.path.join(os.sep, "boot", "grub2", "grub.cfg")):
+            print("Updating grub config using mkconfig grub2.")
+            subprocess.run("grub2-mkconfig -o {0}".format(os.path.join(os.sep, "boot", "grub2", "grub.cfg")), shell=True)
+        elif os.path.isfile(os.path.join(os.sep, "boot", "grub", "grub.cfg")):
+            print("Updating grub config using mkconfig grub.")
+            subprocess.run("grub-mkconfig -o {0}".format(os.path.join(os.sep, "boot", "grub", "grub.cfg")), shell=True)
+        elif os.path.isfile(os.path.join(os.sep, "boot", "efi", "EFI", "fedora", "grub.cfg")):
+            print("Update fedora efi grub config.")
+            subprocess.run("grub-mkconfig -o {0}".format(os.path.join(os.sep, "boot", "efi", "EFI", "fedora", "grub.cfg")), shell=True)
 
 
 if __name__ == '__main__':

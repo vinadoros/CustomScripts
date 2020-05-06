@@ -235,6 +235,8 @@ if not args.bare and not args.nogui:
 subprocess.run("sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /etc/sysconfig/selinux", shell=True)
 
 # Disable mitigations
+CFuncExt.GrubEnvAdd(os.path.join(os.sep, "etc", "default", "grub"), "GRUB_CMDLINE_LINUX", "mitigations=off")
+CFuncExt.GrubUpdate()
 CFunc.dnfinstall("grubby")
 subprocess.run('grubby --update-kernel=ALL --args="mitigations=off"', shell=True, check=True)
 

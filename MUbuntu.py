@@ -4,7 +4,6 @@
 # Python includes.
 import argparse
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -303,17 +302,8 @@ if vmstatus == "vmware":
 subprocess.run("apt-get install -y --no-install-recommends smartmontools", shell=True)
 
 # Disable mitigations
-grub_config = os.path.join(os.sep, "etc", "default", "grub")
-if not CFunc.find_pattern_infile(grub_config, "mitigations=off"):
-    with open(grub_config, 'r') as sources:
-        grub_lines = sources.readlines()
-    with open(grub_config, mode='w') as f:
-        for line in grub_lines:
-            # Add mitigations line.
-            if "GRUB_CMDLINE_LINUX_DEFAULT" in line:
-                line = re.sub(r'GRUB_CMDLINE_LINUX_DEFAULT="(.*)"', r'GRUB_CMDLINE_LINUX_DEFAULT="\g<1> mitigations=off"', line)
-            f.write(line)
-    subprocess.run("update-grub2", shell=True)
+CFuncExt.GrubEnvAdd(os.path.join(os.sep, "etc", "default", "grub"), "GRUB_CMDLINE_LINUX_DEFAULT", "mitigations=off")
+CFuncExt.GrubUpdate()
 
 if args.bare is False:
     # Add normal user to all reasonable groups

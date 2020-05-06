@@ -92,29 +92,3 @@ echo -e $NANOCONFIG > "/root/.nanorc"
 # For user
 echo -e $NANOCONFIG > "$USERHOME/.nanorc"
 chown $USERNAMEVAR:$USERGROUP "$USERHOME/.nanorc"
-
-# Edit grub settings
-if [ -f /etc/default/grub ]; then
-	# Uncomment
-	sed -i '/^#GRUB_TIMEOUT=.*/s/^#//g' /etc/default/grub
-	# Comment
-	sed -i '/GRUB_HIDDEN_TIMEOUT/ s/^#*/#/' /etc/default/grub
-	sed -i '/GRUB_HIDDEN_TIMEOUT_QUIET/ s/^#*/#/' /etc/default/grub
-	# Change timeout
-	sed -i 's/GRUB_TIMEOUT=.*$/GRUB_TIMEOUT=1/g' /etc/default/grub
-	sed -i 's/GRUB_HIDDEN_TIMEOUT=.*$/GRUB_HIDDEN_TIMEOUT=1/g' /etc/default/grub
-	# Update grub
-	if type -P update-grub &> /dev/null; then
-		echo "Updating grub config using update-grub."
-		update-grub
-	elif [[ -f /boot/grub2/grub.cfg ]]; then
-		echo "Updating grub config using mkconfig grub2."
-		grub2-mkconfig -o /boot/grub2/grub.cfg
-	elif [[ -d /boot/grub/ ]]; then
-		echo "Updating grub config using mkconfig grub."
-		grub-mkconfig -o /boot/grub/grub.cfg
-	elif [[ -f /boot/efi/EFI/fedora/grub.cfg ]]; then
-		echo "Update fedora efi grub config."
-		grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
-	fi
-fi
