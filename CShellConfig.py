@@ -184,7 +184,8 @@ function flatpak_clean () {
     fi
 }
 function flatpak_search () {
-    if type flatpak &> /dev/null; then
+    # Don't search if using SSH.
+    if type flatpak &> /dev/null && [ -z "$SSH_CLIENT" ] || [ -z "$SSH_TTY" ]; then
         echo "Searching Flatpaks"
         flatpak search $@
     fi
