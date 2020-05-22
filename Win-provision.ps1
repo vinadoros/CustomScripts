@@ -335,6 +335,25 @@ function Fcn-Customize {
   New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel -Name AllItemsIconView -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
   New-ItemProperty -Path Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel -Name StartupPage -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
 
+  # Set max password age as unlimited
+  net accounts /MAXPWAGE:UNLIMITED
+
+  # Disable password complexity.
+  # Write the password complexity config
+  $pw_file = "$env:temp\pw.cfg"
+  $pw_file_text = '[Unicode]
+  Unicode=yes
+  [System Access]
+  PasswordComplexity = 0
+  [Version]
+  signature="$CHICAGO$"
+  Revision=1'
+  Set-Content -Path $pw_file -Value $pw_file_text
+  # Import the password complexity config
+  secedit /configure /db dummy.sdb /cfg "$pw_file" /areas SECURITYPOLICY
+  # Delete the password complexity config file
+  Remove-Item -Force -ErrorAction SilentlyContinue "$pw_file"
+
   # Remove pinned apps, like Edge and Store
   # https://stackoverflow.com/questions/45152335/unpin-the-microsoft-edge-and-store-taskbar-shortcuts-programmatically
   $appnames = "^Microsoft Edge$|^Microsoft Store$|^Mail$"
