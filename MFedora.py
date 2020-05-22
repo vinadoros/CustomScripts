@@ -103,7 +103,7 @@ if not args.nogui:
         CFunc.dnfinstall("-x chromium-libs-media-freeworld @multimedia")
         CFunc.dnfinstall("gstreamer1-vaapi")
         CFunc.dnfinstall("youtube-dl ffmpeg smplayer mpv")
-        CFunc.dnfinstall("audacious audacious-plugins")
+        CFunc.dnfinstall("audacious audacious-plugins audacious-plugins-freeworld-ffaudio audacious-plugins-freeworld")
         # Editors
         CFunc.dnfinstall("code")
         # Etcher
