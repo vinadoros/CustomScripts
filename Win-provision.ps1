@@ -339,6 +339,9 @@ function Fcn-Customize {
   net accounts /MAXPWAGE:UNLIMITED
 
   # Disable password complexity.
+  # https://www.top-password.com/blog/how-to-change-local-or-domain-password-policy-from-command-prompt/
+  # https://www.robvanderwoude.com/secedit.php
+  # To export config: secedit.exe /export /cfg secconfig.cfg
   # Write the password complexity config
   $pw_file = "$env:temp\pw.cfg"
   $pw_file_text = '[Unicode]
