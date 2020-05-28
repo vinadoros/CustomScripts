@@ -13,6 +13,7 @@ $isDotSourced = $MyInvocation.InvocationName -eq '.' -or $MyInvocation.Line -eq 
 
 
 ### Variables ###
+$PSVersionTable
 $CSRootPath = $env:USERPROFILE
 $RepoUser = "ramesh45345"
 $RepoName = "CustomScripts"
@@ -21,7 +22,7 @@ $RepoLocalPath = "$CSRootPath\$RepoName"
 $cs_userpassword = "INSERTPASSWORDHERE"
 $cs_username = "INSERTUSERHERE"
 # Check if Virtual Machine
-$VMstring = gwmi -q "select * from win32_computersystem"
+$VMstring = Get-CimInstance -ClassName Win32_ComputerSystem
 if ( $VMstring.Model -imatch "vmware" ) {
   $IsVM = $true
   $VMtype = 3
@@ -138,7 +139,7 @@ function Fcn-csauto {
 # Software Function
 function Fcn-Software {
   # Required Basics
-  choco upgrade -y dotnetfx powershell
+  choco upgrade -y dotnetfx powershell pwsh
   # Install universal apps
   choco upgrade -y 7zip
   # Libraries
@@ -201,7 +202,7 @@ function Fcn-Software {
   if ( $core -eq $false ) {
     Write-Output "Installing Desktop Apps"
     # GUI Apps
-    choco upgrade -y firefox notepadplusplus tortoisegit bleachbit putty chocolateygui conemu VisualStudioCode libreoffice-fresh sumatrapdf nomacs WizTree meld
+    choco upgrade -y firefox notepadplusplus tortoisegit bleachbit putty chocolateygui conemu VisualStudioCode libreoffice-fresh sumatrapdf okular nomacs WizTree meld
     choco upgrade -y open-shell ShutUp10
     # Tablacus
     Fcn-Tablacus

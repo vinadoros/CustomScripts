@@ -574,10 +574,8 @@ if 50 <= args.ostype <= 59:
     # Provision with generic windows script
     data['provisioners'][1]["scripts"] = [os.path.join(tempscriptfolderpath, "Win-provision.ps1")]
     data['builders'][0]["boot_command"] = ["<wait5>"]
-    # Shutdown in 4 minutes (for Windows 7, which runs the commands earlier in setup than Windows 10)
     data['builders'][0]["shutdown_command"] = "shutdown /s /t 60"
     data['builders'][0]["shutdown_timeout"] = "15m"
-    # Use ssh for communication instead of winrm (which doesn't work for vmware for some reason)
     data['builders'][0]["communicator"] = "winrm"
     data['builders'][0]["winrm_insecure"] = True
     data['builders'][0]["winrm_username"] = "{0}".format(args.vmuser)
