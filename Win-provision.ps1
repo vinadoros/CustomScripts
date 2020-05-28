@@ -13,7 +13,6 @@ $isDotSourced = $MyInvocation.InvocationName -eq '.' -or $MyInvocation.Line -eq 
 
 
 ### Variables ###
-$PSVersionTable
 $CSRootPath = $env:USERPROFILE
 $RepoUser = "ramesh45345"
 $RepoName = "CustomScripts"
