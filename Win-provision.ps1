@@ -357,6 +357,9 @@ function Fcn-Customize {
   # Delete the password complexity config file
   Remove-Item -Force -ErrorAction SilentlyContinue "$pw_file"
 
+  # Disable Ctrl-Alt-Delete on Windows Server
+  New-ItemProperty -Path Registry::HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -Name DisableCAD -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
+
   # Remove pinned apps, like Edge and Store
   # https://stackoverflow.com/questions/45152335/unpin-the-microsoft-edge-and-store-taskbar-shortcuts-programmatically
   $appnames = "^Microsoft Edge$|^Microsoft Store$|^Mail$"
