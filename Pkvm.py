@@ -337,6 +337,14 @@ if args.vmname is not None:
     vmname = args.vmname
 print("VM Name is {0}".format(vmname))
 
+# Detect Powershell command for Windows
+powershell_cmd = None
+if CFunc.is_windows():
+    if shutil.which("pwsh"):
+        powershell_cmd = "pwsh"
+    elif shutil.which("powershell"):
+        powershell_cmd = "powershell"
+
 if args.noprompt is False:
     input("Press Enter to continue.")
 
@@ -361,7 +369,7 @@ elif args.vmtype == 4:
     # https://github.com/MattHodge/PackerTemplates#building-hyper-v-images
     hyperv_switch_name = "External VM Switch"
     hyperv_mainnetadapter_name = "Ethernet"
-    hyperv_winadapters = CFunc.subpout('powershell -c "Get-NetAdapter -Name "*" | Format-List -Property "Name""')
+    hyperv_winadapters = CFunc.subpout('{0} -c "Get-NetAdapter -Name "*" | Format-List -Property "Name""'.format(powershell_cmd))
     if hyperv_switch_name not in hyperv_winadapters:
         sys.exit('HyperV network adapter "{0}" not detected. Please install before continuing.'.format(hyperv_switch_name))
 
@@ -370,10 +378,14 @@ if args.vmtype == 1:
     vboxvmlist = CFunc.subpout("VBoxManage list vms")
     if vmname in vboxvmlist:
         subprocess.run('VBoxManage unregistervm "{0}" --delete'.format(vmname), shell=True)
-elif args.vmtype == 2:
-    print("Delete KVM image.")
+# KVM VMs removed before copy below.
 elif args.vmtype == 3:
     print("Delete vmware image.")
+elif args.vmtype == 4:
+    hyperv_vmlist = CFunc.subpout('{0} -c "Get-VM"'.format(powershell_cmd))
+    if vmname in hyperv_vmlist:
+        subprocess.run('{0} -c "Stop-VM -Name {1} -TurnOff -Force"'.format(powershell_cmd, vmname), shell=True)
+        subprocess.run('{0} -c "Remove-VM -Name {1} -TurnOff -Force"'.format(powershell_cmd, vmname), shell=True)
 
 # Check iso
 if args.iso is not None:
