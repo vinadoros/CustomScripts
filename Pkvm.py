@@ -503,7 +503,7 @@ elif args.vmtype == 3:
 elif args.vmtype == 4:
     data['builders'][0]["type"] = "hyperv-iso"
     data['builders'][0]["vm_name"] = "{0}".format(vmname)
-    data['builders'][0]["ram_size"] = "{0}".format(args.memory)
+    data['builders'][0]["memory"] = "{0}".format(args.memory)
     data['builders'][0]["enable_dynamic_memory"] = True
 data['builders'][0]["shutdown_command"] = "shutdown -P now"
 data['builders'][0]["iso_url"] = "{0}".format(isopath)
