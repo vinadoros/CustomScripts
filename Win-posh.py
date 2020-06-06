@@ -27,18 +27,20 @@ args = parser.parse_args()
 
 ### Powershell Configuration ###
 # Get powershell command
-powershell_cmd = shutil.which("pwsh.exe")
+powershell_cmd = "pwsh.exe"
+powershell_cmd_fullpath = shutil.which(powershell_cmd)
 # Install powershell modules
 print("Install powershell modules.")
 subprocess.run("""Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 Install-Module -Name 'posh-git' -AllowClobber
 Install-Module -Name 'oh-my-posh' -AllowClobber
 Install-Module -Name 'Get-ChildItemColor' -AllowClobber
-""", shell=True, check=True, executable=powershell_cmd)
+""", shell=True, check=True, executable=powershell_cmd_fullpath)
 
 # Install powershell profile
-powershell_profile_folder = os.path.join(USERHOME, "PowerShell")
-powershell_profile_script = os.path.join(powershell_profile_folder, "Microsoft.PowerShell_profile.ps1")
+powershell_profile_script = CFunc.subpout('{0} -c "echo $PROFILE"'.format(powershell_cmd))
+powershell_profile_folder = os.path.dirname(powershell_profile_script)
+
 powershell_profile_text = """<#
 .SYNOPSIS
   Powershell Profile.
