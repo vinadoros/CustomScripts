@@ -356,7 +356,7 @@ function Fcn-Customize {
   Revision=1'
   Set-Content -Path $pw_file -Value $pw_file_text
   # Import the password complexity config
-  secedit /configure /db dummy.sdb /cfg "$pw_file" /areas SECURITYPOLICY
+  secedit /configure /db "$env:temp\dummy.sdb" /cfg "$pw_file" /areas SECURITYPOLICY
   # Delete the password complexity config file
   Remove-Item -Force -ErrorAction SilentlyContinue "$pw_file"
 
