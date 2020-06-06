@@ -15,30 +15,29 @@ print("Running {0}".format(__file__))
 # Folder of this script
 SCRIPTDIR = sys.path[0]
 
-# Get powershell command
-powershell_cmd = shutil.which("powershell.exe")
-
 # Get user information.
 USERNAMEVAR, USERGROUP, USERHOME = CFunc.getnormaluser()
 
 # Get arguments
-parser = argparse.ArgumentParser(description='Install Powershell configuration.')
+parser = argparse.ArgumentParser(description='Install Windows shell configuration.')
 
 # Save arguments.
 args = parser.parse_args()
 
 
+### Powershell Configuration ###
+# Get powershell command
+powershell_cmd = shutil.which("pwsh.exe")
 # Install powershell modules
 print("Install powershell modules.")
-subprocess.run("""Install-PackageProvider -Name NuGet -RequiredVersion 2.8.5.201 -Force
-Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+subprocess.run("""Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 Install-Module -Name 'posh-git' -AllowClobber
 Install-Module -Name 'oh-my-posh' -AllowClobber
 Install-Module -Name 'Get-ChildItemColor' -AllowClobber
-""", shell=True, executable=powershell_cmd)
+""", shell=True, check=True, executable=powershell_cmd)
 
 # Install powershell profile
-powershell_profile_folder = os.path.join(USERHOME, "Documents", "WindowsPowerShell")
+powershell_profile_folder = os.path.join(USERHOME, "PowerShell")
 powershell_profile_script = os.path.join(powershell_profile_folder, "Microsoft.PowerShell_profile.ps1")
 powershell_profile_text = """<#
 .SYNOPSIS
@@ -84,3 +83,17 @@ Set-Alias ls Get-ChildItemColorFormatWide -Option AllScope
 os.makedirs(powershell_profile_folder, exist_ok=True)
 with open(powershell_profile_script, 'w') as powershell_profile_script_handle:
     powershell_profile_script_handle.write(powershell_profile_text)
+
+### Cygwin ###
+# Check if cygwin is installed already.
+cygwin_bash_cmd = os.path.join("C:", "cygwin64", "bin", "bash.exe")
+if os.path.isfile(cygwin_bash_cmd):
+    # Install apt-cyg
+    subprocess.run("""cd ~/Documents
+    git clone https://github.com/kou1okada/apt-cyg.git
+    ln -s "$(realpath apt-cyg/apt-cyg)" /usr/local/bin/
+    ln -s "$(realpath apt-cyg/apt-cyg)" /usr/local/bin/apt
+    """, shell=True, check=True, executable=cygwin_bash_cmd)
+
+    # Install required packages
+    subprocess.run("apt-cyg -X install gnupg", shell=True, check=True, executable=cygwin_bash_cmd)
