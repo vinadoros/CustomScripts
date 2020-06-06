@@ -92,9 +92,14 @@ cygwin_bash_cmd = os.path.join("C:", "cygwin64", "bin", "bash.exe")
 if os.path.isfile(cygwin_bash_cmd):
     # Install apt-cyg
     subprocess.run("""cd ~/Documents
-    git clone https://github.com/kou1okada/apt-cyg.git
-    ln -s "$(realpath apt-cyg/apt-cyg)" /usr/local/bin/
-    ln -s "$(realpath apt-cyg/apt-cyg)" /usr/local/bin/apt
+    if [ ! -d apt-cyg ]; then
+        git clone https://github.com/kou1okada/apt-cyg.git
+    fi
+    cd apt-cyg
+    git checkout -f
+    git pull
+    ln -s "$(realpath apt-cyg)" /usr/local/bin/
+    ln -s "$(realpath apt-cyg)" /usr/local/bin/apt
     """, shell=True, check=True, executable=cygwin_bash_cmd)
 
     # Install required packages
