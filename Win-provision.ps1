@@ -201,8 +201,11 @@ function Fcn-Software {
   if ( $core -eq $false ) {
     Write-Output "Installing Desktop Apps"
     # GUI Apps
-    choco upgrade -y firefox notepadplusplus tortoisegit bleachbit putty chocolateygui conemu VisualStudioCode libreoffice-fresh sumatrapdf okular nomacs WizTree meld
+    choco upgrade -y firefox notepadplusplus tortoisegit bleachbit putty chocolateygui conemu microsoft-windows-terminal VisualStudioCode libreoffice-fresh sumatrapdf okular nomacs WizTree meld
     choco upgrade -y open-shell ShutUp10
+    # Set default browser.
+    choco upgrade -y setdefaultbrowser
+    SetDefaultBrowser.exe HKLM Firefox-308046B0AF4A39CB
     # Tablacus
     Fcn-Tablacus
   }
