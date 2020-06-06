@@ -389,16 +389,16 @@ else:
 bashit_path = os.path.join(repos_path, "bash-it")
 if os.access(repos_path, os.W_OK):
     CFunc.gitclone("https://github.com/Bash-it/bash-it", bashit_path)
-    subprocess.run("chmod -R a+rwx {0}".format(bashit_path), shell=True)
+    subprocess.run("chmod -R a+rwx {0}".format(bashit_path), shell=True, check=True)
 if os.path.isdir(bashit_path):
     subprocess.run("""
     [ "$(id -u)" = "0" ] && HOME={0}
     {1}/install.sh --silent
-    """.format(ROOTHOME, bashit_path), shell=True)
-    subprocess.run("""sed -i -- "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTPATH), shell=True)
+    """.format(ROOTHOME, bashit_path), shell=True, check=True)
+    subprocess.run("""sed -i -- "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTPATH), shell=True, check=True)
     if rootstate is True:
         CFunc.run_as_user(USERNAMEVAR, "{0}/install.sh --silent".format(bashit_path), shutil.which("bash"))
-        subprocess.run("""sed -i -- "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0} {1}""".format(BASHROOTSCRIPTPATH, BASHSCRIPTPATH), shell=True)
+        subprocess.run("""sed -i -- "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0} {1}""".format(BASHROOTSCRIPTPATH, BASHSCRIPTPATH), shell=True, check=True)
 
 # Install bash script
 BASHSCRIPT_VAR = open(BASHSCRIPTPATH, mode='a')
@@ -418,9 +418,9 @@ logindefs_file = os.path.join("/", "etc", "login.defs")
 if rootstate is True and distro == "Debian" and os.path.isfile(logindefs_file):
     print("Modifying {0}".format(logindefs_file))
     if CFunc.find_pattern_infile(logindefs_file, "ENV_PATH.*PATH.*{0}".format(os.path.basename(SCRIPTDIR))) is False:
-        subprocess.run("""sed -i '/^ENV_PATH.*PATH.*/ s@$@:{1}@' {0}""".format(logindefs_file, SCRIPTDIR), shell=True)
+        subprocess.run("""sed -i '/^ENV_PATH.*PATH.*/ s@$@:{1}@' {0}""".format(logindefs_file, SCRIPTDIR), shell=True, check=True)
     if CFunc.find_pattern_infile(logindefs_file, "ENV_SUPATH.*PATH.*{0}".format(os.path.basename(SCRIPTDIR))) is False:
-        subprocess.run("""sed -i '/^ENV_SUPATH.*PATH.*/ s@$@:{1}@' {0}""".format(logindefs_file, SCRIPTDIR), shell=True)
+        subprocess.run("""sed -i '/^ENV_SUPATH.*PATH.*/ s@$@:{1}@' {0}""".format(logindefs_file, SCRIPTDIR), shell=True, check=True)
 
 
 ######### Zsh Section #########
@@ -472,14 +472,14 @@ if shutil.which("tmux"):
     tmux_cfg_path = os.path.join(repos_path, ".tmux")
     # Clone tmux config repo
     CFunc.gitclone("https://github.com/gpakosz/.tmux.git", tmux_cfg_path)
-    subprocess.run("chmod -R a+rw {0}".format(tmux_cfg_path), shell=True)
+    subprocess.run("chmod -R a+rw {0}".format(tmux_cfg_path), shell=True, check=True)
     tmux_cfg_common = os.path.join(tmux_cfg_path, ".tmux.conf")
     tmux_cfg_common_local = os.path.join(tmux_cfg_path, ".tmux.conf.local")
     # Modify Local settings before copying
     subprocess.run("""sed -i 's/tmux_conf_copy_to_os_clipboard=false/tmux_conf_copy_to_os_clipboard=true/g' {0}
 sed -i 's/#set -g mouse on/set -g mouse on/g' {0}
 sed -i 's/#set -g history-limit 10000/set -g history-limit 10000/g' {0}
-""".format(tmux_cfg_common_local), shell=True)
+""".format(tmux_cfg_common_local), shell=True, check=True)
     # Rebind n and p to cycle windows
     with open(tmux_cfg_common_local, 'a') as f:
         f.write("\nbind p previous-window\nbind n next-window\n")
@@ -798,12 +798,12 @@ end
     os.chmod(FISHSCRIPTUSERPATH, 0o644)
 
     if rootstate is True:
-        subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, os.path.dirname(FISHSCRIPTUSERPATH)), shell=True)
+        subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, os.path.dirname(FISHSCRIPTUSERPATH)), shell=True, check=True)
 
 
 # Fix permissions of home folder if the script was run as root.
 if rootstate is True:
-    subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, USERVARHOME), shell=True)
+    subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, USERVARHOME), shell=True, check=True)
 
 
 ######### Default Shell Configuration #########
@@ -816,10 +816,10 @@ if args.changedefault is True and args.zsh is True:
 if rootstate is True and args.changedefault is True and default_shell_value:
     # Change shells for user.
     print("Changing shell for user {0} to {1}.".format(USERNAMEVAR, default_shell_value))
-    subprocess.run("chsh -s {0} {1}".format(default_shell_value, USERNAMEVAR), shell=True)
+    subprocess.run("chsh -s {0} {1}".format(default_shell_value, USERNAMEVAR), shell=True, check=True)
 elif rootstate is False and args.changedefault is True and default_shell_value:
     # Change the shells for this user.
-    print("Changing shell for the current user to {1}.".format(default_shell_value))
-    subprocess.run("chsh -s {0}".format(default_shell_value), shell=True)
+    print("Changing shell for the current user to {0}.".format(default_shell_value))
+    subprocess.run("chsh -s {0}".format(default_shell_value), shell=True, check=True)
 
 print("Script finished successfully.")
