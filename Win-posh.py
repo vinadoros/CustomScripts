@@ -103,4 +103,4 @@ if os.path.isfile(cygwin_bash_cmd):
     """, shell=True, check=True, executable=cygwin_bash_cmd)
 
     # Install required packages
-    subprocess.run("apt-cyg -X install gnupg", shell=True, check=True, executable=cygwin_bash_cmd)
+    subprocess.run("apt-cyg -X install wget ca-certificates gnupg", shell=True, check=True, executable=cygwin_bash_cmd)
