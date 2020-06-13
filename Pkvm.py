@@ -519,8 +519,7 @@ elif args.vmtype == 4:
     data['builders'][0]["enable_dynamic_memory"] = True
 data['builders'][0]["shutdown_command"] = "shutdown -P now"
 data['builders'][0]["iso_url"] = "{0}".format(isopath)
-data['builders'][0]["iso_checksum"] = md5
-data['builders'][0]["iso_checksum_type"] = "md5"
+data['builders'][0]["iso_checksum"] = "md5:{0}".format(md5)
 data['builders'][0]["output_directory"] = "{0}".format(vmname)
 data['builders'][0]["http_directory"] = tempunattendfolder
 data['builders'][0]["disk_size"] = "{0}".format(args.imgsize)
