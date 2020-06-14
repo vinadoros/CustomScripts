@@ -88,19 +88,24 @@ with open(powershell_profile_script, 'w') as powershell_profile_script_handle:
 
 ### Cygwin ###
 # Check if cygwin is installed already.
-cygwin_bash_cmd = os.path.join("C:", "cygwin64", "bin", "bash.exe")
+cygwin_bash_cmd = os.path.join("c:", os.sep, "cygwin64", "bin", "bash.exe")
 if os.path.isfile(cygwin_bash_cmd):
     # Install apt-cyg
-    subprocess.run("""cd ~/Documents
-    if [ ! -d apt-cyg ]; then
-        git clone https://github.com/kou1okada/apt-cyg.git
-    fi
-    cd apt-cyg
-    git checkout -f
-    git pull
-    ln -s "$(realpath apt-cyg)" /usr/local/bin/
-    ln -s "$(realpath apt-cyg)" /usr/local/bin/apt
+    documents_folder = os.path.join(USERHOME, "Documents")
+    aptcyg_folder = os.path.join(documents_folder, "apt-cyg")
+    cwd = os.getcwd()
+    if os.path.isdir(aptcyg_folder):
+        os.chdir(aptcyg_folder)
+        subprocess.run("git checkout -f", shell=True, check=True)
+        subprocess.run("git pull", shell=True, check=True)
+    else:
+        subprocess.run("git clone {0} {1}".format("https://github.com/kou1okada/apt-cyg.git", documents_folder), shell=True, check=True)
+    os.chdir(documents_folder)
+    subprocess.run("""
+    ln -sf "$(/usr/bin/realpath apt-cyg/apt-cyg)" /usr/local/bin/
+    ln -sf "$(/usr/bin/realpath apt-cyg/apt-cyg)" /usr/local/bin/apt
     """, shell=True, check=True, executable=cygwin_bash_cmd)
+    os.chdir(cwd)
 
     # Install required packages
     subprocess.run("apt-cyg -X install wget ca-certificates gnupg", shell=True, check=True, executable=cygwin_bash_cmd)
