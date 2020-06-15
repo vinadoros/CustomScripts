@@ -30,9 +30,9 @@ usernamevar, usergroup, userhome = CFunc.getnormaluser()
 CFunc.is_root(False)
 
 ########################## Functions ##########################
-def cmd_silent(cmd):
+def cmd_silent(cmd=list):
     """Run a command silently"""
-    status = subprocess.run(cmd, check=False, shell=True, stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb')).returncode
+    status = subprocess.run(cmd, check=False, shell=False, stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb')).returncode
     return status
 
 def cmd_distropkgs(cmd_type=int, enabled=bool):
@@ -57,10 +57,10 @@ def cmd_pips(cmd_type=int, enabled=bool):
     # Other Linux types
     if cmd_type == 1 or cmd_type == 3 or cmd_type == 5 and enabled is True and shutil.which("pip3"):
         subprocess.run("{0}pip3 install pylama pylama-pylint flake8".format(CFunc.sudocmd(True)), shell=True, check=True)
-def ce_ins(vscode_cmd, extension):
+def ce_ins(vscode_cmd=list, extension=str):
     """Install an extension"""
-    subprocess.run("{0} --install-extension {1} --force".format(vscode_cmd, extension), check=True, shell=True)
-def codeconfig_installext(vscode_cmd):
+    subprocess.run(vscode_cmd + ["--install-extension", extension, "--force"], check=True, shell=False)
+def codeconfig_installext(vscode_cmd=list):
     """Install vscode extensions"""
     print("\nInstalling VS Code extensions.")
     ce_ins(vscode_cmd, "ms-python.python")
@@ -71,7 +71,7 @@ def codeconfig_installext(vscode_cmd):
     ce_ins(vscode_cmd, "eamodio.gitlens")
     ce_ins(vscode_cmd, "donjayamanne.githistory")
     ce_ins(vscode_cmd, "vscode-icons-team.vscode-icons")
-def codeconfig_writeconfiguration(json_data, json_path):
+def codeconfig_writeconfiguration(json_data=dict, json_path=str):
     """Write the config.json"""
     if os.path.isdir(json_path):
         vscode_userconfig = os.path.join(json_path, "settings.json")
@@ -92,11 +92,11 @@ code_array = {}
 for idx in range(1, 6):
     code_array[idx] = {}
     code_array[idx]["en"] = [""]
-    code_array[idx]["cmd"] = [""]
+    code_array[idx]["cmd"] = []
     code_array[idx]["path"] = [""]
 
 # Native (Linux)
-code_array[1]["cmd"] = "code"
+code_array[1]["cmd"] = ["code"]
 if not CFunc.is_windows() and shutil.which("code"):
     code_array[1]["en"] = True
 else:
@@ -104,24 +104,25 @@ else:
 code_array[1]["path"] = os.path.join(userhome, ".config", "Code", "User")
 
 # Flatpak (OSS)
-code_array[2]["cmd"] = "flatpak run --command=code-oss com.visualstudio.code.oss"
-if shutil.which("flatpak") and cmd_silent("{0} -h".format(code_array[2]["cmd"])) == 0:
+code_array[2]["cmd"] = ["flatpak", "run", "--command=code-oss", "com.visualstudio.code.oss"]
+if shutil.which("flatpak") and cmd_silent(code_array[2]["cmd"] + ["-h"]) == 0:
     code_array[2]["en"] = True
 else:
     code_array[2]["en"] = False
 code_array[2]["path"] = os.path.join(userhome, ".var", "app", "com.visualstudio.code.oss", "config", "Code - OSS", "User")
 
 # Snap
-code_array[3]["cmd"] = "snap run vscode.code"
-if shutil.which("snap") and cmd_silent("{0} -h".format(code_array[3]["cmd"])) == 0:
+code_array[3]["cmd"] = ["snap", "run", "vscode.code"]
+if shutil.which("snap") and cmd_silent(code_array[3]["cmd"] + ["-h"]) == 0:
     code_array[3]["en"] = True
 else:
     code_array[3]["en"] = False
 code_array[3]["path"] = os.path.join(userhome, ".config", "Code", "User")
 
 # Windows
-code_array[4]["cmd"] = os.path.join("C:", os.sep, "Program Files", "Microsoft VS Code", "bin", "code.cmd")
-if CFunc.is_windows() and shutil.which(code_array[4]["cmd"]):
+code_array[4]["cmd"] = [os.path.join("C:", os.sep, "Program Files", "Microsoft VS Code", "bin", "code.cmd")]
+# Since the command is in an array, index the 0th element to run which on it.
+if CFunc.is_windows() and shutil.which(code_array[4]["cmd"][0]):
     code_array[4]["en"] = True
 else:
     code_array[4]["en"] = False
@@ -129,9 +130,9 @@ code_array[4]["path"] = os.path.join(userhome, "AppData", "Roaming", "Code", "Us
 
 # VSCodium
 if shutil.which("vscodium"):
-    code_array[5]["cmd"] = "vscodium"
+    code_array[5]["cmd"] = ["vscodium"]
 elif shutil.which("codium"):
-    code_array[5]["cmd"] = "codium"
+    code_array[5]["cmd"] = ["codium"]
 else:
     code_array[5]["cmd"] = None
     code_array[5]["en"] = False
@@ -157,7 +158,7 @@ print("""Enabled choices:
 for idx in range(1, 5):
     # Only process enabled options.
     if code_array[idx]["en"] is True:
-        print("Processing option {0}\n".format(idx))
+        print("\nProcessing option {0}\n".format(idx))
         # Install OS based packages
         cmd_distropkgs(idx, code_array[idx]["en"])
         # Pip Commands
