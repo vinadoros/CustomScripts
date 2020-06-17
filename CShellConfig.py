@@ -171,16 +171,19 @@ function dru () {
     echo "Executing systemd daemon-reload for user."
     systemctl --user daemon-reload
 }
+function fup () {
+    flatpak_update
+}
 function flatpak_update () {
     if type flatpak &> /dev/null; then
         echo "Updating Flatpaks"
-        $SUDOCMD flatpak update --system --assumeyes
+        flatpak update --system --assumeyes
     fi
 }
 function flatpak_clean () {
     if type flatpak &> /dev/null; then
         echo "Clean unused Flatpaks"
-        $SUDOCMD flatpak uninstall --system --delete-data --unused
+        flatpak uninstall --system --delete-data --unused
     fi
 }
 function flatpak_search () {
@@ -229,7 +232,6 @@ if type -p apt-get &> /dev/null; then
         echo "Updating and Dist-upgrading system."
         $SUDOCMD apt-get update
         $SUDOCMD apt-get dist-upgrade
-        flatpak_update
     }
 elif type dnf &> /dev/null || type yum &> /dev/null; then
     if type dnf &> /dev/null; then
@@ -264,7 +266,6 @@ elif type dnf &> /dev/null || type yum &> /dev/null; then
     function up () {
         echo "Updating system."
         $SUDOCMD $PKGMGR upgrade --refresh -y
-        flatpak_update
     }
 elif type rpm-ostree &> /dev/null; then
     function ins () {
@@ -287,7 +288,6 @@ elif type rpm-ostree &> /dev/null; then
     function up () {
         echo "Updating system."
         $SUDOCMD rpm-ostree upgrade
-        flatpak_update
     }
 fi
 
@@ -668,16 +668,19 @@ function dru
     echo "Executing systemd daemon-reload for user."
     systemctl --user daemon-reload
 end
+function fup
+    flatpak_update
+end
 function flatpak_update
     if type -q flatpak
         echo "Updating Flatpaks"
-        sudo flatpak update --system --assumeyes
+        flatpak update --system --assumeyes
     end
 end
 function flatpak_clean
     if type -q flatpak
         echo "Clean unused Flatpaks"
-        sudo flatpak uninstall --system --delete-data --unused
+        flatpak uninstall --system --delete-data --unused
     end
 end
 function flatpak_search
@@ -725,7 +728,6 @@ if type -q apt-get
         echo "Updating and Dist-upgrading system."
         sudo apt-get update
         sudo apt-get dist-upgrade
-        flatpak_update
     end
 else if type -q dnf; or type -q yum
     if type -q dnf
@@ -759,7 +761,6 @@ else if type -q dnf; or type -q yum
     function up
         echo "Updating system."
         sudo $PKGMGR update --refresh -y
-        flatpak_update
     end
 else if type -q rpm-ostree
     function ins
@@ -782,7 +783,6 @@ else if type -q rpm-ostree
     function up
         echo "Updating system."
         sudo rpm-ostree upgrade
-        flatpak_update
     end
 end
 """.format(SCRIPTDIR=SCRIPTDIR)
