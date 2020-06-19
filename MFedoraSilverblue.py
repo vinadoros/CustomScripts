@@ -7,6 +7,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 # Custom includes
 import CFunc
 import CFuncExt
@@ -21,18 +22,22 @@ SCRIPTDIR = sys.path[0]
 def rostreeupdate():
     """Update system"""
     print("\nPerforming system update.")
-    subprocess.run("rpm-ostree upgrade", shell=True)
+    subprocess.run("rpm-ostree upgrade", shell=True, check=True)
 def rostreeinstall(apps):
     """Install application(s) using rpm-ostree"""
     status = None
     print("\nInstalling {0} using rpm-ostree.".format(apps))
-    status = subprocess.run("rpm-ostree install --idempotent --allow-inactive {0}".format(apps), shell=True).returncode
+    status = subprocess.run("rpm-ostree install --idempotent --allow-inactive {0}".format(apps), shell=True, check=True).returncode
     return status
+def systemd_resostreed():
+    """Restart the rpm-ostreed service. This is needed in case it is doing something during this script operation, which would prevent the script from running. Restart the service before rpm-ostree operations."""
+    subprocess.run("systemctl restart rpm-ostreed", shell=True, check=True)
+    time.sleep(1)
 
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Install Fedora Silverblue Software.')
-parser.add_argument("-s", "--stage", help='Stage of installation to run.', type=int, default=0)
+parser.add_argument("-s", "--stage", help='Stage of installation to run (1 or 2).', type=int, default=0)
 
 # Save arguments.
 args = parser.parse_args()
@@ -57,6 +62,7 @@ if args.stage == 0:
     print("Please select a stage.")
 if args.stage == 1:
     print("Stage 1")
+    systemd_resostreed()
 
     ### Fedora Repos ###
     # RPMFusion
@@ -68,9 +74,9 @@ if args.stage == 1:
     ### OSTree Apps ###
     # Cli tools
     rostreeinstall("zsh nano tmux iotop p7zip p7zip-plugins util-linux-user fuse-sshfs redhat-lsb-core dbus-tools powerline-fonts google-roboto-fonts google-noto-sans-fonts samba smartmontools hdparm cups-pdf pulseaudio-module-zeroconf paprefs tilix tilix-nautilus syncthing numix-icon-theme numix-icon-theme-circle")
-    subprocess.run("systemctl enable sshd", shell=True)
+    subprocess.run("systemctl enable sshd", shell=True, check=True)
     # NTP Configuration
-    subprocess.run("systemctl enable systemd-timesyncd; timedatectl set-local-rtc false; timedatectl set-ntp 1", shell=True)
+    subprocess.run("systemctl enable systemd-timesyncd; timedatectl set-local-rtc false; timedatectl set-ntp 1", shell=True, check=True)
 
     # Install software for VMs
     if vmstatus == "vbox":
@@ -94,24 +100,25 @@ if args.stage == 1:
     # Flatpak setup
     CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("flatpak")))
     CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo")
-    subprocess.run('chmod -R "ugo=rwX" /var/lib/flatpak/', shell=True)
+    subprocess.run('chmod -R "ugo=rwX" /var/lib/flatpak/', shell=True, check=True)
 
     # Disable Selinux
     # To get selinux status: sestatus, getenforce
     # To enable or disable selinux temporarily: setenforce 1 (to enable), setenforce 0 (to disable)
-    subprocess.run("sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /etc/sysconfig/selinux", shell=True)
+    subprocess.run("sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /etc/sysconfig/selinux", shell=True, check=True)
 
     # Disable the firewall
-    subprocess.run("systemctl mask firewalld", shell=True)
+    subprocess.run("systemctl mask firewalld", shell=True, check=True)
 
     # Disable mitigations
-    subprocess.run("rpm-ostree kargs --append=mitigations=off", shell=True)
-
+    subprocess.run("rpm-ostree kargs --append=mitigations=off", shell=True, check=True)
+    print("Stage 1 Complete! Please reboot and run Stage 2.")
 if args.stage == 2:
     print("Stage 2")
+    systemd_resostreed()
     rostreeinstall("rpmfusion-nonfree-appstream-data rpmfusion-free-appstream-data")
     rostreeinstall("rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted")
-    subprocess.run("systemctl enable smb", shell=True)
+    subprocess.run("systemctl enable smb", shell=True, check=True)
 
     # Install gs installer script.
     gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
@@ -154,13 +161,14 @@ if args.stage == 2:
     CFunc.flatpak_install("flathub", "com.visualstudio.code.oss")
 
     # Extra scripts
-    subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CShellConfig.py -z -d".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CVMGeneral.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True, check=True)
+    subprocess.run("{0}/CShellConfig.py -z -d".format(SCRIPTDIR), shell=True, check=True)
+    subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)
+    subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True, check=True)
+    subprocess.run("{0}/CVMGeneral.py".format(SCRIPTDIR), shell=True, check=True)
+    subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True, check=True)
+    subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True, check=True)
+    subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True, check=True)
+    print("Stage 2 complete! Please reboot.")
 
 print("\nScript End")
