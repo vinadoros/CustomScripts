@@ -12,6 +12,8 @@ import shutil
 import subprocess
 import sys
 import time
+# Custom includes
+import CFunc
 
 print("Running {0}".format(__file__))
 
@@ -19,7 +21,7 @@ print("Running {0}".format(__file__))
 SCRIPTDIR = sys.path[0]
 
 # Get arguments
-parser = argparse.ArgumentParser(description='Install Docker.')
+parser = argparse.ArgumentParser(description='Install Samba Configuration.')
 parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
 parser.add_argument("-p", "--password", help='Set the password if not read from a file.', default="asdf")
 parser.add_argument("-d", "--passfilepath", help='Set the password full file path when reading from a file.', default="/var/tmp/sambapass.txt")
@@ -29,8 +31,7 @@ parser.add_argument("-f", "--force", help='Force setting the samba password.', a
 args = parser.parse_args()
 
 # Exit if not root.
-if os.geteuid() is not 0:
-    sys.exit("\nError: Please run this script as root.\n")
+CFunc.is_root(True)
 
 # Get non-root user information.
 if os.getenv("SUDO_USER") not in ["root", None]:
@@ -81,14 +82,14 @@ def addsambatext(smbconfpath, folderpath):
             print("Adding Path {0} to {1}.".format(abs_path, smbconfpath))
             with open(smbconfpath, 'a') as smbconf_write:
                 smbconf_write.write("""
-    [{0}]
-    	force user = {2}
-    	write list = {2}
-    	writeable = yes
-    	force group = {3}
-    	valid users = {2}
-    	path = {1}
-    	delete readonly = yes""".format(basename_path, abs_path, USERNAMEVAR, USERGROUP))
+[{0}]
+    force user = {2}
+    write list = {2}
+    writeable = yes
+    force group = {3}
+    valid users = {2}
+    path = {1}
+    delete readonly = yes""".format(basename_path, abs_path, USERNAMEVAR, USERGROUP))
         else:
             print("Path {0} was detected. Skipping.".format(abs_path))
 
@@ -107,7 +108,7 @@ else:
     SAMBAPASS = args.password
 
 if SAMBAPASS == "asdf":
-    print("\nWARNING: Insecure default password is used. Ensure this is what you really want.")
+    print("\nWARNING: Insecure default password is used. Ensure this is what you really want. Will proceed with insecure password if -f flag was used, otherwise will now prompt for new password.")
 
 ### Samba Password ###
 # Set samba password for given user.
@@ -121,7 +122,7 @@ if USERNAMEVAR not in pdbout or args.force is True:
         input("Press Enter to continue.")
     print("Setting samba password for {0}.".format(USERNAMEVAR))
     # Use a subprocess pipe to feed the password in.
-    pdbproc = subprocess.run(['pdbedit', '-a', '-u', USERNAMEVAR, '-t'], stdout=subprocess.PIPE, input=SAMBAPASS+"\n"+SAMBAPASS, encoding='ascii')
+    pdbproc = subprocess.run(['pdbedit', '-a', '-u', USERNAMEVAR, '-t'], stdout=subprocess.PIPE, input="{0}\n{0}".format(SAMBAPASS), encoding='ascii')
     print(pdbproc.stdout.strip())
 else:
     print("Password already set for user {0}. Skipping.".format(USERNAMEVAR))
@@ -136,7 +137,7 @@ smbconf = "/etc/samba/smb.conf"
 if os.path.isfile(smbconf):
     # Backup smb.conf
     currentdatetime = time.strftime("%Y-%m-%d_%H:%M")
-    shutil.copy2(smbconf, smbconf+".backup_"+currentdatetime)
+    shutil.copy2(smbconf, "{0}.backup_{1}".format(smbconf, currentdatetime))
     # Add home folder of non-root user.
     addsambatext(smbconf, USERHOME)
     # Add root of filesystem.
@@ -145,7 +146,7 @@ if os.path.isfile(smbconf):
     mntfolder = "/mnt"
     mntitems = os.listdir(mntfolder)
     for item in mntitems:
-        mntabspathitem = os.path.abspath(mntfolder+"/"+item)
+        mntabspathitem = os.path.abspath(os.path.join(mntfolder, item))
         if os.path.isdir(mntabspathitem):
             print("Detected {0}".format(mntabspathitem))
             addsambatext(smbconf, mntabspathitem)
@@ -155,7 +156,7 @@ if os.path.isfile(smbconf):
 nsswitchconf = "/etc/nsswitch.conf"
 if os.path.isfile(nsswitchconf) is True:
     status = subprocess.run('grep -iq "^hosts:.*mdns_minimal" {0}'.format(nsswitchconf), shell=True)
-    if status.returncode is not 0:
+    if status.returncode != 0:
         print("Adding mdns_minimal to {0}.".format(nsswitchconf))
         subprocess.run("sed -i '/^hosts:/ s=files=files mdns_minimal=' {0}".format(nsswitchconf), shell=True, check=True)
     else:
