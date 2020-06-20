@@ -279,6 +279,7 @@ if args.nogui is False and args.bare is False:
     CFunc.flatpak_install("flathub", "org.keepassxc.KeePassXC")
     CFunc.flatpak_install("flathub", "org.videolan.VLC")
     CFunc.flatpak_install("flathub", "io.github.quodlibet.QuodLibet")
+    CFunc.flatpak_install("flathub", "com.calibre_ebook.calibre")
 
 # Post-install mate configuration
 if args.desktop == "mate":

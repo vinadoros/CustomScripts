@@ -179,6 +179,7 @@ if args.type == 1 or args.type == 2:
     CFunc.flatpak_install("flathub", "org.keepassxc.KeePassXC")
     CFunc.flatpak_install("flathub", "org.videolan.VLC")
     CFunc.flatpak_install("flathub", "io.github.quodlibet.QuodLibet")
+    CFunc.flatpak_install("flathub", "com.calibre_ebook.calibre")
 
 # Disable Selinux
 # To get selinux status: sestatus, getenforce
