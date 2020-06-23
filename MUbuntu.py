@@ -244,7 +244,7 @@ if args.nogui is False and args.bare is False:
     # Cups-pdf
     CFunc.aptinstall("printer-driver-cups-pdf")
     # Media Playback
-    CFunc.aptinstall("audacious ffmpeg youtube-dl smplayer")
+    CFunc.aptinstall("ffmpeg youtube-dl smplayer")
     CFunc.aptinstall("alsa-utils pavucontrol paprefs pulseaudio-module-zeroconf pulseaudio-module-bluetooth swh-plugins")
     CFunc.aptinstall("gstreamer1.0-vaapi")
     # For Office 2010
@@ -270,6 +270,7 @@ if args.nogui is False and args.bare is False:
     CFunc.flatpak_install("flathub", "org.keepassxc.KeePassXC")
     CFunc.flatpak_install("flathub", "org.videolan.VLC")
     CFunc.flatpak_install("flathub", "io.github.quodlibet.QuodLibet")
+    CFunc.flatpak_install("flathub", "org.atheme.audacious")
     CFunc.flatpak_install("flathub", "com.calibre_ebook.calibre")
 
 # Post-install mate configuration

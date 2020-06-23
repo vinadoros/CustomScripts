@@ -103,7 +103,6 @@ if not args.nogui:
         CFunc.dnfinstall("-x chromium-libs-media-freeworld @multimedia")
         CFunc.dnfinstall("gstreamer1-vaapi")
         CFunc.dnfinstall("youtube-dl ffmpeg smplayer mpv")
-        CFunc.dnfinstall("audacious audacious-plugins audacious-plugins-freeworld-ffaudio audacious-plugins-freeworld")
         # Editors
         CFunc.dnfinstall("code")
         # Etcher
@@ -228,6 +227,7 @@ if not args.bare and not args.nogui:
     CFunc.flatpak_install("flathub", "org.keepassxc.KeePassXC")
     CFunc.flatpak_install("flathub", "org.videolan.VLC")
     CFunc.flatpak_install("flathub", "io.github.quodlibet.QuodLibet")
+    CFunc.flatpak_install("flathub", "org.atheme.audacious")
     CFunc.flatpak_install("flathub", "com.calibre_ebook.calibre")
 
 # Disable Selinux
