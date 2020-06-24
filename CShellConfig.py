@@ -183,7 +183,7 @@ function flatpak_update () {
 function flatpak_clean () {
     if type flatpak &> /dev/null; then
         echo "Clean unused Flatpaks"
-        flatpak uninstall --system --delete-data --unused
+        flatpak uninstall --system --delete-data --unused --assumeyes
     fi
 }
 function flatpak_search () {
@@ -680,7 +680,7 @@ end
 function flatpak_clean
     if type -q flatpak
         echo "Clean unused Flatpaks"
-        flatpak uninstall --system --delete-data --unused
+        flatpak uninstall --system --delete-data --unused --assumeyes
     end
 end
 function flatpak_search
