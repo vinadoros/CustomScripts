@@ -195,8 +195,6 @@ if args.desktop == "gnome":
 elif args.desktop == "kde":
     print("\n Installing kde desktop")
     CFunc.aptmark(held_pkgs)
-    CFunc.addppa("ppa:kubuntu-ppa/backports")
-    CFunc.addppa("ppa:papirus/papirus")
     CFunc.aptinstall("kubuntu-desktop")
 elif args.desktop == "neon":
     print("\n Installing kde neon desktop.")
@@ -252,8 +250,6 @@ if args.nogui is False and args.bare is False:
     # Browsers
     CFunc.aptinstall("chromium-browser firefox flashplugin-installer pepperflashplugin-nonfree")
     # Tilix
-    if args.lts is True:
-        CFunc.addppa("ppa:webupd8team/terminix")
     CFunc.aptinstall("tilix")
     # Flatpak
     CFunc.aptinstall("flatpak")
