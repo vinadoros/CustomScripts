@@ -32,7 +32,7 @@ def numix_icons(iconfolder=os.path.join(os.sep, "usr", "local", "share", "icons"
     shutil.move(os.path.join(iconfolder, "numix-icon-theme", "Numix"), iconfolder)
     shutil.move(os.path.join(iconfolder, "numix-icon-theme", "Numix-Light"), iconfolder)
     shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme"), ignore_errors=True)
-    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "Numix")), shell=True)
+    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "Numix")), shell=True, check=True)
     # Numix Circle Icons
     shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
     shutil.rmtree(os.path.join(iconfolder, "Numix-Circle"), ignore_errors=True)
@@ -41,8 +41,8 @@ def numix_icons(iconfolder=os.path.join(os.sep, "usr", "local", "share", "icons"
     shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle"), iconfolder)
     shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle-Light"), iconfolder)
     shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
-    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "Numix-Circle")), shell=True)
-    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "Numix-Circle-Light")), shell=True)
+    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "Numix-Circle")), shell=True, check=True)
+    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "Numix-Circle-Light")), shell=True, check=True)
 def SudoersEnvSettings(sudoers_file=os.path.join(os.sep, "etc", "sudoers")):
     """
     Change sudoers settings.
@@ -90,26 +90,26 @@ def GrubUpdate():
     grub_default_cfg = os.path.join(os.sep, "etc", "default", "grub")
     if os.path.isfile(grub_default_cfg):
         # Uncomment
-        subprocess.run("sed -i '/^#GRUB_TIMEOUT=.*/s/^#//g' {0}".format(grub_default_cfg), shell=True)
+        subprocess.run("sed -i '/^#GRUB_TIMEOUT=.*/s/^#//g' {0}".format(grub_default_cfg), shell=True, check=True)
         # Comment
-        subprocess.run("sed -i '/GRUB_HIDDEN_TIMEOUT/ s/^#*/#/' {0}".format(grub_default_cfg), shell=True)
-        subprocess.run("sed -i '/GRUB_HIDDEN_TIMEOUT_QUIET/ s/^#*/#/' {0}".format(grub_default_cfg), shell=True)
+        subprocess.run("sed -i '/GRUB_HIDDEN_TIMEOUT/ s/^#*/#/' {0}".format(grub_default_cfg), shell=True, check=True)
+        subprocess.run("sed -i '/GRUB_HIDDEN_TIMEOUT_QUIET/ s/^#*/#/' {0}".format(grub_default_cfg), shell=True, check=True)
         # Change timeout
-        subprocess.run("sed -i 's/GRUB_TIMEOUT=.*$/GRUB_TIMEOUT=1/g' {0}".format(grub_default_cfg), shell=True)
-        subprocess.run("sed -i 's/GRUB_HIDDEN_TIMEOUT=.*$/GRUB_HIDDEN_TIMEOUT=1/g' {0}".format(grub_default_cfg), shell=True)
+        subprocess.run("sed -i 's/GRUB_TIMEOUT=.*$/GRUB_TIMEOUT=1/g' {0}".format(grub_default_cfg), shell=True, check=True)
+        subprocess.run("sed -i 's/GRUB_HIDDEN_TIMEOUT=.*$/GRUB_HIDDEN_TIMEOUT=1/g' {0}".format(grub_default_cfg), shell=True, check=True)
         # Update grub
         if shutil.which("update-grub2"):
             print("Updating grub config using update-grub2.")
-            subprocess.run("update-grub2", shell=True)
+            subprocess.run("update-grub2", shell=True, check=True)
         elif os.path.isfile(os.path.join(os.sep, "boot", "grub2", "grub.cfg")):
             print("Updating grub config using mkconfig grub2.")
-            subprocess.run("grub2-mkconfig -o {0}".format(os.path.join(os.sep, "boot", "grub2", "grub.cfg")), shell=True)
+            subprocess.run("grub2-mkconfig -o {0}".format(os.path.join(os.sep, "boot", "grub2", "grub.cfg")), shell=True, check=True)
         elif os.path.isfile(os.path.join(os.sep, "boot", "grub", "grub.cfg")):
             print("Updating grub config using mkconfig grub.")
-            subprocess.run("grub-mkconfig -o {0}".format(os.path.join(os.sep, "boot", "grub", "grub.cfg")), shell=True)
+            subprocess.run("grub-mkconfig -o {0}".format(os.path.join(os.sep, "boot", "grub", "grub.cfg")), shell=True, check=True)
         elif os.path.isfile(os.path.join(os.sep, "boot", "efi", "EFI", "fedora", "grub.cfg")):
             print("Update fedora efi grub config.")
-            subprocess.run("grub-mkconfig -o {0}".format(os.path.join(os.sep, "boot", "efi", "EFI", "fedora", "grub.cfg")), shell=True)
+            subprocess.run("grub-mkconfig -o {0}".format(os.path.join(os.sep, "boot", "efi", "EFI", "fedora", "grub.cfg")), shell=True, check=True)
 
 
 if __name__ == '__main__':
@@ -119,6 +119,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='CFunc Extras.')
     parser.add_argument("-s", "--sudoenv", help='Sudo Environment Changes', action="store_true")
     parser.add_argument("-n", "--numix", help='Numix Circle Icons', action="store_true")
+    parser.add_argument("-g", "--grubupdate", help='Run Grub update', action="store_true")
     args = parser.parse_args()
 
     # Run functions
@@ -126,3 +127,5 @@ if __name__ == '__main__':
         numix_icons()
     if args.sudoenv:
         SudoersEnvSettings()
+    if args.grubupdate:
+        GrubUpdate()
