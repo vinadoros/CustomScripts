@@ -55,6 +55,7 @@ if args.uninstall is False:
     print("Installing libvirt")
     if shutil.which("dnf"):
         CFunc.dnfinstall("@virtualization")
+        CFunc.dnfinstall("python3-libguestfs")
         subprocess.run("systemctl enable libvirtd", shell=True)
         subprocess.run("systemctl start libvirtd", shell=True)
         subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True)
@@ -98,7 +99,7 @@ if args.uninstall is False:
     NetXMLText = """<network>
   <name>default</name>
   <forward mode='nat'/>
-  <bridge name='virbr0' stp='off'/>
+  <bridge name='virbr0' zone='trusted' stp='off'/>
   <ip address='192.168.122.1' netmask='255.255.255.0'>
     <dhcp>
       <range start='192.168.122.2' end='192.168.122.254'/>
