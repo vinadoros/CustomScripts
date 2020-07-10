@@ -6,6 +6,7 @@ import argparse
 import datetime
 import logging
 import os
+import re
 import subprocess
 import sys
 import time
@@ -18,6 +19,7 @@ SCRIPTDIR = sys.path[0]
 # Get arguments
 parser = argparse.ArgumentParser(description='Suspend on Network Inactivity.')
 parser.add_argument("-d", "--debug", help='Use Debug Logging', action="store_true")
+parser.add_argument("-s", "--idletime", help='Number of minutes before sleeping (default: %(default)s)', type=int, default=30)
 args = parser.parse_args()
 
 # Enable logging
@@ -32,38 +34,40 @@ logging.basicConfig(level=log_level, format='%(asctime)s - %(levelname)s - %(mes
 if os.geteuid() != 0:
     sys.exit("ERROR: Please run as root.")
 
-### Global Variables ###
-# Suspend Timeout (in minutes)
-suspend_idle_minutes = 20
 
 ### Functions ###
-def subpout(cmd, error_on_fail=True):
-    """Get output from subprocess"""
-    output = subprocess.run("{0}".format(cmd), shell=True, stdout=subprocess.PIPE, universal_newlines=True, check=error_on_fail).stdout.strip()
-    return output
+def grep_in_variable(variable, re_pattern):
+    """Search through a variable for a pattern."""
+    was_found = False
+    # The incoming input is expected to be raw bytes with newlines represented as \n. This uses splitlines to split the lines by newlines into an array.
+    for line in variable.splitlines():
+        # The lines are still bytes, so decode them into a string, so that line processing can occur.
+        if re.search(re_pattern, line.decode()):
+            was_found = True
+    return was_found
 def reset_timers():
     """Reset the initial timers"""
     global current_time
     global suspend_time
     current_time = datetime.datetime.now()
-    suspend_time = current_time + datetime.timedelta(minutes=suspend_idle_minutes)
+    suspend_time = current_time + datetime.timedelta(minutes=args.idletime)
 def check_idle():
     """Check if network services are not being used."""
     status = False
-    # Wait one minute before checking the services.
-    time.sleep(60)
-    # Check samba status. Use the brief output, and check the number of lines emitted by smbstatus.
-    smbstatus_lines = subpout("smbstatus -b | wc -l")
-    # The output of smbstatus brief will be 4 lines if nobody is connected. If more than 4 lines come out, it is likely someone is connected to the server.
-    if int(smbstatus_lines) > 4:
+    # Get network information.
+    netstat_output = subprocess.check_output("netstat -tupa", shell=True)
+    # Check samba status
+    samba_status = grep_in_variable(netstat_output, r"ESTABLISHED.*smbd")
+    # Check nfs status
+    nfs_status = grep_in_variable(netstat_output, r"nfs.*ESTABLISHED")
+    logging.debug("Samba Status: %s, NFS Status: %s", samba_status, nfs_status)
+    if samba_status is True or nfs_status is True:
         status = True
-    # TODO: Check nfs status
-    # nfs_status = subpout("nfsstat -s -l")
-    logging.debug("Samba lines: {0}".format(smbstatus_lines))
     return status
 
 
 ### Begin Code ###
+logging.critical("Script Started")
 reset_timers()
 while True:
     # Check if services are being used.
@@ -73,8 +77,7 @@ while True:
         reset_timers()
     else:
         current_time = datetime.datetime.now()
-
-    logging.debug("Before suspend, Current Time: {0}, Suspend Time: {1}".format(current_time, suspend_time))
+    logging.debug("Before suspend, Current Time: %s, Suspend Time: %s", current_time, suspend_time)
     # Suspend if the current time exceeds the suspend time.
     if current_time >= suspend_time:
         logging.critical("Suspending.")
@@ -84,5 +87,8 @@ while True:
         time.sleep(60)
         # If a suspend occurs, reset the timers to the startup values, and begin counting down again.
         reset_timers()
+        logging.critical("Came out of suspend.")
+    # Wait one minute before checking the services again.
+    time.sleep(60)
 
-logging.critical("\nScript Exited")
+logging.critical("Script Exited")
