@@ -81,10 +81,11 @@ while True:
     # Suspend if the current time exceeds the suspend time.
     if current_time >= suspend_time:
         logging.critical("Suspending.")
-        # Insert suspend command here.
-        subprocess.run("systemctl suspend -i", shell=True, check=True)
-        # Sleep for 1 minute.
-        time.sleep(60)
+        # Suspend the system.
+        # subprocess.run("systemctl suspend -i", shell=True, check=True)
+        subprocess.run("systemctl start systemd-suspend.service", shell=True, check=True)
+        # Sleep until the suspend cycle is finished.
+        time.sleep(20)
         # If a suspend occurs, reset the timers to the startup values, and begin counting down again.
         reset_timers()
         logging.critical("Came out of suspend.")
