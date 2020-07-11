@@ -54,14 +54,16 @@ def reset_timers():
 def check_idle():
     """Check if network services are not being used."""
     status = False
-    # Get network information.
-    netstat_output = subprocess.check_output("netstat -tupa", shell=True)
+    # Get network information. Use the -n flag to speed up output, but lose the port names and instead must check using numbers.
+    netstat_output = subprocess.check_output("netstat -tupan", shell=True)
+    # Check ssh status
+    ssh_status = grep_in_variable(netstat_output, r"ESTABLISHED.*sshd")
     # Check samba status
     samba_status = grep_in_variable(netstat_output, r"ESTABLISHED.*smbd")
-    # Check nfs status
-    nfs_status = grep_in_variable(netstat_output, r"nfs.*ESTABLISHED")
-    logging.debug("Samba Status: %s, NFS Status: %s", samba_status, nfs_status)
-    if samba_status is True or nfs_status is True:
+    # Check nfs status. NFS is usually served on port 2049.
+    nfs_status = grep_in_variable(netstat_output, r":2049.*ESTABLISHED")
+    logging.debug("Samba: %s, NFS: %s, SSH: %s", samba_status, nfs_status, ssh_status)
+    if samba_status is True or nfs_status is True or ssh_status is True:
         status = True
     return status
 
