@@ -7,6 +7,7 @@ import datetime
 import logging
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -62,8 +63,16 @@ def check_idle():
     samba_status = grep_in_variable(netstat_output, r"ESTABLISHED.*smbd")
     # Check nfs status. NFS is usually served on port 2049.
     nfs_status = grep_in_variable(netstat_output, r":2049.*ESTABLISHED")
-    logging.debug("Samba: %s, NFS: %s, SSH: %s", samba_status, nfs_status, ssh_status)
-    if samba_status is True or nfs_status is True or ssh_status is True:
+    # Check libvirt status. Inhibit suspend if any VM is running.
+    libvirt_status = False
+    libvirt_lines = 0
+    if shutil.which("virsh"):
+        libvirt_lines = int(subprocess.check_output("virsh list --state-running --name | wc -l", shell=True))
+    # Libvirt outputs 1 line if no VMs are running. Will output 2 or more if VMs are running.
+    if libvirt_lines >= 2:
+        libvirt_status = True
+    logging.debug("Samba: %s, NFS: %s, SSH: %s, libvirt: %s", samba_status, nfs_status, ssh_status, libvirt_status)
+    if samba_status is True or nfs_status is True or ssh_status is True or libvirt_status is True:
         status = True
     return status
 
