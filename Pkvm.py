@@ -232,7 +232,7 @@ if args.ostype == 11:
     vmprovision_defopts = "-x"
 if args.ostype == 12:
     vmname = "Packer-UbuntuRolling-{0}".format(hvname)
-    vmprovision_defopts = "-l -d {0} -r".format(args.desktopenv)
+    vmprovision_defopts = "-d {0} -r".format(args.desktopenv)
 if args.ostype == 15:
     vmname = "Packer-UbuntuLTS-{0}".format(hvname)
     vmprovision_defopts = "-l -d {0}".format(args.desktopenv)
