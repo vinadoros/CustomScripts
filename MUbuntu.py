@@ -20,15 +20,15 @@ SCRIPTDIR = sys.path[0]
 parser = argparse.ArgumentParser(description='Install Ubuntu Software.')
 parser.add_argument("-d", "--desktop", help='Desktop Environment (i.e. gnome, kde, mate, etc)')
 parser.add_argument("-l", "--lts", help='Configure script to run for an LTS release.', action="store_true")
-parser.add_argument("-b", "--bare", help='Configure script to set up a bare-minimum environment.', action="store_true")
 parser.add_argument("-x", "--nogui", help='Configure script to disable GUI.', action="store_true")
+parser.add_argument("-r", "--rolling", help='Set sources to devel sources (rolling).', action="store_true")
 
 # Save arguments.
 args = parser.parse_args()
 print("Desktop Environment:", args.desktop)
 print("LTS Mode:", args.lts)
-print("Bare install:", args.bare)
 print("No GUI:", args.nogui)
+print("Rolling:", args.rolling)
 
 # Exit if not root.
 CFunc.is_root(True)
@@ -46,7 +46,7 @@ print("Group Name is:", USERGROUP)
 rootacctstatus = CFunc.subpout("passwd -S root | awk '{{print $2}}'")
 if "P" not in rootacctstatus:
     print("Please set the root password.")
-    subprocess.run("passwd root", shell=True)
+    subprocess.run("passwd root", shell=True, check=True)
     print("Please rerun this script now that the root account is unlocked.")
     sys.exit(1)
 
@@ -79,7 +79,7 @@ add-apt-repository main
 add-apt-repository restricted
 add-apt-repository universe
 add-apt-repository multiverse
-""", shell=True)
+""", shell=True, check=True)
 
 # Add updates, security, and backports.
 with open(os.path.join(os.sep, "etc", "apt", "sources.list"), 'r') as VAR:
@@ -87,24 +87,28 @@ with open(os.path.join(os.sep, "etc", "apt", "sources.list"), 'r') as VAR:
     # Updates
     if not "{0}-updates main".format(debrelease) in DATA:
         print("\nAdding updates to sources.list")
-        subprocess.run('add-apt-repository "deb {URL} {DEBRELEASE}-updates main restricted universe multiverse"'.format(URL=URL, DEBRELEASE=debrelease), shell=True)
+        subprocess.run('add-apt-repository "deb {URL} {DEBRELEASE}-updates main restricted universe multiverse"'.format(URL=URL, DEBRELEASE=debrelease), shell=True, check=True)
     # Security
     if not "{0}-security main".format(debrelease) in DATA:
         print("\nAdding security to sources.list")
-        subprocess.run('add-apt-repository "deb {URL} {DEBRELEASE}-security main restricted universe multiverse"'.format(URL=URL, DEBRELEASE=debrelease), shell=True)
+        subprocess.run('add-apt-repository "deb {URL} {DEBRELEASE}-security main restricted universe multiverse"'.format(URL=URL, DEBRELEASE=debrelease), shell=True, check=True)
     # Backports
     if not "{0}-backports main".format(debrelease) in DATA:
         print("\nAdding backports to sources.list")
-        subprocess.run('add-apt-repository "deb {URL} {DEBRELEASE}-backports main restricted universe multiverse"'.format(URL=URL, DEBRELEASE=debrelease), shell=True)
+        subprocess.run('add-apt-repository "deb {URL} {DEBRELEASE}-backports main restricted universe multiverse"'.format(URL=URL, DEBRELEASE=debrelease), shell=True, check=True)
 
 # Comment out lines containing httpredir.
-subprocess.run("sed -i '/httpredir/ s/^#*/#/' /etc/apt/sources.list", shell=True)
+subprocess.run("sed -i '/httpredir/ s/^#*/#/' /etc/apt/sources.list", shell=True, check=True)
 
 # Add timeouts for repository connections
 with open('/etc/apt/apt.conf.d/99timeout', 'w') as writefile:
     writefile.write('''Acquire::http::Timeout "5";
 Acquire::https::Timeout "5";
 Acquire::ftp::Timeout "5";''')
+
+# Enable rolling if requested.
+if args.rolling:
+    CFunc.find_replace(os.path.join(os.sep, "etc", "apt"), debrelease, "devel", "sources.list")
 
 # Update and upgrade with new base repositories
 CFunc.aptupdate()
@@ -113,19 +117,18 @@ CFunc.aptdistupg()
 ### Software ###
 
 # Syncthing
-if not args.bare:
-    subprocess.run("wget -qO- https://syncthing.net/release-key.txt | apt-key add -", shell=True)
-    # Write syncthing sources list
-    with open(os.path.join(os.sep, "etc", "apt", "sources.list.d", "syncthing-release.list"), 'w') as f:
-        f.write("deb http://apt.syncthing.net/ syncthing release")
-    # Update and install syncthing:
-    CFunc.aptupdate()
-    CFunc.aptinstall("syncthing")
+subprocess.run("wget -qO- https://syncthing.net/release-key.txt | apt-key add -", shell=True, check=True)
+# Write syncthing sources list
+with open(os.path.join(os.sep, "etc", "apt", "sources.list.d", "syncthing-release.list"), 'w') as f:
+    f.write("deb http://apt.syncthing.net/ syncthing release")
+# Update and install syncthing:
+CFunc.aptupdate()
+CFunc.aptinstall("syncthing")
 
 # Cli Software
 CFunc.aptinstall("ssh tmux zsh fish btrfs-progs f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs sudo")
 # Timezone stuff
-subprocess.run("dpkg-reconfigure -f noninteractive tzdata", shell=True)
+subprocess.run("dpkg-reconfigure -f noninteractive tzdata", shell=True, check=True)
 # Needed for systemd user sessions.
 CFunc.aptinstall("dbus-user-session")
 # Samba
@@ -133,7 +136,7 @@ CFunc.aptinstall("samba cifs-utils")
 # NTP
 subprocess.run("""systemctl enable systemd-timesyncd
 timedatectl set-local-rtc false
-timedatectl set-ntp 1""", shell=True)
+timedatectl set-ntp 1""", shell=True, check=True)
 # Avahi
 CFunc.aptinstall("avahi-daemon avahi-discover libnss-mdns")
 # Java
@@ -153,13 +156,13 @@ CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USE
 # Network Manager
 CFunc.aptinstall("network-manager network-manager-ssh resolvconf")
 subprocess.run("apt-get install -y network-manager-config-connectivity-ubuntu", shell=True, check=False)
-subprocess.run("sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf", shell=True)
+subprocess.run("sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf", shell=True, check=True)
 # https://askubuntu.com/questions/882806/ethernet-device-not-managed
 with open('/etc/NetworkManager/conf.d/10-globally-managed-devices.conf', 'w') as writefile:
     writefile.write("""[keyfile]
 unmanaged-devices=none""")
 # Ensure DNS resolution is working
-subprocess.run("dpkg-reconfigure --frontend=noninteractive resolvconf", shell=True)
+subprocess.run("dpkg-reconfigure --frontend=noninteractive resolvconf", shell=True, check=True)
 # Set netplan to use Network Manager
 if os.path.isfile('/etc/netplan/01-netcfg.yaml'):
     with open('/etc/netplan/01-netcfg.yaml', 'w') as writefile:
@@ -199,8 +202,8 @@ elif args.desktop == "kde":
 elif args.desktop == "neon":
     print("\n Installing kde neon desktop.")
     CFunc.aptmark(held_pkgs)
-    subprocess.run("wget -qO - 'http://archive.neon.kde.org/public.key' | apt-key add -", shell=True)
-    subprocess.run("apt-add-repository http://archive.neon.kde.org/user", shell=True)
+    subprocess.run("wget -qO - 'http://archive.neon.kde.org/public.key' | apt-key add -", shell=True, check=True)
+    subprocess.run("apt-add-repository http://archive.neon.kde.org/user", shell=True, check=True)
     CFunc.aptupdate()
     CFunc.aptdistupg()
     CFunc.aptinstall("neon-desktop")
@@ -223,22 +226,17 @@ elif args.desktop == "cinnamon":
     print("\n Installing cinnamon desktop")
     CFunc.aptinstall("cinnamon-desktop-environment lightdm")
 
-# Post DE install stuff.
-if args.nogui is False and args.bare is False:
+# GUI Software and Post DE install stuff.
+if args.nogui is False:
     # Numix
     CFunc.addppa("ppa:numix/ppa")
     CFunc.aptinstall("numix-icon-theme-circle")
 
-# GUI Software
-if args.nogui is False:
     CFunc.aptinstall("dconf-cli dconf-editor")
     CFunc.aptinstall("synaptic gnome-disk-utility gdebi gparted xdg-utils")
     CFunc.aptinstall("fonts-powerline fonts-noto fonts-roboto")
-    subprocess.run("echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections", shell=True)
+    subprocess.run("echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections", shell=True, check=True)
     CFunc.aptinstall("ttf-mscorefonts-installer")
-
-# General GUI software
-if args.nogui is False and args.bare is False:
     # Cups-pdf
     CFunc.aptinstall("printer-driver-cups-pdf")
     # Media Playback
@@ -257,9 +255,9 @@ if args.nogui is False and args.bare is False:
     CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("flatpak")))
     # Visual Studio Code
     subprocess.run("""curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-    mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg""", shell=True)
+    mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg""", shell=True, check=True)
     # Install repo
-    subprocess.run('echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list', shell=True)
+    subprocess.run('echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list', shell=True, check=True)
     CFunc.aptupdate()
     CFunc.aptinstall("code")
     # Flatpak apps
@@ -271,7 +269,7 @@ if args.nogui is False and args.bare is False:
 
 # Post-install mate configuration
 if args.desktop == "mate":
-    subprocess.run("{0}/DExtMate.py -c".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/DExtMate.py -c".format(SCRIPTDIR), shell=True, check=True)
 
 # Install guest software for VMs
 if vmstatus == "kvm":
@@ -280,52 +278,51 @@ if vmstatus == "vbox":
     CFunc.aptinstall("virtualbox-guest-utils virtualbox-guest-dkms dkms")
     if not args.nogui:
         CFunc.aptinstall("virtualbox-guest-x11")
-    subprocess.run("gpasswd -a {0} vboxsf".format(USERNAMEVAR), shell=True)
-    subprocess.run("systemctl enable virtualbox-guest-utils", shell=True)
+    subprocess.run("gpasswd -a {0} vboxsf".format(USERNAMEVAR), shell=True, check=True)
+    subprocess.run("systemctl enable virtualbox-guest-utils", shell=True, check=True)
 if vmstatus == "vmware":
     CFunc.aptinstall("open-vm-tools open-vm-tools-dkms")
     if not args.nogui:
         CFunc.aptinstall("open-vm-tools-desktop")
 
 
-subprocess.run("apt-get install -y --no-install-recommends smartmontools", shell=True)
+subprocess.run("apt-get install -y --no-install-recommends smartmontools", shell=True, check=True)
 
 # Disable mitigations
 CFuncExt.GrubEnvAdd(os.path.join(os.sep, "etc", "default", "grub"), "GRUB_CMDLINE_LINUX_DEFAULT", "mitigations=off")
 CFuncExt.GrubUpdate()
 
-if args.bare is False:
-    # Add normal user to all reasonable groups
-    CFunc.AddUserToGroup("disk")
-    CFunc.AddUserToGroup("lp")
-    CFunc.AddUserToGroup("sudo")
-    CFunc.AddUserToGroup("cdrom")
-    CFunc.AddUserToGroup("man")
-    CFunc.AddUserToGroup("dialout")
-    CFunc.AddUserToGroup("floppy")
-    CFunc.AddUserToGroup("games")
-    CFunc.AddUserToGroup("tape")
-    CFunc.AddUserToGroup("video")
-    CFunc.AddUserToGroup("audio")
-    CFunc.AddUserToGroup("input")
-    CFunc.AddUserToGroup("kvm")
-    CFunc.AddUserToGroup("systemd-journal")
-    CFunc.AddUserToGroup("systemd-network")
-    CFunc.AddUserToGroup("systemd-resolve")
-    CFunc.AddUserToGroup("systemd-timesync")
-    CFunc.AddUserToGroup("pipewire")
-    CFunc.AddUserToGroup("colord")
-    CFunc.AddUserToGroup("nm-openconnect")
-    CFunc.AddUserToGroup("vboxsf")
+# Add normal user to all reasonable groups
+CFunc.AddUserToGroup("disk")
+CFunc.AddUserToGroup("lp")
+CFunc.AddUserToGroup("sudo")
+CFunc.AddUserToGroup("cdrom")
+CFunc.AddUserToGroup("man")
+CFunc.AddUserToGroup("dialout")
+CFunc.AddUserToGroup("floppy")
+CFunc.AddUserToGroup("games")
+CFunc.AddUserToGroup("tape")
+CFunc.AddUserToGroup("video")
+CFunc.AddUserToGroup("audio")
+CFunc.AddUserToGroup("input")
+CFunc.AddUserToGroup("kvm")
+CFunc.AddUserToGroup("systemd-journal")
+CFunc.AddUserToGroup("systemd-network")
+CFunc.AddUserToGroup("systemd-resolve")
+CFunc.AddUserToGroup("systemd-timesync")
+CFunc.AddUserToGroup("pipewire")
+CFunc.AddUserToGroup("colord")
+CFunc.AddUserToGroup("nm-openconnect")
+CFunc.AddUserToGroup("vboxsf")
 
 # Run these extra scripts even in bare config.
-subprocess.run("{0}/CShellConfig.py -z -f -d".format(SCRIPTDIR), shell=True)
-subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
-subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True)
-subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
-subprocess.run("{0}/CVMGeneral.py".format(SCRIPTDIR), shell=True)
-subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True)
-subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True)
-subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
+subprocess.run("{0}/CShellConfig.py -z -f -d".format(SCRIPTDIR), shell=True, check=True)
+subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True, check=True)
+subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)
+subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True, check=True)
+subprocess.run("{0}/CVMGeneral.py".format(SCRIPTDIR), shell=True, check=True)
+subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True, check=True)
+subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True, check=True)
+subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True, check=True)
 
 print("\nScript End")
