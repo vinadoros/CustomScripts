@@ -107,22 +107,23 @@ CPUCORES = multiprocessing.cpu_count() if multiprocessing.cpu_count() <= 4 else 
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Create a VM using packer.')
-parser.add_argument("-m", "--noprompt", help='Do not prompt to continue.', action="store_true")
-parser.add_argument("-n", "--vmname", help="Name of Virtual Machine")
-parser.add_argument("-t", "--vmtype", type=int, help="Virtual Machine type (1=Virtualbox, 2=libvirt, 3=VMWare, 4=hyperv)", default="1")
 parser.add_argument("-a", "--ostype", type=int, help="OS type", default="1")
-parser.add_argument("-f", "--fullname", help="Full Name", default="User Name")
-parser.add_argument("-i", "--iso", help="Path to live cd")
-parser.add_argument("-s", "--imgsize", type=int, help="Size of image", default=65536)
-parser.add_argument("-p", "--vmpath", help="Path of Packer output", required=True)
-parser.add_argument("-y", "--vmuser", help="VM Username", default="user")
-parser.add_argument("-z", "--vmpass", help="VM Password", default="asdf")
 parser.add_argument("-b", "--getpacker", help="Force refresh packer", action="store_true")
-parser.add_argument("-x", "--sshkey", help="SSH authorizaiton key")
-parser.add_argument("-e", "--desktopenv", help="Desktop Environment (defaults to mate)", default="mate")
 parser.add_argument("-d", "--debug", help="Enable Debug output from packer", action="store_true")
-parser.add_argument("--memory", help="Memory for VM", default="4096")
+parser.add_argument("-e", "--desktopenv", help="Desktop Environment (defaults to mate)", default="mate")
+parser.add_argument("-i", "--iso", help="Path to live cd")
+parser.add_argument("-m", "--memory", help="Memory for VM", default="4096")
+parser.add_argument("-n", "--vmname", help="Name of Virtual Machine")
+parser.add_argument("-p", "--vmpath", help="Path of Packer output", required=True)
+parser.add_argument("-q", "--headless", help='Generate Headless', action="store_true")
+parser.add_argument("-s", "--imgsize", type=int, help="Size of image", default=65536)
+parser.add_argument("-t", "--vmtype", type=int, help="Virtual Machine type (1=Virtualbox, 2=libvirt, 3=VMWare, 4=hyperv)", default="1")
+parser.add_argument("--noprompt", help='Do not prompt to continue.', action="store_true")
+parser.add_argument("--fullname", help="Full Name", default="User Name")
 parser.add_argument("--vmprovision", help="""Override provision options. Enclose options in double backslashes and quotes. Example: \\\\"-n -e 3\\\\" """)
+parser.add_argument("--vmuser", help="VM Username", default="user")
+parser.add_argument("--vmpass", help="VM Password", default="asdf")
+parser.add_argument("--sshkey", help="SSH authorizaiton key")
 
 # Save arguments.
 args = parser.parse_args()
@@ -135,6 +136,7 @@ print("VM Memory is {0}".format(args.memory))
 print("VM Hard Disk size is {0}".format(args.imgsize))
 print("VM User is {0}".format(args.vmuser))
 print("Desktop Environment:", args.desktopenv)
+print("Headless:", args.headless)
 
 # Get Packer
 if not shutil.which("packer") or args.getpacker is True:
@@ -446,6 +448,10 @@ md5 = md5sum(isopath)
 data = {}
 data['builders'] = ['']
 data['builders'][0] = {}
+if args.headless is True:
+    data['builders'][0]["headless"] = "true"
+else:
+    data['builders'][0]["headless"] = "false"
 if args.vmtype == 1:
     data['builders'][0]["type"] = "virtualbox-iso"
     data['builders'][0]["guest_os_type"] = "{0}".format(vboxosid)
@@ -464,7 +470,6 @@ if args.vmtype == 1:
     data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--accelerate3d", "on"])
     if CFunc.is_windows() is False:
         data['builders'][0]["vboxmanage_post"].append(["sharedfolder", "add", "{{.Name}}", "--name", "root", "--hostpath", "/", "--automount"])
-
     data['builders'][0]["post_shutdown_delay"] = "30s"
     if 1 <= args.ostype <= 39 or 70 <= args.ostype <= 99:
         data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--nictype1", "virtio"])
@@ -491,8 +496,6 @@ elif args.vmtype == 2:
     data['builders'][0]["qemuargs"][0] = ["-m", "{0}M".format(args.memory)]
     data['builders'][0]["qemuargs"].append(["--cpu", "host"])
     data['builders'][0]["qemuargs"].append(["--smp", "cores={0}".format(CPUCORES)])
-    # This is a temporary workaround for a bug where sdl is disabled in Debian (and therefore Ubuntu, https://github.com/hashicorp/packer/issues/6136)
-    data['builders'][0]["qemuargs"].append(["-display", "gtk"])
 elif args.vmtype == 3:
     data['builders'][0]["type"] = "vmware-iso"
     data['builders'][0]["version"] = "12"
