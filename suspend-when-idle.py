@@ -75,9 +75,15 @@ def check_idle():
     # Libvirt outputs 1 line if no VMs are running. Will output 2 or more if VMs are running.
     if libvirt_lines >= 2:
         libvirt_status = True
-    inhibit_string += "libvirt: {0}".format(libvirt_status)
+    inhibit_string += "libvirt: {0}, ".format(libvirt_status)
+    # Check if packer is running
+    if subprocess.run("pgrep packer", shell=True, check=False, stdout=subprocess.DEVNULL).returncode() == 0:
+        packer_status = True
+    else:
+        packer_status = False
+    inhibit_string += "Packer: {0}".format(packer_status)
     logging.info(inhibit_string)
-    if samba_status is True or nfs_status is True or ssh_status is True or libvirt_status is True:
+    if samba_status is True or nfs_status is True or ssh_status is True or libvirt_status is True or packer_status is True:
         status = True
     return status
 
