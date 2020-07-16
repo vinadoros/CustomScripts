@@ -100,9 +100,6 @@ def check_idle():
     inhibit_string = ""
     # Get network information. Use the -n flag to speed up output, but lose the port names and instead must check using numbers.
     netstat_output = subprocess.check_output("netstat -tupan", shell=True)
-    # Check ssh status
-    ssh_status = grep_in_variable(netstat_output, r"ESTABLISHED.*sshd")
-    inhibit_string += "SSH: {0}, ".format(ssh_status)
     # Check samba status
     samba_status = grep_in_variable(netstat_output, r"ESTABLISHED.*smbd")
     inhibit_string += "Samba: {0}, ".format(samba_status)
@@ -131,7 +128,7 @@ def check_idle():
         hdidle_status = False
     inhibit_string += "HD Idle: {0}".format(hdidle_status)
     logging.info(inhibit_string)
-    if samba_status is True or nfs_status is True or ssh_status is True or libvirt_status is True or packer_status is True or hdidle_status is True:
+    if samba_status is True or nfs_status is True or libvirt_status is True or packer_status is True or hdidle_status is True:
         status = True
     return status
 
