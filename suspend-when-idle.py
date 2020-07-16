@@ -133,6 +133,10 @@ def check_idle():
     return status
 
 
+# Global variables
+current_time_saved = datetime.datetime.now()
+loop_delay_seconds = 60
+
 ### Begin Code ###
 logging.info("Script Started")
 reset_timers()
@@ -144,7 +148,12 @@ while True:
         reset_timers()
     else:
         current_time = datetime.datetime.now()
-    logging.info("Minutes until suspend: %s", ((suspend_time - current_time).total_seconds() / 60))
+    # If the current timer has elapsed more than 3 times the loop timer, then forcibly reset the timers. This means that the script was not counting, perhaps due to an external sleep event.
+    current_time_diff = (current_time - current_time_saved).total_seconds() / 60
+    logging.debug("Current Time vs Saved Time diff: %s seconds", round(current_time_diff, 2))
+    if current_time_diff >= (3 * loop_delay_seconds):
+        reset_timers()
+    logging.info("Minutes until suspend: %s", round(((suspend_time - current_time).total_seconds() / 60), 2))
     # Suspend if the current time exceeds the suspend time.
     if current_time >= suspend_time:
         logging.info("Suspending.")
@@ -157,6 +166,7 @@ while True:
         reset_timers()
         logging.info("Came out of suspend.")
     # Wait one minute before checking the services again.
-    time.sleep(60)
+    current_time_saved = datetime.datetime.now()
+    time.sleep(loop_delay_seconds)
 
 logging.info("Script Exited")
