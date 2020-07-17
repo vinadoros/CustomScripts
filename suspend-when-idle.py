@@ -68,13 +68,12 @@ def hdstats_get():
     diskstats = open('/proc/diskstats', 'r').read()
     diskstats_array = []
     for l in diskstats.splitlines():
+        diskstats_parts = l.split()
         # Exclude devices listed in the blacklist.
-        if any(dev_item not in l for dev_item in dev_blacklist):
-            diskstats_parts = l.split()
-            # The 2nd field is 0 for disks, and greater than 0 for partitions.
-            if int(diskstats_parts[1]) == 0:
-                # Save the read and write completion stats. Sector reads is field 3 after the device name and sector writes are field 8. Convert the reads and writes to kilobytes, assuming 512 byte sector size according to kernel docs. Therefore convert to kb by dividing by 2.
-                diskstats_array.append([int(int(diskstats_parts[5]) / 2), int(int(diskstats_parts[10]) / 2)])
+        if not any(dev_item in diskstats_parts[2] for dev_item in dev_blacklist):
+            print(diskstats_parts[2])
+            # Save the read and write completion stats. Sector reads is field 3 after the device name and sector writes are field 8. Convert the reads and writes to kilobytes, assuming 512 byte sector size according to kernel docs. Therefore convert to kb by dividing by 2.
+            diskstats_array.append([int(int(diskstats_parts[5]) / 2), int(int(diskstats_parts[10]) / 2)])
 
     # Sum the stats for all devices.
     diskstats_readkb_total = 0
