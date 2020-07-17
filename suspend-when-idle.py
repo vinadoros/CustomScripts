@@ -21,6 +21,7 @@ SCRIPTDIR = sys.path[0]
 parser = argparse.ArgumentParser(description='Suspend on Network Inactivity.')
 parser.add_argument("-d", "--debug", help='Use Debug Logging', action="store_true")
 parser.add_argument("-s", "--idletime", help='Number of minutes before sleeping (default: %(default)s)', type=int, default=30)
+parser.add_argument("-t", "--diskthreshold", help='Disk threshold for idleness (in kb, default: %(default)s)', type=float, default=100.0)
 args = parser.parse_args()
 
 # Enable logging
@@ -81,7 +82,7 @@ def hdstats_get():
         diskstats_writekb_total += i[1]
     diskstats_sum_current = [diskstats_readkb_total, diskstats_writekb_total]
     return diskstats_sum_current
-def check_hd_used_once(throughput_threshold: float = 500.0):
+def check_hd_used_once(throughput_threshold: float = 100.0):
     """Check if disks are being used."""
     disks_are_used = False
     diskstats_first = hdstats_get()
@@ -101,7 +102,7 @@ def check_hd_used_multiple(num_times: int = 5):
     # Loop through the list
     for l in range(0, num_times):
         # Add one to the counter if it was used.
-        if check_hd_used_once() is True:
+        if check_hd_used_once(args.diskthreshold) is True:
             disk_used_numtrue += 1
     logging.debug("Disk Checks Idle: %s, Total: %s", disk_used_numtrue, num_times)
     # If the disk was used more than half the times checked, it was in use.
