@@ -97,38 +97,38 @@ def check_hd_used_multiple(num_times: int = 5):
 def check_idle():
     """Check if network services are not being used."""
     status = False
+    statuses = {}
     inhibit_string = ""
     # Get network information. Use the -n flag to speed up output, but lose the port names and instead must check using numbers.
     netstat_output = subprocess.check_output("netstat -tupan", shell=True)
     # Check samba status
-    samba_status = grep_in_variable(netstat_output, r"ESTABLISHED.*smbd")
-    inhibit_string += "Samba: {0}, ".format(samba_status)
+    statuses['samba'] = grep_in_variable(netstat_output, r"ESTABLISHED.*smbd")
     # Check nfs status. NFS is usually served on port 2049.
-    nfs_status = grep_in_variable(netstat_output, r":2049.*ESTABLISHED")
-    inhibit_string += "NFS: {0}, ".format(nfs_status)
+    statuses['nfs'] = grep_in_variable(netstat_output, r":2049.*ESTABLISHED")
     # Check libvirt status. Inhibit suspend if any VM is running.
-    libvirt_status = False
+    statuses['libvirt'] = False
     libvirt_lines = 0
     if shutil.which("virsh"):
         libvirt_lines = int(subprocess.check_output("virsh list --state-running --name | wc -l", shell=True))
     # Libvirt outputs 1 line if no VMs are running. Will output 2 or more if VMs are running.
     if libvirt_lines >= 2:
-        libvirt_status = True
-    inhibit_string += "libvirt: {0}, ".format(libvirt_status)
+        statuses['libvirt'] = True
     # Check if packer is running
     if subprocess.run("pgrep packer", shell=True, check=False, stdout=subprocess.DEVNULL).returncode == 0:
-        packer_status = True
+        statuses['packer'] = True
     else:
-        packer_status = False
-    inhibit_string += "Packer: {0}, ".format(packer_status)
+        statuses['packer'] = False
     # HD Idle time
     if check_hd_used_multiple():
-        hdidle_status = True
+        statuses['hdidle'] = True
     else:
-        hdidle_status = False
-    inhibit_string += "HD Idle: {0}".format(hdidle_status)
+        statuses['hdidle'] = False
+    # Build log string
+    for item in statuses:
+        inhibit_string += "{0}: {1} ".format(item, statuses[item])
     logging.info(inhibit_string)
-    if samba_status is True or nfs_status is True or libvirt_status is True or packer_status is True or hdidle_status is True:
+    # Loop through all statuses for general status. The any() function will use the true if branch if any option is true. In this case, if any of the statuses is True, set the general status to true.
+    if any(statuses[st] is True for st in statuses):
         status = True
     return status
 
