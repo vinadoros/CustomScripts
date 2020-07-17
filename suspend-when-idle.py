@@ -36,7 +36,7 @@ if os.geteuid() != 0:
     sys.exit("ERROR: Please run as root.")
 
 # Ensure that certain commands exist.
-cmdcheck = ["systemctl", "netstat", "iotop"]
+cmdcheck = ["systemctl", "netstat"]
 for cmd in cmdcheck:
     if not shutil.which(cmd):
         sys.exit("\nError, ensure command {0} is installed.".format(cmd))
@@ -58,24 +58,43 @@ def reset_timers():
     global suspend_time
     current_time = datetime.datetime.now()
     suspend_time = current_time + datetime.timedelta(minutes=args.idletime)
+def hdstats_get():
+    """Retrieve disk statistics once from kernel interface."""
+    # Blacklist of device terms
+    dev_blacklist = ["loop", "zram"]
+    # https://www.kernel.org/doc/html/latest/admin-guide/iostats.html
+    # https://www.kernel.org/doc/html/latest/block/stat.html
+    # Read the iostats from the kernel.
+    diskstats = open('/proc/diskstats', 'r').read()
+    diskstats_array = []
+    for l in diskstats.splitlines():
+        # Exclude devices listed in the blacklist.
+        if any(dev_item not in l for dev_item in dev_blacklist):
+            diskstats_parts = l.split()
+            # The 2nd field is 0 for disks, and greater than 0 for partitions.
+            if int(diskstats_parts[1]) == 0:
+                # Save the read and write completion stats. Sector reads is field 3 after the device name and sector writes are field 8. Convert the reads and writes to kilobytes, assuming 512 byte sector size according to kernel docs. Therefore convert to kb by dividing by 2.
+                diskstats_array.append([int(int(diskstats_parts[5]) / 2), int(int(diskstats_parts[10]) / 2)])
+
+    # Sum the stats for all devices.
+    diskstats_readkb_total = 0
+    diskstats_writekb_total = 0
+    for i in diskstats_array:
+        diskstats_readkb_total += i[0]
+        diskstats_writekb_total += i[1]
+    diskstats_sum_current = [diskstats_readkb_total, diskstats_writekb_total]
+    return diskstats_sum_current
 def check_hd_used_once(throughput_threshold: float = 500.0):
     """Check if disks are being used."""
     disks_are_used = False
-    iotop_output = subprocess.check_output("iotop --batch --kilobytes --iter 1 --only -qq", shell=True)
-    iotop_parts = []
-    for line in iotop_output.splitlines():
-        # Split the fields using a space as the delimiter.
-        iotop_parts += line.decode().rstrip("\n").split()
-    # Save iotop numerical fields
-    iotop_totalread = float(iotop_parts[4])
-    iotop_totalwrite = float(iotop_parts[11])
-    iotop_actualread = float(iotop_parts[16])
-    iotop_actualwrite = float(iotop_parts[22])
-    logging.debug("Disk Total Read: %s, Write: %s, Actual Read: %s, Write: %s", iotop_totalread, iotop_totalwrite, iotop_actualread, iotop_actualwrite)
-    if iotop_totalread >= throughput_threshold or \
-       iotop_totalwrite >= throughput_threshold or \
-       iotop_actualread >= throughput_threshold or \
-       iotop_actualwrite >= throughput_threshold:
+    diskstats_first = hdstats_get()
+    time.sleep(1)
+    diskstats_second = hdstats_get()
+    diskstats_read_delta = diskstats_second[0] - diskstats_first[0]
+    diskstats_write_delta = diskstats_second[1] - diskstats_first[1]
+    logging.debug("Disk Read (kb): %s, Write: %s", diskstats_read_delta, diskstats_write_delta)
+    if diskstats_read_delta >= throughput_threshold or \
+       diskstats_write_delta >= throughput_threshold:
         disks_are_used = True
     return disks_are_used
 def check_hd_used_multiple(num_times: int = 5):
@@ -84,8 +103,6 @@ def check_hd_used_multiple(num_times: int = 5):
     disk_used_numtrue = 0
     # Loop through the list
     for l in range(0, num_times):
-        # Wait before l in each sample.
-        time.sleep(0.5)
         # Add one to the counter if it was used.
         if check_hd_used_once() is True:
             disk_used_numtrue += 1
