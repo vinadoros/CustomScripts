@@ -172,9 +172,18 @@ while True:
     # Suspend if the current time exceeds the suspend time.
     if current_time >= suspend_time:
         logging.info("Suspending.")
-        # Suspend the system.
-        # subprocess.run("systemctl suspend -i", shell=True, check=True)
-        subprocess.run("systemctl start systemd-suspend.service", shell=True, check=True)
+        # Log the time before suspending.
+        current_time_beforesuspend = datetime.datetime.now()
+        while True:
+            # Check if the system resumed too quickly. If the current time is within 90 seconds of sleeping, then the system came out of suspend too quickly.
+            current_time_aftersuspend = datetime.datetime.now()
+            if (current_time_aftersuspend - current_time_beforesuspend).total_seconds() < 90:
+                # Suspend the system.
+                subprocess.run("systemctl suspend -i", shell=True, check=True)
+                time.sleep(10)
+            else:
+                # Escape this loop after 90 seconds, in case of continued suspending.
+                break
         # Sleep until the suspend cycle is finished.
         time.sleep(20)
         # If a suspend occurs, reset the timers to the startup values, and begin counting down again.
