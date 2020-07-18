@@ -26,11 +26,10 @@ args = parser.parse_args()
 
 # Enable logging
 if args.debug:
-    log_level = logging.DEBUG
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(message)s')
 else:
-    log_level = logging.INFO
+    logging.basicConfig(level=logging.INFO, format='%(message)s')
 
-logging.basicConfig(level=log_level, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Check if not running as root.
 if os.geteuid() != 0:
@@ -150,36 +149,33 @@ def check_idle():
 
 # Global variables
 current_time_saved = datetime.datetime.now()
-loop_delay_seconds = 60
+loop_delay_seconds = 30
 
 ### Begin Code ###
 logging.info("Script Started")
 reset_timers()
 while True:
-    # Check if services are being used.
-    services_are_used = check_idle()
-    # If services are being used, reset the suspend timer.
-    if services_are_used is True:
-        reset_timers()
-    else:
-        current_time = datetime.datetime.now()
+    current_time = datetime.datetime.now()
     # If the current timer has elapsed more than 3 times the loop timer, then forcibly reset the timers. This means that the script was not counting, perhaps due to an external sleep event.
     current_time_diff = (current_time - current_time_saved).total_seconds() / 60
     logging.debug("Current Time vs Saved Time diff: %s seconds", round(current_time_diff, 2))
     if current_time_diff >= (3 * loop_delay_seconds):
         reset_timers()
+    # Check if services are being used. If services are being used, reset the suspend timer.
+    if check_idle() is True:
+        reset_timers()
     logging.info("Minutes until suspend: %s", round(((suspend_time - current_time).total_seconds() / 60), 2))
     # Suspend if the current time exceeds the suspend time.
     if current_time >= suspend_time:
-        logging.info("Suspending.")
         # Log the time before suspending.
         current_time_beforesuspend = datetime.datetime.now()
         while True:
             # Check if the system resumed too quickly. If the current time is within 90 seconds of sleeping, then the system came out of suspend too quickly.
             current_time_aftersuspend = datetime.datetime.now()
             if (current_time_aftersuspend - current_time_beforesuspend).total_seconds() < 90:
+                logging.info("Suspending.")
                 # Suspend the system.
-                subprocess.run("systemctl suspend -i", shell=True, check=True)
+                subprocess.run("systemctl start systemd-suspend.service", shell=True, check=True)
                 time.sleep(10)
             else:
                 # Escape this loop after 90 seconds, in case of continued suspending.
@@ -189,8 +185,8 @@ while True:
         # If a suspend occurs, reset the timers to the startup values, and begin counting down again.
         reset_timers()
         logging.info("Came out of suspend.")
-    # Wait one minute before checking the services again.
+    # Wait before checking the services again. Wait the specified time minus the amount of time the loop took to run.
     current_time_saved = datetime.datetime.now()
-    time.sleep(loop_delay_seconds)
+    time.sleep(loop_delay_seconds - (current_time_saved - current_time).total_seconds())
 
 logging.info("Script Exited")
