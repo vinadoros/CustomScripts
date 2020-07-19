@@ -50,5 +50,4 @@ if args.noprompt is False:
 
 subprocess.run("wget https://gitlab.manjaro.org/packages/core/pacman/-/raw/master/pacman.conf.x86_64?inline=false -O /pacman-aarch64.conf", shell=True, check=True)
 subprocess.run("echo 'Server = http://www.gtlib.gatech.edu/pub/manjaro/stable/$repo/$arch' > /etc/pacman.d/mirrorlist", shell=True, check=True)
-subprocess.run("pacman -Sy --noconfirm archlinux-keyring manjaro-keyring", shell=True, check=True)
-subprocess.run("pacstrap -i -G -C /pacman-aarch64.conf {0} base manjaro-system manjaro-release systemd systemd-libs linux56".format(absinstallpath), shell=True, check=True)
+subprocess.run("pacstrap -G -C /pacman-aarch64.conf {0} base manjaro-system manjaro-release systemd systemd-libs linux56".format(absinstallpath), shell=True, check=True)
