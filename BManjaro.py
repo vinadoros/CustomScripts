@@ -17,12 +17,14 @@ SCRIPTDIR = sys.path[0]
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Install Debian/Ubuntu into a folder/chroot.')
-parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
+
 parser.add_argument("-c", "--hostname", help='Hostname', default="ManjaroTest")
-parser.add_argument("-u", "--username", help='Username', default="user")
 parser.add_argument("-f", "--fullname", help='Full Name', default="User Name")
-parser.add_argument("-q", "--password", help='Password', default="asdf")
 parser.add_argument("-i", "--grubpartition", help='Grub Custom Parition (if autodetection isnt working, i.e. /dev/sdb)', default=None)
+parser.add_argument("-l", "--linuxpkg", help='Linux package to install (default: %(default)s)', default="linux56")
+parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
+parser.add_argument("-q", "--password", help='Password', default="asdf")
+parser.add_argument("-u", "--username", help='Username', default="user")
 parser.add_argument("installpath", help='Path of Installation')
 
 # Save arguments.
@@ -57,7 +59,7 @@ subprocess.run("echo 'Server = http://www.gtlib.gatech.edu/pub/manjaro/stable/$r
 # Install the manjaro keyring
 subprocess.run("pacman -Syy --noconfirm manjaro-keyring archlinux-keyring", shell=True, check=True)
 # Run pacstrap
-subprocess.run("pacstrap -G {0} base manjaro-system manjaro-release systemd systemd-libs linux56".format(absinstallpath), shell=True, check=True)
+subprocess.run("pacstrap -G {0} base manjaro-system manjaro-release systemd systemd-libs {1}".format(absinstallpath, args.linuxpkg), shell=True, check=True)
 # Generate fstab
 subprocess.run("genfstab -U {0} > {0}/etc/fstab".format(absinstallpath), shell=True, check=True)
 
