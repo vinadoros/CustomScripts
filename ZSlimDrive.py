@@ -7,6 +7,8 @@ import os
 import sys
 import subprocess
 import stat
+# Custom includes
+import CFunc
 
 # Globals
 SCRIPTDIR = sys.path[0]
@@ -39,8 +41,7 @@ blocksizeMB = int(blocksize / 1000000)
 print("Size of Block Device: {0} MB".format(blocksizeMB))
 
 # Exit if not root.
-if os.geteuid() is not 0:
-    sys.exit("\nError: Please run this script as root.\n")
+CFunc.is_root(True)
 
 if args.noprompt is False:
     input("Press Enter to continue.")
