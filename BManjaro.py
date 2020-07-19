@@ -55,6 +55,6 @@ subprocess.run("sed -i 's/^SigLevel\s*=.*/SigLevel = Never/g' /etc/pacman.conf",
 # Add a Manjaro mirror
 subprocess.run("echo 'Server = http://www.gtlib.gatech.edu/pub/manjaro/stable/$repo/$arch' > /etc/pacman.d/mirrorlist", shell=True, check=True)
 # Install the manjaro keyring
-subprocess.run("pacman -Syy manjaro-keyring archlinux-keyring", shell=True, check=True)
+subprocess.run("pacman -Syy --noconfirm manjaro-keyring archlinux-keyring", shell=True, check=True)
 # Run pacstrap
-subprocess.run("pacstrap -G -C /pacman-aarch64.conf {0} base manjaro-system manjaro-release manjaro-keyring systemd systemd-libs linux56".format(absinstallpath), shell=True, check=True)
+subprocess.run("pacstrap -G {0} base manjaro-system manjaro-release manjaro-keyring systemd systemd-libs linux56".format(absinstallpath), shell=True, check=True)
