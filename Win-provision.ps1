@@ -225,30 +225,6 @@ function Fcn-Software {
   }
 }
 
-# Enable Hyper-V
-function Fcn-HypervEn {
-  # Windows 10
-  # https://docs.microsoft.com/en-us/powershell/module/dism/get-windowsoptionalfeature?view=win10-ps
-  # Search for optional features:
-  # Get-WindowsOptionalFeature -Online | Select-String <nameoffeature>
-  Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All -NoRestart
-  # Windows Server
-  # https://docs.microsoft.com/en-us/powershell/module/microsoft.windows.servermanager.migration/install-windowsfeature?view=win10-ps
-  Install-WindowsFeature -Name Hyper-V -IncludeManagementTools
-  # Create Ethernet adapter
-  New-VMSwitch -name "External VM Switch" -NetAdapterName "Ethernet" -AllowManagementOS $true
-}
-
-# Disable Hyper-V
-function Fcn-HypervDis {
-  # Remove VMSwitch first
-  Remove-VMSwitch "External VM Switch"
-  # Windows 10
-  Disable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All -NoRestart
-  # Windows Server
-  Uninstall-WindowsFeature -Name Hyper-V -IncludeManagementTools
-}
-
 # Tablacus Function
 function Fcn-Tablacus {
   # Install/upgrade Tablacus
@@ -394,9 +370,11 @@ function Fcn-Customize {
 
 # Remove Windows Defender
 function Fcn-DisableDefender {
-  # Windows Server
-  Uninstall-WindowsFeature Windows-Defender-GUI
-  Uninstall-WindowsFeature Windows-Defender
+  if (Get-Command "Uninstall-WindowsFeature" -errorAction SilentlyContinue) {
+    # Windows Server
+    Uninstall-WindowsFeature Windows-Defender-GUI
+    Uninstall-WindowsFeature Windows-Defender
+  }
 
   # Windows 10
   # Disable Sample submission
@@ -414,8 +392,10 @@ function Fcn-DisableDefender {
 
 # Enable Windows Defender
 function Fcn-EnableDefender {
-  # Windows Server
-  Install-WindowsFeature -Name Windows-Defender-GUI
+  if (Get-Command "Install-WindowsFeature" -errorAction SilentlyContinue) {
+    # Windows Server
+    Install-WindowsFeature -Name Windows-Defender-GUI
+  }
 
   # Windows 10
   # Enable via registry
