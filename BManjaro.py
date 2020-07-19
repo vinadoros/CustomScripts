@@ -65,8 +65,14 @@ subprocess.run("genfstab -U {0} > {0}/etc/fstab".format(absinstallpath), shell=T
 zch.ChrootMountPaths(absinstallpath)
 zch.ChrootRunCommand(absinstallpath, "pacman-key --init")
 zch.ChrootRunCommand(absinstallpath, "pacman-key --populate archlinux manjaro")
-zch.ChrootRunCommand(absinstallpath, "pacman -Syu --noconfirm --needed sudo which openssh haveged networkmanager wpa_supplicant")
-zch.ChrootRunCommand(absinstallpath, "systemctl enable sshd")
+zch.ChrootRunCommand(absinstallpath, "pacman -Syu --noconfirm --needed sudo nano which openssh rng-tools haveged networkmanager wpa_supplicant")
+zch.ChrootRunCommand(absinstallpath, "systemctl enable sshd NetworkManager rngd")
+# Allow wheel to run sudo commands
+zch.ChrootRunCommand(absinstallpath, "sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers")
+# Allow root login for ssh
+zch.ChrootRunCommand(absinstallpath, "sed -i 's/PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config")
+zch.ChrootRunCommand(absinstallpath, "sed -i '/^#PermitRootLogin.*/s/^#//g' /etc/ssh/sshd_config")
+# Locale info
 zch.ChrootRunCommand(absinstallpath, """sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen ; echo "LANG=en_US.UTF-8" > /etc/locale.conf ; echo 'LANG="en_US.UTF-8"'>/etc/default/locale""")
 # Add normal user information
 zch.ChrootRunCommand(absinstallpath, "useradd -m -g users -G wheel -s /bin/bash {0}".format(args.username))
@@ -80,4 +86,4 @@ zch.ChrootRunCommand(absinstallpath, "pacman -S --noconfirm --needed grub grub-t
 zch.ChrootRunCommand(absinstallpath, "grub-install --target=i386-pc --recheck {0}".format(grubpart))
 zch.ChrootRunCommand(absinstallpath, "grub-mkconfig -o /boot/grub/grub.cfg")
 # End and unmount chroot paths
-zch.ChrootMountPaths(absinstallpath)
+zch.ChrootUnmountPaths(absinstallpath)
