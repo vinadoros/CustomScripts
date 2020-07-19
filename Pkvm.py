@@ -225,6 +225,15 @@ if args.ostype == 15:
 if args.ostype == 16:
     vmname = "Packer-UbuntuLTSCLI-{0}".format(hvname)
     vmprovision_defopts = "-l -x"
+if args.ostype == 20:
+    vmname = "Packer-Manjaro-{0}".format(hvname)
+    vboxosid = "Fedora_64"
+    vmwareid = "fedora-64"
+    kvm_os = "linux"
+    kvm_variant = "manjaro"
+    vmprovision_defopts = ""
+    vmprovisionscript = "MManjaro.py"
+    isourl = "http://www.gtlib.gatech.edu/pub/archlinux/iso/2020.07.01/archlinux-2020.07.01-x86_64.iso"
 if 30 <= args.ostype <= 39:
     vboxosid = "Debian_64"
     vmwareid = "debian-64"
@@ -537,6 +546,12 @@ if 10 <= args.ostype <= 14:
     data['builders'][0]["ssh_handshake_attempts"] = "9999"
 if 15 <= args.ostype <= 19:
     data['builders'][0]["boot_command"] = ["<enter><wait><down><wait><f6><wait><esc><home>url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu.cfg hostname=ubuntu locale=en_US keyboard-configuration/modelcode=SKIP netcfg/choose_interface=auto <enter>"]
+if 20 <= args.ostype <= 29:
+    data['builders'][0]["boot_wait"] = "1s"
+    data['builders'][0]["boot_command"] = ["""<enter><wait40>bash -c 'pacman -Sy --noconfirm git && {gitcmd} && /opt/CustomScripts/ZSlimDrive.py && /opt/CustomScripts/BManjaro.py -n -c "{vmname}" -u "{vmuser}" -f "{fullname}" -q "{vmpass}"'<enter>""".format(vmname=vmname, vmuser=args.vmuser, vmpass=args.vmpass, fullname=args.fullname, gitcmd=git_cmdline())]
+    data['builders'][0]["ssh_handshake_attempts"] = "9999"
+    data['provisioners'][0]["type"] = "shell"
+    data['provisioners'][0]["inline"] = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:{vmuser} -R ~{vmuser}; pacman -Sy --noconfirm git; {gitcmd}; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmuser=args.vmuser, sshkey=sshkey, vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, gitcmd=git_cmdline())
 if 30 <= args.ostype <= 39:
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:{vmuser} -R ~{vmuser}; apt install -y git; {gitcmd}; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser, gitcmd=git_cmdline())
