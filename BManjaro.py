@@ -11,6 +11,7 @@ import stat
 # Custom includes
 import CFunc
 
+print("Running {0}".format(__file__))
 # Folder of this script
 SCRIPTDIR = sys.path[0]
 
@@ -46,3 +47,7 @@ CFunc.is_root(True)
 
 if args.noprompt is False:
     input("Press Enter to continue.")
+
+subprocess.run("wget https://gitlab.manjaro.org/packages/core/pacman/-/raw/master/pacman.conf.x86_64?inline=false -O /pacman-aarch64.conf", shell=True, check=True)
+subprocess.run("echo 'Server = http://www.gtlib.gatech.edu/pub/manjaro/stable/$repo/$arch' > /etc/pacman.d/mirrorlist", shell=True, check=True)
+subprocess.run("pacstrap -i -G -C /pacman-aarch64.conf {0} base manjaro-system manjaro-release systemd systemd-libs".format(absinstallpath), shell=True, check=True)
