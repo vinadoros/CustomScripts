@@ -84,7 +84,7 @@ zch.ChrootRunCommand(absinstallpath, 'chfn -f "{0}" {1}'.format(args.fullname, a
 # Add hostname
 zch.ChrootRunCommand(absinstallpath, 'echo "{0}" > /etc/hostname'.format(args.hostname))
 # Install and run grub
-zch.ChrootRunCommand(absinstallpath, "pacman -S --noconfirm --needed grub grub-theme-manjaro os-prober freetype2")
+zch.ChrootRunCommand(absinstallpath, "pacman -S --noconfirm --needed grub grub-theme-manjaro os-prober freetype2 mtools")
 zch.ChrootRunCommand(absinstallpath, "grub-install --target=i386-pc --recheck {0}".format(grubpart))
 zch.ChrootRunCommand(absinstallpath, "grub-mkconfig -o /boot/grub/grub.cfg")
 # End and unmount chroot paths
