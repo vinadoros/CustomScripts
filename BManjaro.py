@@ -6,10 +6,10 @@ import argparse
 import os
 import sys
 import subprocess
-import shutil
 import stat
 # Custom includes
 import CFunc
+import zch
 
 print("Running {0}".format(__file__))
 # Folder of this script
@@ -57,4 +57,27 @@ subprocess.run("echo 'Server = http://www.gtlib.gatech.edu/pub/manjaro/stable/$r
 # Install the manjaro keyring
 subprocess.run("pacman -Syy --noconfirm manjaro-keyring archlinux-keyring", shell=True, check=True)
 # Run pacstrap
-subprocess.run("pacstrap -G {0} base manjaro-system manjaro-release manjaro-keyring systemd systemd-libs linux56".format(absinstallpath), shell=True, check=True)
+subprocess.run("pacstrap -G {0} base manjaro-system manjaro-release systemd systemd-libs linux56".format(absinstallpath), shell=True, check=True)
+# Generate fstab
+subprocess.run("genfstab -U {0} > {0}/etc/fstab".format(absinstallpath), shell=True, check=True)
+
+# Mount chroot paths
+zch.ChrootMountPaths(absinstallpath)
+zch.ChrootRunCommand(absinstallpath, "pacman-key --init")
+zch.ChrootRunCommand(absinstallpath, "pacman-key --populate archlinux manjaro")
+zch.ChrootRunCommand(absinstallpath, "pacman -Syu sudo which openssh haveged networkmanager wpa_supplicant")
+zch.ChrootRunCommand(absinstallpath, "systemctl enable sshd")
+zch.ChrootRunCommand(absinstallpath, """sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen ; echo "LANG=en_US.UTF-8" > /etc/locale.conf ; echo 'LANG="en_US.UTF-8"'>/etc/default/locale""")
+# Add normal user information
+zch.ChrootRunCommand(absinstallpath, "useradd -m -g users -G wheel -s /bin/bash {0}".format(args.username))
+zch.ChrootRunCommand(absinstallpath, 'chpasswd <<<"{0}:{1}"'.format(args.username, args.password))
+zch.ChrootRunCommand(absinstallpath, 'chpasswd <<<"root:{0}"'.format(args.password))
+zch.ChrootRunCommand(absinstallpath, 'chfn -f "{0}" {1}'.format(args.fullname, args.username))
+# Add hostname
+zch.ChrootRunCommand(absinstallpath, 'echo "{0}" > /etc/hostname'.format(args.hostname))
+# Install and run grub
+zch.ChrootRunCommand(absinstallpath, "pacman -S grub grub-theme-manjaro os-prober freetype2")
+zch.ChrootRunCommand(absinstallpath, "grub-install --target=i386-pc --recheck {0}".format(grubpart))
+zch.ChrootRunCommand(absinstallpath, "grub-mkconfig -o /boot/grub/grub.cfg")
+# End and unmount chroot paths
+zch.ChrootMountPaths(absinstallpath)
