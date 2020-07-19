@@ -48,6 +48,13 @@ CFunc.is_root(True)
 if args.noprompt is False:
     input("Press Enter to continue.")
 
-subprocess.run("wget https://gitlab.manjaro.org/packages/core/pacman/-/raw/master/pacman.conf.x86_64?inline=false -O /pacman-aarch64.conf", shell=True, check=True)
+# Grab the Manjaro pacman.conf
+subprocess.run("wget https://gitlab.manjaro.org/packages/core/pacman/-/raw/master/pacman.conf.x86_64?inline=false -O /etc/pacman.conf", shell=True, check=True)
+# Trust all packages
+subprocess.run("sed -i 's/^SigLevel\s*=.*/SigLevel = Never/g' /etc/pacman.conf", shell=True, check=True)
+# Add a Manjaro mirror
 subprocess.run("echo 'Server = http://www.gtlib.gatech.edu/pub/manjaro/stable/$repo/$arch' > /etc/pacman.d/mirrorlist", shell=True, check=True)
+# Install the manjaro keyring
+subprocess.run("pacman -Syy manjaro-keyring archlinux-keyring")
+# Run pacstrap
 subprocess.run("pacstrap -G -C /pacman-aarch64.conf {0} base manjaro-system manjaro-release manjaro-keyring systemd systemd-libs linux56".format(absinstallpath), shell=True, check=True)
