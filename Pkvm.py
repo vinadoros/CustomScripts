@@ -188,22 +188,6 @@ if args.ostype == 3:
 if args.ostype == 4:
     vmname = "Packer-FedoraCLIBare-{0}".format(hvname)
     vmprovision_defopts = "-x -b"
-if 5 <= args.ostype <= 8:
-    vboxosid = "Fedora_64"
-    vmwareid = "fedora-64"
-    kvm_os = "linux"
-    kvm_variant = "rhel8.0"
-    isourl = "https://mirrors.edge.kernel.org/centos/8-stream/isos/x86_64/CentOS-Stream-8-x86_64-20191219-boot.iso"
-    vmprovisionscript = "MCentOS8.py"
-if args.ostype == 5:
-    vmname = "Packer-CentOSStream-{0}".format(hvname)
-    vmprovision_defopts = "-t 1"
-if args.ostype == 6:
-    vmname = "Packer-CentOSStreamSvr-{0}".format(hvname)
-    vmprovision_defopts = "-t 2"
-if args.ostype == 7:
-    vmname = "Packer-CentOSStreamCLI-{0}".format(hvname)
-    vmprovision_defopts = "-t 3"
 if args.ostype == 9:
     vmprovisionscript = "MFedoraSilverblue.py"
     vboxosid = "Fedora_64"
@@ -308,7 +292,7 @@ if 55 <= args.ostype <= 59:
     vboxosid = "Windows2016_64"
     vmwareid = "windows9srv-64"
     kvm_os = "windows"
-    kvm_variant = "win2k12r2"
+    kvm_variant = "win2k19"
     vmprovision_defopts = " "
 if 55 <= args.ostype <= 56:
     windows_key = "N69G4-B89J2-4G8F4-WWYCC-J464C"
@@ -528,10 +512,6 @@ if 1 <= args.ostype <= 4:
     data['builders'][0]["boot_command"] = ["<tab> inst.text inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/fedora.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "dnf install -y git; {2}; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts, git_cmdline())
-if 5 <= args.ostype <= 8:
-    data['builders'][0]["boot_command"] = ["<tab> ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos8-ks.cfg<enter><wait>"]
-    data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "{2}; /opt/CustomScripts/{0} {1}".format(vmprovisionscript, vmprovision_opts, git_cmdline())
 if args.ostype == 9:
     data['builders'][0]["boot_command"] = ["<tab> inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/silverblue.cfg<enter><wait>"]
     data['provisioners'][0]["type"] = "shell"
