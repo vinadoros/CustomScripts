@@ -139,6 +139,8 @@ if args.uninstall is False:
         CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager.vmlist-fields memory-usage true")
         CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager.vmlist-fields network-traffic true")
         CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager.console resize-guest 1")
+        CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager enable-libguestfs-vm-inspection true")
+        CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager xmleditor-enabled true")
     else:
         print("WARNING: gsettings command not found. Install to set virt-manager defaults.")
 
