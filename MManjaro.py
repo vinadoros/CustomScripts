@@ -84,7 +84,7 @@ CFunc.AddLineToSudoersFile(sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
 CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("pacman")))
 
 # Cli tools
-pacman_install("fish zsh nano tmux iotop rsync p7zip zip unzip xdg-utils xdg-user-dirs sshfs openssh avahi")
+pacman_install("bash-completion fish zsh zsh-completions nano tmux iotop rsync p7zip zip unzip unrar xdg-utils xdg-user-dirs sshfs openssh avahi ntfs-3g")
 sysctl_enable("sshd avahi-daemon")
 pacman_install("powerline-fonts ttf-roboto ttf-roboto-mono noto-fonts")
 # Samba
@@ -125,6 +125,10 @@ if not args.nogui:
     if os.path.isfile(os.path.join(os.sep, "usr", "share", "applications", "flameshot.desktop")):
         shutil.copy(os.path.join(os.sep, "usr", "share", "applications", "flameshot.desktop"), os.path.join(USERHOME, ".config", "autostart"))
     CFunc.chown_recursive(os.path.join(USERHOME, ".config", ), USERNAMEVAR, USERGROUP)
+    pacman_install("dconf-editor")
+    pacman_install("gnome-disk-utility")
+    # Manjaro tools
+    pacman_install("mhwd")
 
 # Install software for VMs
 if vmstatus == "kvm":
@@ -142,11 +146,12 @@ if vmstatus == "vmware":
 # Install Desktop Software
 if args.desktop == "gnome":
     # Gnome
-    pacman_install("gnome manjaro-gnome-assets manjaro-gdm-theme manjaro-settings-manager")
+    pacman_install("baobab eog evince file-roller gdm gedit gnome-backgrounds gnome-calculator gnome-characters gnome-clocks gnome-wallpapers gnome-color-manager gnome-control-center gnome-font-viewer gnome-getting-started-docs gnome-keyring gnome-logs gnome-menus gnome-remote-desktop gnome-screenshot gnome-session gnome-settings-daemon gnome-shell gnome-shell-extensions gnome-system-monitor gnome-terminal gnome-themes-extra gnome-user-docs gnome-video-effects gnome-weather gvfs gvfs-google gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-smb mutter nautilus orca sushi tracker tracker-miners vino xdg-user-dirs-gtk xdg-desktop-portal-gtk yelp gnome-software manjaro-gnome-assets manjaro-gdm-theme manjaro-settings-manager")
     subprocess.run("systemctl enable -f gdm", shell=True, check=True)
     # Some Gnome Extensions
-    pacman_install("gnome-terminal-nautilus gnome-tweak-tool dconf-editor")
-    pacman_install("gnome-shell-extension-gpaste gnome-shell-extension-topicons-plus")
+    pacman_install("gnome-tweaks")
+    pacman_install("gpaste")
+    yay_install("aur/gnome-shell-extension-topicons-plus-git")
     # Install gs installer script.
     gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
     os.chmod(gs_installer[0], 0o777)
@@ -164,11 +169,9 @@ elif args.desktop == "kde":
     subprocess.run("systemctl enable -f sddm", shell=True, check=True)
 elif args.desktop == "mate":
     # MATE
-    pacman_install("mate network-manager-applet mate-extra dconf-editor manjaro-mate-settings arc-maia-icon-theme papirus-maia-icon-theme manjaro-settings-manager manjaro-settings-manager-notifier")
+    pacman_install("mate network-manager-applet mate-extra manjaro-mate-settings arc-maia-icon-theme papirus-maia-icon-theme manjaro-settings-manager manjaro-settings-manager-notifier")
     pacman_install("lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings")
     subprocess.run("systemctl enable -f lightdm", shell=True, check=True)
-    # Applications
-    pacman_install("dconf-editor")
     # Brisk-menu
     pacman_install("brisk-menu")
     # Run MATE Configuration
@@ -177,17 +180,10 @@ elif args.desktop == "xfce":
     pacman_install("xfce4-gtk3 xfce4-goodies xfce4-terminal network-manager-applet xfce4-notifyd-gtk3 xfce4-whiskermenu-plugin-gtk3 tumbler engrampa manjaro-xfce-gtk3-settings manjaro-settings-manager")
     pacman_install("lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings")
     subprocess.run("systemctl enable -f lightdm", shell=True, check=True)
-elif args.desktop == "lxqt":
-    pacman_install("--allowerasing @lxqt-desktop-environment")
-elif args.desktop == "cinnamon":
-    pacman_install("--allowerasing @cinnamon-desktop-environment")
 
 if not args.nogui:
     # Numix
     yay_install("aur/numix-icon-theme-git aur/numix-circle-icon-theme-git")
-    # Update pixbuf cache after installing icons (for some reason doesn't do this automatically).
-    subprocess.run("gdk-pixbuf-query-loaders-64 --update-cache", shell=True, check=True)
-    subprocess.run("systemctl set-default graphical.target", shell=True, check=True)
 
 
 # Add normal user to all reasonable groups

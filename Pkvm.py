@@ -225,15 +225,19 @@ if args.ostype == 15:
 if args.ostype == 16:
     vmname = "Packer-UbuntuLTSCLI-{0}".format(hvname)
     vmprovision_defopts = "-l -x"
-if args.ostype == 20:
-    vmname = "Packer-Manjaro-{0}".format(hvname)
+if 20 <= args.ostype <= 29:
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
     kvm_os = "linux"
     kvm_variant = "manjaro"
-    vmprovision_defopts = ""
-    vmprovisionscript = "MManjaro.py"
     isourl = "http://www.gtlib.gatech.edu/pub/archlinux/iso/2020.07.01/archlinux-2020.07.01-x86_64.iso"
+    vmprovisionscript = "MManjaro.py"
+if args.ostype == 20:
+    vmname = "Packer-Manjaro-{0}".format(hvname)
+    vmprovision_defopts = "-d {0}".format(args.desktopenv)
+if args.ostype == 21:
+    vmname = "Packer-ManjaroCLI-{0}".format(hvname)
+    vmprovision_defopts = "-x"
 if 30 <= args.ostype <= 39:
     vboxosid = "Debian_64"
     vmwareid = "debian-64"
