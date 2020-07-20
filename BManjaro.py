@@ -75,7 +75,7 @@ zch.ChrootRunCommand(absinstallpath, "sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel A
 zch.ChrootRunCommand(absinstallpath, "sed -i 's/PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config")
 zch.ChrootRunCommand(absinstallpath, "sed -i '/^#PermitRootLogin.*/s/^#//g' /etc/ssh/sshd_config")
 # Locale info
-zch.ChrootRunCommand(absinstallpath, """sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen ; echo "LANG=en_US.UTF-8" > /etc/locale.conf ; echo 'LANG="en_US.UTF-8"'>/etc/default/locale""")
+zch.ChrootRunCommand(absinstallpath, """sed -i -e 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen ; echo -e "LANG=en_US.UTF-8\nLC_TIME=en_DK.UTF-8" > /etc/locale.conf ; echo 'LANG="en_US.UTF-8"'>/etc/default/locale ; locale-gen""")
 # Add normal user information
 zch.ChrootRunCommand(absinstallpath, "useradd -m -g users -G wheel -s /bin/bash {0}".format(args.username))
 zch.ChrootRunCommand(absinstallpath, 'chpasswd <<<"{0}:{1}"'.format(args.username, args.password))
