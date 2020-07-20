@@ -29,11 +29,14 @@ def ChrootUnmountPaths(RootPath: str):
     subprocess.run("umount -l {0}/proc".format(RootPath), shell=True, check=False, stdout=subprocess.DEVNULL)
     subprocess.run("umount -l {0}/sys".format(RootPath), shell=True, check=False, stdout=subprocess.DEVNULL)
     subprocess.run("umount -l {0}/tmp".format(RootPath), shell=True, check=False, stdout=subprocess.DEVNULL)
-def ChrootRunCommand(RootPath: str, command: str):
-    """Run a command without performing a mount or unmount."""
-    subprocess.run("PATH=$PATH:/sbin:/bin:/usr/sbin:/usr/local/bin chroot {0} {1}".format(RootPath, command), shell=True, check=False)
-def ChrootSingleCommand(RootPath: str, command: str):
-    """Run a single command in the chroot."""
+def ChrootRunCommand(RootPath: str, command: str, run_quoted_with_bash: bool = False):
+    """Run a command without performing a mount or unmount. If the run_quoted_with_bash is set to True, assumes that /bin/bash exists, and the command is run with that interpreter."""
+    if run_quoted_with_bash is True:
+        subprocess.run("chroot {0} /bin/bash -c '{1}'".format(RootPath, command), shell=True, check=False)
+    else:
+        subprocess.run("PATH=$PATH:/sbin:/bin:/usr/sbin:/usr/local/bin chroot {0} {1}".format(RootPath, command), shell=True, check=False)
+def ChrootCommand(RootPath: str, command: str):
+    """Run a command in the chroot, mounting before and unmounting after."""
     ChrootMountPaths(RootPath)
     ChrootRunCommand(RootPath, command)
     ChrootUnmountPaths(RootPath)
@@ -53,4 +56,4 @@ if __name__ == '__main__':
 
     # Get absolute path of the given path.
     abschrootpath = os.path.realpath(args.chrootpath)
-    ChrootSingleCommand(abschrootpath, args.chrootcommand)
+    ChrootCommand(abschrootpath, args.chrootcommand)
