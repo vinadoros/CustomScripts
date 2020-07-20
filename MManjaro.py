@@ -5,7 +5,6 @@
 import argparse
 import os
 import shutil
-import stat
 import subprocess
 import sys
 # Custom includes
@@ -62,6 +61,12 @@ def yay_update():
 def sysctl_enable(options):
     """Enable systemctl services"""
     subprocess.run("systemctl enable {0}".format(options), shell=True, check=True)
+def lightdm_configure():
+    """Configure lightdm"""
+    pacman_install("lightdm lightdm-slick-greeter lightdm-settings")
+    subprocess.run("sed -i '/^#greeter-session=.*/s/^#//g' /etc/lightdm/lightdm.conf", shell=True, check=True)
+    subprocess.run("sed -i 's/^greeter-session=.*/greeter-session=lightdm-slick-greeter/g' /etc/lightdm/lightdm.conf", shell=True, check=True)
+    sysctl_enable("-f lightdm")
 
 
 # Get VM State
@@ -76,6 +81,8 @@ pacman_update()
 ### Install Software ###
 # Yay
 pacman_install("yay")
+# Install AUR dependencies
+pacman_install("base-devel")
 # Sudoers changes
 CFuncExt.SudoersEnvSettings()
 # Edit sudoers to add pacman.
@@ -100,6 +107,8 @@ pacman_install("earlyoom")
 sysctl_enable("earlyoom")
 # GUI Packages
 if not args.nogui:
+    # X Server
+    pacman_install("xorg xorg-drivers xorg-fonts")
     # Browsers
     pacman_install("chromium")
     pacman_install("firefox")
@@ -147,7 +156,7 @@ if vmstatus == "vmware":
 if args.desktop == "gnome":
     # Gnome
     pacman_install("baobab eog evince file-roller gdm gedit gnome-backgrounds gnome-calculator gnome-characters gnome-clocks gnome-wallpapers gnome-color-manager gnome-control-center gnome-font-viewer gnome-getting-started-docs gnome-keyring gnome-logs gnome-menus gnome-remote-desktop gnome-screenshot gnome-session gnome-settings-daemon gnome-shell gnome-shell-extensions gnome-system-monitor gnome-terminal gnome-themes-extra gnome-user-docs gnome-video-effects gnome-weather gvfs gvfs-google gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-smb mutter nautilus orca sushi tracker tracker-miners vino xdg-user-dirs-gtk xdg-desktop-portal-gtk yelp gnome-software manjaro-gnome-assets manjaro-gdm-theme manjaro-settings-manager")
-    subprocess.run("systemctl enable -f gdm", shell=True, check=True)
+    sysctl_enable("-f gdm")
     # Some Gnome Extensions
     pacman_install("gnome-tweaks")
     pacman_install("gpaste")
@@ -166,20 +175,18 @@ elif args.desktop == "kde":
     pacman_install("plasma kio-extras kdebase sddm")
     pacman_install("manjaro-kde-settings sddm-breath-theme manjaro-settings-manager-knotifier manjaro-settings-manager-kcm")
     pacman_install("latte-dock")
-    subprocess.run("systemctl enable -f sddm", shell=True, check=True)
+    sysctl_enable("-f sddm")
 elif args.desktop == "mate":
     # MATE
     pacman_install("mate network-manager-applet mate-extra manjaro-mate-settings arc-maia-icon-theme papirus-maia-icon-theme manjaro-settings-manager manjaro-settings-manager-notifier")
-    pacman_install("lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings")
-    subprocess.run("systemctl enable -f lightdm", shell=True, check=True)
+    lightdm_configure()
     # Brisk-menu
     pacman_install("brisk-menu")
     # Run MATE Configuration
     subprocess.run("{0}/DExtMate.py -c".format(SCRIPTDIR), shell=True, check=True)
 elif args.desktop == "xfce":
     pacman_install("xfce4-gtk3 xfce4-goodies xfce4-terminal network-manager-applet xfce4-notifyd-gtk3 xfce4-whiskermenu-plugin-gtk3 tumbler engrampa manjaro-xfce-gtk3-settings manjaro-settings-manager")
-    pacman_install("lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings")
-    subprocess.run("systemctl enable -f lightdm", shell=True, check=True)
+    lightdm_configure()
 
 if not args.nogui:
     # Numix
