@@ -108,7 +108,7 @@ sysctl_enable("earlyoom")
 # GUI Packages
 if not args.nogui:
     # X Server
-    pacman_install("xorg xorg-drivers xorg-fonts")
+    pacman_install("xorg xorg-drivers xorg-fonts manjaro-input")
     # Browsers
     pacman_install("chromium")
     pacman_install("firefox")
