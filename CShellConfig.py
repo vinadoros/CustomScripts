@@ -267,6 +267,36 @@ elif type dnf &> /dev/null || type yum &> /dev/null; then
         echo "Updating system."
         $SUDOCMD $PKGMGR upgrade --refresh -y
     }
+elif type yay &> /dev/null || type pacman &> /dev/null; then
+    if type yay &> /dev/null && [ $(id -u) != "0" ]; then
+        PKGMGR=yay
+    else
+        PKGMGR=pacman
+    fi
+
+    function ins () {
+        echo "Installing $@."
+        $PKGMGR -S --needed $@
+    }
+    function rmv () {
+        echo "Removing $@."
+        $PKGMGR -Rsn $@
+    }
+    function se () {
+        echo -e "\nSearching for $@."
+        $PKGMGR -Ss "$@"
+        snap_search "$@"
+        flatpak_search "$@"
+    }
+    function cln () {
+        echo "Auto-removing packages."
+        $PKGMGR -Qdtq | $PKGMGR -Rs -
+        flatpak_clean
+    }
+    function up () {
+        echo "Updating system."
+        $PKGMGR -Syu --needed --noconfirm
+    }
 elif type rpm-ostree &> /dev/null; then
     function ins () {
         echo "Installing $@."
@@ -761,6 +791,30 @@ else if type -q dnf; or type -q yum
     function up
         echo "Updating system."
         sudo $PKGMGR update --refresh -y
+    end
+else if type -q yay
+    function ins
+        echo "Installing $argv."
+        yay -S --needed $argv
+    end
+    function rmv
+        echo "Removing $argv."
+        yay -Rsn $argv
+    end
+    function se
+        echo -e "\\nSearching for $argv."
+        yay -Ss $argv
+        snap_search $argv
+        flatpak_search $argv
+    end
+    function cln
+        echo "Auto-removing packages."
+        yay -Qdtq | yay -Rs -
+        flatpak_clean
+    end
+    function up
+        echo "Updating system."
+        yay -Syu --needed --noconfirm
     end
 else if type -q rpm-ostree
     function ins

@@ -228,6 +228,7 @@ if not args.nogui:
     if not os.path.islink("/snap"):
         os.symlink("/var/lib/snapd/snap", "/snap", target_is_directory=True)
     CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("snap")))
+    sysctl_enable("snapd.socket")
 
     # Flatpak setup
     pacman_install("flatpak xdg-desktop-portal")
