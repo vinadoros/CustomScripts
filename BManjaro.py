@@ -21,7 +21,7 @@ parser = argparse.ArgumentParser(description='Install Debian/Ubuntu into a folde
 parser.add_argument("-c", "--hostname", help='Hostname', default="ManjaroTest")
 parser.add_argument("-f", "--fullname", help='Full Name', default="User Name")
 parser.add_argument("-i", "--grubpartition", help='Grub Custom Parition (if autodetection isnt working, i.e. /dev/sdb)', default=None)
-parser.add_argument("-l", "--linuxpkg", help='Linux package to install (default: %(default)s)', default="linux56")
+parser.add_argument("-l", "--linuxpkg", help='Linux package to install (default: %(default)s)', default="linux-lts")
 parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
 parser.add_argument("-q", "--password", help='Password', default="asdf")
 parser.add_argument("-u", "--username", help='Username', default="user")
@@ -75,14 +75,17 @@ zch.ChrootRunCommand(absinstallpath, "sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel A
 zch.ChrootRunCommand(absinstallpath, "sed -i 's/PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config")
 zch.ChrootRunCommand(absinstallpath, "sed -i '/^#PermitRootLogin.*/s/^#//g' /etc/ssh/sshd_config")
 # Locale info
-zch.ChrootRunCommand(absinstallpath, """sed -i -e 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen ; echo -e "LANG=en_US.UTF-8\nLC_TIME=en_DK.UTF-8" > /etc/locale.conf ; echo 'LANG="en_US.UTF-8"'>/etc/default/locale ; locale-gen""")
+zch.ChrootRunCommand(absinstallpath, 'sed -i -e "s/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /etc/locale.gen')
+zch.ChrootRunCommand(absinstallpath, 'echo -e "LANG=en_US.UTF-8\nLC_TIME=en_DK.UTF-8" > /etc/locale.conf', run_quoted_with_bash=True)
+zch.ChrootRunCommand(absinstallpath, 'echo "LANG=\"en_US.UTF-8\"" > /etc/default/locale', run_quoted_with_bash=True)
+zch.ChrootRunCommand(absinstallpath, "locale-gen")
 # Add normal user information
 zch.ChrootRunCommand(absinstallpath, "useradd -m -g users -G wheel -s /bin/bash {0}".format(args.username))
 zch.ChrootRunCommand(absinstallpath, 'chpasswd <<<"{0}:{1}"'.format(args.username, args.password))
 zch.ChrootRunCommand(absinstallpath, 'chpasswd <<<"root:{0}"'.format(args.password))
 zch.ChrootRunCommand(absinstallpath, 'chfn -f "{0}" {1}'.format(args.fullname, args.username))
 # Add hostname
-zch.ChrootRunCommand(absinstallpath, 'echo "{0}" > /etc/hostname'.format(args.hostname))
+zch.ChrootRunCommand(absinstallpath, 'echo "{0}" > /etc/hostname'.format(args.hostname), run_quoted_with_bash=True)
 # Install and run grub
 zch.ChrootRunCommand(absinstallpath, "pacman -S --noconfirm --needed grub grub-theme-manjaro os-prober freetype2 mtools")
 zch.ChrootRunCommand(absinstallpath, "grub-install --target=i386-pc --recheck {0}".format(grubpart))
