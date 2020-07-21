@@ -4,10 +4,7 @@
 # Python includes.
 import argparse
 import getpass
-import grp
 import os
-import platform
-import pwd
 import shutil
 import subprocess
 import sys
@@ -34,17 +31,8 @@ args = parser.parse_args()
 CFunc.is_root(True)
 
 # Get non-root user information.
-if os.getenv("SUDO_USER") not in ["root", None]:
-    USERNAMEVAR = os.getenv("SUDO_USER")
-elif os.getenv("USER") not in ["root", None]:
-    USERNAMEVAR = os.getenv("USER")
-else:
-    # https://docs.python.org/3/library/pwd.html
-    USERNAMEVAR = pwd.getpwuid(1000)[0]
-# https://docs.python.org/3/library/grp.html
-USERGROUP = grp.getgrgid(pwd.getpwnam(USERNAMEVAR)[3])[0]
-USERHOME = os.path.expanduser("~{0}".format(USERNAMEVAR))
-MACHINEARCH = platform.machine()
+USERNAMEVAR, USERGROUP, USERHOME = CFunc.getnormaluser()
+MACHINEARCH = CFunc.machinearch()
 print("Username is:", USERNAMEVAR)
 print("Group Name is:", USERGROUP)
 
