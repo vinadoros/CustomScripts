@@ -17,19 +17,15 @@ SCRIPTDIR = sys.path[0]
 # Exit if not root.
 CFunc.is_root(True)
 
-# Get non-root user information.
-USERNAMEVAR, USERGROUP, USERHOME = CFunc.getnormaluser()
-MACHINEARCH = CFunc.machinearch()
-
 
 ### Functions ###
 def pacman_invoke(options: str):
     """Invoke pacman"""
     subprocess.run("pacman --noconfirm {0}".format(options), shell=True, check=True)
-def yay_invoke(options: str):
+def yay_invoke(run_as_user: str, options: str):
     """Invoke yay as normal user"""
     if shutil.which("yay"):
-        CFunc.run_as_user(USERNAMEVAR, "yay --noconfirm {0}".format(options))
+        CFunc.run_as_user(run_as_user, "yay --noconfirm {0}".format(options))
     else:
         print("ERROR: yay not found. Exiting.")
         sys.exit(1)
@@ -39,12 +35,9 @@ def pacman_install(packages: str):
 def pacman_update():
     """Pacman system update"""
     pacman_invoke("-Syu")
-def yay_install(packages: str):
+def yay_install(run_as_user: str, packages: str):
     """Install packages with yay"""
-    yay_invoke("-S --needed {0}".format(packages))
-def yay_update():
-    """Yay system update"""
-    yay_invoke("-Syu")
+    yay_invoke(run_as_user, "-S --needed {0}".format(packages))
 def sysctl_enable(options):
     """Enable systemctl services"""
     subprocess.run("systemctl enable {0}".format(options), shell=True, check=True)
@@ -83,6 +76,9 @@ if __name__ == '__main__':
     parser.add_argument("-x", "--nogui", help='Configure script to disable GUI.', action="store_true")
     args = parser.parse_args()
 
+    # Get non-root user information.
+    USERNAMEVAR, USERGROUP, USERHOME = CFunc.getnormaluser()
+    MACHINEARCH = CFunc.machinearch()
     print("Username is:", USERNAMEVAR)
     print("Group Name is:", USERGROUP)
     print("Desktop Environment:", args.desktop)
@@ -178,7 +174,7 @@ if __name__ == '__main__':
         # Some Gnome Extensions
         pacman_install("gnome-tweaks")
         pacman_install("gpaste")
-        yay_install("aur/gnome-shell-extension-topicons-plus-git")
+        yay_install(USERNAMEVAR, "aur/gnome-shell-extension-topicons-plus-git")
         # Install gs installer script.
         gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
         os.chmod(gs_installer[0], 0o777)
@@ -208,7 +204,7 @@ if __name__ == '__main__':
 
     if not args.nogui:
         # Numix
-        yay_install("aur/numix-icon-theme-git aur/numix-circle-icon-theme-git")
+        yay_install(USERNAMEVAR, "aur/numix-icon-theme-git aur/numix-circle-icon-theme-git")
 
     # Add normal user to all reasonable groups
     CFunc.AddUserToGroup("disk")
