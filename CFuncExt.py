@@ -97,10 +97,15 @@ def GrubUpdate():
         # Change timeout
         subprocess.run("sed -i 's/GRUB_TIMEOUT=.*$/GRUB_TIMEOUT=1/g' {0}".format(grub_default_cfg), shell=True, check=True)
         subprocess.run("sed -i 's/GRUB_HIDDEN_TIMEOUT=.*$/GRUB_HIDDEN_TIMEOUT=1/g' {0}".format(grub_default_cfg), shell=True, check=True)
+        # Change timeout style to menu
+        subprocess.run("sed -i 's/^GRUB_TIMEOUT_STYLE=.*/GRUB_TIMEOUT_STYLE=menu/g' {0}".format(grub_default_cfg), shell=True, check=True)
         # Update grub
         if shutil.which("update-grub2"):
             print("Updating grub config using update-grub2.")
             subprocess.run("update-grub2", shell=True, check=True)
+        elif shutil.which("update-grub"):
+            print("Updating grub config using update-grub.")
+            subprocess.run("update-grub", shell=True, check=True)
         elif os.path.isfile(os.path.join(os.sep, "boot", "grub2", "grub.cfg")):
             print("Updating grub config using mkconfig grub2.")
             subprocess.run("grub2-mkconfig -o {0}".format(os.path.join(os.sep, "boot", "grub2", "grub.cfg")), shell=True, check=True)
