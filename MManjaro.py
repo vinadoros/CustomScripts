@@ -54,6 +54,24 @@ def lightdm_configure():
     subprocess.run("sed -i '/^#greeter-session=.*/s/^#//g' /etc/lightdm/lightdm.conf", shell=True, check=True)
     subprocess.run("sed -i 's/^greeter-session=.*/greeter-session=lightdm-slick-greeter/g' /etc/lightdm/lightdm.conf", shell=True, check=True)
     sysctl_enable("-f lightdm")
+def kernels_getlist():
+    """Get list of all available kernels (non-realtime)."""
+    kernelsinrepo_list = subprocess.check_output('pacman -Ssq "^linux[0-9][0-9]?([0-9])$"', shell=True, universal_newlines=True).splitlines()
+    return kernelsinrepo_list
+    # To get realtime kernels: pacman -Ssq "^linux[0-9][0-9]?([0-9])-rt$"
+def kernels_getlatest():
+    """Get the latest kernel available. Note, this may be an rc kernel."""
+    # The last entry in the list is expected to be the latest kernel.
+    return kernels_getlist()[-1]
+def kernels_getinstalled():
+    """Get list of kernels installed on machine."""
+    kernels_installed = []
+    # Get normal kernels.
+    kernels_installed = subprocess.run('pacman -Qqs "^linux[0-9][0-9]?([0-9])$"', shell=True, check=False, stdout=subprocess.PIPE, universal_newlines=True).stdout.splitlines()
+    # Get realtime kernels, if they have been installed.
+    kernels_rt_installed = subprocess.run('pacman -Qqs "^linux[0-9][0-9]?([0-9])-rt$"', shell=True, check=False, stdout=subprocess.PIPE, universal_newlines=True).stdout.splitlines()
+    kernels_installed += kernels_rt_installed
+    return kernels_installed
 
 
 if __name__ == '__main__':
