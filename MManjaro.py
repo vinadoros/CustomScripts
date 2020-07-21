@@ -95,7 +95,7 @@ pacman_install("bash-completion fish zsh zsh-completions nano tmux iotop rsync p
 sysctl_enable("sshd avahi-daemon")
 pacman_install("powerline-fonts ttf-roboto ttf-roboto-mono noto-fonts")
 # Samba
-pacman_install("samba")
+pacman_install("samba manjaro-settings-samba")
 sysctl_enable("smb nmb winbind")
 # cifs-utils
 pacman_install("cifs-utils")
