@@ -9,6 +9,7 @@ import subprocess
 import stat
 # Custom includes
 import CFunc
+import MManjaro
 import zch
 
 print("Running {0}".format(__file__))
@@ -58,8 +59,14 @@ subprocess.run("sed -i 's/^SigLevel\s*=.*/SigLevel = Never/g' /etc/pacman.conf",
 subprocess.run("echo 'Server = http://www.gtlib.gatech.edu/pub/manjaro/stable/$repo/$arch' > /etc/pacman.d/mirrorlist", shell=True, check=True)
 # Install the manjaro keyring
 subprocess.run("pacman -Syy --noconfirm manjaro-keyring archlinux-keyring", shell=True, check=True)
+# Use the argument linuxpkg if set. Confirm this option is in the list.
+if args.linuxpkg and any(args.linuxpkg == linuxopt for linuxopt in MManjaro.kernels_getlist()):
+    linuxpkg = args.linuxpkg
+else:
+    # Get latest kernel if no argument given.
+    linuxpkg = MManjaro.kernels_getlatest()
 # Run pacstrap
-subprocess.run("pacstrap -G {0} base manjaro-system manjaro-release systemd systemd-libs {1}".format(absinstallpath, args.linuxpkg), shell=True, check=True)
+subprocess.run("pacstrap -G {0} base manjaro-system manjaro-release systemd systemd-libs {1}".format(absinstallpath, linuxpkg), shell=True, check=True)
 # Generate fstab
 subprocess.run("genfstab -U {0} > {0}/etc/fstab".format(absinstallpath), shell=True, check=True)
 
