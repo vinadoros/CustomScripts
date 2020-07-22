@@ -31,14 +31,6 @@ fi
 #To find out default file manager:
 #xdg-mime query default inode/directory
 
-# If /usr/local/bin is not writeable by this user, make it writeable.
-if ! test -w /usr/local/bin/; then
-	sudo chmod a+rwx /usr/local/bin/
-fi
-echo -e '#!/bin/bash\nsleep 1s\nxset dpms force off' | sudo tee /usr/local/bin/turnoffscreen.sh
-echo -e '#!/bin/bash\nsleep 2s\nwhile true; do\n\txset dpms force off\n\tsleep 10s\ndone' | sudo tee /usr/local/bin/whloffscreen.sh
-sudo chmod a+rx /usr/local/bin/turnoffscreen.sh /usr/local/bin/whloffscreen.sh
-
 # Tilix configuration
 if type tilix; then
 	gsettings set com.gexperts.Tilix.Settings warn-vte-config-issue false
@@ -135,10 +127,6 @@ if type mate-session; then
 	gsettings set org.mate.interface font-name 'Roboto 11'
 	gsettings set org.mate.interface monospace-font-name 'Liberation Mono 11'
 	gsettings set org.mate.Marco.general titlebar-font 'Roboto Bold 11'
-	BINDING="custom2"
-	dconf write /org/mate/desktop/keybindings/$BINDING/action "'/usr/local/bin/turnoffscreen.sh'"
-	dconf write /org/mate/desktop/keybindings/$BINDING/binding "'<Mod4>q'"
-	dconf write /org/mate/desktop/keybindings/$BINDING/name "'turnoffscreen'"
 	# Icon theme
 	if [ -d "/usr/share/icons/Numix-Circle" ] || [ -d "/usr/local/share/icons/Numix-Circle" ]; then
 		gsettings set org.mate.interface icon-theme "Numix-Circle"
@@ -241,14 +229,11 @@ if type gnome-session; then
 	gsettings set org.gnome.desktop.interface monospace-font-name 'Liberation Mono 11'
 	gsettings set org.gnome.desktop.wm.preferences titlebar-font 'Roboto Bold 11'
 
-	#This section enabled the custom keybindings, and creates the required turnoffscreen script.
-	gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/']"
+	# This section enables custom keybindings.
+	gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']"
 	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ binding '<Super>e'
 	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ command 'gnome-control-center display'
 	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ name 'Gnome Display Settings'
-	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/ binding '<Super>w'
-	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/ name 'Turn off screen'
-	gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/ command /usr/local/bin/turnoffscreen.sh
 	# No Fish config for gnome-terminal, does not change folders when using "Open in Terminal"
 	if type file-roller &> /dev/null; then
 		# Run "xdg-mime query default <mime type>" to get current association.
