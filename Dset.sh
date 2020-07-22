@@ -401,8 +401,8 @@ if type xfconf-query; then
 	# Panel settings
 	xfconf-query -c xfce4-panel -p /panels/panel-1/length --type int --set 100 --create
 	xfconf-query -c xfce4-panel -p /panels/panel-2/length --type int --set 100 --create
-	xfconf-query -c xfce4-panel -p /panels/panel-1/size  --type int --set 20 --create
-	xfconf-query -c xfce4-panel -p /panels/panel-2/size  --type int --set 20 --create
+	xfconf-query -c xfce4-panel -p /panels/panel-1/size  --type int --set 30 --create
+	xfconf-query -c xfce4-panel -p /panels/panel-2/size  --type int --set 30 --create
 	xfconf-query -c xfce4-panel -p /panels/panel-1/position-locked --type bool --set true --create
 	xfconf-query -c xfce4-panel -p /panels/panel-2/position-locked --type bool --set true --create
 	xfconf-query -c xfce4-panel -p /panels/panel-1/autohide-behavior --type int --set 0 --create
