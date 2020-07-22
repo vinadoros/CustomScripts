@@ -359,7 +359,7 @@ def BackupSudoersFile(sudoersfile):
 def CheckRestoreSudoersFile(sudoersfile):
     """Check sudoers validity. Restore the sudoers file from a backup if the operation failed."""
     # Check if visudo reports successful configuration.
-    status = subprocess.run('visudo -c', shell=True)
+    status = subprocess.run('visudo -c {0}'.format(sudoersfile), shell=True, check=False)
     sudoersfile_backup = os.path.join(tempfile.gettempdir(), os.path.basename(sudoersfile))
     if status.returncode != 0:
         # Restore the backup file if it exists.
