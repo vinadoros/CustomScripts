@@ -284,9 +284,14 @@ elif type yay &> /dev/null || type pacman &> /dev/null; then
     }
     function se () {
         echo -e "\nSearching for $@."
-        $PKGMGR -Ss "$@"
         snap_search "$@"
         flatpak_search "$@"
+        echo -e "\nPackage info"
+        $PKGMGR -Si "$@"
+        echo -e "\nPackages in repo."
+        $PKGMGR -Ss "$@"
+        echo -e "\nInstalled packages."
+        $PKGMGR -Qs "$@"
     }
     function cln () {
         echo "Auto-removing packages."
@@ -803,9 +808,14 @@ else if type -q yay
     end
     function se
         echo -e "\\nSearching for $argv."
-        yay -Ss $argv
         snap_search $argv
         flatpak_search $argv
+        echo -e "\\nPackage info"
+        yay -Si $argv
+        echo -e "\\nPackages in repo."
+        yay -Ss $argv
+        echo -e "\\nInstalled packages."
+        yay -Qs $argv
     end
     function cln
         echo "Auto-removing packages."
