@@ -87,7 +87,7 @@ if __name__ == '__main__':
     vmstatus = CFunc.getvmstate()
 
     # Update mirrors.
-    subprocess.run("pacman-mirrors --geoip", shell=True, check=True)
+    subprocess.run("pacman-mirrors -f 10", shell=True, check=True)
     pacman_invoke("-Syy")
     # Update system.
     pacman_update()
