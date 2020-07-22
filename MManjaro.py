@@ -106,9 +106,12 @@ if __name__ == '__main__':
     CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("pacman")))
 
     # Cli tools
-    pacman_install("bash-completion fish zsh zsh-completions nano tmux iotop rsync p7zip zip unzip unrar xdg-utils xdg-user-dirs sshfs openssh avahi ntfs-3g")
+    pacman_install("bash-completion fish zsh zsh-completions nano git tmux iotop rsync p7zip zip unzip unrar xdg-utils xdg-user-dirs sshfs openssh avahi ntfs-3g")
     sysctl_enable("sshd avahi-daemon")
     pacman_install("powerline-fonts ttf-roboto ttf-roboto-mono noto-fonts")
+    # Git config
+    subprocess.run("git config --global pull.rebase false", shell=True, check=True)
+    CFunc.run_as_user(USERNAMEVAR, "git config --global pull.rebase false")
     # Samba
     pacman_install("samba manjaro-settings-samba")
     sysctl_enable("smb nmb winbind")
