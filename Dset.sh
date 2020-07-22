@@ -396,19 +396,6 @@ if type xfconf-query; then
 	xfconf-query -c xfce4-panel -p /panels/panel-1/position --type string --set "p=6;x=0;y=0" --create
 	# Put panel 2 on the bottom of the screen
 	xfconf-query -c xfce4-panel -p /panels/panel-2/position --type string --set "p=10;x=0;y=0" --create
-	# Create plugin ids
-	xfconf-query -c xfce4-panel -p /plugins/plugin-1 --type string --set "whiskermenu" --create
-	xfconf-query -c xfce4-panel -p /plugins/plugin-2 --type string --set "whiskermenu" --create
-	xfconf-query -c xfce4-panel -p /plugins/plugin-3 --type string --set "whiskermenu" --create
-	xfconf-query -c xfce4-panel -p /plugins/plugin-4 --type string --set "whiskermenu" --create
-	xfconf-query -c xfce4-panel -p /plugins/plugin-5 --type string --set "whiskermenu" --create
-	xfconf-query -c xfce4-panel -p /plugins/plugin-6 --type string --set "whiskermenu" --create
-	xfconf-query -c xfce4-panel -p /plugins/plugin-7 --type string --set "whiskermenu" --create
-	xfconf-query -c xfce4-panel -p /plugins/plugin-8 --type string --set "whiskermenu" --create
-	xfconf-query -c xfce4-panel -p /plugins/plugin-9 --type string --set "whiskermenu" --create
-	xfconf-query -c xfce4-panel -p /plugins/plugin-10 --type string --set "whiskermenu" --create
-	xfconf-query -c xfce4-panel -p /plugins/plugin-11 --type string --set "whiskermenu" --create
-	xfconf-query -c xfce4-panel -p /plugins/plugin-12 --type string --set "whiskermenu" --create
 
 	# List plugins
 	# xfconf-query -c xfce4-panel -p /plugins -lv
@@ -434,9 +421,13 @@ if type xfconf-query; then
 	xfconf-query -c xfce4-panel -p /plugins/plugin-14 --type string --set "xfce4-clipman-plugin" --create
 	xfconf-query -c xfce4-panel -p /plugins/plugin-15 --type string --set "pulseaudio" --create
 	xfconf-query -c xfce4-panel -p /plugins/plugin-20 --type string --set "launcher" --create
-	xfconf-query -c xfce4-panel -p /plugins/plugin-20/items --type string --set "chromium-browser.desktop" --force-array --create
+	xfconf-query -c xfce4-panel -p /plugins/plugin-20/items --type string --set "firefox.desktop" --force-array --create
 	xfconf-query -c xfce4-panel -p /plugins/plugin-21 --type string --set "launcher" --create
-	xfconf-query -c xfce4-panel -p /plugins/plugin-21/items --type string --set "Thunar.desktop" --force-array --create
+	if [ -f "/usr/share/applications/Thunar.desktop" ]; then
+		xfconf-query -c xfce4-panel -p /plugins/plugin-21/items --type string --set "Thunar.desktop" --force-array --create
+	else
+		xfconf-query -c xfce4-panel -p /plugins/plugin-21/items --type string --set "thunar.desktop" --force-array --create
+	fi
 	xfconf-query -c xfce4-panel -p /plugins/plugin-22 --type string --set "launcher" --create
 	xfconf-query -c xfce4-panel -p /plugins/plugin-22/items --type string --set "xfce4-terminal.desktop" --force-array --create
 	xfconf-query -c xfce4-panel -p /plugins/plugin-23 --type string --set "launcher" --create
