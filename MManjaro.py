@@ -88,7 +88,7 @@ if __name__ == '__main__':
 
     # Update mirrors.
     subprocess.run("pacman-mirrors --geoip", shell=True, check=True)
-    subprocess.run("pacman-mirrors -f 5", shell=True, check=True)
+    subprocess.run("pacman-mirrors -f 7", shell=True, check=True)
     pacman_invoke("-Syy")
     # Update system.
     pacman_update()
@@ -203,7 +203,9 @@ if __name__ == '__main__':
         # Run MATE Configuration
         subprocess.run("{0}/DExtMate.py -c".format(SCRIPTDIR), shell=True, check=True)
     elif args.desktop == "xfce":
-        pacman_install("xfce4-gtk3 xfce4-goodies xfce4-terminal network-manager-applet xfce4-notifyd-gtk3 xfce4-whiskermenu-plugin-gtk3 tumbler engrampa manjaro-xfce-gtk3-settings manjaro-settings-manager")
+        pacman_install("xfce4-gtk3 xfce4-terminal network-manager-applet xfce4-notifyd-gtk3 xfce4-whiskermenu-plugin-gtk3 tumbler engrampa manjaro-xfce-gtk3-settings manjaro-settings-manager")
+        # xfce4-goodies
+        pacman_install("thunar-archive-plugin thunar-media-tags-plugin xfce4-artwork xfce4-battery-plugin xfce4-clipman-plugin xfce4-cpufreq-plugin xfce4-cpugraph-plugin xfce4-datetime-plugin xfce4-diskperf-plugin xfce4-fsguard-plugin xfce4-genmon-plugin xfce4-mount-plugin xfce4-mpc-plugin xfce4-netload-plugin xfce4-notifyd xfce4-pulseaudio-plugin xfce4-screensaver xfce4-screenshooter xfce4-sensors-plugin xfce4-systemload-plugin xfce4-taskmanager xfce4-timer-plugin xfce4-wavelan-plugin xfce4-weather-plugin xfce4-xkb-plugin xfce4-whiskermenu-plugin")
         lightdm_configure()
 
     if not args.nogui:
