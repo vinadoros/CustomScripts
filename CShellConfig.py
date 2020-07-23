@@ -432,7 +432,7 @@ if os.path.isdir(bashit_path):
     """.format(ROOTHOME, bashit_path), shell=True, check=True)
     subprocess.run("""sed -i -- "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTPATH), shell=True, check=True)
     if rootstate is True:
-        CFunc.run_as_user(USERNAMEVAR, "{0}/install.sh --silent".format(bashit_path), shutil.which("bash"))
+        CFunc.run_as_user(USERNAMEVAR, "{0}/install.sh --silent".format(bashit_path), shutil.which("bash"), error_on_fail=True)
         subprocess.run("""sed -i -- "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0} {1}""".format(BASHROOTSCRIPTPATH, BASHSCRIPTPATH), shell=True, check=True)
 
 # Install bash script
@@ -547,13 +547,13 @@ if args.fish is True and shutil.which('fish'):
         omf_git_path = os.path.join(tempfile.gettempdir(), "oh-my-fish")
         CFunc.gitclone("https://github.com/oh-my-fish/oh-my-fish", omf_git_path)
         if rootstate is True:
-            CFunc.run_as_user(USERNAMEVAR, "cd {0}; bin/install --offline --noninteractive".format(omf_git_path), shutil.which("fish"))
+            CFunc.run_as_user(USERNAMEVAR, "cd {0}; bin/install --offline --noninteractive".format(omf_git_path), shutil.which("fish"), error_on_fail=True)
         else:
-            subprocess.Popen("cd {0}; bin/install --offline --noninteractive", shell=True, executable=shutil.which("fish"))
+            subprocess.Popen("cd {0}; bin/install --offline --noninteractive", shell=True, executable=shutil.which("fish"), error_on_fail=True)
         shutil.rmtree(omf_git_path)
         # Install bobthefish
         if rootstate is True:
-            CFunc.run_as_user(USERNAMEVAR, "omf install bobthefish", shutil.which("fish"))
+            CFunc.run_as_user(USERNAMEVAR, "omf install bobthefish", shutil.which("fish"), error_on_fail=True)
         else:
             subprocess.Popen("omf install bobthefish", shell=True, executable=shutil.which("fish"))
 

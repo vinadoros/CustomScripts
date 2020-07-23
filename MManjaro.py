@@ -25,7 +25,7 @@ def pacman_invoke(options: str):
 def yay_invoke(run_as_user: str, options: str):
     """Invoke yay as normal user"""
     if shutil.which("yay"):
-        CFunc.run_as_user(run_as_user, "yay --noconfirm {0}".format(options))
+        CFunc.run_as_user(run_as_user, "yay --noconfirm {0}".format(options), error_on_fail=True)
     else:
         print("ERROR: yay not found. Exiting.")
         sys.exit(1)
@@ -111,7 +111,7 @@ if __name__ == '__main__':
     pacman_install("powerline-fonts ttf-roboto ttf-roboto-mono noto-fonts")
     # Git config
     subprocess.run("git config --global pull.rebase false", shell=True, check=True)
-    CFunc.run_as_user(USERNAMEVAR, "git config --global pull.rebase false")
+    CFunc.run_as_user(USERNAMEVAR, "git config --global pull.rebase false", error_on_fail=True)
     # Samba
     pacman_install("samba manjaro-settings-samba")
     sysctl_enable("smb nmb winbind")
@@ -183,11 +183,11 @@ if __name__ == '__main__':
         gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
         os.chmod(gs_installer[0], 0o777)
         # Install volume extension
-        CFunc.run_as_user(USERNAMEVAR, "{0} --yes 858".format(gs_installer[0]))
+        CFunc.run_as_user(USERNAMEVAR, "{0} --yes 858".format(gs_installer[0]), error_on_fail=True)
         # Install dashtodock extension
-        CFunc.run_as_user(USERNAMEVAR, "{0} --yes 307".format(gs_installer[0]))
+        CFunc.run_as_user(USERNAMEVAR, "{0} --yes 307".format(gs_installer[0]), error_on_fail=True)
         # Install Do Not Disturb extension
-        CFunc.run_as_user(USERNAMEVAR, "{0} --yes 1480".format(gs_installer[0]))
+        CFunc.run_as_user(USERNAMEVAR, "{0} --yes 1480".format(gs_installer[0]), error_on_fail=True)
     elif args.desktop == "kde":
         # KDE
         pacman_install("plasma kio-extras kdebase sddm")

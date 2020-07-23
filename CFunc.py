@@ -98,9 +98,9 @@ def gitclone(url, destination):
     abs_dest = os.path.abspath(destination)
     if os.path.isdir(abs_dest):
         print("{0} exists. Pulling changes.".format(abs_dest))
-        subprocess.run("cd {0}; git checkout -f; git pull".format(abs_dest), shell=True)
+        subprocess.run("cd {0}; git checkout -f; git pull".format(abs_dest), shell=True, check=True)
     else:
-        subprocess.run("git clone {0} {1}".format(url, destination), shell=True)
+        subprocess.run("git clone {0} {1}".format(url, destination), shell=True, check=True)
 def log_config(logfile_path):
     """Configure logger, which outputs to file and stdout."""
     logging.basicConfig(
@@ -233,7 +233,7 @@ def demote(user_uid, user_gid):
         os.setgid(user_gid)
         os.setuid(user_uid)
     return result
-def run_as_user(user_name, cmd, shell_cmd=None):
+def run_as_user(user_name, cmd, shell_cmd=None, error_on_fail=False):
     """Run a command as the specified username."""
     cwd = os.getcwd()
     pw_record = pwd.getpwnam(user_name)
@@ -249,6 +249,8 @@ def run_as_user(user_name, cmd, shell_cmd=None):
     print("Running {0} as {1}".format(cmd, user_name))
     process = subprocess.Popen(cmd, preexec_fn=demote(user_uid, user_gid), cwd=cwd, env=env, shell=True, executable=shell_cmd)
     process.wait()
+    if error_on_fail is True and process.returncode != 0:
+        sys.exit("ERROR: {0} ran as user {1} returned status code {2}. Exiting.".format(cmd, user_name, process.returncode))
     return process.returncode
 def chown_recursive(path, user_name, group_name):
     """Recursive chown."""
@@ -285,8 +287,8 @@ def systemd_createsystemunit(sysunitname, sysunittext, sysenable=False):
         fullunitpath_write.write(sysunittext)
     # Enable the unit if specified.
     if sysenable is True:
-        subprocess.run("systemctl daemon-reload", shell=True)
-        subprocess.run("systemctl enable {0}".format(sysunitname), shell=True)
+        subprocess.run("systemctl daemon-reload", shell=True, check=True)
+        subprocess.run("systemctl enable {0}".format(sysunitname), shell=True, check=True)
     else:
         print("{0} not enabled. Enable with systemctl enable {0}.".format(sysunitname))
     return 0
@@ -325,7 +327,7 @@ AllowIsolate=true""")
         chown_recursive(os.path.join(USERHOME, ".config"), USERNAMEVAR, USERGROUP)
     else:
         # Run daemon-reload if not running as root.
-        subprocess.run("systemctl --user daemon-reload", shell=True)
+        subprocess.run("systemctl --user daemon-reload", shell=True, check=True)
     return 0
 ### Distro and Package Manager Specific Functions ###
 # General Distro Functions
@@ -419,13 +421,13 @@ def Fstab_AddLine(fstab_path, linetoadd):
 # Apt
 def aptupdate():
     """Update apt sources"""
-    subprocess.run("apt-get update", shell=True)
+    subprocess.run("apt-get update", shell=True, check=True)
 def aptdistupg():
     """Upgrade/Dist-Upgrade system using apt"""
     aptupdate()
     print("\nPerforming (dist)upgrade.")
-    subprocess.run("apt-get upgrade -y", shell=True)
-    subprocess.run("apt-get dist-upgrade -y", shell=True)
+    subprocess.run("apt-get upgrade -y", shell=True, check=True)
+    subprocess.run("apt-get dist-upgrade -y", shell=True, check=True)
 def aptinstall(aptapps, error_on_fail=True):
     """Install application(s) using apt"""
     print("\nInstalling {0} using apt.".format(aptapps))
@@ -435,7 +437,7 @@ def aptinstall(aptapps, error_on_fail=True):
         subprocess.run("sudo apt-get install -y {0}".format(aptapps), shell=True, check=error_on_fail)
 def addppa(ppasource):
     """Add a ppa"""
-    subprocess.run("add-apt-repository -y '{0}'".format(ppasource), shell=True)
+    subprocess.run("add-apt-repository -y '{0}'".format(ppasource), shell=True, check=True)
     aptupdate()
 def aptmark(aptapps, mark=True):
     """Set or unset apt-mark hold for packages. mark=True for holding, mark=False for unholding."""
@@ -443,12 +445,12 @@ def aptmark(aptapps, mark=True):
         mark_text = "hold"
     else:
         mark_text = "unhold"
-    subprocess.run("apt-mark {0} {1}".format(mark_text, aptapps), shell=True)
+    subprocess.run("apt-mark {0} {1}".format(mark_text, aptapps), shell=True, check=True)
 # DNF
 def dnfupdate():
     """Update system"""
     print("\nPerforming system update.")
-    subprocess.run("dnf update -y", shell=True)
+    subprocess.run("dnf update -y", shell=True, check=True)
 def dnfinstall(dnfapps, error_on_fail=True):
     """Install application(s) using dnf"""
     status = None
@@ -466,12 +468,12 @@ def flatpak_addremote(remotename, remoteurl):
     """Add a remote to flatpak."""
     if shutil.which("flatpak"):
         print("Installing remote {0}.".format(remotename))
-        subprocess.run("{0}flatpak remote-add --if-not-exists {1} {2}".format(sudocmd(), remotename, remoteurl), shell=True)
+        subprocess.run("{0}flatpak remote-add --if-not-exists {1} {2}".format(sudocmd(), remotename, remoteurl), shell=True, check=True)
 def flatpak_install(remote, app):
     """Install application(s) using flatpak using the specified remote."""
     if shutil.which("flatpak"):
         print("\nInstalling {0} using flatpak using {1}.".format(app, remote))
-        subprocess.run("{0}flatpak install -y {1} {2}".format(sudocmd(), remote, app), shell=True)
+        subprocess.run("{0}flatpak install -y {1} {2}".format(sudocmd(), remote, app), shell=True, check=True)
 # Snap
 def snap_install(app, classic=False):
     """Install application(s) using snap"""
@@ -482,7 +484,7 @@ def snap_install(app, classic=False):
     # Command
     if shutil.which("snap"):
         print("\nInstalling {0} using snap.".format(app))
-        subprocess.run("{0}snap install {1} {2}".format(sudocmd(), snap_classic, app), shell=True)
+        subprocess.run("{0}snap install {1} {2}".format(sudocmd(), snap_classic, app), shell=True, check=True)
 
 
 if __name__ == '__main__':
