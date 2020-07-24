@@ -52,7 +52,7 @@ if args.noprompt is False:
     input("Press Enter to continue.")
 
 # Grab the Manjaro pacman.conf
-subprocess.run("wget https://gitlab.manjaro.org/packages/core/pacman/-/raw/master/pacman.conf.x86_64?inline=false -O /etc/pacman.conf", shell=True, check=True)
+subprocess.run("curl -o /etc/pacman.conf https://gitlab.manjaro.org/packages/core/pacman/-/raw/master/pacman.conf.x86_64?inline=false", shell=True, check=True)
 # Trust all packages
 subprocess.run("sed -i 's/^SigLevel\s*=.*/SigLevel = Never/g' /etc/pacman.conf", shell=True, check=True)
 # Add a Manjaro mirror
