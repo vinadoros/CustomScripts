@@ -32,7 +32,7 @@ CFunc.is_root(False)
 ########################## Functions ##########################
 def cmd_silent(cmd=list):
     """Run a command silently"""
-    status = subprocess.run(cmd, check=False, shell=False, stdout=open(os.devnull, 'wb'), stderr=open(os.devnull, 'wb')).returncode
+    status = subprocess.run(cmd, check=False, shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode
     return status
 
 def cmd_distropkgs(cmd_type=int, enabled=bool):

@@ -38,6 +38,12 @@ def pacman_update():
 def yay_install(run_as_user: str, packages: str):
     """Install packages with yay"""
     yay_invoke(run_as_user, "-S --needed {0}".format(packages))
+def pacman_check_remove(package):
+    """Check if a package is installed, and remove it (and its dependencies)"""
+    # Search for the pacakge.
+    package_found_status = subprocess.run("pacman -Qi {0}".format(package), shell=True, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode
+    if package_found_status == 0:
+        subprocess.run("pacman -Rscn --noconfirm {0}".format(package), shell=True, check=False)
 def sysctl_enable(options):
     """Enable systemctl services"""
     subprocess.run("systemctl enable {0}".format(options), shell=True, check=True)
@@ -125,6 +131,9 @@ if __name__ == '__main__':
     sysctl_enable("earlyoom")
     # GUI Packages
     if not args.nogui:
+        # Note: In an iso install of Manjaro, xorg-fonts-alias is a conflicting package. Remove it before trying to install the xorg groups. Then re-install the dependent packages.
+        pacman_check_remove("xorg-fonts-alias")
+        pacman_install("xorg-fonts-alias-misc xorg-fonts-alias-cyrillic xorg-fonts-alias-75dpi xorg-fonts-alias-100dpi ttf-indic-otf")
         # X Server
         pacman_install("xorg xorg-drivers xorg-fonts manjaro-input")
         # Browsers
@@ -156,6 +165,8 @@ if __name__ == '__main__':
         pacman_install("gnome-disk-utility")
         # Manjaro tools
         pacman_install("mhwd")
+        # Pamac
+        pacman_install("pamac")
 
     # Install software for VMs
     if vmstatus == "kvm":
@@ -173,7 +184,8 @@ if __name__ == '__main__':
     # Install Desktop Software
     if args.desktop == "gnome":
         # Gnome
-        pacman_install("baobab eog evince file-roller gdm gedit gnome-backgrounds gnome-calculator gnome-characters gnome-clocks gnome-wallpapers gnome-color-manager gnome-control-center gnome-font-viewer gnome-getting-started-docs gnome-keyring gnome-logs gnome-menus gnome-remote-desktop gnome-screenshot gnome-session gnome-settings-daemon gnome-shell gnome-shell-extensions gnome-system-monitor gnome-terminal gnome-themes-extra gnome-user-docs gnome-video-effects gnome-weather gvfs gvfs-google gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-smb mutter nautilus orca sushi tracker tracker-miners vino xdg-user-dirs-gtk xdg-desktop-portal-gtk yelp gnome-software manjaro-gnome-assets manjaro-gnome-settings manjaro-gnome-extension-settings manjaro-gdm-theme manjaro-settings-manager")
+        pacman_install("baobab eog evince file-roller gdm gedit gnome-backgrounds gnome-calculator gnome-characters gnome-clocks gnome-wallpapers gnome-color-manager gnome-control-center gnome-font-viewer gnome-getting-started-docs gnome-keyring gnome-logs gnome-menus gnome-remote-desktop gnome-screenshot gnome-session gnome-settings-daemon gnome-shell gnome-shell-extensions gnome-system-monitor gnome-terminal gnome-themes-extra gnome-user-docs gnome-video-effects gnome-weather gvfs gvfs-google gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-smb mutter nautilus orca sushi tracker tracker-miners vino xdg-user-dirs-gtk xdg-desktop-portal-gtk yelp gnome-firmware manjaro-gnome-assets manjaro-gnome-settings manjaro-gnome-extension-settings manjaro-gdm-theme manjaro-settings-manager")
+        pacman_install("pamac-gtk pamac-gnome-integration")
         sysctl_enable("-f gdm")
         # Some Gnome Extensions
         pacman_install("gnome-tweaks")
@@ -193,10 +205,12 @@ if __name__ == '__main__':
         pacman_install("plasma kio-extras kdebase sddm")
         pacman_install("manjaro-kde-settings sddm-breath-theme manjaro-settings-manager-knotifier manjaro-settings-manager-kcm")
         pacman_install("latte-dock")
+        pacman_install("pamac-qt pamac-tray-appindicator")
         sysctl_enable("-f sddm")
     elif args.desktop == "mate":
         # MATE
         pacman_install("mate network-manager-applet mate-extra manjaro-mate-settings arc-maia-icon-theme papirus-maia-icon-theme manjaro-settings-manager manjaro-settings-manager-notifier")
+        pacman_install("pamac-gtk")
         lightdm_configure()
         # Brisk-menu
         pacman_install("brisk-menu")
@@ -204,6 +218,7 @@ if __name__ == '__main__':
         subprocess.run("{0}/DExtMate.py -c".format(SCRIPTDIR), shell=True, check=True)
     elif args.desktop == "xfce":
         pacman_install("xfce4-gtk3 xfce4-terminal network-manager-applet xfce4-notifyd-gtk3 xfce4-whiskermenu-plugin-gtk3 tumbler engrampa manjaro-xfce-gtk3-settings manjaro-settings-manager")
+        pacman_install("pamac-gtk")
         # xfce4-goodies
         pacman_install("thunar-archive-plugin thunar-media-tags-plugin xfce4-artwork xfce4-battery-plugin xfce4-clipman-plugin xfce4-cpufreq-plugin xfce4-cpugraph-plugin xfce4-datetime-plugin xfce4-diskperf-plugin xfce4-fsguard-plugin xfce4-genmon-plugin xfce4-mount-plugin xfce4-mpc-plugin xfce4-netload-plugin xfce4-notifyd xfce4-pulseaudio-plugin xfce4-screensaver xfce4-screenshooter xfce4-sensors-plugin xfce4-systemload-plugin xfce4-taskmanager xfce4-timer-plugin xfce4-wavelan-plugin xfce4-weather-plugin xfce4-xkb-plugin xfce4-whiskermenu-plugin")
         lightdm_configure()
@@ -260,6 +275,9 @@ if __name__ == '__main__':
         CFunc.flatpak_install("flathub", "io.github.quodlibet.QuodLibet")
         CFunc.flatpak_install("flathub", "org.atheme.audacious")
         CFunc.flatpak_install("flathub", "com.calibre_ebook.calibre")
+
+        # Pamac frontends
+        pacman_install("pamac-flatpak-plugin pamac-snap-plugin")
 
     # Disable mitigations
     CFuncExt.GrubEnvAdd(os.path.join(os.sep, "etc", "default", "grub"), "GRUB_CMDLINE_LINUX", "mitigations=off")
