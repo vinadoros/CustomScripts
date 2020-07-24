@@ -473,7 +473,7 @@ def flatpak_install(remote, app):
     """Install application(s) using flatpak using the specified remote."""
     if shutil.which("flatpak"):
         print("\nInstalling {0} using flatpak using {1}.".format(app, remote))
-        subprocess.run("{0}flatpak install -y {1} {2}".format(sudocmd(), remote, app), shell=True, check=True)
+        subprocess.run("{0}flatpak install --noninteractive -y {1} {2}".format(sudocmd(), remote, app), shell=True, check=True)
 # Snap
 def snap_install(app, classic=False):
     """Install application(s) using snap"""
