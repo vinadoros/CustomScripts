@@ -86,6 +86,8 @@ zch.ChrootRunCommand(absinstallpath, 'sed -i -e "s/#en_US.UTF-8 UTF-8/en_US.UTF-
 zch.ChrootRunCommand(absinstallpath, 'echo "LANG=en_US.UTF-8" > /etc/locale.conf', run_quoted_with_bash=True)
 zch.ChrootRunCommand(absinstallpath, 'echo "LANG=\"en_US.UTF-8\"" > /etc/default/locale', run_quoted_with_bash=True)
 zch.ChrootRunCommand(absinstallpath, "locale-gen")
+# Timezone
+zch.ChrootMountPaths(absinstallpath, "ln -srf /usr/share/zoneinfo/America/New_York /etc/localtime")
 # Add normal user information
 zch.ChrootRunCommand(absinstallpath, "useradd -m -g users -G wheel -s /bin/bash {0}".format(args.username))
 zch.ChrootRunCommand(absinstallpath, 'chpasswd <<<"{0}:{1}"'.format(args.username, args.password))
