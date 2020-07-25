@@ -99,7 +99,7 @@ zch.ChrootRunCommand(absinstallpath, 'echo "{0}" > /etc/hostname'.format(args.ho
 # Install and run grub
 zch.ChrootRunCommand(absinstallpath, "pacman -S --noconfirm --needed grub grub-theme-manjaro os-prober freetype2 mtools dosfstools efibootmgr")
 if args.efi:
-    zch.ChrootRunCommand(absinstallpath, "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=manjaro --boot-directory=/boot --recheck")
+    zch.ChrootRunCommand(absinstallpath, "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=manjaro --recheck")
 else:
     zch.ChrootRunCommand(absinstallpath, "grub-install --target=i386-pc --recheck {0}".format(grubpart))
 zch.ChrootRunCommand(absinstallpath, "update-grub")
