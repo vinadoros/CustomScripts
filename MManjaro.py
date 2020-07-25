@@ -209,7 +209,7 @@ if __name__ == '__main__':
         sysctl_enable("-f sddm")
     elif args.desktop == "mate":
         # MATE
-        pacman_install("mate network-manager-applet mate-extra manjaro-mate-settings arc-maia-icon-theme papirus-maia-icon-theme manjaro-settings-manager manjaro-settings-manager-notifier")
+        pacman_install("mate network-manager-applet mate-extra manjaro-mate-settings arc-maia-icon-theme papirus-maia-icon-theme matcha-gtk-theme manjaro-settings-manager manjaro-settings-manager-notifier")
         pacman_install("pamac-gtk")
         lightdm_configure()
         # Brisk-menu
