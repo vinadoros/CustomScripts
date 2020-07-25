@@ -117,7 +117,7 @@ parser.add_argument("-n", "--vmname", help="Name of Virtual Machine")
 parser.add_argument("-p", "--vmpath", help="Path of Packer output", required=True)
 parser.add_argument("-q", "--headless", help='Generate Headless', action="store_true")
 parser.add_argument("-s", "--imgsize", type=int, help="Size of image", default=65536)
-parser.add_argument("-t", "--vmtype", type=int, help="Virtual Machine type (1=Virtualbox, 2=libvirt, 3=VMWare, 4=hyperv)", default="1")
+parser.add_argument("-t", "--vmtype", type=int, help="Virtual Machine type (1=Virtualbox, 2=libvirt, 3=VMWare", default="1")
 parser.add_argument("--noprompt", help='Do not prompt to continue.', action="store_true")
 parser.add_argument("--fullname", help="Full Name", default="User Name")
 parser.add_argument("--vmprovision", help="""Override provision options. Enclose options in double backslashes and quotes. Example: \\\\"-n -e 3\\\\" """)
@@ -145,11 +145,11 @@ if not shutil.which("packer") or args.getpacker is True:
         packer_os = "linux"
         packer_zipurl = "https://releases.hashicorp.com/packer/{0}/packer_{0}_{1}_amd64.zip".format(packerversion_get(), packer_os)
         packer_zipfile = CFunc.downloadfile(packer_zipurl, "/tmp")[0]
-        subprocess.run("7z x -aoa -y {0} -o/usr/local/bin".format(packer_zipfile), shell=True)
+        subprocess.run("7z x -aoa -y {0} -o/usr/local/bin".format(packer_zipfile), shell=True, check=True)
         os.chmod("/usr/local/bin/packer", 0o777)
         if os.path.isfile(packer_zipfile):
             os.remove(packer_zipfile)
-    subprocess.run("packer -v", shell=True)
+    subprocess.run("packer -v", shell=True, check=True)
 
 # Ensure that certain commands exist.
 cmdcheck = ["packer"]
@@ -164,8 +164,6 @@ elif args.vmtype == 2:
     hvname = "kvm"
 elif args.vmtype == 3:
     hvname = "vmware"
-elif args.vmtype == 4:
-    hvname = "hyperv"
 
 # Set OS options.
 # KVM os options can be found by running "osinfo-query os"
@@ -354,28 +352,15 @@ if args.vmtype == 1:
         # Set DHCP active on created adapter
         subprocess.run('vboxmanage hostonlyif ipconfig "{0}" --ip 192.168.253.1'.format(vbox_hostonlyif_name), shell=True, check=True)
         subprocess.run('vboxmanage dhcpserver modify --ifname "{0}" --ip 192.168.253.1 --netmask 255.255.255.0 --lowerip 192.168.253.2 --upperip 192.168.253.253 --enable'.format(vbox_hostonlyif_name), shell=True, check=True)
-elif args.vmtype == 4:
-    # Create an external switch if it does not already exist. External switch is required for guests to get DHCP.
-    # https://github.com/MattHodge/PackerTemplates#building-hyper-v-images
-    hyperv_switch_name = "External VM Switch"
-    hyperv_mainnetadapter_name = "Ethernet"
-    hyperv_winadapters = CFunc.subpout('{0} -c "Get-NetAdapter -Name "*" | Format-List -Property "Name""'.format(powershell_cmd))
-    if hyperv_switch_name not in hyperv_winadapters:
-        sys.exit('HyperV network adapter "{0}" not detected. Please install before continuing.'.format(hyperv_switch_name))
 
 # Delete leftover VMs
 if args.vmtype == 1:
     vboxvmlist = CFunc.subpout("VBoxManage list vms")
     if vmname in vboxvmlist:
-        subprocess.run('VBoxManage unregistervm "{0}" --delete'.format(vmname), shell=True)
+        subprocess.run('VBoxManage unregistervm "{0}" --delete'.format(vmname), shell=True, check=True)
 # KVM VMs removed before copy below.
 elif args.vmtype == 3:
     print("Delete vmware image.")
-elif args.vmtype == 4:
-    hyperv_vmlist = CFunc.subpout('{0} -c "Get-VM"'.format(powershell_cmd))
-    if vmname in hyperv_vmlist:
-        subprocess.run('{0} -c "Stop-VM -Name {1} -TurnOff -Force"'.format(powershell_cmd, vmname), shell=True)
-        subprocess.run('{0} -c "Remove-VM -Name {1} -TurnOff -Force"'.format(powershell_cmd, vmname), shell=True)
 
 # Check iso
 if args.iso is not None:
@@ -503,11 +488,6 @@ elif args.vmtype == 3:
     if 50 <= args.ostype <= 59:
         data['builders'][0]["tools_upload_flavor"] = "windows"
         data['builders'][0]["tools_upload_path"] = "c:/Windows/Temp/windows.iso"
-elif args.vmtype == 4:
-    data['builders'][0]["type"] = "hyperv-iso"
-    data['builders'][0]["vm_name"] = "{0}".format(vmname)
-    data['builders'][0]["memory"] = "{0}".format(args.memory)
-    data['builders'][0]["enable_dynamic_memory"] = True
 data['builders'][0]["shutdown_command"] = "shutdown -P now"
 data['builders'][0]["iso_url"] = "{0}".format(isopath)
 data['builders'][0]["iso_checksum"] = "md5:{0}".format(md5)
@@ -663,8 +643,8 @@ if os.path.isdir(output_folder):
     if args.vmtype == 2:
         kvmlist = CFunc.subpout("virsh --connect qemu:///system -q list --all")
         if vmname.lower() in kvmlist.lower():
-            subprocess.run('virsh --connect qemu:///system destroy "{0}"'.format(vmname), shell=True)
-            subprocess.run('virsh --connect qemu:///system undefine "{0}"'.format(vmname), shell=True)
+            subprocess.run('virsh --connect qemu:///system destroy "{0}"'.format(vmname), shell=True, check=False)
+            subprocess.run('virsh --connect qemu:///system undefine "{0}"'.format(vmname), shell=True, check=True)
     # Remove previous file for kvm.
     if args.vmtype == 2 and os.path.isfile(os.path.join(vmpath, vmname + ".qcow2")):
         os.remove(os.path.join(vmpath, vmname + ".qcow2"))
