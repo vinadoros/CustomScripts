@@ -64,7 +64,7 @@ if args.uninstall is False:
         subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True, check=True)
         subprocess.run("usermod -aG libvirt-qemu {0}".format(USERNAMEVAR), shell=True, check=True)
     elif shutil.which("pacman"):
-        subprocess.run("pacman -S --needed --noconfirm libvirt virt-manager bridge-utils openbsd-netcat ebtables dnsmasq", shell=True, check=True)
+        subprocess.run("pacman -S --needed --noconfirm libvirt virt-manager qemu bridge-utils openbsd-netcat ebtables dnsmasq", shell=True, check=True)
         subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True, check=True)
         subprocess.run("systemctl enable --now libvirtd.service", shell=True, check=True)
 
