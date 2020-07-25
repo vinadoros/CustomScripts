@@ -66,6 +66,7 @@ if args.uninstall is False:
     elif shutil.which("pacman"):
         subprocess.run("pacman -S --needed --noconfirm libvirt virt-manager bridge-utils openbsd-netcat ebtables dnsmasq", shell=True, check=True)
         subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True, check=True)
+        subprocess.run("systemctl enable --now libvirtd.service", shell=True, check=True)
 
     # Remove existing default pool
     subprocess.run("virsh pool-destroy default", shell=True, check=False)
