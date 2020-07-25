@@ -129,6 +129,9 @@ if __name__ == '__main__':
     # EarlyOOM
     pacman_install("earlyoom")
     sysctl_enable("earlyoom")
+    # firewalld
+    pacman_install("firewalld ipset")
+    sysctl_enable("firewalld")
     # GUI Packages
     if not args.nogui:
         # Note: In an iso install of Manjaro, xorg-fonts-alias is a conflicting package. Remove it before trying to install the xorg groups. Then re-install the dependent packages.
