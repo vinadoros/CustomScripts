@@ -40,17 +40,6 @@ print("x0vnc config flag is", args.x0vnc)
 if args.noprompt is False:
     input("Press Enter to continue.")
 
-
-# Install vnc for vncsd and x0vnc.
-if args.vncsd is True or args.x0vnc is True:
-    print("Installing vnc.")
-    if shutil.which("dnf"):
-        CFunc.dnfinstall("tigervnc tigervnc-server")
-        subprocess.run("dnf copr enable shymega/autocutsel-copr", shell=True)
-        CFunc.dnfinstall("autocutsel")
-    elif shutil.which("apt-get"):
-        CFunc.aptinstall("tigervnc-standalone-server vnc4server autocutsel")
-
 # Create vnc folders
 VncUserFolder = USERHOME + "/.vnc"
 if args.vncsd is True or args.x0vnc is True:
@@ -70,7 +59,7 @@ unset DBUS_SESSION_BUS_ADDRESS
 type autocutsel && autocutsel -fork
 type vncconfig && vncconfig -nowin &
 # Execute this session. Add more sessions as necessary to autoselect.
-exec mate-session
+exec dbus-launch mate-session
 """)
     os.chmod(VncXstartupFile, 0o777)
     # Openbox configuration.
@@ -118,7 +107,7 @@ PAMName=login
 
 # Clean any existing files in /tmp/.X11-unix environment
 ExecStartPre=/bin/sh -c '/usr/bin/vncserver -kill :5 > /dev/null 2>&1 || :'
-ExecStart={vncservpath} :5 -localhost=0 -geometry 1024x768 -fg -alwaysshared -rfbport 5905 -rfbauth "{vncpasspath}" -auth ~/.Xauthority
+ExecStart={vncservpath} :5 -localhost=1 -SecurityTypes none -geometry 1024x768 -fg -alwaysshared -rfbport 5905 -rfbauth "{vncpasspath}" -auth ~/.Xauthority
 ExecStop=/usr/bin/vncserver -kill :5
 PIDFile={userhome}/.vnc/%H:5.pid
 Restart=on-failure
