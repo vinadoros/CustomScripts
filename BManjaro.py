@@ -20,6 +20,7 @@ SCRIPTDIR = sys.path[0]
 parser = argparse.ArgumentParser(description='Install Debian/Ubuntu into a folder/chroot.')
 
 parser.add_argument("-c", "--hostname", help='Hostname', default="ManjaroTest")
+parser.add_argument("-e", "--efi", help='Install EFI bootloader', action="store_true")
 parser.add_argument("-f", "--fullname", help='Full Name', default="User Name")
 parser.add_argument("-i", "--grubpartition", help='Grub Custom Parition (if autodetection isnt working, i.e. /dev/sdb)', default=None)
 parser.add_argument("-l", "--linuxpkg", help='Linux package to install (default: %(default)s)', default="linux-lts")
@@ -96,8 +97,11 @@ zch.ChrootRunCommand(absinstallpath, 'chfn -f "{0}" {1}'.format(args.fullname, a
 # Add hostname
 zch.ChrootRunCommand(absinstallpath, 'echo "{0}" > /etc/hostname'.format(args.hostname), run_quoted_with_bash=True)
 # Install and run grub
-zch.ChrootRunCommand(absinstallpath, "pacman -S --noconfirm --needed grub grub-theme-manjaro os-prober freetype2 mtools")
-zch.ChrootRunCommand(absinstallpath, "grub-install --target=i386-pc --recheck {0}".format(grubpart))
-zch.ChrootRunCommand(absinstallpath, "grub-mkconfig -o /boot/grub/grub.cfg")
+zch.ChrootRunCommand(absinstallpath, "pacman -S --noconfirm --needed grub grub-theme-manjaro os-prober freetype2 mtools dosfstools efibootmgr")
+if args.efi:
+    zch.ChrootRunCommand(absinstallpath, "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=manjaro --boot-directory=/boot --recheck")
+else:
+    zch.ChrootRunCommand(absinstallpath, "grub-install --target=i386-pc --recheck {0}".format(grubpart))
+zch.ChrootRunCommand(absinstallpath, "update-grub")
 # End and unmount chroot paths
 zch.ChrootUnmountPaths(absinstallpath)
