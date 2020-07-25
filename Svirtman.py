@@ -56,26 +56,29 @@ if args.uninstall is False:
     if shutil.which("dnf"):
         CFunc.dnfinstall("@virtualization")
         CFunc.dnfinstall("python3-libguestfs")
-        subprocess.run("systemctl enable libvirtd", shell=True)
-        subprocess.run("systemctl start libvirtd", shell=True)
-        subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True)
+        subprocess.run("systemctl enable libvirtd", shell=True, check=True)
+        subprocess.run("systemctl start libvirtd", shell=True, check=True)
+        subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True, check=True)
     elif shutil.which("apt-get"):
         CFunc.aptinstall("virt-manager qemu-kvm ssh-askpass")
-        subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True)
-        subprocess.run("usermod -aG libvirt-qemu {0}".format(USERNAMEVAR), shell=True)
+        subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True, check=True)
+        subprocess.run("usermod -aG libvirt-qemu {0}".format(USERNAMEVAR), shell=True, check=True)
+    elif shutil.which("pacman"):
+        subprocess.run("pacman -S --needed --noconfirm libvirt virt-manager bridge-utils openbsd-netcat ebtables dnsmasq", shell=True, check=True)
+        subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True, check=True)
 
     # Remove existing default pool
-    subprocess.run("virsh pool-destroy default", shell=True)
-    subprocess.run("virsh pool-undefine default", shell=True)
+    subprocess.run("virsh pool-destroy default", shell=True, check=False)
+    subprocess.run("virsh pool-undefine default", shell=True, check=False)
     print("List all pools after deletion")
-    subprocess.run("virsh pool-list --all", shell=True)
+    subprocess.run("virsh pool-list --all", shell=True, check=False)
     # Create new default pool
-    subprocess.run('virsh pool-define-as default dir - - - - "{0}"'.format(ImagePath), shell=True)
-    subprocess.run("virsh pool-autostart default", shell=True)
-    subprocess.run("virsh pool-start default", shell=True)
+    subprocess.run('virsh pool-define-as default dir - - - - "{0}"'.format(ImagePath), shell=True, check=True)
+    subprocess.run("virsh pool-autostart default", shell=True, check=True)
+    subprocess.run("virsh pool-start default", shell=True, check=False)
     print("List all pools after re-creation")
-    subprocess.run("virsh pool-list --all", shell=True)
-    subprocess.run("virsh pool-info default", shell=True)
+    subprocess.run("virsh pool-list --all", shell=True, check=False)
+    subprocess.run("virsh pool-info default", shell=True, check=False)
 
     # Set config info
     subprocess.run('''sed -i 's/#user = "root"/user = "{0}"/g' /etc/libvirt/qemu.conf'''.format(USERNAMEVAR), shell=True)
