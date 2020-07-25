@@ -22,7 +22,7 @@ parser = argparse.ArgumentParser(description='Install Debian/Ubuntu into a folde
 parser.add_argument("-c", "--hostname", help='Hostname', default="ManjaroTest")
 parser.add_argument("-f", "--fullname", help='Full Name', default="User Name")
 parser.add_argument("-i", "--grubpartition", help='Grub Custom Parition (if autodetection isnt working, i.e. /dev/sdb)', default=None)
-parser.add_argument("-l", "--linuxpkg", help='Linux package to install (default: linux-latest)')
+parser.add_argument("-l", "--linuxpkg", help='Linux package to install (default: %(default)s)', default="linux-lts")
 parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
 parser.add_argument("-q", "--password", help='Password', default="asdf")
 parser.add_argument("-u", "--username", help='Username', default="user")
@@ -60,9 +60,11 @@ subprocess.run("echo 'Server = http://www.gtlib.gatech.edu/pub/manjaro/stable/$r
 # Install the manjaro keyring
 subprocess.run("pacman -Syy --noconfirm manjaro-keyring archlinux-keyring", shell=True, check=True)
 # Use the argument linuxpkg if set. Confirm this option is in the list.
-linuxpkg = "linux-latest"
 if args.linuxpkg and any(args.linuxpkg == linuxopt for linuxopt in MManjaro.kernels_getlist()):
     linuxpkg = args.linuxpkg
+else:
+    # Get latest kernel if no argument given.
+    linuxpkg = MManjaro.kernels_getlatest()
 # Run pacstrap
 subprocess.run("pacstrap -G {0} base manjaro-system manjaro-release systemd systemd-libs {1}".format(absinstallpath, linuxpkg), shell=True, check=True)
 # Generate fstab
