@@ -36,20 +36,35 @@ print("Group Name is:", USERGROUP)
 print("VNC systemd service config flag is", args.vncsd)
 print("x0vnc config flag is", args.x0vnc)
 
+# Ensure that certain commands exist.
+cmdcheck = ["vncserver"]
+for cmd in cmdcheck:
+    if not shutil.which(cmd):
+        sys.exit("\nError, ensure command {0} is installed.".format(cmd))
 
 if args.noprompt is False:
     input("Press Enter to continue.")
 
+
 # Create vnc folders
-VncUserFolder = USERHOME + "/.vnc"
+VncUserFolder = os.path.join(USERHOME, ".vnc")
 if args.vncsd is True or args.x0vnc is True:
     if not os.path.isdir(VncUserFolder):
         os.makedirs(VncUserFolder, 0o700, exist_ok=True)
 
-# Openbox and XFCE configuration
-VncXstartupFile = VncUserFolder + '/xstartup'
-OpenboxConfigFolder = USERHOME + "/.config/openbox"
-OpenboxConfigFile = OpenboxConfigFolder + "/autostart"
+# Detect a few sessions, by order of preference.
+VncSession = None
+if shutil.which("mate-session"):
+    VncSession = "mate-session"
+elif shutil.which("startxfce4"):
+    VncSession = "startxfce4"
+elif shutil.which("gnome-session"):
+    VncSession = "gnome-session"
+elif shutil.which("openbox-session"):
+    VncSession = "openbox-session"
+
+# vnc/xstartup configuration
+VncXstartupFile = os.path.join(VncUserFolder, 'xstartup')
 if args.vncsd is True:
     with open(VncXstartupFile, 'w') as VncXstartupFile_handle:
         VncXstartupFile_handle.write("""#!/bin/bash
@@ -59,18 +74,13 @@ unset DBUS_SESSION_BUS_ADDRESS
 type autocutsel && autocutsel -fork
 type vncconfig && vncconfig -nowin &
 # Execute this session. Add more sessions as necessary to autoselect.
-exec dbus-launch mate-session
-""")
+exec dbus-launch {0}
+""".format(VncSession))
     os.chmod(VncXstartupFile, 0o777)
-    # Openbox configuration.
-    os.makedirs(OpenboxConfigFolder, exist_ok=True)
-    with open(OpenboxConfigFile, 'w') as OpenboxConfigFile_handle:
-        OpenboxConfigFile_handle.write("{0} &".format(shutil.which("xfce4-panel")))
 
 # VNC Password config
-VncPasswordRootPath = "/etc"
-VncPasswordPath = VncPasswordRootPath + "/vncpasswd"
-XhostLocation = shutil.which("xhost")
+VncPasswordRootPath = os.path.join(os.sep, "etc")
+VncPasswordPath = os.path.join(VncPasswordRootPath, "vncpasswd")
 if args.vncsd is True or args.x0vnc is True:
     # Check if the password has already been set.
     if not os.path.isfile(VncPasswordPath):
@@ -78,21 +88,24 @@ if args.vncsd is True or args.x0vnc is True:
         VncPassReturnCode = 1
         while VncPassReturnCode != 0:
             print("Enter a VNC Password (stored in {0}).".format(VncPasswordPath))
-            status = subprocess.run("vncpasswd {0}".format(VncPasswordPath), shell=True)
+            status = subprocess.run("vncpasswd {0}".format(VncPasswordPath), shell=True, check=True)
             VncPassReturnCode = status.returncode
         # Set permissions for password file.
         shutil.chown(VncPasswordPath, USERNAMEVAR, USERGROUP)
         os.chmod(VncPasswordPath, 0o444)
     # Add autocutsel configuration.
-    XinitrcFolder = "/etc/X11/xinit/xinitrc.d"
-    XinitrcAutocutselConfigFile = XinitrcFolder + "/40-autocutsel.sh"
-    if os.path.isdir(XinitrcFolder):
-        print("Creating {0}.".format(XinitrcAutocutselConfigFile))
-        with open(XinitrcAutocutselConfigFile, 'w') as XinitrcConfig_Handle:
-            XinitrcConfig_Handle.write("#!/bin/bash\nautocutsel -fork &")
-        os.chmod(XinitrcAutocutselConfigFile, 0o777)
+    if shutil.which("autocutsel"):
+        XinitrcFolder = os.path.join(os.sep, "etc", "X11", "xinit", "xinitrc.d")
+        XinitrcAutocutselConfigFile = os.path.join(XinitrcFolder, "40-autocutsel.sh")
+        if os.path.isdir(XinitrcFolder):
+            print("Creating {0}.".format(XinitrcAutocutselConfigFile))
+            with open(XinitrcAutocutselConfigFile, 'w') as XinitrcConfig_Handle:
+                XinitrcConfig_Handle.write("#!/bin/bash\nautocutsel -fork &")
+            os.chmod(XinitrcAutocutselConfigFile, 0o777)
+        else:
+            print("{0} does not exist. Not creating autocustsel configuration.".format(XinitrcFolder))
     else:
-        print("{0} does not exist. Not creating autocustsel configuration.".format(XinitrcFolder))
+        print("WARNING: autocutsel not found, not creating configuration.")
 
 # Config for vncsd
 if args.vncsd is True:
@@ -106,9 +119,9 @@ User={username}
 PAMName=login
 
 # Clean any existing files in /tmp/.X11-unix environment
-ExecStartPre=/bin/sh -c '/usr/bin/vncserver -kill :5 > /dev/null 2>&1 || :'
+ExecStartPre=/bin/sh -c '{vncservpath} -kill :5 > /dev/null 2>&1 || :'
 ExecStart={vncservpath} :5 -localhost=1 -SecurityTypes none -geometry 1024x768 -fg -alwaysshared -rfbport 5905 -rfbauth "{vncpasspath}" -auth ~/.Xauthority
-ExecStop=/usr/bin/vncserver -kill :5
+ExecStop={vncservpath} -kill :5
 PIDFile={userhome}/.vnc/%H:5.pid
 Restart=on-failure
 RestartSec=10s
@@ -138,5 +151,5 @@ WantedBy=default.target
 
 # Ensure ownerships are correct
 if os.path.isdir(VncUserFolder):
-    subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, VncUserFolder), shell=True)
-subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, USERHOME + "/.config"), shell=True)
+    CFunc.chown_recursive(VncUserFolder, USERNAMEVAR, USERGROUP)
+CFunc.chown_recursive(os.path.join(USERHOME, ".config"), USERNAMEVAR, USERGROUP)
