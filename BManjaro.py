@@ -17,7 +17,7 @@ print("Running {0}".format(__file__))
 SCRIPTDIR = sys.path[0]
 
 # Get arguments
-parser = argparse.ArgumentParser(description='Install Debian/Ubuntu into a folder/chroot.')
+parser = argparse.ArgumentParser(description='Install Manjaro into a folder/chroot.')
 
 parser.add_argument("-c", "--hostname", help='Hostname', default="ManjaroTest")
 parser.add_argument("-e", "--efi", help='Install EFI bootloader', action="store_true")
