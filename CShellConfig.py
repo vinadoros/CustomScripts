@@ -87,7 +87,7 @@ fi
 # Set editor to nano
 export EDITOR=nano
 
-# Add sbin paths for debian if not in path
+# Add sbin paths if not in path
 if [ "${PATH#*/sbin}" = "${PATH}" ]; then
     export PATH=/sbin:/usr/sbin:/usr/local/sbin:$PATH
 fi
@@ -365,7 +365,7 @@ if [ -z "$EDITOR" ] || [ "$EDITOR" != "nano" ]; then
     export EDITOR=nano
 fi
 
-# Add sbin paths for debian if not in path
+# Add sbin paths if not in path
 if [ "${{PATH#*/sbin}}" = "${{PATH}}" ]; then
     export PATH=/sbin:/usr/sbin:/usr/local/sbin:$PATH
 fi""".format(SCRIPTDIR)
@@ -376,11 +376,6 @@ else:
 
 # Generate bash script
 BASHSCRIPT = "\nalias la='ls -lah --color=auto'"
-# Manually source rscript for Debian
-customrctext = ""
-if distro == "Debian" and os.path.isfile(customprofile_path):
-    customrctext = "\nsource {0}".format(customprofile_path)
-BASHSCRIPT += customrctext
 BASHSCRIPT += rc_additions
 
 # Set bash script
@@ -447,16 +442,6 @@ if rootstate is True:
     os.chmod(BASHROOTSCRIPTPATH, 0o644)
     shutil.chown(BASHSCRIPTPATH, USERNAMEVAR, USERGROUP)
 
-# Modify system path for debian
-# https://serverfault.com/questions/166383/how-set-path-for-all-users-in-debian
-logindefs_file = os.path.join("/", "etc", "login.defs")
-if rootstate is True and distro == "Debian" and os.path.isfile(logindefs_file):
-    print("Modifying {0}".format(logindefs_file))
-    if CFunc.find_pattern_infile(logindefs_file, "ENV_PATH.*PATH.*{0}".format(os.path.basename(SCRIPTDIR))) is False:
-        subprocess.run("""sed -i '/^ENV_PATH.*PATH.*/ s@$@:{1}@' {0}""".format(logindefs_file, SCRIPTDIR), shell=True, check=True)
-    if CFunc.find_pattern_infile(logindefs_file, "ENV_SUPATH.*PATH.*{0}".format(os.path.basename(SCRIPTDIR))) is False:
-        subprocess.run("""sed -i '/^ENV_SUPATH.*PATH.*/ s@$@:{1}@' {0}""".format(logindefs_file, SCRIPTDIR), shell=True, check=True)
-
 
 ######### Zsh Section #########
 # Check if zsh exists
@@ -474,8 +459,6 @@ if args.zsh is True and shutil.which('zsh'):
     ohmyzsh_plugins = "git systemd zsh-syntax-highlighting zsh-autosuggestions"
     if distro == "Ubuntu":
         ohmyzsh_plugins += " ubuntu"
-    elif distro == "Debian":
-        ohmyzsh_plugins += " debian"
     if shutil.which("dnf"):
         ohmyzsh_plugins += " dnf"
     if shutil.which("yum"):
