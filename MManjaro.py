@@ -19,9 +19,6 @@ CFunc.is_root(True)
 
 
 ### Functions ###
-def pacman_invoke(options: str):
-    """Invoke pacman"""
-    subprocess.run("pacman --noconfirm {0}".format(options), shell=True, check=True)
 def yay_invoke(run_as_user: str, options: str):
     """Invoke yay as normal user"""
     if shutil.which("yay"):
@@ -29,12 +26,9 @@ def yay_invoke(run_as_user: str, options: str):
     else:
         print("ERROR: yay not found. Exiting.")
         sys.exit(1)
-def pacman_install(packages: str):
-    """Install packages with pacman"""
-    pacman_invoke("-S --needed {0}".format(packages))
 def pacman_update():
     """Pacman system update"""
-    pacman_invoke("-Syu")
+    CFunc.pacman_invoke("-Syu")
 def yay_install(run_as_user: str, packages: str):
     """Install packages with yay"""
     yay_invoke(run_as_user, "-S --needed {0}".format(packages))
@@ -44,15 +38,12 @@ def pacman_check_remove(package):
     package_found_status = subprocess.run("pacman -Qi {0}".format(package), shell=True, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode
     if package_found_status == 0:
         subprocess.run("pacman -Rscn --noconfirm {0}".format(package), shell=True, check=False)
-def sysctl_enable(options):
-    """Enable systemctl services"""
-    subprocess.run("systemctl enable {0}".format(options), shell=True, check=True)
 def lightdm_configure():
     """Configure lightdm"""
-    pacman_install("lightdm lightdm-slick-greeter lightdm-settings")
+    CFunc.pacman_install("lightdm lightdm-slick-greeter lightdm-settings")
     subprocess.run("sed -i '/^#greeter-session=.*/s/^#//g' /etc/lightdm/lightdm.conf", shell=True, check=True)
     subprocess.run("sed -i 's/^greeter-session=.*/greeter-session=lightdm-slick-greeter/g' /etc/lightdm/lightdm.conf", shell=True, check=True)
-    sysctl_enable("-f lightdm")
+    CFunc.sysctl_enable("-f lightdm", error_on_fail=True)
 def kernels_getlist():
     """Get list of all available kernels (non-realtime)."""
     kernelsinrepo_list = subprocess.check_output('pacman -Ssq "^linux[0-9][0-9]?([0-9])$"', shell=True, universal_newlines=True).splitlines()
@@ -95,15 +86,15 @@ if __name__ == '__main__':
     # Update mirrors.
     subprocess.run("pacman-mirrors --geoip", shell=True, check=True)
     subprocess.run("pacman-mirrors -f 7", shell=True, check=True)
-    pacman_invoke("-Syy")
+    CFunc.pacman_invoke("-Syy")
     # Update system.
     pacman_update()
 
     ### Install Software ###
     # Yay
-    pacman_install("yay")
+    CFunc.pacman_install("yay")
     # Install AUR dependencies
-    pacman_install("base-devel")
+    CFunc.pacman_install("base-devel")
     # Sudoers changes
     CFuncExt.SudoersEnvSettings()
     # Edit sudoers to add pacman.
@@ -112,87 +103,87 @@ if __name__ == '__main__':
     CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("pacman")))
 
     # Cli tools
-    pacman_install("bash-completion fish zsh zsh-completions nano git tmux iotop rsync p7zip zip unzip unrar xdg-utils xdg-user-dirs sshfs openssh avahi ntfs-3g")
-    sysctl_enable("sshd avahi-daemon")
-    pacman_install("powerline-fonts ttf-roboto ttf-roboto-mono noto-fonts")
+    CFunc.pacman_install("bash-completion fish zsh zsh-completions nano git tmux iotop rsync p7zip zip unzip unrar xdg-utils xdg-user-dirs sshfs openssh avahi ntfs-3g")
+    CFunc.sysctl_enable("sshd avahi-daemon", error_on_fail=True)
+    CFunc.pacman_install("powerline-fonts ttf-roboto ttf-roboto-mono noto-fonts")
     # Git config
     subprocess.run("git config --global pull.rebase false", shell=True, check=True)
     CFunc.run_as_user(USERNAMEVAR, "git config --global pull.rebase false", error_on_fail=True)
     # Samba
-    pacman_install("samba manjaro-settings-samba")
-    sysctl_enable("smb nmb winbind")
+    CFunc.pacman_install("samba manjaro-settings-samba")
+    CFunc.sysctl_enable("smb nmb winbind", error_on_fail=True)
     # cifs-utils
-    pacman_install("cifs-utils")
+    CFunc.pacman_install("cifs-utils")
     # NTP Configuration
-    sysctl_enable("systemd-timesyncd")
+    CFunc.sysctl_enable("systemd-timesyncd", error_on_fail=True)
     subprocess.run("timedatectl set-local-rtc false; timedatectl set-ntp 1", shell=True, check=True)
     # EarlyOOM
-    pacman_install("earlyoom")
-    sysctl_enable("earlyoom")
+    CFunc.pacman_install("earlyoom")
+    CFunc.sysctl_enable("earlyoom", error_on_fail=True)
     # firewalld
-    pacman_install("firewalld ipset")
-    sysctl_enable("firewalld")
+    CFunc.pacman_install("firewalld ipset")
+    CFunc.sysctl_enable("firewalld", error_on_fail=True)
     # GUI Packages
     if not args.nogui:
         # Note: In an iso install of Manjaro, xorg-fonts-alias is a conflicting package. Remove it before trying to install the xorg groups. Then re-install the dependent packages.
         pacman_check_remove("xorg-fonts-alias")
-        pacman_install("xorg-fonts-alias-misc xorg-fonts-alias-cyrillic xorg-fonts-alias-75dpi xorg-fonts-alias-100dpi ttf-indic-otf")
+        CFunc.pacman_install("xorg-fonts-alias-misc xorg-fonts-alias-cyrillic xorg-fonts-alias-75dpi xorg-fonts-alias-100dpi ttf-indic-otf")
         # X Server
-        pacman_install("xorg xorg-drivers xorg-fonts manjaro-input")
+        CFunc.pacman_install("xorg xorg-drivers xorg-fonts manjaro-input")
         # Browsers
-        pacman_install("chromium")
-        pacman_install("firefox")
+        CFunc.pacman_install("chromium")
+        CFunc.pacman_install("firefox")
         # Cups
-        pacman_install("cups-pdf")
+        CFunc.pacman_install("cups-pdf")
         # Audio/video
-        pacman_install("manjaro-pulse lib32-jack paprefs")
+        CFunc.pacman_install("manjaro-pulse lib32-jack paprefs")
         # Remote access
-        pacman_install("remmina")
+        CFunc.pacman_install("remmina")
         # Tilix
-        pacman_install("tilix")
+        CFunc.pacman_install("tilix")
         # Exclude chromium-libs-media-freeworld from multimedia
-        pacman_install("manjaro-gstreamer manjaro-vaapi")
-        pacman_install("youtube-dl ffmpeg smplayer mpv")
+        CFunc.pacman_install("manjaro-gstreamer manjaro-vaapi")
+        CFunc.pacman_install("youtube-dl ffmpeg smplayer mpv")
         # Editors
-        pacman_install("code")
+        CFunc.pacman_install("code")
         # Syncthing
-        pacman_install("syncthing")
+        CFunc.pacman_install("syncthing")
         # Flameshot
-        pacman_install("flameshot")
+        CFunc.pacman_install("flameshot")
         os.makedirs(os.path.join(USERHOME, ".config", "autostart"), exist_ok=True)
         # Start flameshot on user login.
         if os.path.isfile(os.path.join(os.sep, "usr", "share", "applications", "flameshot.desktop")):
             shutil.copy(os.path.join(os.sep, "usr", "share", "applications", "flameshot.desktop"), os.path.join(USERHOME, ".config", "autostart"))
         CFunc.chown_recursive(os.path.join(USERHOME, ".config", ), USERNAMEVAR, USERGROUP)
-        pacman_install("dconf-editor")
-        pacman_install("gnome-disk-utility")
+        CFunc.pacman_install("dconf-editor")
+        CFunc.pacman_install("gnome-disk-utility")
         # Manjaro tools
-        pacman_install("mhwd")
+        CFunc.pacman_install("mhwd")
         # Pamac
-        pacman_install("pamac")
+        CFunc.pacman_install("pamac")
 
     # Install software for VMs
     if vmstatus == "kvm":
-        pacman_install("spice-vdagent qemu-guest-agent")
-        sysctl_enable("spice-vdagentd qemu-ga")
+        CFunc.pacman_install("spice-vdagent qemu-guest-agent")
+        CFunc.sysctl_enable("spice-vdagentd qemu-ga", error_on_fail=True)
     if vmstatus == "vbox":
         if args.nogui:
-            pacman_install("virtualbox-guest-utils-nox")
+            CFunc.pacman_install("virtualbox-guest-utils-nox")
         else:
-            pacman_install("virtualbox-guest-utils")
-        pacman_install("virtualbox-guest-dkms")
+            CFunc.pacman_install("virtualbox-guest-utils")
+        CFunc.pacman_install("virtualbox-guest-dkms")
     if vmstatus == "vmware":
-        pacman_install("open-vm-tools")
+        CFunc.pacman_install("open-vm-tools")
 
     # Install Desktop Software
     if args.desktop == "gnome":
         # Gnome
-        pacman_install("baobab eog evince file-roller gdm gedit gnome-backgrounds gnome-calculator gnome-characters gnome-clocks gnome-wallpapers gnome-color-manager gnome-control-center gnome-font-viewer gnome-getting-started-docs gnome-keyring gnome-logs gnome-menus gnome-remote-desktop gnome-screenshot gnome-session gnome-settings-daemon gnome-shell gnome-shell-extensions gnome-system-monitor gnome-terminal gnome-themes-extra gnome-user-docs gnome-video-effects gnome-weather gvfs gvfs-google gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-smb mutter nautilus orca sushi tracker tracker-miners vino xdg-user-dirs-gtk xdg-desktop-portal-gtk yelp gnome-firmware manjaro-gnome-assets manjaro-gnome-settings manjaro-gnome-extension-settings manjaro-gdm-theme manjaro-settings-manager manjaro-dynamic-wallpaper")
-        pacman_install("pamac-gtk pamac-gnome-integration")
-        sysctl_enable("-f gdm")
+        CFunc.pacman_install("baobab eog evince file-roller gdm gedit gnome-backgrounds gnome-calculator gnome-characters gnome-clocks gnome-wallpapers gnome-color-manager gnome-control-center gnome-font-viewer gnome-getting-started-docs gnome-keyring gnome-logs gnome-menus gnome-remote-desktop gnome-screenshot gnome-session gnome-settings-daemon gnome-shell gnome-shell-extensions gnome-system-monitor gnome-terminal gnome-themes-extra gnome-user-docs gnome-video-effects gnome-weather gvfs gvfs-google gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-smb mutter nautilus orca sushi tracker tracker-miners vino xdg-user-dirs-gtk xdg-desktop-portal-gtk yelp gnome-firmware manjaro-gnome-assets manjaro-gnome-settings manjaro-gnome-extension-settings manjaro-gdm-theme manjaro-settings-manager manjaro-dynamic-wallpaper")
+        CFunc.pacman_install("pamac-gtk pamac-gnome-integration")
+        CFunc.sysctl_enable("-f gdm", error_on_fail=True)
         # Some Gnome Extensions
-        pacman_install("gnome-tweaks")
-        pacman_install("gpaste")
+        CFunc.pacman_install("gnome-tweaks")
+        CFunc.pacman_install("gpaste")
         yay_install(USERNAMEVAR, "aur/gnome-shell-extension-topicons-plus-git")
         # Install gs installer script.
         gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
@@ -205,25 +196,25 @@ if __name__ == '__main__':
         CFunc.run_as_user(USERNAMEVAR, "{0} --yes 1480".format(gs_installer[0]), error_on_fail=True)
     elif args.desktop == "kde":
         # KDE
-        pacman_install("plasma kio-extras kdebase sddm")
-        pacman_install("manjaro-kde-settings sddm-breath-theme manjaro-settings-manager-knotifier manjaro-settings-manager-kcm")
-        pacman_install("latte-dock")
-        pacman_install("pamac-qt pamac-tray-appindicator")
-        sysctl_enable("-f sddm")
+        CFunc.pacman_install("plasma kio-extras kdebase sddm")
+        CFunc.pacman_install("manjaro-kde-settings sddm-breath-theme manjaro-settings-manager-knotifier manjaro-settings-manager-kcm")
+        CFunc.pacman_install("latte-dock")
+        CFunc.pacman_install("pamac-qt pamac-tray-appindicator")
+        CFunc.sysctl_enable("-f sddm", error_on_fail=True)
     elif args.desktop == "mate":
         # MATE
-        pacman_install("mate network-manager-applet mate-extra manjaro-mate-settings arc-maia-icon-theme papirus-maia-icon-theme matcha-gtk-theme manjaro-settings-manager manjaro-settings-manager-notifier")
-        pacman_install("pamac-gtk")
+        CFunc.pacman_install("mate network-manager-applet mate-extra manjaro-mate-settings arc-maia-icon-theme papirus-maia-icon-theme matcha-gtk-theme manjaro-settings-manager manjaro-settings-manager-notifier")
+        CFunc.pacman_install("pamac-gtk")
         lightdm_configure()
         # Brisk-menu
-        pacman_install("brisk-menu")
+        CFunc.pacman_install("brisk-menu")
         # Run MATE Configuration
         subprocess.run("{0}/DExtMate.py -c".format(SCRIPTDIR), shell=True, check=True)
     elif args.desktop == "xfce":
-        pacman_install("xfce4-gtk3 xfce4-terminal network-manager-applet xfce4-notifyd-gtk3 xfce4-whiskermenu-plugin-gtk3 tumbler engrampa manjaro-xfce-gtk3-settings manjaro-settings-manager")
-        pacman_install("pamac-gtk")
+        CFunc.pacman_install("xfce4-gtk3 xfce4-terminal network-manager-applet xfce4-notifyd-gtk3 xfce4-whiskermenu-plugin-gtk3 tumbler engrampa manjaro-xfce-gtk3-settings manjaro-settings-manager")
+        CFunc.pacman_install("pamac-gtk")
         # xfce4-goodies
-        pacman_install("thunar-archive-plugin thunar-media-tags-plugin xfce4-artwork xfce4-battery-plugin xfce4-clipman-plugin xfce4-cpufreq-plugin xfce4-cpugraph-plugin xfce4-datetime-plugin xfce4-diskperf-plugin xfce4-fsguard-plugin xfce4-genmon-plugin xfce4-mount-plugin xfce4-mpc-plugin xfce4-netload-plugin xfce4-notifyd xfce4-pulseaudio-plugin xfce4-screensaver xfce4-screenshooter xfce4-sensors-plugin xfce4-systemload-plugin xfce4-taskmanager xfce4-timer-plugin xfce4-wavelan-plugin xfce4-weather-plugin xfce4-xkb-plugin xfce4-whiskermenu-plugin")
+        CFunc.pacman_install("thunar-archive-plugin thunar-media-tags-plugin xfce4-artwork xfce4-battery-plugin xfce4-clipman-plugin xfce4-cpufreq-plugin xfce4-cpugraph-plugin xfce4-datetime-plugin xfce4-diskperf-plugin xfce4-fsguard-plugin xfce4-genmon-plugin xfce4-mount-plugin xfce4-mpc-plugin xfce4-netload-plugin xfce4-notifyd xfce4-pulseaudio-plugin xfce4-screensaver xfce4-screenshooter xfce4-sensors-plugin xfce4-systemload-plugin xfce4-taskmanager xfce4-timer-plugin xfce4-wavelan-plugin xfce4-weather-plugin xfce4-xkb-plugin xfce4-whiskermenu-plugin")
         lightdm_configure()
 
     if not args.nogui:
@@ -257,18 +248,18 @@ if __name__ == '__main__':
     CFunc.AddUserToGroup("vboxsf")
 
     # Hdparm
-    pacman_install("smartmontools hdparm")
+    CFunc.pacman_install("smartmontools hdparm")
 
     if not args.nogui:
         # Install snapd
-        pacman_install("snapd")
+        CFunc.pacman_install("snapd")
         if not os.path.islink("/snap"):
             os.symlink("/var/lib/snapd/snap", "/snap", target_is_directory=True)
         CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("snap")))
-        sysctl_enable("snapd.socket")
+        CFunc.sysctl_enable("snapd.socket", error_on_fail=True)
 
         # Flatpak setup
-        pacman_install("flatpak xdg-desktop-portal")
+        CFunc.pacman_install("flatpak xdg-desktop-portal")
         CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo")
         CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("flatpak")))
 
@@ -280,7 +271,7 @@ if __name__ == '__main__':
         CFunc.flatpak_install("flathub", "com.calibre_ebook.calibre")
 
         # Pamac frontends
-        pacman_install("pamac-flatpak-plugin pamac-snap-plugin")
+        CFunc.pacman_install("pamac-flatpak-plugin pamac-snap-plugin")
 
     # Disable mitigations
     CFuncExt.GrubEnvAdd(os.path.join(os.sep, "etc", "default", "grub"), "GRUB_CMDLINE_LINUX", "mitigations=off")

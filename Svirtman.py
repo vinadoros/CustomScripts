@@ -56,8 +56,7 @@ if args.uninstall is False:
     if shutil.which("dnf"):
         CFunc.dnfinstall("@virtualization")
         CFunc.dnfinstall("python3-libguestfs")
-        subprocess.run("systemctl enable libvirtd", shell=True, check=True)
-        subprocess.run("systemctl start libvirtd", shell=True, check=True)
+        CFunc.sysctl_enable("libvirtd", now=True, error_on_fail=True)
         subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True, check=True)
     elif shutil.which("apt-get"):
         CFunc.aptinstall("virt-manager qemu-kvm ssh-askpass")
@@ -66,7 +65,7 @@ if args.uninstall is False:
     elif shutil.which("pacman"):
         subprocess.run("pacman -S --needed --noconfirm libvirt virt-manager qemu bridge-utils openbsd-netcat ebtables dnsmasq", shell=True, check=True)
         subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True, check=True)
-        subprocess.run("systemctl enable --now libvirtd.service", shell=True, check=True)
+        CFunc.sysctl_enable("libvirtd.service", now=True, error_on_fail=True)
 
     # Remove existing default pool
     subprocess.run("virsh pool-destroy default", shell=True, check=False)
@@ -82,10 +81,10 @@ if args.uninstall is False:
     subprocess.run("virsh pool-info default", shell=True, check=False)
 
     # Set config info
-    subprocess.run('''sed -i 's/#user = "root"/user = "{0}"/g' /etc/libvirt/qemu.conf'''.format(USERNAMEVAR), shell=True)
-    subprocess.run('''sed -i 's/#save_image_format = "raw"/save_image_format = "xz"/g' /etc/libvirt/qemu.conf''', shell=True)
-    subprocess.run('''sed -i 's/#dump_image_format = "raw"/dump_image_format = "xz"/g' /etc/libvirt/qemu.conf''', shell=True)
-    subprocess.run('''sed -i 's/#snapshot_image_format = "raw"/snapshot_image_format = "xz"/g' /etc/libvirt/qemu.conf''', shell=True)
+    subprocess.run('''sed -i 's/#user = "root"/user = "{0}"/g' /etc/libvirt/qemu.conf'''.format(USERNAMEVAR), shell=True, check=True)
+    subprocess.run('''sed -i 's/#save_image_format = "raw"/save_image_format = "xz"/g' /etc/libvirt/qemu.conf''', shell=True, check=True)
+    subprocess.run('''sed -i 's/#dump_image_format = "raw"/dump_image_format = "xz"/g' /etc/libvirt/qemu.conf''', shell=True, check=True)
+    subprocess.run('''sed -i 's/#snapshot_image_format = "raw"/snapshot_image_format = "xz"/g' /etc/libvirt/qemu.conf''', shell=True, check=True)
 
     if os.path.isdir(PolkitPath) and not os.path.isdir(PolkitRulesPath):
         os.makedirs(PolkitRulesPath)
@@ -118,19 +117,20 @@ if args.uninstall is False:
 """
     with open(NetXMLPath, mode='w') as f:
         f.write(NetXMLText)
-    subprocess.run("virsh net-destroy default", shell=True)
-    subprocess.run("virsh net-undefine default", shell=True)
+    subprocess.run("virsh net-destroy default", shell=True, check=False)
+    subprocess.run("virsh net-undefine default", shell=True, check=False)
     # Add accept_ra
     # https://superuser.com/questions/1208952/qemu-kvm-libvirt-forwarding
     with open(SysctlAcceptRaPath, mode='w') as f:
         f.write("net.ipv6.conf.all.accept_ra = 2")
-    subprocess.run('echo "2" | tee /proc/sys/net/ipv6/conf/all/accept_ra', shell=True)
+    with open("/proc/sys/net/ipv6/conf/all/accept_ra", mode='w') as f:
+        f.write("2")
     os.chdir(tempfile.gettempdir())
-    subprocess.run("virsh net-define default.xml", shell=True)
+    subprocess.run("virsh net-define default.xml", shell=True, check=True)
     os.remove(NetXMLPath)
     # Set network info
-    subprocess.run("virsh net-autostart default", shell=True)
-    subprocess.run("virsh net-start default", shell=True)
+    subprocess.run("virsh net-autostart default", shell=True, check=True)
+    subprocess.run("virsh net-start default", shell=True, check=False)
 
     # Set dconf info
     if shutil.which("gsettings"):
@@ -151,14 +151,16 @@ if args.uninstall is False:
 # Uninstallation Code
 if args.uninstall is True:
     print("Uninstalling libvirt")
-    subprocess.run("virsh net-autostart default --disable", shell=True)
-    subprocess.run("virsh net-destroy default", shell=True)
+    subprocess.run("virsh net-autostart default --disable", shell=True, check=True)
+    subprocess.run("virsh net-destroy default", shell=True, check=True)
     if shutil.which("dnf"):
-        subprocess.run("systemctl stop libvirtd", shell=True)
-        subprocess.run("systemctl disable libvirtd", shell=True)
-        subprocess.run("dnf remove @virtualization", shell=True)
+        CFunc.sysctl_disable("libvirtd.service", now=True, error_on_fail=True)
+        subprocess.run("dnf remove @virtualization", shell=True, check=True)
     elif shutil.which("apt-get"):
-        subprocess.run("apt-get --purge remove virt-manager qemu-kvm ssh-askpass", shell=True)
+        subprocess.run("apt-get --purge remove virt-manager qemu-kvm ssh-askpass", shell=True, check=True)
+    elif shutil.which("pacman"):
+        CFunc.sysctl_disable("libvirtd.service", now=True, error_on_fail=True)
+        CFunc.pacman_invoke("-Rsn libvirt virt-manager qemu bridge-utils openbsd-netcat ebtables dnsmasq")
     if os.path.isfile(PolkitUserRulePath):
         os.remove(PolkitUserRulePath)
     if os.path.isfile(SysctlAcceptRaPath):

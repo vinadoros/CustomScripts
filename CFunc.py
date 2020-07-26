@@ -273,6 +273,18 @@ def chown_recursive(path, user_name, group_name):
                     print("ERROR, chown failed for {0}".format(os.path.join(dirpath, fname)))
     return
 ### Systemd Functions ###
+def sysctl_enable(options: str, now: bool = False, error_on_fail: bool = False):
+    """Enable systemctl services"""
+    sysctl_cmd = "systemctl enable {0}".format(options)
+    if now:
+        sysctl_cmd += " --now"
+    subprocess.run(sysctl_cmd, shell=True, check=error_on_fail)
+def sysctl_disable(options, now: bool = False, error_on_fail: bool = False):
+    """Disable systemctl services"""
+    sysctl_cmd = "systemctl disable {0}".format(options)
+    if now:
+        sysctl_cmd += " --now"
+    subprocess.run(sysctl_cmd, shell=True, check=error_on_fail)
 def systemd_createsystemunit(sysunitname, sysunittext, sysenable=False):
     """Create a systemd system unit."""
     SystemdSystemUnitPath = os.path.join(os.sep, "etc", "systemd", "system")
@@ -463,6 +475,13 @@ def dnfinstall(dnfapps, error_on_fail=True):
 def rpmimport(keyurl):
     """Import a gpg key for rpm."""
     subprocess.run("rpm --import {0}".format(keyurl), shell=True, check=True)
+# Pacman
+def pacman_invoke(options: str):
+    """Invoke pacman"""
+    subprocess.run("pacman --noconfirm {0}".format(options), shell=True, check=True)
+def pacman_install(packages: str):
+    """Install packages with pacman"""
+    pacman_invoke("-S --needed {0}".format(packages))
 # Flatpak
 def flatpak_addremote(remotename, remoteurl):
     """Add a remote to flatpak."""
