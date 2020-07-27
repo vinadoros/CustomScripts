@@ -48,11 +48,31 @@ def vm_getip(vmname: str):
                 logging.debug("Mac stderr: %s", mac_sp.stderr)
             time.sleep(5)
     return ip
-def vm_createimage(vmname: str, path: str, size_gb: int):
-    """Create a VM image file."""
-    imgfile_fullpath = os.path.join(os.path.abspath(path), "{0}.qcow2".format(vmname))
-    subprocess.run("qemu-img create -f qcow2 -o compat=1.1,lazy_refcounts=on '{0}' {1}G".format(imgfile_fullpath, size_gb), shell=True, check=True)
+def vm_getimgpath(vmname: str, folder_path: str):
+    """Get the hypothetical full path of a VM image."""
+    imgfile_fullpath = os.path.join(os.path.abspath(folder_path), "{0}.qcow2".format(vmname))
     return imgfile_fullpath
+def vm_createimage(img_path: str, size_gb: int):
+    """Create a VM image file."""
+    subprocess.run("qemu-img create -f qcow2 -o compat=1.1,lazy_refcounts=on '{0}' {1}G".format(img_path, size_gb), shell=True, check=True)
+def vm_create(vmname: str, img_path: str, isopath: str, kvm_os: str = "manjaro"):
+    """Create the VM in libvirt."""
+    if 50 <= args.ostype <= 59:
+        kvm_video = "qxl"
+        kvm_diskinterface = "sata"
+        kvm_netdevice = "virtio"
+    else:
+        kvm_video = "virtio"
+        kvm_diskinterface = "virtio"
+        kvm_netdevice = "virtio"
+    # virt-install manual: https://www.mankier.com/1/virt-install
+    # List of os: osinfo-query os
+    CREATESCRIPT_KVM = """virt-install --connect qemu:///system --name={vmname} --install bootdev=cdrom --boot=hd,cdrom --disk device=cdrom,path="{isopath}",bus=sata,target=sda,readonly=on --disk path={fullpathtoimg},bus={kvm_diskinterface} --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model={kvm_netdevice} --filesystem source=/,target=root,mode=mapped --os-type={kvm_os} --os-variant={kvm_variant} --import --noautoconsole --noreboot --video={kvm_video} --channel unix,target_type=virtio,name=org.qemu.guest_agent.0 --channel spicevmc,target_type=virtio,name=com.redhat.spice.0""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=img_path, kvm_os=kvm_os, kvm_variant=kvm_variant, kvm_video=kvm_video, kvm_diskinterface=kvm_diskinterface, kvm_netdevice=kvm_netdevice, isopath=isopath)
+    logging.info("KVM launch command: {0}".format(CREATESCRIPT_KVM))
+    subprocess.run(CREATESCRIPT_KVM, shell=True, check=True)
+def vm_ejectiso(vmname: str):
+    """Eject an iso from a VM."""
+    subprocess.run("virsh --connect qemu:///system change-media {0} sda --eject --config".format(vmname), shell=True, check=False)
 def ssh_vm(ip: str, command: str, ssh_opts: str, port: int = 22, user: str = "root", password: str = "asdf"):
     """SSH into the Virtual Machine and run a command."""
     status = subprocess.run("""sshpass -p "{password}" ssh {ssh_opts} {ip} -p {port} -l {user} '{command}'""".format(password=password, ip=ip, port=port, user=user, command=command, ssh_opts=ssh_opts), shell=True, check=False).returncode
@@ -70,7 +90,7 @@ def ssh_wait(ip: str, port: int = 22, user: str = "root", password: str = "asdf"
     while status != 0 and attempt < retries:
         logging.debug("SSH status was %s, attempt %s, waiting.", status, attempt)
         time.sleep(5)
-        status = ssh_vm(ip, port, user, password, "echo Connected", "-q")
+        status = ssh_vm(ip=ip, port=port, user=user, password=password, command="echo Connected", ssh_opts="-q")
         attempt += 1
     if status != 0:
         logging.info("ERROR: ssh_wait could not connect.")
@@ -105,12 +125,14 @@ def vm_shutdown(vmname: str, timeout_minutes: int = 5):
         if vm_is_on and current_time_diff >= timeout_minutes:
             logging.debug("Force Shutting down VM %s", vmname)
             subprocess.run("virsh --connect qemu:///system destroy {0}".format(vmname), shell=True, check=True)
-def vm_cleanup(vmname: str):
+def vm_cleanup(vmname: str, img_path: str):
     """Cleanup existing VM."""
     # Destroy and undefine the VM.
     vm_shutdown(vmname)
     subprocess.run("virsh --connect qemu:///system undefine {0}".format(vmname), shell=True, check=False)
     # Delete the image file.
+    if os.path.isfile(img_path):
+        os.remove(img_path)
 def vm_runscript(ip: str, port: int, user: str, password: str, script: str):
     """Run a script (passed as a variable) on a VM."""
     # Write the script to a file.
@@ -131,7 +153,7 @@ if __name__ == '__main__':
     CPUCORES = multiprocessing.cpu_count() if multiprocessing.cpu_count() <= 4 else 4
 
     # Ensure that certain commands exist.
-    cmdcheck = ["ssh", "sshpass", "qemu-img", "virsh"]
+    cmdcheck = ["ssh", "sshpass", "qemu-img", "virsh", "arp"]
     for cmd in cmdcheck:
         if not shutil.which(cmd):
             sys.exit("\nError, ensure command {0} is installed.".format(cmd))
@@ -157,76 +179,34 @@ if __name__ == '__main__':
     # Variables most likely to change.
     vmpath = os.path.abspath(args.vmpath)
     print("Path to VM Files is {0}".format(vmpath))
-    isopath = os.path.abspath(args.iso)
-    print("Path to LiveCD/ISO is {0}".format(isopath))
+    iso_path = os.path.abspath(args.iso)
+    print("Path to LiveCD/ISO is {0}".format(iso_path))
     print("OS Type is {0}".format(args.ostype))
     print("VM Memory is {0}".format(args.memory))
     print("Live SSH user is {0}".format(args.livesshuser))
     print("VM User is {0}".format(args.vmuser))
     # Detect root ssh key.
     if args.rootsshkey is not None:
-        rootsshkey = args.rootsshkey
-    elif os.path.isfile(USERHOME+"/.ssh/id_ed25519.pub") == True:
-        with open(USERHOME+"/.ssh/id_ed25519.pub", 'r') as sshfile:
-            rootsshkey=sshfile.read().replace('\n', '')
-    elif os.path.isfile(USERHOME+"/.ssh/id_rsa.pub") == True:
-        with open(USERHOME+"/.ssh/id_rsa.pub", 'r') as sshfile:
-            rootsshkey=sshfile.read().replace('\n', '')
+        sshkey = args.rootsshkey
+    elif os.path.isfile(os.path.join(USERHOME, ".ssh", "id_ed25519.pub")) is True:
+        with open(os.path.join(USERHOME, ".ssh", "id_ed25519.pub"), 'r') as sshfile:
+            sshkey = sshfile.read().replace('\n', '')
+    elif os.path.isfile(os.path.join(USERHOME, ".ssh", "id_rsa.pub")) is True:
+        with open(os.path.join(USERHOME, ".ssh", "id_rsa.pub"), 'r') as sshfile:
+            sshkey = sshfile.read().replace('\n', '')
     else:
-        sys.exit("\nError, ssh key not detect. Please specify one.")
-    print("SSH Key is \"{0}\"".format(rootsshkey))
-
-
-    # Determine VM hypervisor
-    hvname = "kvm"
+        sshkey = " "
+    print("SSH Key is \"{0}\"".format(sshkey))
 
     # Determine VM Name
     if args.ostype == 1:
-        vmname = "ArchTest-{0}".format(hvname)
-        vboxosid = "ArchLinux_64"
-        vmbootstrapscript = "BArch.py"
-        vmbootstrap_defopts = ' '
-        vmprovisionscript = "MArch.sh"
-        vmprovision_defopts = "-e 3 -m 3"
-        kvm_variant = "fedora22"
-    elif args.ostype == 2:
-        vmname = "DebianTest-{0}".format(hvname)
-        vboxosid = "Debian_64"
-        vmbootstrapscript = "BDebian.py"
-        vmbootstrap_defopts = '-t debian -r unstable'
-        vmprovisionscript = "MUbuntu.sh"
-        vmprovision_defopts = "-e 2"
-        kvm_variant = "debian8"
-    elif args.ostype == 3:
-        vmname = "DebianTest-{0}".format(hvname)
-        vboxosid = "Debian_64"
-        vmbootstrapscript = "BDebian.py"
-        vmbootstrap_defopts = '-t debian -r jessie'
-        vmprovisionscript = "MUbuntu.sh"
-        vmprovision_defopts = "-e 3"
-        kvm_variant = "debian8"
-    elif args.ostype == 4:
-        vmname = "UbuntuTest-{0}".format(hvname)
-        vboxosid = "Ubuntu_64"
-        vmbootstrapscript = "BDebian.py"
-        vmbootstrap_defopts = '-t ubuntu -r xenial'
-        vmprovisionscript = "MUbuntu.sh"
-        vmprovision_defopts = "-e 3"
-        kvm_variant = "ubuntu16.04"
-    elif args.ostype == 5:
-        vmname = "FedoraTest-{0}".format(hvname)
-        vboxosid = "Fedora_64"
-        vmbootstrapscript = "BFedora.py"
-        vmbootstrap_defopts = ' '
-        vmprovisionscript = "MFedora.sh"
-        vmprovision_defopts = " "
-        kvm_variant = "fedora22"
-    elif args.ostype == 50:
-        vmname = "Windows10-{0}".format(hvname)
-        vboxosid = "Windows10_64"
-        vmbootstrap_defopts = ' '
-        vmprovision_defopts = ' '
-        kvm_variant = ' '
+        vm_name = "CC-Manjaro-kvm"
+        vmbootstrapscript = "BManjaro.py"
+        vmbootstrap_defopts = 'pacman -Sy --noconfirm git && git clone https://github.com/ramesh45345/CustomScripts && /opt/CustomScripts/ZSlimDrive.py -n && /opt/CustomScripts/BManjaro.py -n -c "{vm_name}" -u "{vmuser}" -f "{fullname}" -q "{vmpass}" -l "" /mnt && reboot'.format(vm_name=vm_name, vmuser=args.vmuser, vmpass=args.vmpass, fullname=args.fullname)
+        vmprovisionscript = "MManjaro.py"
+        vmprovision_defopts = "-d xfce"
+        kvm_variant = "manjaro"
+
     # Override bootstrap opts if provided.
     if args.vmbootstrap is None:
         vmbootstrap_opts = vmbootstrap_defopts
@@ -240,98 +220,40 @@ if __name__ == '__main__':
         vmprovision_opts = args.vmprovision
     print("VM Provision Options:", vmprovision_opts)
     # Add drive Options
+    zslimopts = ""
     if args.driveopts is not None:
         zslimopts += args.driveopts
     print("Drive Options:", zslimopts)
 
     # Variables less likely to change.
-    fullpathtoimg=vmpath+"/"+vmname+".qcow2"
     sship = None
-    localsshport=22
+    localsshport = 22
 
-    print("Path to Image: {0}".format(fullpathtoimg))
-    nameofvnet = "default"
-    imgsize="65536"
+    imgsize = "65536"
 
-    if not os.path.isdir(vmpath) or not os.path.isfile(isopath):
-        sys.exit("\nError, ensure {0} is a folder, and {1} is a file.".format(vmpath, isopath))
+    if not os.path.isdir(vmpath) or not os.path.isfile(iso_path):
+        sys.exit("\nError, ensure {0} is a folder, and {1} is a file.".format(vmpath, iso_path))
 
     if args.noprompt == False:
         input("Press Enter to continue.")
 
-    ### Functions (to be deleted) ###
-    def vm_bootstrap():
-        # Compose BOOTSTRAPCMD
-        BOOTSTRAPCMD="""#!/bin/bash
-sshpass -p "{sshpassword}" ssh {sship} -p {sshport} -l {sshuser} "cd /CustomScripts/; git pull"
-sshpass -p "{sshpassword}" ssh {sship} -p {sshport} -l {sshuser} "/CustomScripts/ZSlimDrive.py -n {zslimopts}"
-sshpass -p "{sshpassword}" ssh {sship} -p {sshport} -l {sshuser} "/CustomScripts/{vmbootstrapscript} -n -c {vmname} -u {username} -f \\"{fullname}\\" -g {grubnumber} -q \\"{password}\\" {vmbootstrap_opts} /mnt"
-sshpass -p "{sshpassword}" ssh {sship} -p {sshport} -l {sshuser} "mkdir -p /mnt/root/.ssh/; echo '{sshkey}' >> /mnt/root/.ssh/authorized_keys"
-sshpass -p "{sshpassword}" ssh {sship} -p {sshport} -l {sshuser} "poweroff"
-        """.format(sship=sship, sshpassword=args.livesshpass, sshuser=args.livesshuser, sshport=localsshport, vmname=vmname, username=args.vmuser, password=args.vmpass, fullname=args.fullname, grubnumber=grubnumber, vmbootstrapscript=vmbootstrapscript, vmbootstrap_opts=vmbootstrap_opts, zslimopts=zslimopts, sshkey=rootsshkey)
-        subprocess.run(BOOTSTRAPCMD, shell=True)
-        return
-    def vm_provision():
-        # Compose PROVISIONCMD
-        PROVISIONCMD="""
-        #!/bin/bash
-        ssh {sship} -p {sshport} -l root "cd /opt/CustomScripts/; git pull"
-        ssh {sship} -p {sshport} -l root "/opt/CustomScripts/{vmprovisionscript} -n {vmprovision_opts} -s {password}"
-        ssh {sship} -p {sshport} -l root "reboot"
-        """.format(sship=sship, sshport=localsshport, password=args.vmpass, vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts)
-        subprocess.run(PROVISIONCMD, shell=True)
-        return
-
-    ### Scripts ###
-
-    # Compose DELETESCRIPT
-    DELETESCRIPT_KVM="""#!/bin/bash
-    virsh --connect qemu:///system destroy {0}
-    virsh --connect qemu:///system undefine {0}
-    """.format(vmname)
-
-    # Notes for virt-install
-    # virt-install manual: https://linux.die.net/man/1/virt-install
-    # Enable qemu guest agent: https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Virtualization_Deployment_and_Administration_Guide/chap-QEMU_Guest_Agent.html
-    CREATESCRIPT_KVM="""#!/bin/bash
-    qemu-img create -f qcow2 -o compat=1.1,lazy_refcounts=on {fullpathtoimg} {imgsize}M
-    virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg},bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --cdrom={isopath}  --network bridge=virbr0,model=virtio --network network={nameofvnet},model=virtio --filesystem source=/,target=root,mode=mapped --os-type=linux --os-variant={kvm_variant} --noautoconsole --video=virtio --channel unix,target_type=virtio,name=org.qemu.guest_agent.0
-    """.format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=fullpathtoimg, imgsize=imgsize, isopath=isopath, sshport=localsshport, kvm_variant=kvm_variant, nameofvnet=nameofvnet)
-
     ### Begin Code ###
 
-    # Create KVM network config.
-    kvm_createvnet()
-
     # Run this if we are destroying (not keeping) the VM.
-    if args.keep != True:
-        # Delete old vm.
-        if os.path.isfile(fullpathtoimg):
-            print("\nDeleting old VM.")
-            subprocess.run(DELETESCRIPT_KVM, shell=True)
-            os.remove(fullpathtoimg)
+    imgpath = vm_getimgpath(vmpath, vm_name)
+    vm_cleanup(vm_name, imgpath)
 
-        # Create new VM.
-        print("\nCreating VM.")
-        subprocess.run(CREATESCRIPT_KVM, shell=True)
-
-        # Get VM IP
-        sship = vm_getip(vmname)
-        sshwait(sship, args.livesshuser, args.livesshpass, localsshport)
-
-        # Bootstrap VM
-        vm_bootstrap()
-
-        # Shutdown VM
-        subprocess.run("virsh --connect qemu:///system shutdown {vmname}".format(vmname=vmname), shell=True)
-        shutdownwait()
-
-    # Start VM
-    startvm(vmname)
+    # Create new VM.
+    print("\nCreating VM.")
+    vm_createimage(imgpath, imgsize)
+    vm_create(vm_name, imgpath, iso_path)
+    # vm_attachiso(vm_name, iso_path)
 
     # Get VM IP
-    sship = vm_getip(vmname)
-    sshwait(sship, args.livesshuser, args.livesshpass, localsshport)
+    vm_start(vm_name)
+    sship = vm_getip(vm_name)
+    print(sship)
+    ssh_wait(ip=sship, port=localsshport, user=args.livesshuser, password=args.livesshpass)
 
-    # Provision VM
-    vm_provision()
+    vm_shutdown(vm_name)
+    vm_ejectiso(vm_name)
