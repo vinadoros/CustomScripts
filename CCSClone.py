@@ -67,7 +67,7 @@ if shutil.which("systemctl"):
     # Systemd service
     CSUpdate_SystemUnitText = """[Unit]
 Description=Service for CSUpdate
-After=network-online.target graphical.target
+After=network-online.target
 
 [Service]
 Type=simple
