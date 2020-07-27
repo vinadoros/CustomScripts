@@ -31,28 +31,30 @@ def vm_getip(vmname: str):
             mac_list = mac_sp.stdout.split()
             # Make sure the output is a list and has 5 elements, as opposed to being empty.
             if isinstance(mac_list, list) and len(mac_list) == 5:
-                ip_list = subprocess.run("ip neigh show dev virbr0 | grep '{0}'".format(mac_list[4]), shell=True, check=False, stdout=subprocess.PIPE, universal_newlines=True).stdout.split()
-                # Make sure the output is a list and has at least 1 element, as opposed to being empty.
-                if isinstance(ip_list, list) and len(ip_list) > 1:
-                    ip = ip_list[0]
-                    # Check to see if it is a valid IP address.
-                    try:
-                        ip_store = ipaddress.ip_address(ip)
-                        # For now, enforce ipv4, since can't connect to ssh in ipv6 address.
-                        if not isinstance(ipaddress.ip_address(ip), ipaddress.IPv4Address):
-                            raise Exception()
-                        print(type(ip_store))
-                        logging.debug('%s is a correct IP address.', ip)
-                    except:
-                        logging.debug('Address/Netmask is invalid: %s', ip)
-                        ip = None
-                        time.sleep(1)
-                else:
-                    time.sleep(1)
+                ip_list = subprocess.run("ip neigh show dev virbr0 | grep '{0}'".format(mac_list[4]), shell=True, check=False, stdout=subprocess.PIPE).stdout.splitlines()
+                # Process every IP line given, and split it into a list.
+                for ip_line in ip_list:
+                    ip_line_decoded = ip_line.decode().split()
+                    # Make sure the output is a list and has at least 1 element, as opposed to being empty.
+                    if isinstance(ip_line_decoded, list) and len(ip_line_decoded) == 4:
+                        ip = ip_line_decoded[0]
+                        # Check for a valid IP address.
+                        try:
+                            # Test if it is an IPv4 or IPv6 address.
+                            ipaddress.ip_address(ip)
+                            # For now, enforce ipv4, since can't connect to ssh in ipv6 address.
+                            # TODO: Later convert to ssh connection test, reject IP if ssh doesn't connect.
+                            if not isinstance(ipaddress.ip_address(ip), ipaddress.IPv4Address):
+                                raise Exception()
+                            logging.debug('%s is a correct IP address.', ip)
+                            return ip
+                        except:
+                            logging.debug('Address/Netmask is invalid: %s', ip)
+                            ip = None
         else:
             if mac_sp.stderr:
                 logging.debug("Mac stderr: %s", mac_sp.stderr)
-            time.sleep(1)
+        time.sleep(1)
     return ip
 def vm_getimgpath(vmname: str, folder_path: str):
     """Get the hypothetical full path of a VM image."""
@@ -103,7 +105,7 @@ def ssh_wait(ip: str, port: int = 22, user: str = "root", password: str = "asdf"
     return status
 def vm_check_onoff(vmname: str):
     """Check if a VM is started or not. Return True if VM is on."""
-    status = subprocess.run('virsh --connect qemu:///system -q list | grep -i "{0}"'.format(vmname), shell=True, check=False).returncode
+    status = subprocess.run('virsh --connect qemu:///system -q list | grep -i "{0}"'.format(vmname), shell=True, check=False, stdout=subprocess.DEVNULL).returncode
     return bool(status == 0)
 def vm_start(vmname: str):
     """Start the VM."""
@@ -118,7 +120,7 @@ def vm_shutdown(vmname: str, timeout_minutes: int = 5):
     vm_is_on = vm_check_onoff(vmname=vmname)
     # Issue a shutdown if the VM is on.
     if vm_is_on:
-        subprocess.run("virsh --connect qemu:///system shutdown {0}".format(vmname), shell=True, check=True)
+        subprocess.run("virsh --connect qemu:///system shutdown {0}".format(vmname), shell=True, check=True, stdout=subprocess.DEVNULL)
         # Save time variables.
         current_time_saved = datetime.datetime.now()
         current_time_diff = 0
@@ -130,7 +132,7 @@ def vm_shutdown(vmname: str, timeout_minutes: int = 5):
         # If after timeout is exceeded, force off the VM.
         if vm_is_on and current_time_diff >= timeout_minutes:
             logging.debug("Force Shutting down VM %s", vmname)
-            subprocess.run("virsh --connect qemu:///system destroy {0}".format(vmname), shell=True, check=True)
+            subprocess.run("virsh --connect qemu:///system destroy {0}".format(vmname), shell=True, check=True, stdout=subprocess.DEVNULL)
 def vm_cleanup(vmname: str, img_path: str):
     """Cleanup existing VM."""
     # Destroy and undefine the VM.
@@ -167,9 +169,10 @@ if __name__ == '__main__':
     # Get arguments
     parser = argparse.ArgumentParser(description='Create and run a Virtual Machine.')
     parser.add_argument("-a", "--ostype", type=int, help="OS type (20=Manjaro, 10=Ubuntu)", default="1")
+    parser.add_argument("-d", "--debug", help='Use Debug Logging', action="store_true")
     parser.add_argument("-f", "--fullname", help="Full Name", default="User Name")
-    parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
     parser.add_argument("-i", "--iso", help="Path to live cd", required=True)
+    parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
     parser.add_argument("-p", "--vmpath", help="Path of Virtual Machine folders", required=True)
     parser.add_argument("-v", "--rootsshkey", help="Root SSH Key")
     parser.add_argument("-w", "--livesshuser", help="Live SSH Username", default="root")
@@ -181,6 +184,12 @@ if __name__ == '__main__':
     parser.add_argument("--vmprovision", help="Override provision options.")
     parser.add_argument("--driveopts", help="Add drive creation options.")
     args = parser.parse_args()
+
+    # Enable logging
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(message)s')
+    else:
+        logging.basicConfig(level=logging.INFO, format='%(message)s')
 
     # Variables most likely to change.
     vmpath = os.path.abspath(args.vmpath)
@@ -240,7 +249,7 @@ if __name__ == '__main__':
     if not os.path.isdir(vmpath) or not os.path.isfile(iso_path):
         sys.exit("\nError, ensure {0} is a folder, and {1} is a file.".format(vmpath, iso_path))
 
-    if args.noprompt == False:
+    if args.noprompt is False:
         input("Press Enter to continue.")
 
     ### Begin Code ###
@@ -258,7 +267,6 @@ if __name__ == '__main__':
     # Get VM IP
     vm_start(vm_name)
     sship = vm_getip(vm_name)
-    print(sship)
     ssh_wait(ip=sship, port=localsshport, user=args.livesshuser, password=args.livesshpass)
 
     vm_shutdown(vm_name)
