@@ -6,7 +6,6 @@ import argparse
 import datetime
 import logging
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -36,22 +35,13 @@ if os.geteuid() != 0:
     sys.exit("ERROR: Please run as root.")
 
 # Ensure that certain commands exist.
-cmdcheck = ["systemctl", "netstat"]
+cmdcheck = ["systemctl", "ss"]
 for cmd in cmdcheck:
     if not shutil.which(cmd):
         sys.exit("\nError, ensure command {0} is installed.".format(cmd))
 
 
 ### Functions ###
-def grep_in_variable(variable, re_pattern):
-    """Search through a variable for a pattern."""
-    was_found = False
-    # The incoming input is expected to be raw bytes with newlines represented as \n. This uses splitlines to split the lines by newlines into an array.
-    for line in variable.splitlines():
-        # The lines are still bytes, so decode them into a string, so that line processing can occur.
-        if re.search(re_pattern, line.decode()):
-            was_found = True
-    return was_found
 def reset_timers():
     """Reset the initial timers"""
     global current_time
@@ -113,12 +103,12 @@ def check_idle():
     status = False
     statuses = {}
     inhibit_string = ""
-    # Get network information. Use the -n flag to speed up output, but lose the port names and instead must check using numbers.
-    netstat_output = subprocess.check_output("netstat -tupan", shell=True)
     # Check samba status
-    statuses['samba'] = grep_in_variable(netstat_output, r"ESTABLISHED.*smbd")
-    # Check nfs status. NFS is usually served on port 2049.
-    statuses['nfs'] = grep_in_variable(netstat_output, r":2049.*ESTABLISHED")
+    samba_ss_output = subprocess.check_output("ss -Htua -o state established '( dport = :microsoft-ds or sport = :microsoft-ds )'", shell=True)
+    statuses['samba'] = bool(samba_ss_output is not None)
+    # Check nfs status.
+    nfs_ss_output = subprocess.check_output("ss -Htua -o state established '( dport = :nfs or sport = :nfs )'", shell=True)
+    statuses['nfs'] = bool(nfs_ss_output is not None)
     # Check libvirt status. Inhibit suspend if any VM is running.
     statuses['libvirt'] = False
     libvirt_lines = 0
