@@ -23,7 +23,7 @@ def vm_getip(vmname: str):
     """Get IP address of Virtual Machine."""
     ip = None
     while ip is None:
-        # Note: domifaddr does not always work. Use domiflist to get mac address and then look up ip using arp.
+        # Note: domifaddr does not always work. Use domiflist to get mac address and then look up ip using "ip neighbor" command.
         mac_list = []
         mac_sp = subprocess.run("virsh --connect qemu:///system -q domiflist '{0}'".format(vmname), shell=True, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         mac_status = mac_sp.returncode
@@ -31,22 +31,28 @@ def vm_getip(vmname: str):
             mac_list = mac_sp.stdout.split()
             # Make sure the output is a list and has 5 elements, as opposed to being empty.
             if isinstance(mac_list, list) and len(mac_list) == 5:
-                ip_list = subprocess.run("arp -en -i virbr0 | grep '{0}'".format(mac_list[4]), shell=True, check=False, stdout=subprocess.PIPE, universal_newlines=True).stdout.split()
-                # Make sure the output is a list and has 5 elements, as opposed to being empty.
-                if isinstance(ip_list, list) and len(ip_list) == 5:
+                ip_list = subprocess.run("ip neigh show dev virbr0 | grep '{0}'".format(mac_list[4]), shell=True, check=False, stdout=subprocess.PIPE, universal_newlines=True).stdout.split()
+                # Make sure the output is a list and has at least 1 element, as opposed to being empty.
+                if isinstance(ip_list, list) and len(ip_list) > 1:
                     ip = ip_list[0]
                     # Check to see if it is a valid IP address.
                     try:
-                        ipaddress.ip_address(ip)
+                        ip_store = ipaddress.ip_address(ip)
+                        # For now, enforce ipv4, since can't connect to ssh in ipv6 address.
+                        if not isinstance(ipaddress.ip_address(ip), ipaddress.IPv4Address):
+                            raise Exception()
+                        print(type(ip_store))
                         logging.debug('%s is a correct IP address.', ip)
                     except:
                         logging.debug('Address/Netmask is invalid: %s', ip)
                         ip = None
-                        time.sleep(5)
+                        time.sleep(1)
+                else:
+                    time.sleep(1)
         else:
             if mac_sp.stderr:
                 logging.debug("Mac stderr: %s", mac_sp.stderr)
-            time.sleep(5)
+            time.sleep(1)
     return ip
 def vm_getimgpath(vmname: str, folder_path: str):
     """Get the hypothetical full path of a VM image."""
@@ -153,7 +159,7 @@ if __name__ == '__main__':
     CPUCORES = multiprocessing.cpu_count() if multiprocessing.cpu_count() <= 4 else 4
 
     # Ensure that certain commands exist.
-    cmdcheck = ["ssh", "sshpass", "qemu-img", "virsh", "arp"]
+    cmdcheck = ["ssh", "sshpass", "qemu-img", "virsh", "ip"]
     for cmd in cmdcheck:
         if not shutil.which(cmd):
             sys.exit("\nError, ensure command {0} is installed.".format(cmd))
