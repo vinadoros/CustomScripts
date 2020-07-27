@@ -68,7 +68,7 @@ if __name__ == '__main__':
     print("Running {0}".format(__file__))
 
     # Get arguments
-    parser = argparse.ArgumentParser(description='Install Fedora Software.')
+    parser = argparse.ArgumentParser(description='Install Manjaro Software.')
     parser.add_argument("-d", "--desktop", help='Desktop Environment (i.e. gnome, kde, mate, etc)')
     parser.add_argument("-x", "--nogui", help='Configure script to disable GUI.', action="store_true")
     args = parser.parse_args()
