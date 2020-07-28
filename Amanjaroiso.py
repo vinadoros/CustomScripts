@@ -22,15 +22,47 @@ USERHOME = os.path.expanduser("~root")
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Build Manjaro LiveCD.')
+parser.add_argument("-c", "--clean", help='Remove work and output folders', action="store_true")
 parser.add_argument("-n", "--noprompt", help='Do not prompt.', action="store_true")
-parser.add_argument("-w", "--workfolderroot", help='Location of Working Folder (i.e. {0})'.format(USERHOME), default=USERHOME)
-parser.add_argument("-o", "--output", help='Output Location of ISO (i.e. {0})'.format(USERHOME), default=USERHOME)
+parser.add_argument("-o", "--output", help='Output Location of ISO (default: %(default)s)', default=os.path.join(USERHOME, "iso"))
+parser.add_argument("-w", "--workfolder", help='Output and working folder (default: %(default)s)', default=os.path.join(USERHOME, "manjarochroot"))
+
 args = parser.parse_args()
+
+# Process variables
+workfolder = os.path.abspath(args.workfolder)
+outputfolder = os.path.abspath(args.output)
+print("Using work folder {0}.".format(workfolder))
+print("Using output folder {0}.".format(outputfolder))
+print("Clean: {0}".format(args.clean))
+
+if args.noprompt is False:
+    input("Press Enter to continue.")
+
+# Clean.
+if args.clean:
+    if os.path.isdir(workfolder):
+        shutil.rmtree(workfolder)
+    if os.path.isdir(outputfolder):
+        shutil.rmtree(outputfolder)
+
+# Make folders if missing.
+os.makedirs(workfolder, exist_ok=True)
+os.makedirs(outputfolder, exist_ok=True)
+
 
 # https://wiki.manjaro.org/index.php?title=Build_Manjaro_ISOs_with_buildiso
 # https://wiki.manjaro.org/index.php?title=Manjaro-tools
 
-# git clone https://gitlab.manjaro.org/profiles-and-settings/iso-profiles.git ~/iso-profiles
+# Install necessary packages for building.
+CFunc.pacman_install("nano git manjaro-tools-iso")
+
+# Clone the iso-profiles repository.
+CFunc.gitclone("https://gitlab.manjaro.org/profiles-and-settings/iso-profiles.git", os.path.join(USERHOME, "iso-profiles"))
+
+time.sleep(1000000)
+# subprocess.run("buildiso -p xfce -b stable -x")
+
 # buildiso -p xfce -b stable -x
 # Changes
 # buildiso -p xfce -cz
