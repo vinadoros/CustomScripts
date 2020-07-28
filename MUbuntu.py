@@ -269,7 +269,7 @@ if args.nogui is False:
 
 # Post-install mate configuration
 if args.desktop == "mate":
-    subprocess.run("{0}/DExtMate.py -c".format(SCRIPTDIR), shell=True, check=True)
+    subprocess.run("{0}/DExtMate.py".format(SCRIPTDIR), shell=True, check=True)
 
 # Install guest software for VMs
 if vmstatus == "kvm":

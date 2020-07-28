@@ -223,7 +223,7 @@ elif args.desktop == "mate":
     CFunc.aptinstall("task-mate-desktop mate-tweak dconf-cli")
     CFunc.aptinstall("mate-applet-brisk-menu")
     # Run MATE Configuration
-    subprocess.run("{0}/DExtMate.py -c".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/DExtMate.py".format(SCRIPTDIR), shell=True)
 elif args.desktop == "kde":
     print("\n Installing kde desktop")
     CFunc.aptinstall("task-kde-desktop")

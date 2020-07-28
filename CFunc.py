@@ -151,6 +151,7 @@ def getuserdetails(username):
     return usergroup, userhome
 def getnormaluser(username: str = ""):
     """Auto-detect non-root user information."""
+    # Check if the passed user is really a user on this system.
     if username != "" and username in [entry.pw_name for entry in pwd.getpwall()]:
         usernamevar = username
     elif is_windows() is True:

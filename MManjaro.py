@@ -209,7 +209,7 @@ if __name__ == '__main__':
         # Brisk-menu
         CFunc.pacman_install("brisk-menu")
         # Run MATE Configuration
-        subprocess.run("{0}/DExtMate.py -c".format(SCRIPTDIR), shell=True, check=True)
+        subprocess.run("{0}/DExtMate.py".format(SCRIPTDIR), shell=True, check=True)
     elif args.desktop == "xfce":
         CFunc.pacman_install("xfce4-gtk3 xfce4-terminal network-manager-applet xfce4-notifyd-gtk3 xfce4-whiskermenu-plugin-gtk3 tumbler engrampa manjaro-xfce-gtk3-settings manjaro-settings-manager")
         CFunc.pacman_install("pamac-gtk")
