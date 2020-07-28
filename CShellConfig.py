@@ -18,15 +18,16 @@ SCRIPTDIR = sys.path[0]
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Configure enhancements for shells.')
-parser.add_argument("-z", "--zsh", help='Configure zsh.', action="store_true")
-parser.add_argument("-f", "--fish", help='Configure fish.', action="store_true")
 parser.add_argument("-d", "--changedefault", help='Change the default shell based on whether zsh or fish is specified.', action="store_true")
+parser.add_argument("-f", "--fish", help='Configure fish.', action="store_true")
+parser.add_argument("-u", "--user", help='Specify username of normal user.')
+parser.add_argument("-z", "--zsh", help='Configure zsh.', action="store_true")
 args = parser.parse_args()
 
 # Check if we are root.
 rootstate = CFunc.is_root(checkstate=True, state_exit=False)
 # Get non-root user information.
-USERNAMEVAR, USERGROUP, USERVARHOME = CFunc.getnormaluser()
+USERNAMEVAR, USERGROUP, USERVARHOME = CFunc.getnormaluser(args.user)
 # Note: This folder is the root home folder.
 ROOTHOME = os.path.expanduser("~root")
 

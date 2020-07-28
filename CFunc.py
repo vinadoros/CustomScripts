@@ -115,10 +115,10 @@ def log_subprocess_output(pipe):
     # b'\n'-separated lines
     for line in iter(pipe.readline, b''):
         # Remove the newlines and decode.
-        logging.info('{0}'.format(line.strip().decode()))
+        logging.info('%s', line.strip().decode())
 def subpout_logger(cmd):
     """Run command which will output stdout to logger"""
-    logging.info("Running command: {0}".format(cmd))
+    logging.info("Running command: %s", cmd)
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
     with process.stdout:
         log_subprocess_output(process.stdout)
@@ -149,9 +149,11 @@ def getuserdetails(username):
         usergroup = None
     userhome = os.path.expanduser("~{0}".format(username))
     return usergroup, userhome
-def getnormaluser():
+def getnormaluser(username: str = ""):
     """Auto-detect non-root user information."""
-    if is_windows() is True:
+    if username != "" and username in [entry.pw_name for entry in pwd.getpwall()]:
+        usernamevar = username
+    elif is_windows() is True:
         usernamevar = os.getlogin()
     elif os.getenv("SUDO_USER") not in ["root", None]:
         usernamevar = os.getenv("SUDO_USER")
