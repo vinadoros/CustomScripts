@@ -164,20 +164,29 @@ curl \
 debootstrap \
 dmraid \
 efibootmgr \
+exfat-utils \
+exfat-fuse \
 f2fs-tools \
+fonts-powerline \
 fsarchiver \
+fstransform \
 git \
 iotop \
 less \
 lvm2 \
 mdadm \
 nano \
+nfs-common \
 rsync \
 screen \
 ssh \
+testdisk \
+tilix \
 tmux \
 whois \
+xfsdump \
 xfsprogs \
+zfsutils-linux \
 zsh
 
 # Allow root login from ssh
@@ -238,6 +247,14 @@ chpasswd <<<"root:asdf"
 [ ! -d /opt/CustomScripts ] && git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts
 [ -d /opt/CustomScripts ] && cd /opt/CustomScripts && git pull
 
+# Create liveuser ahead of when it will really be created
+useradd -m ubuntu
+
+# Shell Configuration
+/opt/CustomScripts/CShellConfig.py -z -d -u ubuntu
+
+# Mate Configuration
+/opt/CustomScripts/DExtMate.py
 
 # Update CustomScripts on startup
 cat >"/etc/systemd/system/updatecs.service" <<'EOL'
