@@ -43,11 +43,14 @@ if args.noprompt is False:
     input("Press Enter to continue.")
 
 # Modify lorax grub config
-subprocess.run('sed -i "s/^default=.*/default=0/g" /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub.conf /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub2-efi.cfg /usr/share/lorax/templates.d/99-generic/config_files/x86/grub.conf /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg', shell=True)
-subprocess.run('sed -i "s/^timeout.*/timeout 1/g" /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub.conf /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub2-efi.cfg /usr/share/lorax/templates.d/99-generic/config_files/x86/grub.conf /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg', shell=True)
+subprocess.run('sed -i "s/^default=.*/default=0/g" /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub.conf /usr/share/lorax/templates.d/99-generic/config_files/x86/grub.conf', shell=True)
+subprocess.run('sed -i "s/^timeout.*/timeout 1/g" /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub.conf /usr/share/lorax/templates.d/99-generic/config_files/x86/grub.conf', shell=True)
 subprocess.run('sed -i "s/^timeout.*/timeout 10/g" /usr/share/lorax/templates.d/99-generic/config_files/x86/isolinux.cfg /usr/share/lorax/templates.d/99-generic/live/config_files/x86/isolinux.cfg', shell=True)
 subprocess.run('sed -i "/menu default/d" /usr/share/lorax/templates.d/99-generic/config_files/x86/isolinux.cfg /usr/share/lorax/templates.d/99-generic/live/config_files/x86/isolinux.cfg', shell=True)
 subprocess.run('sed -i "/label linux/a \ \ menu default" /usr/share/lorax/templates.d/99-generic/config_files/x86/isolinux.cfg /usr/share/lorax/templates.d/99-generic/live/config_files/x86/isolinux.cfg', shell=True)
+# EFI settings
+subprocess.run('sed -i "s/^set default=.*/set default=\"0\"/g" /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub2-efi.cfg /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg', shell=True)
+subprocess.run('sed -i "s/^set timeout=.*/set timeout=1/g" /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub2-efi.cfg /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg', shell=True)
 # Modify kickstart repos
 with open(os.path.join(os.sep, "usr", "share", "spin-kickstarts", "fedora-repo.ks"), 'w') as f:
     f.write("%include fedora-repo-not-rawhide.ks")
