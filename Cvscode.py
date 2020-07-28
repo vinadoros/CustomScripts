@@ -101,7 +101,11 @@ if not CFunc.is_windows() and shutil.which("code"):
     code_array[1]["en"] = True
 else:
     code_array[1]["en"] = False
-code_array[1]["path"] = os.path.join(userhome, ".config", "Code", "User")
+if os.path.isdir(os.path.join(userhome, ".config", "Code - OSS", "User")):
+    # Native code config path for Manjaro pkg.
+    code_array[1]["path"] = os.path.join(userhome, ".config", "Code - OSS", "User")
+else:
+    code_array[1]["path"] = os.path.join(userhome, ".config", "Code", "User")
 
 # Flatpak (OSS)
 code_array[2]["cmd"] = ["flatpak", "run", "--command=code-oss", "com.visualstudio.code.oss"]
