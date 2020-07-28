@@ -421,18 +421,13 @@ insmod all_video
 set default="0"
 set timeout=1
 
-menuentry "Try Ubuntu FS without installing" {
-   linux /casper/vmlinuz boot=casper quiet splash ---
-   initrd /casper/initrd
-}
-
-menuentry "Install Ubuntu FS" {
-   linux /casper/vmlinuz boot=casper only-ubiquity quiet splash ---
+menuentry "Load Ubuntu" {
+   linux /casper/vmlinuz boot=casper fsck.mode=skip noprompt quiet splash ---
    initrd /casper/initrd
 }
 
 menuentry "Check disc for defects" {
-   linux /casper/vmlinuz boot=casper integrity-check quiet splash ---
+   linux /casper/vmlinuz boot=casper quiet splash ---
    initrd /casper/initrd
 }
 
