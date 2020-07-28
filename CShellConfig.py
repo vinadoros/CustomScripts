@@ -477,7 +477,6 @@ if [ "${{PATH#*{2}}}" = "${{PATH}}" ] && [ -d "{2}" ]; then
     export PATH=$PATH:{2}
 fi
 """.format(USERVARHOME, ohmyzsh_plugins, SCRIPTDIR)
-    ZSHSCRIPT += customrctext
     ZSHSCRIPT += rc_additions
     with open(zshrc_path, 'w') as file:
         file.write(ZSHSCRIPT)
@@ -532,7 +531,7 @@ if args.fish is True and shutil.which('fish'):
         if rootstate is True:
             CFunc.run_as_user(USERNAMEVAR, "cd {0}; bin/install --offline --noninteractive".format(omf_git_path), shutil.which("fish"), error_on_fail=True)
         else:
-            subprocess.Popen("cd {0}; bin/install --offline --noninteractive", shell=True, executable=shutil.which("fish"), error_on_fail=True)
+            subprocess.Popen("cd {0}; bin/install --offline --noninteractive", shell=True, executable=shutil.which("fish"))
         shutil.rmtree(omf_git_path)
         # Install bobthefish
         if rootstate is True:
