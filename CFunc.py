@@ -478,7 +478,10 @@ def rpmimport(keyurl):
 # Pacman
 def pacman_invoke(options: str):
     """Invoke pacman"""
-    subprocess.run("pacman --noconfirm {0}".format(options), shell=True, check=True)
+    pacman_cmd = "pacman"
+    if shutil.which("powerpill"):
+        pacman_cmd = "powerpill"
+    subprocess.run("{0} --noconfirm {1}".format(pacman_cmd, options), shell=True, check=True)
 def pacman_install(packages: str):
     """Install packages with pacman"""
     pacman_invoke("-S --needed {0}".format(packages))

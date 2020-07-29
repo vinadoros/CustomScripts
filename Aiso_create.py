@@ -127,8 +127,8 @@ if args.type == 3:
     docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -v "{0}":"{0}"'.format(buildfolder)
     docker_destroy(docker_name)
     docker_setup(docker_image, docker_name, docker_options)
-    docker_runcmd(docker_name, "pacman -Sy --needed --noconfirm nano ")
-    docker_isocmd = '/opt/CustomScripts/Amanjaroiso.py -n -w "{0}" -o "{0}"'.format(buildfolder)
+    docker_runcmd(docker_name, "pacman -Sy --needed --noconfirm nano powerpill")
+    docker_isocmd = '/opt/CustomScripts/Amanjaroiso.py -n -w "{0}/manjarochroot" -o "{0}/iso"'.format(buildfolder)
     try:
         docker_runcmd(docker_name, docker_isocmd)
     finally:

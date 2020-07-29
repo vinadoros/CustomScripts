@@ -3,11 +3,10 @@
 
 # Python includes.
 import argparse
-from datetime import datetime
 import os
+import pwd
 import shutil
 import subprocess
-import sys
 import time
 # Custom includes
 import CFunc
@@ -18,7 +17,10 @@ print("Running {0}".format(__file__))
 CFunc.is_root(True)
 
 # Get the root user's home folder.
-USERHOME = os.path.expanduser("~root")
+if 'vagrant' in [entry.pw_name for entry in pwd.getpwall()]:
+    USERHOME = os.path.expanduser("~vagrant")
+else:
+    USERHOME = os.path.expanduser("~")
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Build Manjaro LiveCD.')
@@ -55,14 +57,10 @@ os.makedirs(outputfolder, exist_ok=True)
 # https://wiki.manjaro.org/index.php?title=Manjaro-tools
 
 # Install necessary packages for building.
-CFunc.pacman_install("nano git manjaro-tools-iso")
+CFunc.pacman_install("nano git lsb-release manjaro-tools-iso")
 
 # Clone the iso-profiles repository.
 CFunc.gitclone("https://gitlab.manjaro.org/profiles-and-settings/iso-profiles.git", os.path.join(USERHOME, "iso-profiles"))
-
-time.sleep(1000000)
-# subprocess.run("buildiso -p xfce -b stable -x")
-
-# buildiso -p xfce -b stable -x
+subprocess.run("buildiso -p xfce -b stable -x -r '{0}' -t '{1}'".format(workfolder, outputfolder), shell=True, check=False)
 # Changes
-# buildiso -p xfce -cz
+subprocess.run("buildiso -p xfce -cz -r '{0}' -t '{1}'".format(workfolder, outputfolder), shell=True, check=True)
