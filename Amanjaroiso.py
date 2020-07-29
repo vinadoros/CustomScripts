@@ -63,4 +63,5 @@ CFunc.pacman_install("nano git lsb-release manjaro-tools-iso")
 CFunc.gitclone("https://gitlab.manjaro.org/profiles-and-settings/iso-profiles.git", os.path.join(USERHOME, "iso-profiles"))
 subprocess.run("buildiso -p xfce -b stable -x -r '{0}' -t '{1}'".format(workfolder, outputfolder), shell=True, check=False)
 # Changes
-subprocess.run("buildiso -p xfce -cz -r '{0}' -t '{1}'".format(workfolder, outputfolder), shell=True, check=True)
+subprocess.run("buildiso -p xfce -cz -r '{0}' -t '{1}'".format(workfolder, outputfolder), shell=True, check=False)
+# TODO: Insert check to make sure the ISO built properly.
