@@ -35,7 +35,7 @@ def docker_setup(image, name, options):
 
 def docker_runcmd(name, cmd):
     """Run a command in the named docker container"""
-    subprocess.run("docker exec -it --privileged {0} {1}".format(name, cmd), shell=True)
+    subprocess.run("docker exec -it --privileged {0} {1}".format(name, cmd), shell=True, check=False)
     return
 
 
@@ -52,21 +52,20 @@ signal.signal(signal.SIGINT, signal_handler)
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Build LiveCD.')
-parser.add_argument("-n", "--noprompt", help='Do not prompt.', action="store_true")
-parser.add_argument("-w", "--workfolder", help='Location of Working Folder')
-parser.add_argument("-t", "--type", help='1=Ubuntu, 2=Fedora, 3=Debian', type=int, default=0)
-parser.add_argument("-r", "--release", help='Release of LiveCD')
 parser.add_argument("-c", "--clean", help='Remove ISO folder before starting.', action="store_true")
-
-# Save arguments.
+parser.add_argument("-d", "--debug", help='Spawn a bash prompt before destroying the vagrant machine.', action="store_true")
+parser.add_argument("-n", "--noprompt", help='Do not prompt.', action="store_true")
+parser.add_argument("-r", "--release", help='Release of LiveCD')
+parser.add_argument("-t", "--type", help='1=Ubuntu, 2=Fedora, 3=Manjaro', type=int, default=0)
+parser.add_argument("-w", "--workfolder", help='Location of Working Folder')
 args = parser.parse_args()
 
 # Exit if not root.
 CFunc.is_root(True)
 
 # Process variables
-buildfolder = os.path.abspath(args.workfolder)
-print("Using work folder {0}.".format(buildfolder))
+workfolder = os.path.abspath(args.workfolder)
+print("Using work folder {0}.".format(workfolder))
 print("Type: {0}".format(args.type))
 print("Release: {0}".format(args.release))
 print("Clean: {0}".format(args.clean))
@@ -74,62 +73,51 @@ print("Clean: {0}".format(args.clean))
 if args.noprompt is False:
     input("Press Enter to continue.")
 
-workfolder = os.path.abspath(args.workfolder)
 # Clean folder.
 if os.path.isdir(workfolder) and args.clean:
     shutil.rmtree(workfolder)
 # Create folder.
 if not os.path.isdir(workfolder):
-    os.makedirs(workfolder)
-
+    os.makedirs(workfolder, mode=0o777, exist_ok=True)
+os.chmod(workfolder, 0o777)
 
 if args.type == 1:
     print("Ubuntu")
-    os.makedirs(buildfolder, mode=0o777, exist_ok=True)
-    os.chmod(buildfolder, 0o777)
     docker_name = "ubuiso"
     docker_image = "ubuntu:focal"
-    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -e DEBIAN_FRONTEND=noninteractive -v "{0}":"{0}"'.format(buildfolder)
+    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -e DEBIAN_FRONTEND=noninteractive -v "{0}":"{0}"'.format(workfolder)
     docker_destroy(docker_name)
     docker_setup(docker_image, docker_name, docker_options)
     docker_runcmd(docker_name, "apt-get update")
     docker_runcmd(docker_name, "apt-get install -y python3")
-    docker_isocmd = '/opt/CustomScripts/Aubuiso.py -n -w "{0}"'.format(buildfolder)
+    docker_isocmd = '/opt/CustomScripts/Aubuiso.py -n -w "{0}"'.format(workfolder)
     if args.release:
         docker_isocmd += " -r {0}".format(args.release)
-    try:
-        docker_runcmd(docker_name, docker_isocmd)
-    finally:
-        docker_destroy(docker_name)
 if args.type == 2:
     print("Fedora")
-    os.makedirs(buildfolder, mode=0o777, exist_ok=True)
-    os.chmod(buildfolder, 0o777)
     docker_name = "fediso"
     docker_image = "fedora:latest"
-    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -v "{0}":"{0}"'.format(buildfolder)
+    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -v "{0}":"{0}"'.format(workfolder)
     docker_destroy(docker_name)
     docker_setup(docker_image, docker_name, docker_options)
     docker_runcmd(docker_name, "dnf install -y nano livecd-tools spin-kickstarts pykickstart anaconda util-linux")
-    docker_isocmd = '/opt/CustomScripts/Afediso.py -n -w "{0}" -o "{0}"'.format(buildfolder)
+    docker_isocmd = '/opt/CustomScripts/Afediso.py -n -w "{0}" -o "{0}"'.format(workfolder)
     if isinstance(args.release, int):
         docker_isocmd += ' -r {0}'.format(args.release)
-    try:
-        docker_runcmd(docker_name, docker_isocmd)
-    finally:
-        docker_destroy(docker_name)
 if args.type == 3:
     print("Manjaro")
-    os.makedirs(buildfolder, mode=0o777, exist_ok=True)
-    os.chmod(buildfolder, 0o777)
     docker_name = "manjaroiso"
     docker_image = "manjarolinux/base"
-    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -v "{0}":"{0}"'.format(buildfolder)
+    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -v "{0}":"{0}"'.format(workfolder)
     docker_destroy(docker_name)
     docker_setup(docker_image, docker_name, docker_options)
-    docker_runcmd(docker_name, "pacman -Sy --needed --noconfirm nano powerpill")
-    docker_isocmd = '/opt/CustomScripts/Amanjaroiso.py -n -w "{0}/manjarochroot" -o "{0}/iso"'.format(buildfolder)
-    try:
-        docker_runcmd(docker_name, docker_isocmd)
-    finally:
-        docker_destroy(docker_name)
+    docker_runcmd(docker_name, "pacman -Sy --needed --noconfirm manjaro-release nano powerpill")
+    docker_isocmd = '/opt/CustomScripts/Amanjaroiso.py -n -w "{0}/manjarochroot" -o "{0}/iso"'.format(workfolder)
+
+# Run docker
+try:
+    docker_runcmd(docker_name, docker_isocmd)
+finally:
+    if args.debug:
+        docker_runcmd(docker_name, "bash")
+    docker_destroy(docker_name)
