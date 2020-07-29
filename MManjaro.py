@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
     ### Install Software ###
     # Yay
-    CFunc.pacman_install("yay")
+    CFunc.pacman_install("yay powerpill")
     # Install AUR dependencies
     CFunc.pacman_install("base-devel")
     # Sudoers changes
