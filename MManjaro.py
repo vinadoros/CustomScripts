@@ -121,7 +121,7 @@ if __name__ == '__main__':
     CFunc.pacman_install("earlyoom")
     CFunc.sysctl_enable("earlyoom", error_on_fail=True)
     # firewalld
-    CFunc.pacman_install("firewalld ipset")
+    CFunc.pacman_install("firewalld")
     CFunc.sysctl_enable("firewalld", error_on_fail=True)
     # GUI Packages
     if not args.nogui:

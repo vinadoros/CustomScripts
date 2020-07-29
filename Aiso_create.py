@@ -20,15 +20,16 @@ SCRIPTDIR = sys.path[0]
 ######### Begin Functions #########
 def docker_destroy(name):
     """Destroy the named docker container"""
-    subprocess.run("docker stop {0}".format(name), shell=True)
-    subprocess.run("docker rm {0}".format(name), shell=True)
+    subprocess.run("docker stop {0}".format(name), shell=True, check=False)
+    subprocess.run("docker rm {0}".format(name), shell=True, check=False)
     return
 
 
 def docker_setup(image, name, options):
     """Setup the named docker container"""
     docker_destroy(name)
-    subprocess.run("docker run -dt --privileged --name {0} {1} {2} bash".format(name, options, image), shell=True)
+    subprocess.run("docker pull {0}".format(image), shell=True, check=True)
+    subprocess.run("docker run -dt --privileged --name {0} {1} {2} bash".format(name, options, image), shell=True, check=True)
     return
 
 
@@ -88,7 +89,7 @@ if args.type == 1:
     os.chmod(buildfolder, 0o777)
     docker_name = "ubuiso"
     docker_image = "ubuntu:focal"
-    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -v "{0}":"{0}"'.format(buildfolder)
+    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -e DEBIAN_FRONTEND=noninteractive -v "{0}":"{0}"'.format(buildfolder)
     docker_destroy(docker_name)
     docker_setup(docker_image, docker_name, docker_options)
     docker_runcmd(docker_name, "apt-get update")
@@ -106,7 +107,7 @@ if args.type == 2:
     os.chmod(buildfolder, 0o777)
     docker_name = "fediso"
     docker_image = "fedora:latest"
-    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -e DEBIAN_FRONTEND=noninteractive -v "{0}":"{0}"'.format(buildfolder)
+    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -v "{0}":"{0}"'.format(buildfolder)
     docker_destroy(docker_name)
     docker_setup(docker_image, docker_name, docker_options)
     docker_runcmd(docker_name, "dnf install -y nano livecd-tools spin-kickstarts pykickstart anaconda util-linux")
@@ -118,17 +119,16 @@ if args.type == 2:
     finally:
         docker_destroy(docker_name)
 if args.type == 3:
-    print("Debian")
+    print("Manjaro")
     os.makedirs(buildfolder, mode=0o777, exist_ok=True)
     os.chmod(buildfolder, 0o777)
-    docker_name = "debiso"
-    docker_image = "debian:testing"
-    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -e DEBIAN_FRONTEND=noninteractive -v "{0}":"{0}"'.format(buildfolder)
+    docker_name = "manjaroiso"
+    docker_image = "manjarolinux/base"
+    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -v "{0}":"{0}"'.format(buildfolder)
     docker_destroy(docker_name)
     docker_setup(docker_image, docker_name, docker_options)
-    docker_runcmd(docker_name, "apt-get update")
-    docker_runcmd(docker_name, "apt-get install -y nano git build-essential debhelper devscripts live-build syslinux isolinux rsync po4a python3")
-    docker_isocmd = '/opt/CustomScripts/Adebiso.py -n -w "{0}" -o "{0}"'.format(buildfolder)
+    docker_runcmd(docker_name, "pacman -Sy --needed --noconfirm nano powerpill")
+    docker_isocmd = '/opt/CustomScripts/Amanjaroiso.py -n -w "{0}/manjarochroot" -o "{0}/iso"'.format(buildfolder)
     try:
         docker_runcmd(docker_name, docker_isocmd)
     finally:
