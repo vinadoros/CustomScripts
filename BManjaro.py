@@ -4,6 +4,7 @@
 # Python includes.
 import argparse
 import os
+import shutil
 import sys
 import subprocess
 import stat
@@ -52,14 +53,21 @@ CFunc.is_root(True)
 if args.noprompt is False:
     input("Press Enter to continue.")
 
-# Grab the Manjaro pacman.conf
-subprocess.run("curl -o /etc/pacman.conf https://gitlab.manjaro.org/packages/core/pacman/-/raw/master/pacman.conf.x86_64?inline=false", shell=True, check=True)
-# Trust all packages
-subprocess.run("sed -i 's/^SigLevel\s*=.*/SigLevel = Never/g' /etc/pacman.conf", shell=True, check=True)
-# Add a Manjaro mirror
-subprocess.run("echo 'Server = http://www.gtlib.gatech.edu/pub/manjaro/stable/$repo/$arch' > /etc/pacman.d/mirrorlist", shell=True, check=True)
-# Install the manjaro keyring
-subprocess.run("pacman -Syy --noconfirm manjaro-keyring archlinux-keyring", shell=True, check=True)
+# Figure out if we are Arch or something else.
+if shutil.which("pacman"):
+    CFunc.pacman_invoke("-Sy --needed lsb-release")
+lsb_distro, lsb_release = CFunc.detectdistro()
+
+# If running from an Arch livecd, modify pacman settings to pacstrap Manjaro.
+if lsb_distro == "Arch":
+    # Grab the Manjaro pacman.conf
+    subprocess.run("curl -o /etc/pacman.conf https://gitlab.manjaro.org/packages/core/pacman/-/raw/master/pacman.conf.x86_64?inline=false", shell=True, check=True)
+    # Trust all packages
+    subprocess.run("sed -i 's/^SigLevel\s*=.*/SigLevel = Never/g' /etc/pacman.conf", shell=True, check=True)
+    # Add a Manjaro mirror
+    subprocess.run("echo 'Server = http://www.gtlib.gatech.edu/pub/manjaro/stable/$repo/$arch' > /etc/pacman.d/mirrorlist", shell=True, check=True)
+    # Install the manjaro keyring
+    subprocess.run("pacman -Syy --noconfirm manjaro-keyring archlinux-keyring", shell=True, check=True)
 # Use the argument linuxpkg if set. Confirm this option is in the list.
 if args.linuxpkg and any(args.linuxpkg == linuxopt for linuxopt in MManjaro.kernels_getlist()):
     linuxpkg = args.linuxpkg
