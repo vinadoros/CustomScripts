@@ -364,6 +364,9 @@ if type xfconf-query; then
 		# Disable xscreensaver.
 		# TODO: Change this to xfce screensaver app later.
 		echo -e 'mode:\t\toff\n' > "$HOME/.xscreensaver"
+		# xfce-screensaver settings
+		xfconf-query -c xfce4-screensaver -p /lock/enabled --type bool --set false --create
+		xfconf-query -c xfce4-screensaver -p /saver/enabled --type bool --set false --create
 	else
 		xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/blank-on-ac --type int --set 10 --create
 		xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/dpms-on-ac-off --type int --set 10 --create
