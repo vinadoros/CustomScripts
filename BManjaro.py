@@ -53,11 +53,6 @@ CFunc.is_root(True)
 if args.noprompt is False:
     input("Press Enter to continue.")
 
-# Figure out if we are Arch or something else.
-if shutil.which("pacman"):
-    CFunc.pacman_invoke("-Sy --needed lsb-release")
-lsb_distro, lsb_release = CFunc.detectdistro()
-
 # Grab the Manjaro pacman.conf
 subprocess.run("curl -o /etc/pacman.conf https://gitlab.manjaro.org/packages/core/pacman/-/raw/master/pacman.conf.x86_64?inline=false", shell=True, check=True)
 # Trust all packages
