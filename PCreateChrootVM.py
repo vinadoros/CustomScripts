@@ -216,7 +216,7 @@ if __name__ == '__main__':
     # Determine VM Name
     if args.ostype == 1:
         vm_name = "CC-Manjaro-kvm"
-        vmbootstrap_cmd = 'pacman -Sy --noconfirm git && git clone https://github.com/ramesh45345/CustomScripts && /opt/CustomScripts/ZSlimDrive.py -n && /opt/CustomScripts/BManjaro.py -n -c "{vm_name}" -u "{vmuser}" -f "{fullname}" -q "{vmpass}" -l "" -e /mnt && poweroff'.format(vm_name=vm_name, vmuser=args.vmuser, vmpass=args.vmpass, fullname=args.fullname)
+        vmbootstrap_cmd = 'pacman -Sy --noconfirm git && git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts && /opt/CustomScripts/ZSlimDrive.py -n && /opt/CustomScripts/BManjaro.py -n -c "{vm_name}" -u "{vmuser}" -f "{fullname}" -q "{vmpass}" -l "" -e /mnt && poweroff'.format(vm_name=vm_name, vmuser=args.vmuser, vmpass=args.vmpass, fullname=args.fullname)
         vmprovision_cmd = "/opt/CustomScripts/MManjaro.py -d xfce"
         kvm_variant = "manjaro"
 
