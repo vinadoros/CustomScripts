@@ -58,16 +58,14 @@ if shutil.which("pacman"):
     CFunc.pacman_invoke("-Sy --needed lsb-release")
 lsb_distro, lsb_release = CFunc.detectdistro()
 
-# If running from an Arch livecd, modify pacman settings to pacstrap Manjaro.
-if lsb_distro == "Arch":
-    # Grab the Manjaro pacman.conf
-    subprocess.run("curl -o /etc/pacman.conf https://gitlab.manjaro.org/packages/core/pacman/-/raw/master/pacman.conf.x86_64?inline=false", shell=True, check=True)
-    # Trust all packages
-    subprocess.run("sed -i 's/^SigLevel\s*=.*/SigLevel = Never/g' /etc/pacman.conf", shell=True, check=True)
-    # Add a Manjaro mirror
-    subprocess.run("echo 'Server = http://www.gtlib.gatech.edu/pub/manjaro/stable/$repo/$arch' > /etc/pacman.d/mirrorlist", shell=True, check=True)
-    # Install the manjaro keyring
-    subprocess.run("pacman -Syy --noconfirm manjaro-keyring archlinux-keyring", shell=True, check=True)
+# Grab the Manjaro pacman.conf
+subprocess.run("curl -o /etc/pacman.conf https://gitlab.manjaro.org/packages/core/pacman/-/raw/master/pacman.conf.x86_64?inline=false", shell=True, check=True)
+# Trust all packages
+subprocess.run("sed -i 's/^SigLevel\s*=.*/SigLevel = Never/g' /etc/pacman.conf", shell=True, check=True)
+# Add a Manjaro mirror
+subprocess.run("echo 'Server = http://www.gtlib.gatech.edu/pub/manjaro/stable/$repo/$arch' > /etc/pacman.d/mirrorlist", shell=True, check=True)
+# Install the manjaro keyring
+subprocess.run("pacman -Syy", shell=True, check=True)
 # Use the argument linuxpkg if set. Confirm this option is in the list.
 if args.linuxpkg and any(args.linuxpkg == linuxopt for linuxopt in MManjaro.kernels_getlist()):
     linuxpkg = args.linuxpkg
@@ -75,12 +73,13 @@ else:
     # Get latest kernel if no argument given.
     linuxpkg = MManjaro.kernels_getlatest()
 # Run pacstrap
-subprocess.run("pacstrap -G {0} base manjaro-system manjaro-release systemd systemd-libs {1}".format(absinstallpath, linuxpkg), shell=True, check=True)
+subprocess.run("pacstrap -M -G {0} base manjaro-system manjaro-release systemd systemd-libs {1}".format(absinstallpath, linuxpkg), shell=True, check=True)
 # Generate fstab
 subprocess.run("genfstab -U {0} > {0}/etc/fstab".format(absinstallpath), shell=True, check=True)
 
 # Mount chroot paths
 zch.ChrootMountPaths(absinstallpath)
+zch.ChrootRunCommand(absinstallpath, "pacman-mirrors --geoip")
 zch.ChrootRunCommand(absinstallpath, "pacman-key --init")
 zch.ChrootRunCommand(absinstallpath, "pacman-key --populate archlinux manjaro")
 zch.ChrootRunCommand(absinstallpath, "pacman -Syu --noconfirm --needed sudo nano which openssh rng-tools haveged networkmanager wpa_supplicant")
