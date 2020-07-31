@@ -148,6 +148,22 @@ def vm_runscript(ip: str, port: int, user: str, password: str, script: str):
     # SCP the file to the host.
     # Run the file in the VM.
     # Remove the file from host and guest.
+def git_branch_retrieve():
+    """Retrieve the current branch of this script's git repo."""
+    git_branch = None
+    if shutil.which("git"):
+        original_working_folder = os.getcwd()
+        os.chdir(SCRIPTDIR)
+        git_branch = CFunc.subpout("git rev-parse --abbrev-ref HEAD")
+        os.chdir(original_working_folder)
+    else:
+        git_branch = "master"
+    return git_branch
+def git_cmdline(destination=os.path.join(os.sep, "opt", "CustomScripts")):
+    """Compose the git command line to check out the repo."""
+    git_branch = git_branch_retrieve()
+    git_cmd = "git clone https://github.com/ramesh45345/CustomScripts {0} -b {1}".format(destination, git_branch)
+    return git_cmd
 
 
 if __name__ == '__main__':
@@ -216,8 +232,8 @@ if __name__ == '__main__':
     # Determine VM Name
     if args.ostype == 1:
         vm_name = "CC-Manjaro-kvm"
-        vmbootstrap_cmd = 'pacman -Sy --noconfirm git && git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts && /opt/CustomScripts/ZSlimDrive.py -n && /opt/CustomScripts/BManjaro.py -n -c "{vm_name}" -u "{vmuser}" -f "{fullname}" -q "{vmpass}" -l "" -e /mnt && poweroff'.format(vm_name=vm_name, vmuser=args.vmuser, vmpass=args.vmpass, fullname=args.fullname)
-        vmprovision_cmd = "/opt/CustomScripts/MManjaro.py -d xfce"
+        vmbootstrap_cmd = 'dnf install -y git pacman arch-install-scripts && cd /opt/CustomScripts && git fetch && git checkout {gitbranch} && /opt/CustomScripts/ZSlimDrive.py -n -g && /opt/CustomScripts/BManjaro.py -n -c "{vm_name}" -u "{vmuser}" -f "{fullname}" -q "{vmpass}" -l "" -e /mnt && poweroff'.format(vm_name=vm_name, vmuser=args.vmuser, vmpass=args.vmpass, fullname=args.fullname, gitbranch=git_branch_retrieve())
+        vmprovision_cmd = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:users -R ~{vmuser}; pacman -Sy --noconfirm git; {gitcmd}; /opt/CustomScripts/MManjaro.py -d xfce".format(vmuser=args.vmuser, sshkey=sshkey, gitcmd=git_cmdline())
         kvm_variant = "manjaro"
 
     # Override bootstrap opts if provided.
