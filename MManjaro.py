@@ -122,7 +122,8 @@ if __name__ == '__main__':
     CFunc.sysctl_enable("earlyoom", error_on_fail=True)
     # firewalld
     CFunc.pacman_install("firewalld")
-    CFunc.sysctl_enable("firewalld", error_on_fail=True)
+    CFunc.sysctl_enable("firewalld", now=True, error_on_fail=True)
+    CFuncExt.FirewalldConfig()
     # GUI Packages
     if not args.nogui:
         # Note: In an iso install of Manjaro, xorg-fonts-alias is a conflicting package. Remove it before trying to install the xorg groups. Then re-install the dependent packages.

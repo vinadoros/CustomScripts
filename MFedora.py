@@ -64,20 +64,25 @@ CFunc.dnfupdate()
 CFunc.dnfinstall("fish zsh nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils xdg-user-dirs util-linux-user fuse-sshfs redhat-lsb-core openssh-server openssh-clients avahi dnf-plugin-system-upgrade")
 if not args.bare:
     CFunc.dnfinstall("unrar")
-subprocess.run("systemctl enable sshd", shell=True)
+CFunc.sysctl_enable("sshd", error_on_fail=True)
 CFunc.dnfinstall("powerline-fonts google-roboto-fonts google-noto-sans-fonts")
 # Samba
 CFunc.dnfinstall("samba")
-subprocess.run("systemctl enable smb", shell=True)
+CFunc.sysctl_enable("smb", error_on_fail=True)
 # cifs-utils
 CFunc.dnfinstall("cifs-utils")
 # Enable setuid for mount.cifs to enable mounting as a normal user: sudo chmod u+s /usr/sbin/mount.cifs
 os.chmod(os.path.join(os.sep, "usr", "sbin", "mount.cifs"), stat.S_ISUID | 0o755)
 # NTP Configuration
-subprocess.run("systemctl enable systemd-timesyncd; timedatectl set-local-rtc false; timedatectl set-ntp 1", shell=True)
+CFunc.sysctl_enable("systemd-timesyncd", error_on_fail=True)
+subprocess.run("timedatectl set-local-rtc false; timedatectl set-ntp 1", shell=True, check=True)
 # EarlyOOM
 CFunc.dnfinstall("earlyoom")
-subprocess.run("systemctl enable earlyoom", shell=True)
+CFunc.sysctl_enable("earlyoom", error_on_fail=True)
+# firewalld
+CFunc.dnfinstall("firewalld")
+CFunc.sysctl_enable("firewalld", now=True, error_on_fail=True)
+CFuncExt.FirewalldConfig()
 # GUI Packages
 if not args.nogui:
     CFunc.dnfinstall("@fonts @base-x @networkmanager-submodules")
@@ -127,7 +132,7 @@ if vmstatus == "vmware":
 if args.desktop == "gnome":
     # Gnome
     CFunc.dnfinstall("--allowerasing @workstation-product @gnome-desktop")
-    subprocess.run("systemctl enable -f gdm", shell=True)
+    CFunc.sysctl_enable("-f gdm", error_on_fail=True)
     # Some Gnome Extensions
     CFunc.dnfinstall("gnome-terminal-nautilus gnome-tweak-tool dconf-editor")
     CFunc.dnfinstall("gnome-shell-extension-gpaste gnome-shell-extension-topicons-plus")
@@ -144,18 +149,18 @@ elif args.desktop == "kde":
     # KDE
     CFunc.dnfinstall("--allowerasing @kde-desktop-environment")
     CFunc.dnfinstall("ark latte-dock")
-    subprocess.run("systemctl enable -f sddm", shell=True)
+    CFunc.sysctl_enable("-f sddm", error_on_fail=True)
 elif args.desktop == "mate":
     # MATE
     CFunc.dnfinstall("--allowerasing @mate-desktop @mate-applications")
-    subprocess.run("systemctl enable -f lightdm", shell=True)
+    CFunc.sysctl_enable("-f lightdm", error_on_fail=True)
     # Applications
     CFunc.dnfinstall("dconf-editor")
     # Brisk-menu
-    subprocess.run("dnf copr enable -y rmkrishna/rpms", shell=True)
+    subprocess.run("dnf copr enable -y rmkrishna/rpms", shell=True, check=True)
     CFunc.dnfinstall("brisk-menu")
     # Run MATE Configuration
-    subprocess.run("{0}/DExtMate.py".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/DExtMate.py".format(SCRIPTDIR), shell=True, check=False)
 elif args.desktop == "xfce":
     CFunc.dnfinstall("--allowerasing @xfce-desktop-environment")
     CFunc.dnfinstall("xfce4-whiskermenu-plugin xfce4-systemload-plugin xfce4-diskperf-plugin xfce4-clipman-plugin")
@@ -168,10 +173,10 @@ if not args.nogui and not args.bare:
     # Numix
     CFunc.dnfinstall("numix-icon-theme-circle")
     # Update pixbuf cache after installing icons (for some reason doesn't do this automatically).
-    subprocess.run("gdk-pixbuf-query-loaders-64 --update-cache", shell=True)
+    subprocess.run("gdk-pixbuf-query-loaders-64 --update-cache", shell=True, check=True)
 
 if not args.nogui:
-    subprocess.run("systemctl set-default graphical.target", shell=True)
+    subprocess.run("systemctl set-default graphical.target", shell=True, check=True)
 
 
 # Add normal user to all reasonable groups
@@ -229,7 +234,7 @@ if not args.bare and not args.nogui:
 # Disable Selinux
 # To get selinux status: sestatus, getenforce
 # To enable or disable selinux temporarily: setenforce 1 (to enable), setenforce 0 (to disable)
-subprocess.run("sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /etc/sysconfig/selinux", shell=True)
+subprocess.run("sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /etc/sysconfig/selinux", shell=True, check=True)
 
 # Disable mitigations
 CFuncExt.GrubEnvAdd(os.path.join(os.sep, "etc", "default", "grub"), "GRUB_CMDLINE_LINUX", "mitigations=off")
@@ -239,13 +244,13 @@ subprocess.run('grubby --update-kernel=ALL --args="mitigations=off"', shell=True
 
 # Extra scripts
 if args.allextra is True:
-    subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CShellConfig.py -f -z -d".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CVMGeneral.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True, check=True)
+    subprocess.run("{0}/CShellConfig.py -f -z -d".format(SCRIPTDIR), shell=True, check=True)
+    subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)
+    subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True, check=True)
+    subprocess.run("{0}/CVMGeneral.py".format(SCRIPTDIR), shell=True, check=True)
+    subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True, check=True)
+    subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True, check=True)
+    subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True, check=True)
 
 print("\nScript End")

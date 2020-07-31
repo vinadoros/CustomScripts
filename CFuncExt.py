@@ -115,6 +115,21 @@ def GrubUpdate():
         elif os.path.isfile(os.path.join(os.sep, "boot", "efi", "EFI", "fedora", "grub.cfg")):
             print("Update fedora efi grub config.")
             subprocess.run("grub-mkconfig -o {0}".format(os.path.join(os.sep, "boot", "efi", "EFI", "fedora", "grub.cfg")), shell=True, check=True)
+def FirewalldConfig():
+    """
+    Set common firewalld settings.
+    """
+    if shutil.which("firewall-cmd"):
+        subprocess.run("firewall-cmd --permanent --add-service=ssh", shell=True, check=True)
+        subprocess.run("firewall-cmd --permanent --add-service=samba", shell=True, check=True)
+        subprocess.run("firewall-cmd --permanent --add-service=syncthing", shell=True, check=True)
+        subprocess.run("firewall-cmd --permanent --add-service=syncthing-gui", shell=True, check=True)
+        subprocess.run("firewall-cmd --permanent --add-service=synergy", shell=True, check=True)
+        subprocess.run("firewall-cmd --permanent --add-service=cockpit", shell=True, check=True)
+        subprocess.run("firewall-cmd --permanent --add-service=mdns", shell=True, check=True)
+        subprocess.run("firewall-cmd --permanent --add-port=1025-65535/udp", shell=True, check=True)
+        subprocess.run("firewall-cmd --permanent --add-port=1025-65535/tcp", shell=True, check=True)
+        subprocess.run("firewall-cmd --reload", shell=True, check=True)
 
 
 if __name__ == '__main__':
