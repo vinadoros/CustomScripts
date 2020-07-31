@@ -237,9 +237,6 @@ CFuncExt.GrubUpdate()
 CFunc.dnfinstall("grubby")
 subprocess.run('grubby --update-kernel=ALL --args="mitigations=off"', shell=True, check=True)
 
-# Disable the firewall
-subprocess.run("systemctl mask firewalld", shell=True)
-
 # Extra scripts
 if args.allextra is True:
     subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
