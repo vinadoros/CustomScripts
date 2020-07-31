@@ -80,28 +80,23 @@ done
         subprocess.run('parted -s -a optimal "{0}" -- mktable msdos'.format(devicetopartition), shell=True, check=True)
 
     # Create partitions
-    swapsize = 1024
-    efisize = 50
-    mainsize = blocksizeMB - swapsize - efisize
-    subprocess.run('parted -s -a optimal "{0}" -- mkpart primary ext2 1 {1}'.format(devicetopartition, mainsize), shell=True, check=True)
-    subprocess.run('parted -s -a optimal "{0}" -- mkpart primary linux-swap {1} {2}'.format(devicetopartition, mainsize, mainsize + swapsize), shell=True, check=True)
-    subprocess.run('parted -s -a optimal "{0}" -- mkpart primary fat32 {1} 100%'.format(devicetopartition, mainsize + swapsize), shell=True, check=True)
-    # Set the efi partition to be bootable on gpt.
-    if args.gpt is True:
-        subprocess.run('parted -s -a optimal "{0}" -- set 3 boot on'.format(devicetopartition), shell=True, check=True)
+    efisize = 100
+    mainsize = blocksizeMB - efisize
+    if args.gpt:
+        subprocess.run('parted -s -a optimal "{0}" -- mkpart primary ext2 1 {1}'.format(devicetopartition, mainsize), shell=True, check=True)
+        subprocess.run('parted -s -a optimal "{0}" -- mkpart primary fat32 {1} 100%'.format(devicetopartition, mainsize), shell=True, check=True)
+        # Set the efi partition to be bootable on gpt.
+        subprocess.run('parted -s -a optimal "{0}" -- set 2 boot on'.format(devicetopartition), shell=True, check=True)
+        # Format EFI partition
+        subprocess.run('mkfs.vfat -n efi -F 32 {0}2'.format(devicetopartition), shell=True, check=True)
+    else:
+        subprocess.run('parted -s -a optimal "{0}" -- mkpart primary ext2 1 100%'.format(devicetopartition), shell=True, check=True)
+    # Format main partition
+    subprocess.run('mkfs.{0} {1}1'.format(args.filesystem, devicetopartition), shell=True, check=True)
     subprocess.run('fdisk -l {0}'.format(devicetopartition), shell=True, check=True)
 
-    # Format partitions
-    subprocess.run('mkswap {0}2'.format(devicetopartition), shell=True, check=True)
-    subprocess.run('mkfs.vfat -n efi -F 32 {0}3'.format(devicetopartition), shell=True, check=True)
-    subprocess.run('mkfs.{0} {1}1'.format(args.filesystem, devicetopartition), shell=True, check=True)
-
 # Mount the parititons
-subprocess.run('swapon {0}2'.format(devicetopartition), shell=True, check=True)
-if os.path.isdir(args.pathtomount) is False:
-    os.makedirs(args.pathtomount)
 subprocess.run('mount {0}1 {1}'.format(devicetopartition, args.pathtomount), shell=True, check=True)
 if args.gpt is True:
-    if os.path.isdir("{0}/boot/efi".format(args.pathtomount)) is False:
-        os.makedirs("{0}/boot/efi".format(args.pathtomount))
+    os.makedirs("{0}/boot/efi".format(args.pathtomount), exist_ok=True)
     subprocess.run('mount {0}3 {1}/boot/efi'.format(devicetopartition, args.pathtomount), shell=True, check=True)
