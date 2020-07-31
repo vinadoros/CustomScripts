@@ -26,6 +26,11 @@ USERNAMEVAR, USERGROUP, USERHOME = CFunc.getnormaluser()
 print("Username is:", USERNAMEVAR)
 print("Group Name is:", USERGROUP)
 
+# Check if virtualized
+vmstate = CFunc.getvmstate()
+if vmstate:
+    print("NOTE: Virtualized environment detected.")
+
 # Process arguments
 if args.uninstall:
     print("Uninstalling libvirt.")
@@ -50,6 +55,11 @@ PolkitPath = os.path.join(os.sep, "etc", "polkit-1")
 PolkitRulesPath = os.path.join(PolkitPath, "rules.d")
 PolkitUserRulePath = os.path.join(PolkitRulesPath, "80-libvirt.rules")
 SysctlAcceptRaPath = os.path.join(os.sep, "etc", "sysctl.d", "99-acceptra.conf")
+ipv4_range_addr = "192.168.122"
+ipv6_range_addr = "fdab:8ce1:b5cd:fbd5"
+if vmstate:
+    ipv4_range_addr = "192.168.123"
+    ipv6_range_addr = "fdab:8ce1:b5cd:fbd9"
 # Installation Code
 if args.uninstall is False:
     print("Installing libvirt")
@@ -103,18 +113,18 @@ if args.uninstall is False:
   <name>default</name>
   <forward mode='nat'/>
   <bridge name='virbr0' zone='trusted' stp='off'/>
-  <ip address='192.168.122.1' netmask='255.255.255.0'>
+  <ip address='{0}.1' netmask='255.255.255.0'>
     <dhcp>
-      <range start='192.168.122.2' end='192.168.122.254'/>
+      <range start='{0}.2' end='{0}.254'/>
     </dhcp>
   </ip>
-  <ip family='ipv6' address='fdab:8ce1:b5cd:fbd5::1' prefix='96'>
+  <ip family='ipv6' address='{1}::1' prefix='96'>
     <dhcp>
-      <range start='fdab:8ce1:b5cd:fbd5::1000' end='fdab:8ce1:b5cd:fbd5::2000' />
+      <range start='{1}::1000' end='{1}::2000' />
     </dhcp>
   </ip>
 </network>
-"""
+""".format(ipv4_range_addr, ipv6_range_addr)
     with open(NetXMLPath, mode='w') as f:
         f.write(NetXMLText)
     subprocess.run("virsh net-destroy default", shell=True, check=False)
@@ -131,20 +141,26 @@ if args.uninstall is False:
     # Set network info
     subprocess.run("virsh net-autostart default", shell=True, check=True)
     subprocess.run("virsh net-start default", shell=True, check=False)
+    # Set firewalld config
+    if shutil.which("firewall-cmd"):
+        subprocess.run("firewall-cmd --permanent --zone=libvirt --add-port=0-65535/udp", shell=True, check=True)
+        subprocess.run("firewall-cmd --permanent --zone=libvirt --add-port=0-65535/tcp", shell=True, check=True)
+        subprocess.run("firewall-cmd --reload", shell=True, check=True)
 
     # Set dconf info
     if shutil.which("gsettings"):
-        CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager.stats enable-cpu-poll true")
-        CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager.stats enable-disk-poll true")
-        CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager.stats enable-memory-poll true")
-        CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager.stats enable-net-poll true")
-        CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager.vmlist-fields cpu-usage true")
-        CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager.vmlist-fields disk-usage false")
-        CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager.vmlist-fields memory-usage true")
-        CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager.vmlist-fields network-traffic true")
-        CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager.console resize-guest 1")
-        CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager enable-libguestfs-vm-inspection true")
-        CFunc.run_as_user(USERNAMEVAR, "gsettings set org.virt-manager.virt-manager xmleditor-enabled true")
+        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.stats enable-cpu-poll true")
+        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.stats enable-disk-poll true")
+        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.stats enable-memory-poll true")
+        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.stats enable-net-poll true")
+        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.vmlist-fields cpu-usage true")
+        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.vmlist-fields disk-usage false")
+        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.vmlist-fields memory-usage true")
+        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.vmlist-fields network-traffic true")
+        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.console resize-guest 1")
+        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager enable-libguestfs-vm-inspection true")
+        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager xmleditor-enabled true")
+        print("NOTE: Please reboot for virt-manager settings to take effect.")
     else:
         print("WARNING: gsettings command not found. Install to set virt-manager defaults.")
 
