@@ -344,7 +344,7 @@ if type kwriteconfig5; then
 fi
 
 # Xfce settings
-if type xfconf-query; then
+if type xfconf-query &> /dev/null && type xfce4-panel &> /dev/null; then
 	if [ -d "/usr/share/icons/Numix-Circle" ] || [ -d "/usr/local/share/icons/Numix-Circle" ]; then
 		xfconf-query -c xsettings -p /Net/IconThemeName -s "Numix-Circle" --create
 	fi
