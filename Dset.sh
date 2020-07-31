@@ -346,11 +346,18 @@ fi
 # Xfce settings
 if type xfconf-query; then
 	if [ -d "/usr/share/icons/Numix-Circle" ] || [ -d "/usr/local/share/icons/Numix-Circle" ]; then
-		xfconf-query -c xsettings -p /Net/IconThemeName -s "Numix-Circle"
+		xfconf-query -c xsettings -p /Net/IconThemeName -s "Numix-Circle" --create
 	fi
-	xfconf-query -c xsettings -p /Net/ThemeName -s "Adwaita"
-	xfconf-query -c xfwm4 -p /general/workspace_count -s 1
-	xfconf-query -c xfwm4 -p /general/theme -s "Arc-Darker"
+	xfconf-query -c xfwm4 -p /general/workspace_count -s 1 --create
+	# Fonts
+	xfconf-query -c xfwm4 -p /general/title_font -s "Roboto Bold 11" --create
+	xfconf-query -c xsettings -p /Gtk/FontName -s "Roboto 10" --create
+	xfconf-query -c xsettings -p /Gtk/MonospaceFontName -s "Liberation Mono 10" --create
+	xfconf-query -c xsettings -p /Xft/Antialias -s 1 --create
+	xfconf-query -c xsettings -p /Xft/Hinting -s 1 --create
+	xfconf-query -c xsettings -p /Xft/HintStyle -s "hintfull" --create
+	xfconf-query -c xsettings -p /Xft/RGBA -s "rgb" --create
+	xfconf-query -c xsettings -p /Xft/DPI -s -1 --create
 	# Launch Gnome services (for keyring)
 	xfconf-query -c xfce4-session -p /compat/LaunchGNOME -t bool -s true --create
 	# Keyboard Shortcuts
