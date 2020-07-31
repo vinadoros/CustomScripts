@@ -99,4 +99,4 @@ done
 subprocess.run('mount {0}1 {1}'.format(devicetopartition, args.pathtomount), shell=True, check=True)
 if args.gpt is True:
     os.makedirs("{0}/boot/efi".format(args.pathtomount), exist_ok=True)
-    subprocess.run('mount {0}3 {1}/boot/efi'.format(devicetopartition, args.pathtomount), shell=True, check=True)
+    subprocess.run('mount {0}2 {1}/boot/efi'.format(devicetopartition, args.pathtomount), shell=True, check=True)
