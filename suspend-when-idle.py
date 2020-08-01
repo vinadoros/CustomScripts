@@ -105,10 +105,10 @@ def check_idle():
     inhibit_string = ""
     # Check samba status. Note that sport only considers connections to this machine, while dport would consider this machine connecting to another server.
     samba_ss_output = subprocess.check_output("ss -Htua -o state established '( sport = :microsoft-ds )'", shell=True)
-    statuses['samba'] = bool(samba_ss_output is not None)
+    statuses['samba'] = bool(samba_ss_output.decode() != "")
     # Check nfs status.
     nfs_ss_output = subprocess.check_output("ss -Htua -o state established '( sport = :nfs )'", shell=True)
-    statuses['nfs'] = bool(nfs_ss_output is not None)
+    statuses['nfs'] = bool(nfs_ss_output.decode() != "")
     # Check libvirt status. Inhibit suspend if any VM is running.
     statuses['libvirt'] = False
     libvirt_lines = 0
