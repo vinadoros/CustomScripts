@@ -91,11 +91,11 @@ function Fcn-CSClone {
   # Git executable
   $gitcmdpath = "C:\Program Files\Git\bin"
 
-  cd $env:USERPROFILE
+  Set-Location "$CSRootPath"
   if (-Not (Test-Path "$RepoLocalPath")) {
     Start-Process -Wait "$gitcmdpath\git.exe" -ArgumentList "clone","https://github.com/$Repo.git"
   }
-  cd "$RepoLocalPath"
+  Set-Location "$RepoLocalPath"
   # If ssh configuration exists, use updated remote url.
   if (Test-Path "$env:USERPROFILE\.ssh\config"){
     Start-Process -Wait "$gitcmdpath\git.exe" -ArgumentList "config","remote.origin.url","git@github.com:$Repo.git"
