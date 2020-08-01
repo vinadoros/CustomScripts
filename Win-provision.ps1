@@ -13,7 +13,7 @@ $isDotSourced = $MyInvocation.InvocationName -eq '.' -or $MyInvocation.Line -eq 
 
 
 ### Variables ###
-$CSRootPath = $env:USERPROFILE
+$CSRootPath = "$env:USERPROFILE/Documents"
 $RepoUser = "ramesh45345"
 $RepoName = "CustomScripts"
 $Repo = "$RepoUser/$RepoName"
@@ -461,8 +461,8 @@ function Fcn-oosu {
   if (Test-Path "$PSScriptRoot\Win-ooshutup10.cfg") {
     $oosu_path = "$PSScriptRoot\Win-ooshutup10.cfg"
   }
-  elseif (Test-Path "$env:USERPROFILE\CustomScripts\Win-ooshutup10.cfg") {
-    $oosu_path = "$env:USERPROFILE\CustomScripts\Win-ooshutup10.cfg"
+  elseif (Test-Path "$RepoLocalPath\Win-ooshutup10.cfg") {
+    $oosu_path = "$RepoLocalPath\Win-ooshutup10.cfg"
   }
   Write-Output "OOSU Config path: $oosu_path"
   if ((Test-Path "C:\ProgramData\chocolatey\bin\OOSU10.exe") -And $oosu_path) {
