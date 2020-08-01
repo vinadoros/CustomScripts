@@ -98,7 +98,11 @@ def gitclone(url, destination):
     abs_dest = os.path.abspath(destination)
     if os.path.isdir(abs_dest):
         print("{0} exists. Pulling changes.".format(abs_dest))
-        subprocess.run("cd {0}; git checkout -f; git pull".format(abs_dest), shell=True, check=True)
+        original_working_folder = os.getcwd()
+        os.chdir(destination)
+        subprocess.run("git checkout -f", shell=True, check=True)
+        subprocess.run("git pull", shell=True, check=True)
+        os.chdir(original_working_folder)
     else:
         subprocess.run("git clone {0} {1}".format(url, destination), shell=True, check=True)
 def log_config(logfile_path):
