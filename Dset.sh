@@ -368,6 +368,7 @@ if type xfconf-query &> /dev/null && type xfce4-panel &> /dev/null; then
 		xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/blank-on-ac --type int --set 0 --create
 		xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/dpms-on-ac-off --type int --set 0 --create
 		xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/dpms-on-ac-sleep --type int --set 0 --create
+		xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/dpms-enabled --type bool --set false --create
 		# Disable xscreensaver.
 		# TODO: Change this to xfce screensaver app later.
 		echo -e 'mode:\t\toff\n' > "$HOME/.xscreensaver"
