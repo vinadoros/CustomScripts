@@ -137,7 +137,7 @@ def vm_cleanup(vmname: str, img_path: str):
     """Cleanup existing VM."""
     # Destroy and undefine the VM.
     vm_shutdown(vmname)
-    subprocess.run("virsh --connect qemu:///system undefine --nvram {0}".format(vmname), shell=True, check=False)
+    subprocess.run("virsh --connect qemu:///system undefine --snapshots-metadata --nvram {0}".format(vmname), shell=True, check=False)
     # Delete the image file.
     if os.path.isfile(img_path):
         os.remove(img_path)

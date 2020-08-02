@@ -644,7 +644,7 @@ if os.path.isdir(output_folder):
         kvmlist = CFunc.subpout("virsh --connect qemu:///system -q list --all")
         if vmname.lower() in kvmlist.lower():
             subprocess.run('virsh --connect qemu:///system destroy "{0}"'.format(vmname), shell=True, check=False)
-            subprocess.run('virsh --connect qemu:///system undefine "{0}"'.format(vmname), shell=True, check=True)
+            subprocess.run('virsh --connect qemu:///system undefine --snapshots-metadata --nvram "{0}"'.format(vmname), shell=True, check=True)
     # Remove previous file for kvm.
     if args.vmtype == 2 and os.path.isfile(os.path.join(vmpath, vmname + ".qcow2")):
         os.remove(os.path.join(vmpath, vmname + ".qcow2"))
