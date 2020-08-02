@@ -49,10 +49,18 @@ def kernels_getlist():
     kernelsinrepo_list = subprocess.check_output('pacman -Ssq "^linux[0-9][0-9]?([0-9])$"', shell=True, universal_newlines=True).splitlines()
     return kernelsinrepo_list
     # To get realtime kernels: pacman -Ssq "^linux[0-9][0-9]?([0-9])-rt$"
-def kernels_getlatest():
-    """Get the latest kernel available. Note, this may be an rc kernel."""
-    # The last entry in the list is expected to be the latest kernel.
-    return kernels_getlist()[-1]
+def kernels_getlatest(index: int = -2):
+    """
+    Select an available kernel.
+    Index is the python list position. Use a negative list position to start at the end of the list (-1 being the end of the list/latest kernel).
+    Note, rc-kernels are possible, especially at the end of the list.
+    """
+    kernel_list = kernels_getlist()
+    try:
+        kernel = kernel_list[index]
+    except IndexError:
+        kernel = kernel_list[-2]
+    return kernel
 def kernels_getinstalled():
     """Get list of kernels installed on machine."""
     kernels_installed = []
