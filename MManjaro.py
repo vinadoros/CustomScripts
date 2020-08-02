@@ -101,6 +101,8 @@ if __name__ == '__main__':
     ### Install Software ###
     # Yay
     CFunc.pacman_install("yay powerpill")
+    # Have yay use powerpill
+    CFunc.run_as_user(USERNAMEVAR, "yay --pacman powerpill --save", error_on_fail=True)
     # Install AUR dependencies
     CFunc.pacman_install("base-devel")
     # Sudoers changes
