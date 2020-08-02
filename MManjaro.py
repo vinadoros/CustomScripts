@@ -103,6 +103,9 @@ if __name__ == '__main__':
     CFunc.pacman_install("yay powerpill")
     # Have yay use powerpill
     CFunc.run_as_user(USERNAMEVAR, "yay --pacman powerpill --save", error_on_fail=True)
+    # Set pacman.conf to use PackageRequired, don't check sigs for database.
+    # https://wiki.archlinux.org/index.php/Powerpill#Troubleshooting
+    subprocess.run("sed -i 's/^SigLevel\s*=\s*Required\s*DatabaseOptional/SigLevel = PackageRequired/g' /etc/pacman.conf", shell=True, check=True)
     # Install AUR dependencies
     CFunc.pacman_install("base-devel")
     # Sudoers changes
