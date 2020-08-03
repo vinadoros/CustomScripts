@@ -117,7 +117,7 @@ if __name__ == '__main__':
     CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("powerpill")))
 
     # Cli tools
-    CFunc.pacman_install("bash-completion fish zsh zsh-completions nano git tmux iotop rsync p7zip zip unzip unrar xdg-utils xdg-user-dirs sshfs openssh avahi ntfs-3g")
+    CFunc.pacman_install("bash-completion fish zsh zsh-completions nano git tmux iotop rsync p7zip zip unzip unrar xdg-utils xdg-user-dirs sshfs openssh avahi ntfs-3g python-pip")
     CFunc.sysctl_enable("sshd avahi-daemon", error_on_fail=True)
     CFunc.pacman_install("powerline-fonts ttf-roboto ttf-roboto-mono noto-fonts")
     # Git config
