@@ -7,13 +7,13 @@ from datetime import datetime
 import logging
 import os
 from pathlib import Path
-import subprocess
 import signal
 import sys
 import time
 import traceback
 # Custom includes
 import CFunc
+import zch
 
 print("Running {0}".format(__file__))
 
@@ -22,35 +22,10 @@ SCRIPTDIR = sys.path[0]
 
 
 ### Functions ###
-def chroot_start():
-    """Mount important chroot folders."""
-    subprocess.run("""
-    mount --rbind /dev {0}/dev
-    mount --make-rslave {0}/dev
-    mount -t proc /proc {0}/proc
-    mount --rbind /sys {0}/sys
-    mount --make-rslave {0}/sys
-    mount --rbind /tmp {0}/tmp
-    cp /etc/resolv.conf {0}/etc/resolv.conf
-    """.format(rootfsfolder), shell=True)
-    return
-def chroot_command(cmd):
-    """Run a command inside of the chroot."""
-    CFunc.subpout_logger("chroot {0} {1}".format(rootfsfolder, cmd))
-    return
-def chroot_end():
-    """Unmount important chroot folders."""
-    logging.info("Unmounting chroot folders.")
-    subprocess.run("""
-    umount -l {0}/dev > /dev/null &
-    umount -l {0}/proc > /dev/null &
-    umount -l {0}/sys > /dev/null &
-    umount -l {0}/tmp > /dev/null &
-    """.format(rootfsfolder), shell=True)
-    return
 def signal_handler(sig, frame):
+    """Cleanup if given early termination."""
     if os.path.isdir(rootfsfolder):
-        chroot_end()
+        zch.ChrootUnmountPaths(rootfsfolder)
     print('Exiting due to SIGINT.')
     sys.exit(1)
 
@@ -253,6 +228,9 @@ useradd -m ubuntu
 # Shell Configuration
 /opt/CustomScripts/CShellConfig.py -z -d -u ubuntu
 
+# Sudoers configuration
+/opt/CustomScripts/CFuncExt.py -s
+
 # Mate Configuration
 /opt/CustomScripts/DExtMate.py
 
@@ -404,17 +382,14 @@ os.chmod(os.path.join(rootfsfolder, "chrootscript.sh"), 0o777)
 
 # Commands to run inside chroot
 try:
-    # Mount the chroot filesystems.
-    chroot_start()
-    chroot_command(os.path.join(os.sep, "chrootscript.sh"))
-    # Unmount the chroot filesystems when done.
-    chroot_end()
+    # Run the script in the chroot.
+    zch.ChrootCommand(rootfsfolder, os.path.join(os.sep, "chrootscript.sh"))
     os.remove(os.path.join(rootfsfolder, "chrootscript.sh"))
 except Exception:
     logging.error("ERROR: Chroot command failed.")
     logging.error(traceback.format_exc())
     # Unmount the chroot filesystems upon error.
-    chroot_end()
+    zch.ChrootUnmountPaths(rootfsfolder)
     sys.exit()
 
 
