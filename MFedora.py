@@ -20,7 +20,6 @@ SCRIPTDIR = sys.path[0]
 # Get arguments
 parser = argparse.ArgumentParser(description='Install Fedora Software.')
 parser.add_argument("-d", "--desktop", help='Desktop Environment (i.e. gnome, kde, mate, etc)')
-parser.add_argument("-a", "--allextra", help='Run Extra Scripts', action="store_true")
 parser.add_argument("-b", "--bare", help='Configure script to set up a bare-minimum environment.', action="store_true")
 parser.add_argument("-x", "--nogui", help='Configure script to disable GUI.', action="store_true")
 
@@ -243,7 +242,7 @@ CFunc.dnfinstall("grubby")
 subprocess.run('grubby --update-kernel=ALL --args="mitigations=off"', shell=True, check=True)
 
 # Extra scripts
-if args.allextra is True:
+if args.bare is False:
     subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True, check=True)
     subprocess.run("{0}/CShellConfig.py -f -z -d".format(SCRIPTDIR), shell=True, check=True)
     subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)
