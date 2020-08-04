@@ -19,18 +19,27 @@ def icon_theme_is_present():
     if os.path.isdir("/usr/share/icons/Numix-Circle") or os.path.isdir("/usr/local/share/icons/Numix-Circle"):
         theme_exists = True
     return theme_exists
-def gsettings_set(schema: str, key: str, value: str, error_on_fail=False):
+def gsettings_set(schema: str, key: str, value: str):
     """Set dconf setting using gsettings."""
-    subprocess.run(['gsettings', 'set', schema, key, value], check=error_on_fail)
-def dconf_write(key: str, value: str, error_on_fail: bool = False):
+    status = subprocess.run(['gsettings', 'set', schema, key, value], check=False).returncode
+    if status != 0:
+        print("ERROR, failed to run: gsettings set {0} {1} {2}".format(schema, key, value))
+def dconf_write(key: str, value: str):
     """Set dconf setting using dconf write."""
-    subprocess.run(['dconf', 'write', key, value], check=error_on_fail)
-def xfconf(channel: str, prop: str, var_type: str, value: str, error_on_fail: bool = False):
+    status = subprocess.run(['dconf', 'write', key, value], check=False).returncode
+    if status != 0:
+        print("ERROR, failed to run: dconf write {0} {1}".format(key, value))
+def xfconf(channel: str, prop: str, var_type: str, value: str, extra_options: list = None):
     """
     Set value to property using xfconf.
     https://docs.xfce.org/xfce/xfconf/xfconf-query
     """
-    subprocess.run(['xfconf-query', '--channel', channel, '--property', prop, '--type', var_type, '--set', value, '--create'], check=error_on_fail)
+    cmd_list = ['xfconf-query', '--channel', channel, '--property', prop, '--type', var_type, '--set', value, '--create']
+    if extra_options:
+        cmd_list += extra_options
+    status = subprocess.run(cmd_list, check=False).returncode
+    if status != 0:
+        print("ERROR, failed to run: xfconf-query --channel {channel} --property {prop} --type {var_type} --set {value} --create".format(channel=channel, prop=prop, var_type=var_type, value=value))
 def firefox_modify_settings(setting: str, value: str, prefsjs_filepath: str):
     """Modify a setting in the firefox prefs.js file."""
     subprocess.run(["sed", "-i", 's/user_pref("{0}",.*);/user_pref("{0}",{1});/'.format(setting, value), prefsjs_filepath], check=False)
@@ -164,8 +173,9 @@ if shutil.which("mate-session"):
 
 # PackageKit
 # https://ask.fedoraproject.org/en/question/108524/clean-up-packagekit-cache-the-right-way/
-gsettings_set("org.gnome.software", "download-updates", "false")
-gsettings_set("org.gnome.software", "download-updates-notify", "false")
+if shutil.which("gnome-software"):
+    gsettings_set("org.gnome.software", "download-updates", "false")
+    gsettings_set("org.gnome.software", "download-updates-notify", "false")
 
 
 # Gnome specific settings
@@ -323,8 +333,8 @@ if shutil.which("xfconf-query") and shutil.which("xfce4-panel"):
     xfconf("xsettings", "/Gtk/MonospaceFontName", "string", "Liberation Mono 10")
     xfconf("xsettings", "/Xft/Antialias", "int", "1")
     xfconf("xsettings", "/Xft/Hinting", "int", "1")
-    xfconf("xsettings", "/Xft/HintStyle", "", "hintfull")
-    xfconf("xsettings", "/Xft/RGBA", "", "rgb")
+    xfconf("xsettings", "/Xft/HintStyle", "string", "hintfull")
+    xfconf("xsettings", "/Xft/RGBA", "string", "rgb")
     xfconf("xsettings", "/Xft/DPI", "int", "-1")
     # Launch Gnome services (for keyring)
     xfconf("xfce4-session", "/compat/LaunchGNOME", "bool", "true")
@@ -361,8 +371,8 @@ if shutil.which("xfconf-query") and shutil.which("xfce4-panel"):
     # Panel settings
     xfconf("xfce4-panel", "/panels/panel-1/length", "int", "100")
     xfconf("xfce4-panel", "/panels/panel-2/length", "int", "100")
-    xfconf("xfce4-panel", "/panels/panel-1/size ", "int", "30")
-    xfconf("xfce4-panel", "/panels/panel-2/size ", "int", "30")
+    xfconf("xfce4-panel", "/panels/panel-1/size", "int", "30")
+    xfconf("xfce4-panel", "/panels/panel-2/size", "int", "30")
     xfconf("xfce4-panel", "/panels/panel-1/position-locked", "bool", "true")
     xfconf("xfce4-panel", "/panels/panel-2/position-locked", "bool", "true")
     xfconf("xfce4-panel", "/panels/panel-1/autohide-behavior", "int", "0")
@@ -396,16 +406,16 @@ if shutil.which("xfconf-query") and shutil.which("xfce4-panel"):
     xfconf("xfce4-panel", "/plugins/plugin-14", "string", "xfce4-clipman-plugin")
     xfconf("xfce4-panel", "/plugins/plugin-15", "string", "pulseaudio")
     xfconf("xfce4-panel", "/plugins/plugin-20", "string", "launcher")
-    xfconf("xfce4-panel", "/plugins/plugin-20/items", "string", "firefox.desktop")
+    xfconf("xfce4-panel", "/plugins/plugin-20/items", "string", "firefox.desktop", extra_options=['--force-array'])
     xfconf("xfce4-panel", "/plugins/plugin-21", "string", "launcher")
     if os.path.isfile("/usr/share/applications/Thunar.desktop"):
-        xfconf("xfce4-panel", "/plugins/plugin-21/items", "string", "Thunar.desktop")
+        xfconf("xfce4-panel", "/plugins/plugin-21/items", "string", "Thunar.desktop", extra_options=['--force-array'])
     else:
-        xfconf("xfce4-panel", "/plugins/plugin-21/items", "string", "thunar.desktop")
+        xfconf("xfce4-panel", "/plugins/plugin-21/items", "string", "thunar.desktop", extra_options=['--force-array'])
     xfconf("xfce4-panel", "/plugins/plugin-22", "string", "launcher")
-    xfconf("xfce4-panel", "/plugins/plugin-22/items", "string", "xfce4-terminal.desktop")
+    xfconf("xfce4-panel", "/plugins/plugin-22/items", "string", "xfce4-terminal.desktop", extra_options=['--force-array'])
     xfconf("xfce4-panel", "/plugins/plugin-23", "string", "launcher")
-    xfconf("xfce4-panel", "/plugins/plugin-23/items", "string", "com.gexperts.Tilix.desktop")
+    xfconf("xfce4-panel", "/plugins/plugin-23/items", "string", "com.gexperts.Tilix.desktop", extra_options=['--force-array'])
 
     # List existing array
     # xfconf-query -c xfce4-panel -p /panels/panel-2/plugin-ids
