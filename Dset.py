@@ -42,8 +42,17 @@ def xfconf(channel: str, prop: str, var_type: str, value: str, extra_options: li
         print("ERROR, failed to run: xfconf-query --channel {channel} --property {prop} --type {var_type} --set {value} --create".format(channel=channel, prop=prop, var_type=var_type, value=value))
 def firefox_modify_settings(setting: str, value: str, prefsjs_filepath: str):
     """Modify a setting in the firefox prefs.js file."""
-    subprocess.run(["sed", "-i", 's/user_pref("{0}",.*);/user_pref("{0}",{1});/'.format(setting, value), prefsjs_filepath], check=False)
-    subprocess.run('grep -q {0} prefs.js || echo "user_pref(\"{0}\",{1});" >> "{2}"'.format(setting, value, prefsjs_filepath), shell=True, check=False)
+    # Read prefs.js
+    with open(prefsjs_filepath, 'r') as f:
+        prefs_txt = f.read()
+    # Find the preference in prefs.js.
+    if setting in prefs_txt:
+        # If the preference exists, change the setting in the file.
+        subprocess.run('''sed -i 's/user_pref("{0}",.*);/user_pref("{0}", {1});/' {2}'''.format(setting, value, prefsjs_filepath), shell=True, check=False)
+    else:
+        # If the pref doesn't exist, add to the bottom.
+        with open(prefsjs_filepath, 'a') as f:
+            f.write('user_pref("{0}", {1});\n'.format(setting, value))
 
 
 # Get arguments
@@ -454,7 +463,7 @@ if os.path.isdir(firefox_profiles_path):
                     firefox_modify_settings("browser.newtabpage.activity-stream.showSponsored", "false", prefsjs_file)
                     # DNS-over-HTTPS
                     firefox_modify_settings("network.trr.mode", "2", prefsjs_file)
-                    firefox_modify_settings("network.trr.bootstrapAddress", "1.1.1.1", prefsjs_file)
+                    firefox_modify_settings("network.trr.bootstrapAddress", '"1.1.1.1"', prefsjs_file)
                     # Disable notifications
                     firefox_modify_settings("dom.webnotifications.enabled", "false", prefsjs_file)
                     # Autoplay (5 blocks audio and video for all sites by default)
@@ -465,4 +474,4 @@ if os.path.isdir(firefox_profiles_path):
                         firefox_gnometheme_path = os.path.join(USERHOME, "firefox-gnome-theme")
                         CFunc.gitclone("https://github.com/rafaelmardojai/firefox-gnome-theme/", firefox_gnometheme_path)
                         if os.path.isdir(firefox_gnometheme_path):
-                            subprocess.run("{0}/scripts/install.sh -p {1}".format(firefox_gnometheme_path, firefox_profilefolder), shell=True, check=False)
+                            subprocess.run("{0}/scripts/install.sh -p {1}".format(firefox_gnometheme_path, entry.name), shell=True, check=False)
