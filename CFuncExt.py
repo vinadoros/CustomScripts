@@ -137,15 +137,18 @@ if __name__ == '__main__':
 
     # Get arguments
     parser = argparse.ArgumentParser(description='CFunc Extras.')
-    parser.add_argument("-s", "--sudoenv", help='Sudo Environment Changes', action="store_true")
-    parser.add_argument("-n", "--numix", help='Numix Circle Icons', action="store_true")
+    parser.add_argument("-f", "--firewalldcfg", help='Run Grub update', action="store_true")
     parser.add_argument("-g", "--grubupdate", help='Run Grub update', action="store_true")
+    parser.add_argument("-n", "--numix", help='Numix Circle Icons', action="store_true")
+    parser.add_argument("-s", "--sudoenv", help='Sudo Environment Changes', action="store_true")
     args = parser.parse_args()
 
     # Run functions
+    if args.firewalldcfg:
+        FirewalldConfig()
+    if args.grubupdate:
+        GrubUpdate()
     if args.numix:
         numix_icons()
     if args.sudoenv:
         SudoersEnvSettings()
-    if args.grubupdate:
-        GrubUpdate()
