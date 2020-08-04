@@ -276,8 +276,15 @@ elif type yay &> /dev/null || type pacman &> /dev/null; then
     fi
 
     function ins () {
-        echo "Installing $@."
-        $PKGMGR -S --needed $@
+        echo "Installing $@.\n"
+        if type yay &> /dev/null; then
+            yay --pacman pacman --print --print-format="%%n-%%v" -S --needed $@ | sort
+        else
+            pacman --print --print-format="%%n-%%v" -S --needed $@ | sort
+        fi
+        echo "\nPress Enter to install or Ctrl-C to cancel."
+        read -r empty_variable
+        $PKGMGR -S --noconfirm --needed $@
     }
     function rmv () {
         echo "Removing $@."
@@ -481,6 +488,7 @@ fi
     ZSHSCRIPT += rc_additions
     with open(zshrc_path, 'w') as file:
         file.write(ZSHSCRIPT)
+    subprocess.run("chmod -R g-w,o-w {0}".format(os.path.join(USERVARHOME, ".oh-my-zsh")), shell=True, check=True)
 else:
     print("zsh not detected, skipping configuration.")
 
@@ -516,7 +524,14 @@ sed -i 's/#set -g history-limit 10000/set -g history-limit 10000/g' {0}
 # Check if fish exists
 if args.fish is True and shutil.which('fish'):
     # Change to temp dir. User can't install omf if current dir is root home folder.
-    os.chdir(tempfile.gettempdir())
+    temp_dir = tempfile.gettempdir()
+    os.chdir(temp_dir)
+
+    # Git checkout local omf folder, in case it is unclean.
+    if os.path.isdir(os.path.join(USERVARHOME, ".local", "share", "omf")):
+        os.chdir(os.path.join(USERVARHOME, ".local", "share", "omf"))
+        subprocess.run(["git", "checkout", "-f"], check=False)
+        os.chdir(temp_dir)
 
     # Test for omf
     if rootstate is True:
@@ -782,8 +797,11 @@ else if type -q dnf; or type -q yum
     end
 else if type -q yay
     function ins
-        echo "Installing $argv."
-        yay -S --needed $argv
+        echo "Installing $argv.\n"
+        yay --pacman pacman --print --print-format="%n-%v" -S --needed $argv | sort
+        echo "\n"
+        read -P "Press Enter to install or Ctrl-C to cancel."
+        yay -S --noconfirm --needed $argv
     end
     function rmv
         echo "Removing $argv."
