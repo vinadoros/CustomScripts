@@ -115,10 +115,9 @@ if shutil.which("mate-session"):
     gsettings_set("org.mate.caja.preferences", "show-advanced-permissions", "true")
     gsettings_set("org.mate.caja.preferences", "show-hidden-files", "true")
     gsettings_set("org.mate.caja.preferences", "use-iec-units", "true")
-    gsettings_set("org.mate.peripherals-touchpad", "scroll-method", "1")
     gsettings_set("org.mate.peripherals-touchpad", "disable-while-typing", "true")
     gsettings_set("org.mate.peripherals-touchpad", "tap-to-click", "true")
-    gsettings_set("org.mate.peripherals-touchpad", "horiz-scroll-enabled", "true")
+    gsettings_set("org.mate.peripherals-touchpad", "horizontal-two-finger-scrolling", "true")
     gsettings_set("org.mate.power-manager", "idle-dim-ac", "false")
     gsettings_set("org.mate.power-manager", "button-lid-ac", "blank")
     gsettings_set("org.mate.power-manager", "button-lid-battery", "blank")
@@ -144,7 +143,8 @@ if shutil.which("mate-session"):
     dconf_write("/org/mate/panel/objects/notification-area/position", "10")
     dconf_write("/org/mate/panel/objects/notification-area/panel-right-stick", "true")
     dconf_write("/org/mate/panel/objects/notification-area/locked", "true")
-    gsettings_set("org.mate.Marco.general", "side-by-side-tiling", "true")
+    gsettings_set("org.mate.Marco.general", "allow-top-tiling", "true")
+    gsettings_set("org.mate.Marco.general", "audible-bell", "false")
     # Set Fonts
     gsettings_set("org.mate.interface", "document-font-name", "'Noto Sans 11'")
     gsettings_set("org.mate.interface", "font-name", "'Roboto 11'")
@@ -156,7 +156,7 @@ if shutil.which("mate-session"):
     # Fish config for mate-terminal
     if shutil.which("fish"):
         dconf_write("/org/mate/terminal/profiles/default/use-custom-command", "true")
-        dconf_write("/org/mate/terminal/profiles/default/custom-command", "{0}".format(shutil.which("fish")))
+        dconf_write("/org/mate/terminal/profiles/default/custom-command", "'{0}'".format(shutil.which("fish")))
     else:
         dconf_write("/org/mate/terminal/profiles/default/use-custom-command", "false")
 
