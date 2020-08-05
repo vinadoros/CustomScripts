@@ -250,14 +250,14 @@ TimeoutStopSec=7s
 
 [Install]
 WantedBy=graphical.target
-'EOL'
+EOL
 systemctl enable updatecs.service
 
 # Dset
 cat >"/etc/xdg/autostart/dset.desktop" <<"EOL"
 [Desktop Entry]
 Name=Dset
-Exec=/opt/CustomScripts/Dset.sh
+Exec=/opt/CustomScripts/Dset.py -p
 Terminal=false
 Type=Application
 EOL

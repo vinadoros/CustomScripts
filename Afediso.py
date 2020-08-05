@@ -170,7 +170,7 @@ visudo -c
 cat >"/etc/xdg/autostart/mate-dset.desktop" <<"EOL"
 [Desktop Entry]
 Name=MATE Settings Script
-Exec=/opt/CustomScripts/Dset.sh
+Exec=/opt/CustomScripts/Dset.py -p
 Terminal=false
 Type=Application
 EOL
