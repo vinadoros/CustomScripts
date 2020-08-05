@@ -190,6 +190,7 @@ for idx in range(1, 5):
         data["python.linting.pylamaArgs"] = ["-i", "E501,E266,E302"]
         data["python.linting.flake8Enabled"] = True
         data["python.linting.flake8Args"] = ["--ignore=E501,E302,E266"]
+        data["python.showStartPage"] = False
         data["workbench.iconTheme"] = "vscode-icons"
         # Print the json data for debugging purposes.
         # print(json.dumps(data, indent=2))
