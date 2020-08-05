@@ -143,6 +143,7 @@ if args.uninstall is False:
     subprocess.run("virsh net-start default", shell=True, check=False)
     # Set firewalld config
     if shutil.which("firewall-cmd"):
+        subprocess.run("systemctl restart firewalld", shell=True, check=False)
         subprocess.run("firewall-cmd --permanent --zone=libvirt --add-port=0-65535/udp", shell=True, check=True)
         subprocess.run("firewall-cmd --permanent --zone=libvirt --add-port=0-65535/tcp", shell=True, check=True)
         subprocess.run("firewall-cmd --reload", shell=True, check=True)
