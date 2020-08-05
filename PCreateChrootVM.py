@@ -186,6 +186,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Create and run a Virtual Machine.')
     parser.add_argument("-a", "--ostype", type=int, help="OS type (20=Manjaro, 10=Ubuntu)", default="1")
     parser.add_argument("-d", "--debug", help='Use Debug Logging', action="store_true")
+    parser.add_argument("-e", "--desktopenv", help="Desktop Environment (defaults to mate)", default="mate")
     parser.add_argument("-f", "--fullname", help="Full Name", default="User Name")
     parser.add_argument("-i", "--iso", help="Path to live cd", required=True)
     parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
@@ -196,9 +197,6 @@ if __name__ == '__main__':
     parser.add_argument("-y", "--vmuser", help="VM Username", default="user")
     parser.add_argument("-z", "--vmpass", help="VM Password", default="asdf")
     parser.add_argument("--memory", help="Memory for VM", default="4096")
-    parser.add_argument("--vmbootstrap", help="Override bootstrap options.")
-    parser.add_argument("--vmprovision", help="Override provision options.")
-    parser.add_argument("--driveopts", help="Add drive creation options.")
     args = parser.parse_args()
 
     # Enable logging
@@ -232,27 +230,9 @@ if __name__ == '__main__':
     # Determine VM Name
     if args.ostype == 1:
         vm_name = "CC-Manjaro-kvm"
-        vmbootstrap_cmd = 'dnf install -y git pacman arch-install-scripts && cd /opt/CustomScripts && git fetch && git checkout {gitbranch} && /opt/CustomScripts/ZSlimDrive.py -n -g && /opt/CustomScripts/BManjaro.py -n -c "{vm_name}" -u "{vmuser}" -f "{fullname}" -q "{vmpass}" -l "" -e /mnt && poweroff'.format(vm_name=vm_name, vmuser=args.vmuser, vmpass=args.vmpass, fullname=args.fullname, gitbranch=git_branch_retrieve())
-        vmprovision_cmd = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:users -R ~{vmuser}; pacman -Sy --noconfirm git; {gitcmd}; /opt/CustomScripts/MManjaro.py -d xfce".format(vmuser=args.vmuser, sshkey=sshkey, gitcmd=git_cmdline())
+        vmbootstrap_cmd = 'dnf install -y git pacman arch-install-scripts && cd /opt/CustomScripts && git pull && git checkout {gitbranch} && /opt/CustomScripts/ZSlimDrive.py -n -g && /opt/CustomScripts/BManjaro.py -n -c "{vm_name}" -u "{vmuser}" -f "{fullname}" -q "{vmpass}" -l "" -e /mnt && poweroff'.format(vm_name=vm_name, vmuser=args.vmuser, vmpass=args.vmpass, fullname=args.fullname, gitbranch=git_branch_retrieve())
+        vmprovision_cmd = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:users -R ~{vmuser}; pacman -Sy --noconfirm git; {gitcmd}; /opt/CustomScripts/MManjaro.py -d {desktop}".format(vmuser=args.vmuser, sshkey=sshkey, gitcmd=git_cmdline(), desktop=args.desktopenv)
         kvm_variant = "manjaro"
-
-    # Override bootstrap opts if provided.
-    if args.vmbootstrap is None:
-        vmbootstrap = vmbootstrap_cmd
-    else:
-        vmbootstrap = args.vmbootstrap
-    logging.debug("VM Bootstrap Options: %s", vmbootstrap)
-    # Override provision opts if provided.
-    if args.vmprovision is None:
-        vmprovision = vmprovision_cmd
-    else:
-        vmprovision = args.vmprovision
-    logging.debug("VM Provision Options: %s", vmprovision)
-    # Add drive Options
-    zslimopts = ""
-    if args.driveopts is not None:
-        zslimopts += args.driveopts
-    print("Drive Options:", zslimopts)
 
     # Variables less likely to change.
     sship = None
@@ -280,7 +260,7 @@ if __name__ == '__main__':
     vm_start(vm_name)
     sship = vm_getip(vm_name)
     ssh_wait(ip=sship, port=localsshport, user=args.livesshuser, password=args.livesshpass)
-    ssh_vm(ip=sship, port=localsshport, user=args.livesshuser, password=args.livesshpass, command=vmbootstrap)
+    ssh_vm(ip=sship, port=localsshport, user=args.livesshuser, password=args.livesshpass, command=vmbootstrap_cmd)
     vm_shutdown(vm_name)
     # Eject cdrom
     vm_ejectiso(vm_name)
@@ -288,5 +268,5 @@ if __name__ == '__main__':
     # Provision the VM.
     vm_start(vm_name)
     ssh_wait(ip=sship, port=localsshport, user=args.livesshuser, password=args.livesshpass)
-    ssh_vm(ip=sship, port=localsshport, user=args.livesshuser, password=args.livesshpass, command=vmprovision)
+    ssh_vm(ip=sship, port=localsshport, user=args.livesshuser, password=args.livesshpass, command=vmprovision_cmd)
     vm_shutdown(vm_name)
