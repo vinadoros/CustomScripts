@@ -26,7 +26,6 @@ parser.add_argument("-x", "--nogui", help='Configure script to disable GUI.', ac
 # Save arguments.
 args = parser.parse_args()
 print("Desktop Environment:", args.desktop)
-print("Run extra scripts:", args.allextra)
 
 # Exit if not root.
 CFunc.is_root(True)
