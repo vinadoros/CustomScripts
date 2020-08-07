@@ -83,10 +83,11 @@ Description=Timer for CSupdate
 
 [Timer]
 OnBootSec=15sec
-OnActiveSec=15min
+OnUnitActiveSec=15min
 
 [Install]
-WantedBy=timers.target"""
+WantedBy=timers.target
+"""
     SystemdSystemUnitPath = os.path.join(os.sep, "etc", "systemd", "system")
     fullunitpath = os.path.join(SystemdSystemUnitPath, "csupdate.timer")
     # Write the unit file.
