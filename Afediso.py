@@ -52,8 +52,8 @@ subprocess.run('sed -i "/label linux/a \ \ menu default" /usr/share/lorax/templa
 subprocess.run('sed -i "s/^set default=.*/set default=0/g" /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub2-efi.cfg /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg', shell=True, check=True)
 subprocess.run('sed -i "s/^set timeout=.*/set timeout=1/g" /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub2-efi.cfg /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg', shell=True, check=True)
 # Modify kickstart repos
-with open(os.path.join(os.sep, "usr", "share", "spin-kickstarts", "fedora-repo.ks"), 'w') as f:
-    f.write("%include fedora-repo-not-rawhide.ks")
+# with open(os.path.join(os.sep, "usr", "share", "spin-kickstarts", "fedora-repo.ks"), 'w') as f:
+#     f.write("%include fedora-repo-not-rawhide.ks")
 
 
 ### Prep Environment ###
@@ -90,6 +90,8 @@ avahi
 chntpw
 debootstrap
 gnupg
+pacman
+arch-install-scripts
 
 # Filesystem utils
 fstransform
@@ -133,7 +135,7 @@ git clone https://github.com/ramesh45345/CustomScripts /opt/CustomScripts
 # Create liveuser ahead of when it will really be created
 useradd -m liveuser
 # ShellConfig
-python3 /opt/CustomScripts/CShellConfig.py -z
+python3 /opt/CustomScripts/CShellConfig.py -z -d -u liveuser
 
 # Enable openssh
 systemctl enable sshd
@@ -166,6 +168,25 @@ if grep -iq $'^Defaults    secure_path' /etc/sudoers; then
 fi
 visudo -c
 
+# Update CustomScripts on startup
+cat >"/etc/systemd/system/updatecs.service" <<'EOL'
+[Unit]
+Description=updatecs service
+Requires=network-online.target
+After=network.target nss-lookup.target network-online.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c "cd /opt/CustomScripts; git pull"
+Restart=on-failure
+RestartSec=3s
+TimeoutStopSec=7s
+
+[Install]
+WantedBy=graphical.target
+EOL
+systemctl enable updatecs.service
+
 # Run MATE Settings script on desktop startup.
 cat >"/etc/xdg/autostart/mate-dset.desktop" <<"EOL"
 [Desktop Entry]
@@ -178,10 +199,6 @@ EOL
 # Script run on boot
 cat >> /etc/rc.d/init.d/livesys << EOF
 
-# Update CustomScripts
-cd /opt/CustomScripts
-git pull &
-
 # Set root password
 passwd -u root
 echo "root:asdf" | chpasswd
@@ -189,7 +206,7 @@ echo "root:asdf" | chpasswd
 # Change shell to zsh
 chsh -s /bin/zsh liveuser
 # Set path
-echo 'PATH=$PATH:/opt/CustomScripts' | tee -a /root/.bashrc /home/liveuser/.bashrc /root/.zshrc /home/liveuser/.zshrc
+# echo 'PATH=$PATH:/opt/CustomScripts' | tee -a /root/.bashrc /home/liveuser/.bashrc /root/.zshrc /home/liveuser/.zshrc
 
 # LightDM Autologin
 sed -i 's/^#autologin-user=.*/autologin-user=liveuser/' /etc/lightdm/lightdm.conf
@@ -241,7 +258,7 @@ subprocess.run("livemedia-creator --ks {ks} --resultdir {resultdir} --logfile {o
 subprocess.run("chmod a+rw -R {0}".format(buildfolder), shell=True)
 if os.path.isfile(os.path.join(buildfolder, "results", isoname)):
     shutil.move(os.path.join(buildfolder, "results", isoname), outfolder)
-    print('Run to test in iso folder: "qemu-system-x86_64 -enable-kvm -m 2048 ./{0}"'.format(isoname))
+    print('Run to test: "qemu-system-x86_64 -enable-kvm -m 2048 {0}"'.format(os.path.join(outfolder, isoname)))
 else:
     print("ERROR: Build failed, iso not found.")
 print("Build completed in :", datetime.now() - beforetime)
