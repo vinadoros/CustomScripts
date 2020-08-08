@@ -93,8 +93,8 @@ zch.ChrootRunCommand(absinstallpath, "locale-gen")
 zch.ChrootRunCommand(absinstallpath, "ln -srf /usr/share/zoneinfo/America/New_York /etc/localtime")
 # Add normal user information
 zch.ChrootRunCommand(absinstallpath, "useradd -m -g users -G wheel -s /bin/bash {0}".format(args.username))
-zch.ChrootRunCommand(absinstallpath, 'chpasswd <<<"{0}:{1}"'.format(args.username, args.password))
-zch.ChrootRunCommand(absinstallpath, 'chpasswd <<<"root:{0}"'.format(args.password))
+zch.ChrootRunCommand(absinstallpath, 'echo "{1}" | passwd {0} --stdin'.format(args.username, args.password))
+zch.ChrootRunCommand(absinstallpath, 'echo "{0}" | passwd root --stdin'.format(args.password))
 zch.ChrootRunCommand(absinstallpath, 'chfn -f "{0}" {1}'.format(args.fullname, args.username))
 # Add hostname
 zch.ChrootRunCommand(absinstallpath, 'echo "{0}" > /etc/hostname'.format(args.hostname), run_quoted_with_bash=True)
