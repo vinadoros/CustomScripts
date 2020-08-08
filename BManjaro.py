@@ -26,7 +26,7 @@ parser.add_argument("-f", "--fullname", help='Full Name', default="User Name")
 parser.add_argument("-i", "--grubpartition", help='Grub Custom Parition (if autodetection isnt working, i.e. /dev/sdb)', default=None)
 parser.add_argument("-l", "--linuxpkg", help='Linux package to install (default: latest available)')
 parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
-parser.add_argument("-q", "--password", help='Password', default="asdf")
+parser.add_argument("-q", "--password", help='Password')
 parser.add_argument("-u", "--username", help='Username', default="user")
 parser.add_argument("installpath", help='Path of Installation')
 
@@ -93,8 +93,14 @@ zch.ChrootRunCommand(absinstallpath, "locale-gen")
 zch.ChrootRunCommand(absinstallpath, "ln -srf /usr/share/zoneinfo/America/New_York /etc/localtime")
 # Add normal user information
 zch.ChrootRunCommand(absinstallpath, "useradd -m -g users -G wheel -s /bin/bash {0}".format(args.username))
-zch.ChrootRunCommand(absinstallpath, 'echo "{1}" | passwd {0} --stdin'.format(args.username, args.password))
-zch.ChrootRunCommand(absinstallpath, 'echo "{0}" | passwd root --stdin'.format(args.password))
+if args.password:
+    zch.ChrootRunCommand(absinstallpath, 'echo "{0}:{1}" | chpasswd'.format(args.username, args.password))
+    zch.ChrootRunCommand(absinstallpath, 'echo "root:{0}" | chpasswd'.format(args.password))
+else:
+    print("Enter the user password:")
+    zch.ChrootRunCommand(absinstallpath, 'passwd {0}'.format(args.username))
+    print("Enter the root password:")
+    zch.ChrootRunCommand(absinstallpath, 'passwd root')
 zch.ChrootRunCommand(absinstallpath, 'chfn -f "{0}" {1}'.format(args.fullname, args.username))
 # Add hostname
 zch.ChrootRunCommand(absinstallpath, 'echo "{0}" > /etc/hostname'.format(args.hostname), run_quoted_with_bash=True)
