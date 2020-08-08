@@ -224,6 +224,7 @@ make install
 sudo apt remove -y --purge asciidoc m4 xsltproc meson libarchive-dev libssl-dev libgpgme-dev libcurl4-openssl-dev python3-setuptools
 cd /root
 rm -rf /root/arch-install-scripts
+mkdir -p /etc/pacman.d/
 
 cat <<EOF > /etc/NetworkManager/NetworkManager.conf
 [main]
