@@ -94,8 +94,8 @@ zch.ChrootRunCommand(absinstallpath, "ln -srf /usr/share/zoneinfo/America/New_Yo
 # Add normal user information
 zch.ChrootRunCommand(absinstallpath, "useradd -m -g users -G wheel -s /bin/bash {0}".format(args.username))
 if args.password:
-    zch.ChrootRunCommand(absinstallpath, 'echo "{0}:{1}" | chpasswd'.format(args.username, args.password))
-    zch.ChrootRunCommand(absinstallpath, 'echo "root:{0}" | chpasswd'.format(args.password))
+    zch.ChrootRunCommand(absinstallpath, 'echo "{0}:{1}" | chpasswd'.format(args.username, args.password), run_quoted_with_bash=True)
+    zch.ChrootRunCommand(absinstallpath, 'echo "root:{0}" | chpasswd'.format(args.password), run_quoted_with_bash=True)
 else:
     print("Enter the user password:")
     zch.ChrootRunCommand(absinstallpath, 'passwd {0}'.format(args.username))
