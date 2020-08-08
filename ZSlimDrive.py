@@ -7,6 +7,7 @@ import os
 import sys
 import subprocess
 import stat
+import time
 # Custom includes
 import CFunc
 
@@ -87,10 +88,16 @@ done
         subprocess.run('parted -s -a optimal "{0}" -- mkpart primary fat32 {1} 100%'.format(devicetopartition, mainsize), shell=True, check=True)
         # Set the efi partition to be bootable on gpt.
         subprocess.run('parted -s -a optimal "{0}" -- set 2 boot on'.format(devicetopartition), shell=True, check=True)
+        # Wait for partitions to exist
+        os.sync()
+        time.sleep(1)
         # Format EFI partition
         subprocess.run('mkfs.vfat -n efi -F 32 {0}2'.format(devicetopartition), shell=True, check=True)
     else:
         subprocess.run('parted -s -a optimal "{0}" -- mkpart primary ext2 1 100%'.format(devicetopartition), shell=True, check=True)
+        # Wait for partitions to exist
+        os.sync()
+        time.sleep(1)
     # Format main partition
     subprocess.run('mkfs.{0} {1}1'.format(args.filesystem, devicetopartition), shell=True, check=True)
     subprocess.run('fdisk -l {0}'.format(devicetopartition), shell=True, check=True)
