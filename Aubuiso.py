@@ -204,6 +204,27 @@ virtualbox-guest-dkms \
 virtualbox-guest-x11 \
 build-essential
 
+# Install pacman
+apt install --no-install-recommends -y meson libarchive-dev libssl-dev libgpgme-dev libcurl4-openssl-dev python3-setuptools
+cd /root
+git clone https://git.archlinux.org/pacman.git/
+cd pacman
+meson builddir
+cd builddir
+ninja
+ninja install
+ldconfig
+cd /root
+rm -rf /root/pacman
+apt install --no-install-recommends -y asciidoc m4 xsltproc
+git clone https://git.archlinux.org/arch-install-scripts.git
+cd arch-install-scripts
+make
+make install
+sudo apt remove -y --purge asciidoc m4 xsltproc meson libarchive-dev libssl-dev libgpgme-dev libcurl4-openssl-dev python3-setuptools
+cd /root
+rm -rf /root/arch-install-scripts
+
 cat <<EOF > /etc/NetworkManager/NetworkManager.conf
 [main]
 rc-manager=resolvconf
