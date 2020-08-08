@@ -189,7 +189,7 @@ if __name__ == '__main__':
     parser.add_argument("-e", "--desktopenv", help="Desktop Environment (defaults to mate)", default="mate")
     parser.add_argument("-f", "--fullname", help="Full Name", default="User Name")
     parser.add_argument("-i", "--iso", help="Path to live cd", required=True)
-    parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
+    parser.add_argument("-n", "--vmname", help="Name of Virtual Machine")
     parser.add_argument("-p", "--vmpath", help="Path of Virtual Machine folders", required=True)
     parser.add_argument("-v", "--rootsshkey", help="Root SSH Key")
     parser.add_argument("-w", "--livesshuser", help="Live SSH Username", default="root")
@@ -197,6 +197,7 @@ if __name__ == '__main__':
     parser.add_argument("-y", "--vmuser", help="VM Username", default="user")
     parser.add_argument("-z", "--vmpass", help="VM Password", default="asdf")
     parser.add_argument("--memory", help="Memory for VM", default="4096")
+    parser.add_argument("--noprompt", help='Do not prompt to continue.', action="store_true")
     args = parser.parse_args()
 
     # Enable logging
@@ -205,15 +206,10 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(level=logging.INFO, format='%(message)s')
 
-    # Variables most likely to change.
+    # Set paths
     vmpath = os.path.abspath(args.vmpath)
-    print("Path to VM Files is {0}".format(vmpath))
     iso_path = os.path.abspath(args.iso)
-    print("Path to LiveCD/ISO is {0}".format(iso_path))
-    print("OS Type is {0}".format(args.ostype))
-    print("VM Memory is {0}".format(args.memory))
-    print("Live SSH user is {0}".format(args.livesshuser))
-    print("VM User is {0}".format(args.vmuser))
+
     # Detect root ssh key.
     if args.rootsshkey is not None:
         sshkey = args.rootsshkey
@@ -225,14 +221,24 @@ if __name__ == '__main__':
             sshkey = sshfile.read().replace('\n', '')
     else:
         sshkey = " "
-    print("SSH Key is \"{0}\"".format(sshkey))
 
     # Determine VM Name
     if args.ostype == 1:
         vm_name = "CC-Manjaro-kvm"
-        vmbootstrap_cmd = 'dnf install -y git pacman arch-install-scripts && cd /opt/CustomScripts && git pull && git checkout {gitbranch} && /opt/CustomScripts/ZSlimDrive.py -n -g && /opt/CustomScripts/BManjaro.py -n -c "{vm_name}" -u "{vmuser}" -f "{fullname}" -q "{vmpass}" -l "" -e /mnt && poweroff'.format(vm_name=vm_name, vmuser=args.vmuser, vmpass=args.vmpass, fullname=args.fullname, gitbranch=git_branch_retrieve())
+        vmbootstrap_cmd = 'cd /opt/CustomScripts && git pull && git checkout {gitbranch} && /opt/CustomScripts/ZSlimDrive.py -n -g && /opt/CustomScripts/BManjaro.py -n -c "{vm_name}" -u "{vmuser}" -f "{fullname}" -q "{vmpass}" -l "" -e /mnt && poweroff'.format(vm_name=vm_name, vmuser=args.vmuser, vmpass=args.vmpass, fullname=args.fullname, gitbranch=git_branch_retrieve())
         vmprovision_cmd = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:users -R ~{vmuser}; pacman -Sy --noconfirm git; {gitcmd}; /opt/CustomScripts/MManjaro.py -d {desktop}".format(vmuser=args.vmuser, sshkey=sshkey, gitcmd=git_cmdline(), desktop=args.desktopenv)
         kvm_variant = "manjaro"
+
+    # Override VM Name if provided
+    if args.vmname is not None:
+        vm_name = args.vmname
+    print("VM Name is {0}".format(vm_name))
+    print("Path to LiveCD/ISO is {0}".format(iso_path))
+    print("OS Type is {0}".format(args.ostype))
+    print("VM Memory is {0}".format(args.memory))
+    print("Live SSH user is {0}".format(args.livesshuser))
+    print("VM User is {0}".format(args.vmuser))
+    print("SSH Key is \"{0}\"".format(sshkey))
 
     # Variables less likely to change.
     sship = None
