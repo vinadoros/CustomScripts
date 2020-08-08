@@ -116,6 +116,7 @@ gparted
 
 # For clonezilla
 dialog
+make
 
 # Exclusions
 -thunderbird
@@ -144,18 +145,16 @@ sed -i 's/PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config
 sed -i '/^#PermitRootLogin.*/s/^#//g' /etc/ssh/sshd_config
 
 # Clonezilla
-git clone https://github.com/stevenshiau/drbl drbl
+git clone https://gitlab.com/stevenshiau/drbl drbl
 cd drbl
 make all
 make install
 cd ..
-rm -rf drbl
-git clone https://github.com/stevenshiau/clonezilla clonezilla
+git clone https://gitlab.com/stevenshiau/clonezilla clonezilla
 cd clonezilla
 make all
 make install
 cd ..
-rm -rf clonezilla
 
 # Disable selinux
 sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /etc/sysconfig/selinux
@@ -242,7 +241,7 @@ with open(ks_path, 'w') as ks_write:
 
 # Flatten kickstart file
 ks_flat = os.path.join(buildfolder, "flat_fediso.ks")
-subprocess.run("ksflatten --config {0} -o {1}".format(ks_path, ks_flat), shell=True)
+subprocess.run("ksflatten --config {0} -o {1}".format(ks_path, ks_flat), shell=True, check=True)
 
 ### Build LiveCD ###
 resultsfolder = os.path.join(buildfolder, "results")
@@ -254,8 +253,8 @@ shortdate = time.strftime("%Y%m%d")
 beforetime = datetime.now()
 isoname = "Fedora-CustomLive-{0}.iso".format(currentdatetime)
 # Start Build
-subprocess.run("livemedia-creator --ks {ks} --resultdir {resultdir} --logfile {outfolder}/livemedia.log --project Fedora-CustomLive --make-iso --volid Fedora-CustomLive-{shortdate} --iso-only --iso-name {isoname} --releasever {releasever} --fs-label Fedora-CustomLive --nomacboot --no-virt".format(ks=ks_flat, resultdir=resultsfolder, isoname=isoname, shortdate=shortdate, outfolder=outfolder, releasever=args.releasever), shell=True)
-subprocess.run("chmod a+rw -R {0}".format(buildfolder), shell=True)
+subprocess.run("livemedia-creator --ks {ks} --resultdir {resultdir} --logfile {outfolder}/livemedia.log --project Fedora-CustomLive --make-iso --volid Fedora-CustomLive-{shortdate} --iso-only --iso-name {isoname} --releasever {releasever} --fs-label Fedora-CustomLive --nomacboot --no-virt".format(ks=ks_flat, resultdir=resultsfolder, isoname=isoname, shortdate=shortdate, outfolder=outfolder, releasever=args.releasever), shell=True, check=False)
+subprocess.run("chmod a+rw -R {0}".format(buildfolder), shell=True, check=True)
 if os.path.isfile(os.path.join(buildfolder, "results", isoname)):
     shutil.move(os.path.join(buildfolder, "results", isoname), outfolder)
     print('Run to test: "qemu-system-x86_64 -enable-kvm -m 2048 {0}"'.format(os.path.join(outfolder, isoname)))
