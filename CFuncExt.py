@@ -41,8 +41,9 @@ def numix_icons(iconfolder=os.path.join(os.sep, "usr", "local", "share", "icons"
     shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle"), iconfolder)
     shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle-Light"), iconfolder)
     shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
-    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "Numix-Circle")), shell=True, check=True)
-    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "Numix-Circle-Light")), shell=True, check=True)
+    if shutil.which("gtk-update-icon-cache"):
+        subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "Numix-Circle")), shell=True, check=True)
+        subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "Numix-Circle-Light")), shell=True, check=True)
 def SudoersEnvSettings(sudoers_file=os.path.join(os.sep, "etc", "sudoers")):
     """
     Change sudoers settings.

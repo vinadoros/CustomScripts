@@ -228,9 +228,8 @@ elif args.desktop == "cinnamon":
 
 # GUI Software and Post DE install stuff.
 if args.nogui is False:
-    # Numix
-    CFunc.addppa("ppa:numix/ppa")
-    CFunc.aptinstall("numix-icon-theme-circle")
+    # Numix Icon Theme
+    CFuncExt.numix_icons(os.path.join(os.sep, "usr", "local", "share", "icons"))
 
     CFunc.aptinstall("dconf-cli dconf-editor")
     CFunc.aptinstall("synaptic gnome-disk-utility gdebi gparted xdg-utils")

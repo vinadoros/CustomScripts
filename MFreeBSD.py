@@ -10,6 +10,7 @@ import subprocess
 import sys
 # Custom includes
 import CFunc
+import CFuncExt
 
 print("Running {0}".format(__file__))
 
@@ -130,26 +131,8 @@ if args.desktop != "gnome":
 
 # Post-desktop installs
 if not args.nogui:
-    # Numix Icons
-    iconfolder = os.path.join("/", "usr", "local", "share", "icons")
-    os.makedirs(iconfolder, exist_ok=True)
-    # Numix icons must be installed for Circle to display properly.
-    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme"), ignore_errors=True)
-    shutil.rmtree(os.path.join(iconfolder, "Numix"), ignore_errors=True)
-    shutil.rmtree(os.path.join(iconfolder, "Numix-Light"), ignore_errors=True)
-    subprocess.run("git clone https://github.com/numixproject/numix-icon-theme.git {0}".format(os.path.join(iconfolder, "numix-icon-theme")), shell=True)
-    shutil.move(os.path.join(iconfolder, "numix-icon-theme", "Numix"), iconfolder)
-    shutil.move(os.path.join(iconfolder, "numix-icon-theme", "Numix-Light"), iconfolder)
-    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme"), ignore_errors=True)
-    # Numix Circle Icons
-    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
-    shutil.rmtree(os.path.join(iconfolder, "Numix-Circle"), ignore_errors=True)
-    shutil.rmtree(os.path.join(iconfolder, "Numix-Circle-Light"), ignore_errors=True)
-    subprocess.run("git clone https://github.com/numixproject/numix-icon-theme-circle.git {0}".format(os.path.join(iconfolder, "numix-icon-theme-circle")), shell=True)
-    shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle"), iconfolder)
-    shutil.move(os.path.join(iconfolder, "numix-icon-theme-circle", "Numix-Circle-Light"), iconfolder)
-    shutil.rmtree(os.path.join(iconfolder, "numix-icon-theme-circle"), ignore_errors=True)
-    subprocess.run("gtk-update-icon-cache {0}".format(os.path.join(iconfolder, "/Numix-Circle")), shell=True)
+    # Numix Icon Theme
+    CFuncExt.numix_icons(os.path.join(os.sep, "usr", "local", "share", "icons"))
 
 # Edit sudoers to add pkg.
 sudoersd_dir = os.path.join("/", "usr", "local", "etc", "sudoers.d")
