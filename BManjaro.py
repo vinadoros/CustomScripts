@@ -4,7 +4,6 @@
 # Python includes.
 import argparse
 import os
-import shutil
 import sys
 import subprocess
 import stat
@@ -38,14 +37,21 @@ print("Full Name:", args.fullname)
 # Get absolute path of the given path.
 absinstallpath = os.path.realpath(args.installpath)
 print("Path of Installation:", absinstallpath)
-DEVPART = subprocess.run('sh -c df -m | grep " \+{0}$" | grep -Eo "/dev/[a-z]d[a-z]"'.format(absinstallpath), shell=True, check=True, stdout=subprocess.PIPE, universal_newlines=True)
-grubautopart = format(DEVPART.stdout.strip())
-print("Autodetect grub partition:", grubautopart)
-if args.grubpartition is not None and stat.S_ISBLK(os.stat(args.grubpartition).st_mode) is True:
-    grubpart = args.grubpartition
+if not args.efi:
+    if args.grubpartition is not None and stat.S_ISBLK(os.stat(args.grubpartition).st_mode) is True:
+        grubpart = args.grubpartition
+    else:
+        DEVPART = subprocess.run('sh -c df -m | grep " \+{0}$" | grep -Eo "/dev/[a-z]d[a-z]"'.format(absinstallpath), shell=True, check=True, stdout=subprocess.PIPE, universal_newlines=True)
+        grubautopart = format(DEVPART.stdout.strip())
+        print("Autodetect grub partition:", grubautopart)
+        if stat.S_ISBLK(os.stat(args.grubpartition).st_mode) is True:
+            grubpart = grubautopart
+    if grubpart:
+        print("Grub partition to be used:", grubpart)
+    else:
+        print("ERROR: Grub partition for BIOS is required. Exiting.")
 else:
-    grubpart = grubautopart
-print("Grub partition to be used:", grubpart)
+    print("EFI selected. No grub partition needed.")
 
 # Exit if not root.
 CFunc.is_root(True)
