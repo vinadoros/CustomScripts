@@ -208,6 +208,7 @@ if shutil.which("gnome-session"):
     gsettings_set("org.gnome.nautilus.compression", "default-compression-format", "'7z'")
     gsettings_set("org.gnome.desktop.peripherals.touchpad", "tap-to-click", "true")
     gsettings_set("org.gnome.desktop.peripherals.touchpad", "natural-scroll", "false")
+    gsettings_set("org.gnome.desktop.peripherals.touchpad", "click-method", "fingers")
     gsettings_set("org.gnome.settings-daemon.plugins.power", "sleep-inactive-ac-timeout", "3600")
     gsettings_set("org.gnome.settings-daemon.plugins.power", "sleep-inactive-ac-type", "nothing")
     gsettings_set("org.gnome.settings-daemon.plugins.power", "sleep-inactive-battery-timeout", "1800")
