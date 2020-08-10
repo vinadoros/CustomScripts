@@ -119,7 +119,7 @@ if __name__ == '__main__':
     # Cli tools
     CFunc.pacman_install("bash-completion fish zsh zsh-completions nano git tmux iotop rsync p7zip zip unzip unrar xdg-utils xdg-user-dirs sshfs openssh avahi ntfs-3g python-pip")
     CFunc.sysctl_enable("sshd avahi-daemon", error_on_fail=True)
-    CFunc.pacman_install("powerline-fonts ttf-roboto ttf-roboto-mono noto-fonts")
+    CFunc.pacman_install("powerline-fonts ttf-roboto ttf-roboto-mono noto-fonts ttf-dejavu")
     # Git config
     subprocess.run("git config --global pull.rebase false", shell=True, check=True)
     CFunc.run_as_user(USERNAMEVAR, "git config --global pull.rebase false", error_on_fail=True)
@@ -145,6 +145,8 @@ if __name__ == '__main__':
         CFunc.pacman_install("xorg-fonts-alias-misc xorg-fonts-alias-cyrillic xorg-fonts-alias-75dpi xorg-fonts-alias-100dpi ttf-indic-otf")
         # X Server
         CFunc.pacman_install("xorg xorg-drivers xorg-fonts manjaro-input")
+        # Update font cache
+        subprocess.run("fc-cache", shell=True, check=True)
         # Browsers
         CFunc.pacman_install("chromium")
         CFunc.pacman_install("firefox")
