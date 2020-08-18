@@ -250,6 +250,8 @@ if shutil.which("gnome-session"):
     dconf_write("/org/gnome/shell/extensions/dash-to-dock/dock-fixed", "false")
     dconf_write("/org/gnome/shell/extensions/dash-to-dock/intellihide-mode", "'ALL_WINDOWS'")
     dconf_write("/org/gnome/shell/extensions/dash-to-dock/require-pressure-to-show", "true")
+    dconf_write("/org/gnome/shell/extensions/dash-to-dock/pressure-threshold", "50.0")
+    dconf_write("/org/gnome/shell/extensions/dash-to-dock/hide-delay", "1.0")
     dconf_write("/org/gnome/shell/extensions/window-list/show-on-all-monitors", "true")
     # Set gnome-terminal scrollback
     dconf_write("/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/scrollback-unlimited", "true")
