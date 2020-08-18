@@ -35,6 +35,12 @@ def ChrootRunCommand(RootPath: str, command: str, run_quoted_with_bash: bool = F
         subprocess.run("chroot {0} /bin/bash -c '{1}'".format(RootPath, command), shell=True, check=False)
     else:
         subprocess.run("PATH=$PATH:/sbin:/bin:/usr/sbin:/usr/local/bin chroot {0} {1}".format(RootPath, command), shell=True, check=False)
+def ChrootRunCommandArray(RootPath: str, command: list, interpreter: str = None, error_on_fail: bool = True):
+    """Run a command without performing a mount or unmount. Expects a command list."""
+    if interpreter:
+        subprocess.run(["chroot", RootPath, interpreter, "-c"] + command, shell=False, check=error_on_fail)
+    else:
+        subprocess.run(["chroot", RootPath] + command, shell=False, check=error_on_fail)
 def ChrootCommand(RootPath: str, command: str):
     """Run a command in the chroot, mounting before and unmounting after."""
     ChrootMountPaths(RootPath)
