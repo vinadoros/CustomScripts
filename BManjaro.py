@@ -44,7 +44,7 @@ if not args.efi:
         DEVPART = subprocess.run('sh -c df -m | grep " \+{0}$" | grep -Eo "/dev/[a-z]d[a-z]"'.format(absinstallpath), shell=True, check=True, stdout=subprocess.PIPE, universal_newlines=True)
         grubautopart = format(DEVPART.stdout.strip())
         print("Autodetect grub partition:", grubautopart)
-        if stat.S_ISBLK(os.stat(args.grubpartition).st_mode) is True:
+        if stat.S_ISBLK(os.stat(grubautopart).st_mode) is True:
             grubpart = grubautopart
     if grubpart:
         print("Grub partition to be used:", grubpart)
