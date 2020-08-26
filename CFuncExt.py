@@ -115,7 +115,7 @@ def GrubUpdate():
             subprocess.run("grub-mkconfig -o {0}".format(os.path.join(os.sep, "boot", "grub", "grub.cfg")), shell=True, check=True)
         elif os.path.isfile(os.path.join(os.sep, "boot", "efi", "EFI", "fedora", "grub.cfg")):
             print("Update fedora efi grub config.")
-            subprocess.run("grub-mkconfig -o {0}".format(os.path.join(os.sep, "boot", "efi", "EFI", "fedora", "grub.cfg")), shell=True, check=True)
+            subprocess.run("grub2-mkconfig -o {0}".format(os.path.join(os.sep, "boot", "efi", "EFI", "fedora", "grub.cfg")), shell=True, check=True)
 def FirewalldConfig():
     """
     Set common firewalld settings.
