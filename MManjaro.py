@@ -95,8 +95,6 @@ if __name__ == '__main__':
     subprocess.run("pacman-mirrors --geoip", shell=True, check=True)
     subprocess.run("pacman-mirrors -f 7", shell=True, check=True)
     CFunc.pacman_invoke("-Syy")
-    # Update system.
-    pacman_update()
 
     ### Install Software ###
     # Yay
@@ -305,5 +303,8 @@ if __name__ == '__main__':
     subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True, check=True)
     subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True, check=True)
     subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True, check=True)
+
+    # Update system. Done at the end to avoid kernel updates.
+    pacman_update()
 
     print("\nScript End")
