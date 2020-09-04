@@ -85,8 +85,6 @@ CFuncExt.FirewalldConfig()
 if not args.nogui:
     CFunc.dnfinstall("@fonts @base-x @networkmanager-submodules")
     # Browsers
-    # Official Chromium
-    CFunc.dnfinstall("chromium")
     # Official Google Chrome
     # CFunc.dnfinstall("https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm")
     CFunc.dnfinstall("@firefox")
@@ -100,8 +98,8 @@ if not args.nogui:
     CFunc.dnfinstall("tilix tilix-nautilus")
     if not args.bare:
         CFunc.dnfinstall("freshplayerplugin flash-plugin")
-        # Exclude chromium-libs-media-freeworld from multimedia
-        CFunc.dnfinstall("-x chromium-libs-media-freeworld @multimedia")
+        # Multimedia
+        CFunc.dnfinstall("@multimedia")
         CFunc.dnfinstall("gstreamer1-vaapi")
         CFunc.dnfinstall("youtube-dl ffmpeg smplayer mpv")
         # Editors
