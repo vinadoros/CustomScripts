@@ -205,9 +205,9 @@ elif args.desktop == "neon":
     subprocess.run("wget -qO - 'http://archive.neon.kde.org/public.key' | apt-key add -", shell=True, check=True)
     subprocess.run("apt-add-repository http://archive.neon.kde.org/user", shell=True, check=True)
     CFunc.aptupdate()
-    CFunc.aptdistupg()
+    CFunc.aptdistupg("--allow-downgrades")
     CFunc.aptinstall("neon-desktop")
-    CFunc.aptdistupg()
+    CFunc.aptdistupg("--allow-downgrades")
 elif args.desktop == "mate":
     print("\n Installing mate desktop")
     CFunc.aptmark(held_pkgs)

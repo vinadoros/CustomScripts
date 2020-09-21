@@ -441,12 +441,12 @@ def Fstab_AddLine(fstab_path, linetoadd):
 def aptupdate():
     """Update apt sources"""
     subprocess.run("apt-get update", shell=True, check=True)
-def aptdistupg():
+def aptdistupg(options=""):
     """Upgrade/Dist-Upgrade system using apt"""
     aptupdate()
     print("\nPerforming (dist)upgrade.")
-    subprocess.run("apt-get upgrade -y", shell=True, check=True)
-    subprocess.run("apt-get dist-upgrade -y", shell=True, check=True)
+    subprocess.run("apt-get upgrade -y {0}".format(options), shell=True, check=True)
+    subprocess.run("apt-get dist-upgrade -y {0}".format(options), shell=True, check=True)
 def aptinstall(aptapps, error_on_fail=True):
     """Install application(s) using apt"""
     print("\nInstalling {0} using apt.".format(aptapps))
