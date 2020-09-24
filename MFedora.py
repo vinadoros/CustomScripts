@@ -228,15 +228,17 @@ if not args.bare and not args.nogui:
     CFunc.flatpak_install("flathub", "com.calibre_ebook.calibre")
     CFunc.flatpak_install("flathub", "org.kde.okular")
 
+CFunc.dnfinstall("grubby")
+
 # Disable Selinux
 # To get selinux status: sestatus, getenforce
-# To enable or disable selinux temporarily: setenforce 1 (to enable), setenforce 0 (to disable)
-subprocess.run("sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /etc/sysconfig/selinux", shell=True, check=True)
+CFuncExt.GrubEnvAdd(os.path.join(os.sep, "etc", "default", "grub"), "GRUB_CMDLINE_LINUX", "selinux=0")
+CFuncExt.GrubUpdate()
+subprocess.run('grubby --update-kernel=ALL --args="selinux=0"', shell=True, check=True)
 
 # Disable mitigations
 CFuncExt.GrubEnvAdd(os.path.join(os.sep, "etc", "default", "grub"), "GRUB_CMDLINE_LINUX", "mitigations=off")
 CFuncExt.GrubUpdate()
-CFunc.dnfinstall("grubby")
 subprocess.run('grubby --update-kernel=ALL --args="mitigations=off"', shell=True, check=True)
 
 # Extra scripts

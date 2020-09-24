@@ -104,8 +104,7 @@ if args.stage == 1:
 
     # Disable Selinux
     # To get selinux status: sestatus, getenforce
-    # To enable or disable selinux temporarily: setenforce 1 (to enable), setenforce 0 (to disable)
-    subprocess.run("sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /etc/sysconfig/selinux", shell=True, check=True)
+    subprocess.run("rpm-ostree kargs --append=selinux=0", shell=True, check=True)
 
     # Disable the firewall
     subprocess.run("systemctl mask firewalld", shell=True, check=True)
