@@ -181,6 +181,9 @@ qt-recentplay=0
 
 # Ask for network policy at start (boolean)
 qt-privacy-ask=0
+
+# Maximum Volume displayed (integer)
+qt-max-volume=100
 """
     if os.path.isdir(vlc_config_fld_data):
         os.makedirs(vlc_config_fld_datavlc, exist_ok=True)
