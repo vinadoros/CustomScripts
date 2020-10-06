@@ -95,7 +95,7 @@ fi
 
 # Functions
 function sst () {
-    ssh -t "$@" "tmux attach || tmux new";
+    tmux attach-session -t ssh_tmux || tmux new-session -s ssh_tmux
 }
 function rm_common () {
     for todel in "$@"; do
@@ -624,7 +624,7 @@ if [ (id -u) != "0" ]
     end
 end
 function sst
-    ssh -t $argv "tmux attach; or tmux new"
+    tmux attach-session -t ssh_tmux || tmux new-session -s ssh_tmux
 end
 function rm_common
     for todel in $argv
