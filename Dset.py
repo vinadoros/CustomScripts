@@ -304,6 +304,9 @@ if shutil.which("kwriteconfig5") and shutil.which("plasma_session"):
     subprocess.run('kwriteconfig5 --file kglobalshortcutsrc --group kwin --key "Window Quick Tile Left" "Meta+Left,none,Quick Tile Window to the Left"', shell=True, check=False)
     subprocess.run('kwriteconfig5 --file kglobalshortcutsrc --group kwin --key "Window Quick Tile Right" "Meta+Right,none,Quick Tile Window to the Right"', shell=True, check=False)
     subprocess.run('kwriteconfig5 --file kglobalshortcutsrc --group kwin --key "Show Desktop" "Meta+m,none,Show Desktop"', shell=True, check=False)
+    # Window Manager
+    subprocess.run('kwriteconfig5 --file kwinrc --group Plugins --key "kwin4_effect_translucencyEnabled" "false"', shell=True, check=False)
+    subprocess.run('kwriteconfig5 --file kwinrc --group Plugins --key "slidingpopupsEnabled" "false"', shell=True, check=False)
     # Lock Screen and Power Management
     if vmstatus or args.disable_powersave:
         subprocess.run('kwriteconfig5 --file powermanagementprofilesrc --group AC --group DPMSControl --key idleTime 300000', shell=True, check=False)
