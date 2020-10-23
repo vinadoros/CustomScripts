@@ -80,6 +80,27 @@ def xml_insertwindowskey(key, unattendfile):
     # Write the XML file
     xml_indent(xmlkey_root)
     xmlkey_tree.write(unattendfile)
+def xml_insertqemudisk(unattendfile):
+    """Insert the qemu driver disk path into the unattend xml file."""
+    # Load the xml file
+    xmlkey_tree = ET.parse(unattendfile)
+    xmlkey_root = xmlkey_tree.getroot()
+    for element in xmlkey_root.iter():
+        # Add the driver paths to the xml
+        if "DriverPaths" in element.tag:
+            drv_pathcred1_element = ET.SubElement(element, "PathAndCredentials")
+            drv_pathcred1_element.set("wcm:action", "add")
+            drv_pathcred1_element.set("wcm:keyValue", "1")
+            drv_pathcred1_path_element = ET.SubElement(drv_pathcred1_element, "Path")
+            drv_pathcred1_path_element.text = "E:\\NetKVM\\w10\\amd64\\"
+            drv_pathcred2_element = ET.SubElement(element, "PathAndCredentials")
+            drv_pathcred2_element.set("wcm:action", "add")
+            drv_pathcred2_element.set("wcm:keyValue", "2")
+            drv_pathcred2_path_element = ET.SubElement(drv_pathcred2_element, "Path")
+            drv_pathcred2_path_element.text = "E:\\viostor\\w10\\amd64\\"
+    # Write the XML file
+    xml_indent(xmlkey_root)
+    xmlkey_tree.write(unattendfile)
 def git_branch_retrieve():
     """Retrieve the current branch of this script's git repo."""
     git_branch = None
@@ -130,6 +151,7 @@ args = parser.parse_args()
 
 # Variables most likely to change.
 vmpath = os.path.abspath(args.vmpath)
+qemu_virtio_diskpath = None
 print("Path to Packer output is {0}".format(vmpath))
 print("OS Type is {0}".format(args.ostype))
 print("VM Memory is {0}".format(args.memory))
@@ -464,20 +486,20 @@ if args.vmtype == 1:
 elif args.vmtype == 2:
     data['builders'][0]["type"] = "qemu"
     data['builders'][0]["accelerator"] = "kvm"
-    if 50 <= args.ostype <= 59:
-        # Use more generic hardware for windows
-        kvm_diskinterface = "ide"
-        kvm_netdevice = "e1000"
-    else:
-        kvm_diskinterface = "virtio"
-        kvm_netdevice = "virtio-net"
-    data['builders'][0]["disk_interface"] = kvm_diskinterface
-    data['builders'][0]["net_device"] = kvm_netdevice
+    # Note: if virtio iso driver disk not present, then ide and e1000 are needed for Windows generic drivers. Virtio was chosen due to issues with ide.
+    data['builders'][0]["disk_interface"] = "virtio"
+    data['builders'][0]["net_device"] = "virtio-net"
     data['builders'][0]["vm_name"] = "{0}.qcow2".format(vmname)
     data['builders'][0]["qemuargs"] = ['']
     data['builders'][0]["qemuargs"][0] = ["-m", "{0}M".format(args.memory)]
     data['builders'][0]["qemuargs"].append(["--cpu", "host"])
     data['builders'][0]["qemuargs"].append(["--smp", "cores={0}".format(CPUCORES)])
+    if 50 <= args.ostype <= 59:
+        # Grab the virtio drivers
+        # https://docs.fedoraproject.org/en-US/quick-docs/creating-windows-virtual-machines-using-virtio-drivers/
+        qemu_virtio_diskpath = CFunc.downloadfile("https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/latest-virtio/virtio-win.iso", vmpath)[0]
+        # Set the iso as a new cdrom drive.
+        data['builders'][0]["qemuargs"].append(["--drive", "file={0},media=cdrom,index=1".format(qemu_virtio_diskpath)])
 elif args.vmtype == 3:
     data['builders'][0]["type"] = "vmware-iso"
     data['builders'][0]["version"] = "12"
@@ -608,6 +630,9 @@ if args.ostype == 55:
     CFunc.find_replace(tempunattendfolder, "INSERTWINOSIMAGE", "2", "autounattend.xml")
 if args.ostype == 56:
     CFunc.find_replace(tempunattendfolder, "INSERTWINOSIMAGE", "1", "autounattend.xml")
+if 50 <= args.ostype <= 59 and qemu_virtio_diskpath is not None:
+    # Insert the virtio driver disk
+    xml_insertqemudisk(os.path.join(tempunattendfolder, "autounattend.xml"))
 
 
 # Write packer json file.
@@ -665,14 +690,12 @@ fullfinishtime = datetime.now()
 
 # Attach VM to libvirt
 if args.vmtype == 2:
+    kvm_diskinterface = "virtio"
+    kvm_netdevice = "virtio"
     if 50 <= args.ostype <= 59:
         kvm_video = "qxl"
-        kvm_diskinterface = "sata"
-        kvm_netdevice = "virtio"
     else:
         kvm_video = "virtio"
-        kvm_diskinterface = "virtio"
-        kvm_netdevice = "virtio"
     # virt-install manual: https://www.mankier.com/1/virt-install
     # List of os: osinfo-query os
     CREATESCRIPT_KVM = """virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg}.qcow2,bus={kvm_diskinterface} --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model={kvm_netdevice} --filesystem source=/,target=root,mode=mapped --os-type={kvm_os} --os-variant={kvm_variant} --import --noautoconsole --noreboot --video={kvm_video} --channel unix,target_type=virtio,name=org.qemu.guest_agent.0 --channel spicevmc,target_type=virtio,name=com.redhat.spice.0""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=os.path.join(vmpath, vmname), kvm_os=kvm_os, kvm_variant=kvm_variant, kvm_video=kvm_video, kvm_diskinterface=kvm_diskinterface, kvm_netdevice=kvm_netdevice)
