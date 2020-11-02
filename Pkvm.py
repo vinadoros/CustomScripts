@@ -195,7 +195,7 @@ if 1 <= args.ostype <= 4:
     vmwareid = "fedora-64"
     kvm_os = "linux"
     kvm_variant = "fedora30"
-    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/32/Server/x86_64/iso/Fedora-Server-dvd-x86_64-32-1.6.iso"
+    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/33/Server/x86_64/iso/Fedora-Server-dvd-x86_64-33-1.2.iso"
 if args.ostype == 1:
     vmname = "Packer-Fedora-{0}".format(hvname)
     vmprovision_defopts = "-d {0}".format(args.desktopenv)
@@ -224,12 +224,12 @@ if 10 <= args.ostype <= 19:
     kvm_os = "linux"
 # Ubuntu latest
 if 10 <= args.ostype <= 14:
-    kvm_variant = "ubuntu18.04"
-    isourl = "https://releases.ubuntu.com/20.04/ubuntu-20.04.1-live-server-amd64.iso"
+    kvm_variant = "ubuntu20.04"
+    isourl = "https://releases.ubuntu.com/20.10/ubuntu-20.10-live-server-amd64.iso"
 # Ubuntu LTS
 if 15 <= args.ostype <= 19:
-    kvm_variant = "ubuntu18.04"
-    isourl = "http://cdimage.ubuntu.com/releases/18.04/release/ubuntu-18.04.4-server-amd64.iso"
+    kvm_variant = "ubuntu20.04"
+    isourl = "https://releases.ubuntu.com/20.04/ubuntu-20.04.1-live-server-amd64.iso"
 if args.ostype == 10:
     vmname = "Packer-Ubuntu-{0}".format(hvname)
     vmprovision_defopts = "-d {0}".format(args.desktopenv)
@@ -304,8 +304,8 @@ if args.ostype == 40:
     vmprovisionscript = "MFreeBSD.py"
     vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
     kvm_os = "freebsd"
-    kvm_variant = "freebsd11.0"
-    isourl = "https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/12.1/FreeBSD-12.1-RELEASE-amd64-disc1.iso"
+    kvm_variant = "freebsd12.0"
+    isourl = "https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/12.2/FreeBSD-12.2-RELEASE-amd64-disc1.iso"
 if 50 <= args.ostype <= 59:
     vboxosid = "Windows10_64"
     vmwareid = "windows9-64"
