@@ -158,7 +158,7 @@ if args.stage == 2:
     CFunc.flatpak_install("flathub", "org.videolan.VLC")
     CFunc.flatpak_install("flathub", "io.github.quodlibet.QuodLibet")
     CFunc.flatpak_install("flathub", "com.calibre_ebook.calibre")
-    CFunc.flatpak_install("flathub", "com.visualstudio.code.oss")
+    CFunc.flatpak_install("flathub", "com.visualstudio.code-oss")
 
     # Extra scripts
     subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True, check=True)

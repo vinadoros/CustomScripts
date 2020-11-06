@@ -213,8 +213,8 @@ if args.ostype == 9:
     vboxosid = "Fedora_64"
     vmwareid = "fedora-64"
     kvm_os = "linux"
-    kvm_variant = "fedora26"
-    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/32/Silverblue/x86_64/iso/Fedora-Silverblue-ostree-x86_64-32-1.6.iso"
+    kvm_variant = "fedora30"
+    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/33/Silverblue/x86_64/iso/Fedora-Silverblue-ostree-x86_64-33-1.2.iso"
     vmname = "Packer-FedoraSilverblue-{0}".format(hvname)
     vmprovision_defopts = ""
 if 10 <= args.ostype <= 19:
