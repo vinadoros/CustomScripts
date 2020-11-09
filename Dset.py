@@ -470,6 +470,7 @@ if os.path.isdir(firefox_profiles_path):
                     firefox_modify_settings("browser.download.useDownloadDir", "false", prefsjs_file)
                     firefox_modify_settings("app.shield.optoutstudies.enabled", "false", prefsjs_file)
                     firefox_modify_settings("browser.newtabpage.activity-stream.showSponsored", "false", prefsjs_file)
+                    firefox_modify_settings("browser.newtabpage.enabled", "false", prefsjs_file)
                     # DNS-over-HTTPS
                     firefox_modify_settings("network.trr.mode", "2", prefsjs_file)
                     firefox_modify_settings("network.trr.bootstrapAddress", '"1.1.1.1"', prefsjs_file)
