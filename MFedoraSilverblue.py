@@ -86,7 +86,7 @@ if args.stage == 1:
 
     # Some Gnome Extensions
     rostreeinstall("gnome-tweak-tool dconf-editor")
-    rostreeinstall("gnome-shell-extension-gpaste gnome-shell-extension-topicons-plus gnome-shell-extension-dash-to-dock")
+    rostreeinstall("gnome-shell-extension-gpaste gnome-shell-extension-topicons-plus")
 
     # Sudoers changes
     CFuncExt.SudoersEnvSettings()
@@ -106,8 +106,9 @@ if args.stage == 1:
     # To get selinux status: sestatus, getenforce
     subprocess.run("rpm-ostree kargs --append=selinux=0", shell=True, check=True)
 
-    # Disable the firewall
-    subprocess.run("systemctl mask firewalld", shell=True, check=True)
+    # firewalld
+    CFunc.sysctl_enable("firewalld", now=True, error_on_fail=True)
+    CFuncExt.FirewalldConfig()
 
     # Disable mitigations
     subprocess.run("rpm-ostree kargs --append=mitigations=off", shell=True, check=True)
@@ -124,6 +125,10 @@ if args.stage == 2:
     os.chmod(gs_installer[0], 0o777)
     # Install volume extension
     CFunc.run_as_user(USERNAMEVAR, "{0} --yes 858".format(gs_installer[0]))
+    # Install dashtodock extension
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 307".format(gs_installer[0]))
+    # Install Do Not Disturb extension
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 1480".format(gs_installer[0]))
 
     CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("snap")))
 
