@@ -541,17 +541,18 @@ if args.ostype == 9:
 if 10 <= args.ostype <= 19:
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:{vmuser} -R ~{vmuser}; apt install -y git; {gitcmd}; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser, gitcmd=git_cmdline())
-if 10 <= args.ostype <= 14:
+    # Workaround for ssh being enabled on livecd. Remove this when a method to disable ssh on livecd is found.
+    data['builders'][0]["ssh_handshake_attempts"] = "9999"
     # Create user-data and meta-data.
     # https://cloudinit.readthedocs.io/en/latest/topics/datasources/nocloud.html
     shutil.move(os.path.join(tempscriptfolderpath, "unattend", "ubuntu.yaml"), os.path.join(tempscriptfolderpath, "unattend", "user-data"))
     pathlib.Path(os.path.join(tempscriptfolderpath, "unattend", "meta-data")).touch(exist_ok=True)
+    # Needed to hit enter quickly at the LTS grub screen (with the assistance/keyboard logo)
     data['builders'][0]["boot_wait"] = "1s"
-    data['builders'][0]["boot_command"] = ["<space><wait><enter><wait><f6><wait><esc><home>ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ autoinstall <enter>"]
-    # Workaround for ssh being enabled on livecd. Remove this when a method to disable ssh on livecd is found.
-    data['builders'][0]["ssh_handshake_attempts"] = "9999"
+if 10 <= args.ostype <= 14:
+    data['builders'][0]["boot_command"] = ["<wait>c<wait>linux /casper/vmlinuz quiet autoinstall 'ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/'<enter><wait>initrd /casper/initrd<enter><wait5>boot<enter>"]
 if 15 <= args.ostype <= 19:
-    data['builders'][0]["boot_command"] = ["<enter><wait><down><wait><f6><wait><esc><home>url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu.cfg hostname=ubuntu locale=en_US keyboard-configuration/modelcode=SKIP netcfg/choose_interface=auto <enter>"]
+    data['builders'][0]["boot_command"] = ["<space><wait><enter><wait><f6><wait><esc><home>ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ autoinstall <enter>"]
 if 20 <= args.ostype <= 29:
     data['builders'][0]["boot_wait"] = "1s"
     data['builders'][0]["boot_command"] = ["""<enter><wait40>bash -c 'pacman -Sy --noconfirm git && {gitcmd} && /opt/CustomScripts/ZSlimDrive.py -n && /opt/CustomScripts/BManjaro.py -n -c "{vmname}" -u "{vmuser}" -f "{fullname}" -q "{vmpass}" -l "" /mnt && reboot'<enter>""".format(vmname=vmname, vmuser=args.vmuser, vmpass=args.vmpass, fullname=args.fullname, gitcmd=git_cmdline())]
