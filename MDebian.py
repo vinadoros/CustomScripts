@@ -164,12 +164,11 @@ if args.nogui is False:
     CFunc.aptinstall("synaptic gnome-disk-utility gdebi gparted xdg-utils")
     CFunc.aptinstall("dconf-editor")
     # Browsers
-    CFunc.aptinstall("chromium pepperflashplugin-nonfree")
+    CFunc.aptinstall("chromium")
     if args.unstable:
         CFunc.aptinstall("firefox")
     else:
         CFunc.aptinstall("firefox-esr")
-    CFunc.aptinstall("browser-plugin-freshplayer-pepperflash")
 
 # General GUI software
 if args.nogui is False and args.bare is False:

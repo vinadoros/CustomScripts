@@ -245,7 +245,7 @@ if args.nogui is False:
     # For Office 2010
     CFunc.aptinstall("winbind")
     # Browsers
-    CFunc.aptinstall("firefox flashplugin-installer pepperflashplugin-nonfree")
+    CFunc.aptinstall("firefox")
     # Tilix
     CFunc.aptinstall("tilix")
     # Flatpak
