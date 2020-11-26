@@ -187,6 +187,8 @@ elif args.vmtype == 2:
 elif args.vmtype == 3:
     hvname = "vmware"
 
+# Predetermined iso checksum.
+md5_isourl = None
 # Set OS options.
 # KVM os options can be found by running "osinfo-query os"
 if 1 <= args.ostype <= 4:
@@ -250,8 +252,14 @@ if 20 <= args.ostype <= 29:
     vmwareid = "fedora-64"
     kvm_os = "linux"
     kvm_variant = "manjaro"
-    isourl = "http://www.gtlib.gatech.edu/pub/archlinux/iso/2020.07.01/archlinux-2020.07.01-x86_64.iso"
     vmprovisionscript = "MManjaro.py"
+
+    # Get latest arch iso.
+    archiso_website = urllib.request.urlopen("http://www.gtlib.gatech.edu/pub/archlinux/iso/latest/md5sums.txt")
+    archiso_sumtext = archiso_website.read()
+    archiso_isopath = archiso_sumtext.splitlines()[0].split()[1].decode()
+    isourl = "http://www.gtlib.gatech.edu/pub/archlinux/iso/latest/{0}".format(archiso_isopath)
+    md5_isourl = archiso_sumtext.splitlines()[0].split()[0].decode()
 if args.ostype == 20:
     vmname = "Packer-Manjaro-{0}".format(hvname)
     vmprovision_defopts = "-d {0}".format(args.desktopenv)
@@ -444,8 +452,11 @@ if os.path.isdir(os.path.join(SCRIPTDIR, "unattend")):
 
 
 # Get hash for iso.
-print("Generating Checksum of {0}".format(isopath))
-md5 = md5sum(isopath)
+if md5_isourl:
+    md5 = md5_isourl
+else:
+    print("Generating Checksum of {0}".format(isopath))
+    md5 = md5sum(isopath)
 
 # Create Packer json configuration
 # Packer Builder Configuration
@@ -702,7 +713,7 @@ if args.vmtype == 2:
     CREATESCRIPT_KVM = """virt-install --connect qemu:///system --name={vmname} --disk path={fullpathtoimg}.qcow2,bus={kvm_diskinterface} --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model={kvm_netdevice} --filesystem source=/,target=root,mode=mapped --os-type={kvm_os} --os-variant={kvm_variant} --import --noautoconsole --noreboot --video={kvm_video} --channel unix,target_type=virtio,name=org.qemu.guest_agent.0 --channel spicevmc,target_type=virtio,name=com.redhat.spice.0""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=os.path.join(vmpath, vmname), kvm_os=kvm_os, kvm_variant=kvm_variant, kvm_video=kvm_video, kvm_diskinterface=kvm_diskinterface, kvm_netdevice=kvm_netdevice)
     logging.info("KVM launch command: {0}".format(CREATESCRIPT_KVM))
     if args.noprompt is False:
-        subprocess.run(CREATESCRIPT_KVM, shell=True)
+        subprocess.run(CREATESCRIPT_KVM, shell=True, check=False)
 
 # Print finish times
 logging.info("Packer completed in {0}".format(str(packerfinishtime - beforetime)))
