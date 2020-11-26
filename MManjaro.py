@@ -187,7 +187,7 @@ if __name__ == '__main__':
     # Install software for VMs
     if vmstatus == "kvm":
         CFunc.pacman_install("spice-vdagent qemu-guest-agent")
-        CFunc.sysctl_enable("spice-vdagentd qemu-ga", error_on_fail=True)
+        CFunc.sysctl_enable("spice-vdagentd qemu-guest-agent", error_on_fail=True)
     if vmstatus == "vbox":
         if args.nogui:
             CFunc.pacman_install("virtualbox-guest-utils-nox")
