@@ -99,12 +99,6 @@ if __name__ == '__main__':
     ### Install Software ###
     # Yay
     CFunc.pacman_install("yay")
-    yay_install(USERNAMEVAR, "powerpill")
-    # Have yay use powerpill
-    CFunc.run_as_user(USERNAMEVAR, "yay --pacman powerpill --save", error_on_fail=True)
-    # Set pacman.conf to use PackageRequired, don't check sigs for database.
-    # https://wiki.archlinux.org/index.php/Powerpill#Troubleshooting
-    subprocess.run("sed -i 's/^SigLevel\s*=\s*Required\s*DatabaseOptional/SigLevel = PackageRequired/g' /etc/pacman.conf", shell=True, check=True)
     # Install AUR dependencies
     CFunc.pacman_install("base-devel")
     # Sudoers changes
@@ -113,6 +107,13 @@ if __name__ == '__main__':
     sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
     CFunc.AddLineToSudoersFile(sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
     CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("pacman")))
+    # Set pacman.conf to use PackageRequired, don't check sigs for database.
+    # https://wiki.archlinux.org/index.php/Powerpill#Troubleshooting
+    subprocess.run("sed -i 's/^SigLevel\s*=\s*Required\s*DatabaseOptional/SigLevel = PackageRequired/g' /etc/pacman.conf", shell=True, check=True)
+    # Powerpill
+    yay_install(USERNAMEVAR, "powerpill")
+    # Have yay use powerpill
+    CFunc.run_as_user(USERNAMEVAR, "yay --pacman powerpill --save", error_on_fail=True)
     CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("powerpill")))
 
     # Cli tools
