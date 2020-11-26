@@ -99,7 +99,7 @@ if __name__ == '__main__':
     ### Install Software ###
     # Yay
     CFunc.pacman_install("yay")
-    yay_install("powerpill")
+    yay_install(USERNAMEVAR, "powerpill")
     # Have yay use powerpill
     CFunc.run_as_user(USERNAMEVAR, "yay --pacman powerpill --save", error_on_fail=True)
     # Set pacman.conf to use PackageRequired, don't check sigs for database.
