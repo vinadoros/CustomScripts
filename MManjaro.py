@@ -225,7 +225,7 @@ if __name__ == '__main__':
         CFunc.sysctl_enable("-f sddm", error_on_fail=True)
     elif args.desktop == "mate":
         # MATE
-        CFunc.pacman_install("mate network-manager-applet mate-extra manjaro-mate-settings arc-maia-icon-theme papirus-maia-icon-theme matcha-gtk-theme manjaro-settings-manager manjaro-settings-manager-notifier")
+        CFunc.pacman_install("mate network-manager-applet mate-extra manjaro-mate-settings papirus-maia-icon-theme matcha-gtk-theme manjaro-settings-manager manjaro-settings-manager-notifier")
         CFunc.pacman_install("pamac-gtk")
         lightdm_configure()
         # Brisk-menu
