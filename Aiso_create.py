@@ -56,7 +56,7 @@ parser.add_argument("-c", "--clean", help='Remove ISO folder before starting.', 
 parser.add_argument("-d", "--debug", help='Spawn a bash prompt before destroying the vagrant machine.', action="store_true")
 parser.add_argument("-n", "--noprompt", help='Do not prompt.', action="store_true")
 parser.add_argument("-r", "--release", help='Release of LiveCD')
-parser.add_argument("-t", "--type", help='1=Ubuntu, 2=Fedora, 3=Manjaro', type=int, default=0)
+parser.add_argument("-t", "--type", help='1=Ubuntu, 2=Fedora', type=int, default=0)
 parser.add_argument("-w", "--workfolder", help='Location of Working Folder')
 args = parser.parse_args()
 
@@ -84,7 +84,7 @@ os.chmod(workfolder, 0o777)
 if args.type == 1:
     print("Ubuntu")
     docker_name = "ubuiso"
-    docker_image = "ubuntu:focal"
+    docker_image = "ubuntu:rolling"
     docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -e DEBIAN_FRONTEND=noninteractive -v "{0}":"{0}"'.format(workfolder)
     docker_destroy(docker_name)
     docker_setup(docker_image, docker_name, docker_options)
@@ -104,15 +104,6 @@ if args.type == 2:
     docker_isocmd = '/opt/CustomScripts/Afediso.py -n -w "{0}" -o "{0}"'.format(workfolder)
     if isinstance(args.release, int):
         docker_isocmd += ' -r {0}'.format(args.release)
-if args.type == 3:
-    print("Manjaro")
-    docker_name = "manjaroiso"
-    docker_image = "manjarolinux/base"
-    docker_options = '-v /opt/CustomScripts:/opt/CustomScripts -v "{0}":"{0}"'.format(workfolder)
-    docker_destroy(docker_name)
-    docker_setup(docker_image, docker_name, docker_options)
-    docker_runcmd(docker_name, "pacman -Sy --needed --noconfirm manjaro-release nano powerpill")
-    docker_isocmd = '/opt/CustomScripts/Amanjaroiso.py -n -w "{0}/manjarochroot" -o "{0}/iso"'.format(workfolder)
 
 # Run docker
 try:

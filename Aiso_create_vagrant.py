@@ -91,7 +91,7 @@ if args.type == 1:
     if isinstance(args.release, int):
         release = args.release
     else:
-        release = 32
+        release = 33
 
     # Vagrantfile for fedora iso
     vagrantfile = """Vagrant.configure("2") do |config|
@@ -114,11 +114,16 @@ end
             vagrant_runcmd('bash')
         vagrant_destroy()
 if args.type == 2:
-    print("Manjaro")
+    print("Ubuntu")
+    if isinstance(args.release, int):
+        release = args.release
+    else:
+        release = "2004"
+
     # Vagrantfile for fedora iso
     vagrantfile = """Vagrant.configure("2") do |config|
-  config.vm.box = "fedora/32-cloud-base"
-  config.vm.synced_folder "{workfolder}", "/vms", type: "sshfs"
+  config.vm.box = "generic/ubuntu{release}"
+  config.vm.synced_folder "{workfolder}", "{workfolder}", type: "sshfs"
   config.vm.synced_folder "{scriptdir}", "/opt/CustomScripts", type: "sshfs"
   config.vm.provider :libvirt do |libvirt|
     libvirt.cpus = 4
@@ -126,24 +131,11 @@ if args.type == 2:
     libvirt.memory = 4096
   end
 end
-""".format(workfolder=workfolder, scriptdir=SCRIPTDIR)
+""".format(workfolder=workfolder, release=release, scriptdir=SCRIPTDIR)
     try:
         vagrant_setup(vagrantfile)
-        vagrant_runcmd("sudo dnf install -y pacman arch-install-scripts")
-        # Grab the Manjaro pacman.conf
-        vagrant_runcmd("sudo curl -o /etc/pacman.conf https://gitlab.manjaro.org/packages/core/pacman/-/raw/master/pacman.conf.x86_64?inline=false")
-        # Trust all packages
-        vagrant_runcmd('sudo sed -i "s/^SigLevel\s*=.*/SigLevel = Never/g" /etc/pacman.conf')
-        # Add a Manjaro mirror
-        vagrant_runcmd('echo "Server = http://www.gtlib.gatech.edu/pub/manjaro/stable/\$repo/\$arch" | sudo tee /etc/pacman.d/mirrorlist')
-        # Install the manjaro keyring
-        # https://wiki.manjaro.org/index.php/Pacman_troubleshooting#Errors_about_Keys
-        vagrant_runcmd("sudo rm -r /etc/pacman.d/gnupg")
-        vagrant_runcmd("sudo pacman -Syyuu --needed --noconfirm manjaro-keyring archlinux-keyring")
-        vagrant_runcmd("sudo pacman-key --init")
-        vagrant_runcmd("sudo pacman-key --populate archlinux manjaro")
-        # vagrant_runcmd("sudo pacman-key --refresh-keys --keyserver=keyserver.ubuntu.com", error_on_fail=False)
-        vagrant_runcmd('sudo /opt/CustomScripts/Amanjaroiso.py -n -w "/vms/manjarochroot" -o "/vms/iso"')
+        vagrant_runcmd("sudo dnf install -y nano livecd-tools spin-kickstarts pykickstart anaconda util-linux")
+        vagrant_runcmd('sudo /opt/CustomScripts/Afediso.py -n -w "/root" -o "{workfolder}"'.format(workfolder=workfolder))
     finally:
         if args.debug:
             vagrant_runcmd('bash')
