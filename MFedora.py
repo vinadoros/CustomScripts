@@ -222,7 +222,6 @@ if not args.bare and not args.nogui:
     CFunc.flatpak_install("flathub", "io.github.quodlibet.QuodLibet")
     CFunc.flatpak_install("flathub", "org.atheme.audacious")
     CFunc.flatpak_install("flathub", "com.calibre_ebook.calibre")
-    CFunc.flatpak_install("flathub", "org.kde.okular")
 
 CFunc.dnfinstall("grubby")
 
