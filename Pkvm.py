@@ -476,13 +476,18 @@ if args.vmtype == 1:
     data['builders'][0]["iso_interface"] = "sata"
     data['builders'][0]["vboxmanage"] = ['']
     data['builders'][0]["vboxmanage"][0] = ["modifyvm", "{{.Name}}", "--memory", "{0}".format(args.memory)]
-    data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--vram", "40"])
+    data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--vram", "64"])
     data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--cpus", "{0}".format(CPUCORES)])
     data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--nic2", "hostonly"])
     data['builders'][0]["vboxmanage"].append(["modifyvm", "{{.Name}}", "--hostonlyadapter2", vbox_hostonlyif_name])
     data['builders'][0]["vboxmanage_post"] = ['']
     data['builders'][0]["vboxmanage_post"][0] = ["modifyvm", "{{.Name}}", "--clipboard", "bidirectional"]
     data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--accelerate3d", "on"])
+    data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--mouse", "usbtablet"])
+    data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--vrde", "off"])
+    data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--audioin", "on"])
+    data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--audioout", "on"])
+    data['builders'][0]["vboxmanage_post"].append(["modifyvm", "{{.Name}}", "--audiocontroller", "hda"])
     if CFunc.is_windows() is False:
         data['builders'][0]["vboxmanage_post"].append(["sharedfolder", "add", "{{.Name}}", "--name", "root", "--hostpath", "/", "--automount"])
     data['builders'][0]["post_shutdown_delay"] = "30s"
