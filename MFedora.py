@@ -114,7 +114,7 @@ if not args.nogui:
 if vmstatus == "kvm":
     CFunc.dnfinstall("spice-vdagent qemu-guest-agent")
 if vmstatus == "vbox":
-    CFunc.dnfinstall("virtualbox-guest-additions virtualbox-guest-additions-ogl")
+    CFunc.dnfinstall("virtualbox-guest-additions")
 if vmstatus == "vmware":
     CFunc.dnfinstall("open-vm-tools")
     if not args.nogui:
