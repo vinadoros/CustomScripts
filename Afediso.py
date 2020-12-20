@@ -155,6 +155,8 @@ cd clonezilla
 make all
 make install
 cd ..
+# Ensure clonezilla command was installed
+which clonezilla || echo "Clonezilla command not installed" && exit 1
 
 # Disable selinux
 sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /etc/sysconfig/selinux
