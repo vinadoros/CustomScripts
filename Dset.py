@@ -222,7 +222,7 @@ if shutil.which("gnome-session"):
     gsettings_set("org.gnome.settings-daemon.plugins.xsettings", "hinting", "full")
     gsettings_set("org.gnome.desktop.interface", "text-scaling-factor", "1.0")
     gsettings_set("org.gnome.desktop.interface", "clock-show-date", "true")
-    gsettings_set("org.gnome.shell", "enabled-extensions", "['window-list@gnome-shell-extensions.gcampax.github.com', 'dash-to-dock@micxgx.gmail.com', 'GPaste@gnome-shell-extensions.gnome.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'shell-volume-mixer@derhofbauer.at', 'TopIcons@phocean.net', 'ubuntu-appindicators@ubuntu.com', 'donotdisturb@kylecorry31.github.io']")
+    gsettings_set("org.gnome.shell", "enabled-extensions", "['window-list@gnome-shell-extensions.gcampax.github.com', 'dash-to-dock@micxgx.gmail.com', 'GPaste@gnome-shell-extensions.gnome.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'shell-volume-mixer@derhofbauer.at', 'TopIcons@phocean.net', 'ubuntu-appindicators@ubuntu.com']")
     gsettings_set("org.gnome.desktop.wm.preferences", "button-layout", ":minimize,maximize,close")
     gsettings_set("org.gnome.desktop.interface", "locate-pointer", "true")
     gsettings_set("org.gnome.mutter", "locate-pointer-key", "'Control_R'")

@@ -214,8 +214,6 @@ if __name__ == '__main__':
         CFunc.run_as_user(USERNAMEVAR, "{0} --yes 858".format(gs_installer[0]), error_on_fail=True)
         # Install dashtodock extension
         CFunc.run_as_user(USERNAMEVAR, "{0} --yes 307".format(gs_installer[0]), error_on_fail=True)
-        # Install Do Not Disturb extension
-        CFunc.run_as_user(USERNAMEVAR, "{0} --yes 1480".format(gs_installer[0]), error_on_fail=True)
     elif args.desktop == "kde":
         # KDE
         CFunc.pacman_install("plasma kio-extras kdebase sddm")

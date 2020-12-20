@@ -134,8 +134,6 @@ if args.desktop == "gnome":
     CFunc.run_as_user(USERNAMEVAR, "{0} --yes 858".format(gs_installer[0]))
     # Install dashtodock extension
     CFunc.run_as_user(USERNAMEVAR, "{0} --yes 307".format(gs_installer[0]))
-    # Install Do Not Disturb extension
-    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 1480".format(gs_installer[0]))
 elif args.desktop == "kde":
     # KDE
     CFunc.dnfinstall("--allowerasing @kde-desktop-environment")
