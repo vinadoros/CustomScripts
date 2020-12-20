@@ -106,8 +106,7 @@ if not args.nogui:
         CFunc.dnfinstall("flameshot")
         os.makedirs(os.path.join(USERHOME, ".config", "autostart"), exist_ok=True)
         # Start flameshot on user login.
-        if os.path.isfile(os.path.join(os.sep, "usr", "share", "applications", "flameshot.desktop")):
-            shutil.copy(os.path.join(os.sep, "usr", "share", "applications", "flameshot.desktop"), os.path.join(USERHOME, ".config", "autostart"))
+        shutil.copy(os.path.join(os.sep, "usr", "share", "applications", "org.flameshot.Flameshot.desktop"), os.path.join(USERHOME, ".config", "autostart"))
         CFunc.chown_recursive(os.path.join(USERHOME, ".config", ), USERNAMEVAR, USERGROUP)
 
 # Install software for VMs
