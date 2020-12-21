@@ -162,13 +162,17 @@ print("Headless:", args.headless)
 
 # Get Packer
 if not shutil.which("packer") or args.getpacker is True:
-    print("Getting packer binary.")
     if not CFunc.is_windows():
+        print("Getting packer binary.")
+        packer_binpath = os.path.join(os.sep, "usr", "local", "bin")
+        if not os.access(packer_binpath, os.W_OK | os.X_OK):
+            print('Enter sudo password to run "chmod a+rwx {0}".'.format(packer_binpath))
+            subprocess.run("sudo chmod a+rwx {0}".format(packer_binpath))
         packer_os = "linux"
         packer_zipurl = "https://releases.hashicorp.com/packer/{0}/packer_{0}_{1}_amd64.zip".format(packerversion_get(), packer_os)
         packer_zipfile = CFunc.downloadfile(packer_zipurl, "/tmp")[0]
-        subprocess.run("7z x -aoa -y {0} -o/usr/local/bin".format(packer_zipfile), shell=True, check=True)
-        os.chmod("/usr/local/bin/packer", 0o777)
+        subprocess.run("7z x -aoa -y {0} -o{1}".format(packer_zipfile, packer_binpath), shell=True, check=True)
+        os.chmod(os.path.join(packer_binpath, "packer"), 0o777)
         if os.path.isfile(packer_zipfile):
             os.remove(packer_zipfile)
     subprocess.run("packer -v", shell=True, check=True)
