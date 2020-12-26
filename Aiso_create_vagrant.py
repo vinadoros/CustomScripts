@@ -120,9 +120,9 @@ if args.type == 2:
     else:
         release = "2004"
 
-    # Vagrantfile for fedora iso
+    # Vagrantfile for ubuntu iso
     vagrantfile = """Vagrant.configure("2") do |config|
-  config.vm.box = "generic/ubuntu{release}"
+  config.vm.box = "generic/ubuntu2004"
   config.vm.synced_folder "{workfolder}", "{workfolder}", type: "sshfs"
   config.vm.synced_folder "{scriptdir}", "/opt/CustomScripts", type: "sshfs"
   config.vm.provider :libvirt do |libvirt|
@@ -131,11 +131,15 @@ if args.type == 2:
     libvirt.memory = 4096
   end
 end
-""".format(workfolder=workfolder, release=release, scriptdir=SCRIPTDIR)
+""".format(workfolder=workfolder, scriptdir=SCRIPTDIR)
     try:
         vagrant_setup(vagrantfile)
-        vagrant_runcmd("sudo dnf install -y nano livecd-tools spin-kickstarts pykickstart anaconda util-linux")
-        vagrant_runcmd('sudo /opt/CustomScripts/Afediso.py -n -w "/root" -o "{workfolder}"'.format(workfolder=workfolder))
+        vagrant_runcmd('apt-get update')
+        vagrant_runcmd('apt-get install -y python3')
+        isocmd = 'sudo /opt/CustomScripts/Aubuiso.py -n -w "{0}"'.format(workfolder)
+        if args.release:
+            isocmd += " -r {0}".format(args.release)
+        vagrant_runcmd(isocmd)
     finally:
         if args.debug:
             vagrant_runcmd('bash')
