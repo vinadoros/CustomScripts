@@ -358,14 +358,17 @@ function Fcn-Customize {
 
   # Set EST as timezone
   tzutil /s "Eastern Standard Time"
-  # Set system clock as UTC
-  New-ItemProperty -Path Registry::HKLM\System\CurrentControlSet\Control\TimeZoneInformation -Name RealTimeIsUniversal -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
 
   # Add windows defender exclusions
   Add-MpPreference -ExclusionPath "$env:windir\Temp\SppExtComObjHook.dll"
   Add-MpPreference -ExclusionPath "$env:USERPROFILE\Desktop"
   Add-MpPreference -ExclusionPath "$env:LOCALAPPDATA\Temp\SppExtComObjHook.dll"
   Add-MpPreference -ExclusionPath "$env:windir\AutoKMS"
+}
+
+# Set system clock as UTC
+function Fcn-UTC {
+  New-ItemProperty -Path Registry::HKLM\System\CurrentControlSet\Control\TimeZoneInformation -Name RealTimeIsUniversal -Value 1 -Force -ErrorAction SilentlyContinue | Out-Null
 }
 
 # Remove Windows Defender
