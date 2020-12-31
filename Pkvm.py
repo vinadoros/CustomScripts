@@ -284,28 +284,28 @@ if 36 <= args.ostype <= 38:
     isourl = "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-10.4.0-amd64-netinst.iso"
 if args.ostype == 30:
     vmname = "Packer-DebianTesting-{0}".format(hvname)
-    vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
+    vmprovision_defopts = "-d {0}".format(args.desktopenv)
 if args.ostype == 31:
     vmname = "Packer-DebianTestingCLI-{0}".format(hvname)
-    vmprovision_defopts = "-a -x"
+    vmprovision_defopts = "-x"
 if args.ostype == 32:
     vmname = "Packer-DebianTestingBare-{0}".format(hvname)
     vmprovision_defopts = "-b -x"
 if args.ostype == 33:
     vmname = "Packer-DebianUnstable-{0}".format(hvname)
-    vmprovision_defopts = "-u -d {0} -a".format(args.desktopenv)
+    vmprovision_defopts = "-u -d {0}".format(args.desktopenv)
 if args.ostype == 34:
     vmname = "Packer-DebianUnstableCLI-{0}".format(hvname)
-    vmprovision_defopts = "-u -a -x"
+    vmprovision_defopts = "-u -x"
 if args.ostype == 35:
     vmname = "Packer-DebianUnstableBare-{0}".format(hvname)
     vmprovision_defopts = "-u -b -x"
 if args.ostype == 36:
     vmname = "Packer-DebianStable-{0}".format(hvname)
-    vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
+    vmprovision_defopts = "-d {0}".format(args.desktopenv)
 if args.ostype == 37:
     vmname = "Packer-DebianStableCLI-{0}".format(hvname)
-    vmprovision_defopts = "-a -x"
+    vmprovision_defopts = "-x"
 if args.ostype == 38:
     vmname = "Packer-DebianStableBare-{0}".format(hvname)
     vmprovision_defopts = "-b -x"
@@ -314,7 +314,7 @@ if args.ostype == 40:
     vboxosid = "FreeBSD_64"
     vmwareid = "freebsd-64"
     vmprovisionscript = "MFreeBSD.py"
-    vmprovision_defopts = "-d {0} -a".format(args.desktopenv)
+    vmprovision_defopts = "-d {0}".format(args.desktopenv)
     kvm_os = "freebsd"
     kvm_variant = "freebsd12.0"
     isourl = "https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/12.2/FreeBSD-12.2-RELEASE-amd64-disc1.iso"
