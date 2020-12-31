@@ -4,7 +4,6 @@
 # Python includes.
 import argparse
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -20,7 +19,6 @@ SCRIPTDIR = sys.path[0]
 # Get arguments
 parser = argparse.ArgumentParser(description='Install Debian Software.')
 parser.add_argument("-d", "--desktop", help='Desktop Environment (i.e. gnome, kde, mate, etc)')
-parser.add_argument("-a", "--allextra", help='Run Extra Scripts', action="store_true")
 parser.add_argument("-u", "--unstable", help='Upgrade to unstable.', action="store_true")
 parser.add_argument("-b", "--bare", help='Configure script to set up a bare-minimum environment.', action="store_true")
 parser.add_argument("-x", "--nogui", help='Configure script to disable GUI.', action="store_true")
@@ -28,7 +26,6 @@ parser.add_argument("-x", "--nogui", help='Configure script to disable GUI.', ac
 # Save arguments.
 args = parser.parse_args()
 print("Desktop Environment:", args.desktop)
-print("Run extra scripts:", args.allextra)
 print("Unstable Mode:", args.unstable)
 print("Bare install:", args.bare)
 print("No GUI:", args.nogui)
@@ -47,7 +44,7 @@ print("Group Name is:", USERGROUP)
 rootacctstatus = CFunc.subpout("passwd -S root | awk '{{print $2}}'")
 if "P" not in rootacctstatus:
     print("Please set the root password.")
-    subprocess.run("passwd root", shell=True)
+    subprocess.run("passwd root", shell=True, check=False)
     print("Please rerun this script now that the root account is unlocked.")
     sys.exit(1)
 
@@ -84,11 +81,11 @@ subprocess.run("""
 add-apt-repository main
 add-apt-repository contrib
 add-apt-repository non-free
-""", shell=True)
+""", shell=True, check=True)
 
 
 # Comment out lines containing httpredir.
-subprocess.run("sed -i '/httpredir/ s/^#*/#/' /etc/apt/sources.list", shell=True)
+subprocess.run("sed -i '/httpredir/ s/^#*/#/' /etc/apt/sources.list", shell=True, check=True)
 
 # Add timeouts for repository connections
 with open('/etc/apt/apt.conf.d/99timeout', 'w') as writefile:
@@ -123,7 +120,7 @@ if not args.bare:
         multimedia_release = debrelease
     with open('/etc/apt/sources.list.d/debian-multimedia.list', 'w') as stapt_writefile:
         stapt_writefile.write("deb https://www.deb-multimedia.org {0} main non-free".format(multimedia_release))
-    subprocess.run("apt-get update -oAcquire::AllowInsecureRepositories=true; apt-get install -y --allow-unauthenticated deb-multimedia-keyring -oAcquire::AllowInsecureRepositories=true", shell=True)
+    subprocess.run("apt-get update -oAcquire::AllowInsecureRepositories=true; apt-get install -y --allow-unauthenticated deb-multimedia-keyring -oAcquire::AllowInsecureRepositories=true", shell=True, check=True)
 
     # Update and upgrade with new repositories
     CFunc.aptupdate()
@@ -135,9 +132,9 @@ CFunc.aptinstall("ssh tmux zsh fish btrfs-progs f2fs-tools xfsprogs dmraid mdadm
 CFunc.aptinstall("firmware-linux")
 subprocess.run("""echo "firmware-ipw2x00 firmware-ipw2x00/license/accepted boolean true" | debconf-set-selections
 echo "firmware-ivtv firmware-ivtv/license/accepted boolean true" | debconf-set-selections
-DEBIAN_FRONTEND=noninteractive apt install -y ^firmware-*""", shell=True)
+DEBIAN_FRONTEND=noninteractive apt install -y ^firmware-*""", shell=True, check=True)
 # Timezone stuff
-subprocess.run("dpkg-reconfigure -f noninteractive tzdata", shell=True)
+subprocess.run("dpkg-reconfigure -f noninteractive tzdata", shell=True, check=True)
 # Needed for systemd user sessions.
 CFunc.aptinstall("dbus-user-session")
 # Samba
@@ -145,7 +142,7 @@ CFunc.aptinstall("samba cifs-utils")
 # NTP
 subprocess.run("""systemctl enable systemd-timesyncd
 timedatectl set-local-rtc false
-timedatectl set-ntp 1""", shell=True)
+timedatectl set-ntp 1""", shell=True, check=True)
 # Avahi
 CFunc.aptinstall("avahi-daemon avahi-discover libnss-mdns")
 # Java
@@ -186,9 +183,9 @@ if args.nogui is False and args.bare is False:
     CFunc.aptinstall("tilix")
     # Visual Studio Code
     subprocess.run("""curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-    mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg""", shell=True)
+    mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg""", shell=True, check=True)
     # Install repo
-    subprocess.run('echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list', shell=True)
+    subprocess.run('echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list', shell=True, check=True)
     CFunc.aptupdate()
     CFunc.aptinstall("code")
     # Install snapd
@@ -216,13 +213,13 @@ if args.desktop == "gnome":
     CFunc.aptinstall("task-gnome-desktop")
     CFunc.aptinstall("gnome-clocks")
     CFunc.aptinstall("gnome-shell-extensions gnome-shell-extension-dashtodock gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste")
-    subprocess.run("{0}/DExtGnome.py -v".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/DExtGnome.py -v".format(SCRIPTDIR), shell=True, check=True)
 elif args.desktop == "mate":
     print("\n Installing mate desktop")
     CFunc.aptinstall("task-mate-desktop mate-tweak dconf-cli")
     CFunc.aptinstall("mate-applet-brisk-menu")
     # Run MATE Configuration
-    subprocess.run("{0}/DExtMate.py".format(SCRIPTDIR), shell=True)
+    subprocess.run("{0}/DExtMate.py".format(SCRIPTDIR), shell=True, check=True)
 elif args.desktop == "kde":
     print("\n Installing kde desktop")
     CFunc.aptinstall("task-kde-desktop")
@@ -246,8 +243,8 @@ if vmstatus == "vbox":
     CFunc.aptinstall("virtualbox-guest-utils virtualbox-guest-dkms dkms")
     if not args.nogui:
         CFunc.aptinstall("virtualbox-guest-x11")
-    subprocess.run("gpasswd -a {0} vboxsf".format(USERNAMEVAR), shell=True)
-    subprocess.run("systemctl enable virtualbox-guest-utils", shell=True)
+    subprocess.run("gpasswd -a {0} vboxsf".format(USERNAMEVAR), shell=True, check=True)
+    CFunc.sysctl_enable("virtualbox-guest-utils", error_on_fail=True)
 if vmstatus == "vmware":
     CFunc.aptinstall("open-vm-tools open-vm-tools-dkms")
     if not args.nogui:
@@ -291,17 +288,18 @@ if args.bare is False:
     if os.path.isfile(logindefs_file):
         print("Modifying {0}".format(logindefs_file))
         if CFunc.find_pattern_infile(logindefs_file, "ENV_PATH.*PATH.*sbin") is False:
-            subprocess.run("""sed -i '/^ENV_PATH.*PATH.*/ s@$@:/sbin:/usr/sbin:/usr/local/sbin@' {0}""".format(logindefs_file), shell=True)
+            subprocess.run("""sed -i '/^ENV_PATH.*PATH.*/ s@$@:/sbin:/usr/sbin:/usr/local/sbin@' {0}""".format(logindefs_file), shell=True, check=True)
 
     # Extra scripts
-    if args.allextra is True:
-        subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
-        subprocess.run("{0}/CShellConfig.py -z -f -d".format(SCRIPTDIR), shell=True)
-        subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True)
-        subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
-        subprocess.run("{0}/CVMGeneral.py".format(SCRIPTDIR), shell=True)
-        subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True)
-        subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True)
-        subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
+    if not args.nogui:
+        subprocess.run(os.path.join(SCRIPTDIR, "CFlatpakConfig.py"), shell=True, check=True)
+    subprocess.run(os.path.join(SCRIPTDIR, "Csshconfig.sh"), shell=True, check=True)
+    subprocess.run(os.path.join(SCRIPTDIR, "CShellConfig.py") + " -f -z -d", shell=True, check=True)
+    subprocess.run(os.path.join(SCRIPTDIR, "CCSClone.py"), shell=True, check=True)
+    subprocess.run(os.path.join(SCRIPTDIR, "CDisplayManagerConfig.py"), shell=True, check=True)
+    subprocess.run(os.path.join(SCRIPTDIR, "CVMGeneral.py"), shell=True, check=True)
+    subprocess.run(os.path.join(SCRIPTDIR, "Cxdgdirs.py"), shell=True, check=True)
+    subprocess.run(os.path.join(SCRIPTDIR, "Czram.py"), shell=True, check=True)
+    subprocess.run(os.path.join(SCRIPTDIR, "CSysConfig.sh"), shell=True, check=True)
 
 print("\nScript End")
