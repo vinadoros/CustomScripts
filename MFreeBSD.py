@@ -20,24 +20,21 @@ SCRIPTDIR = sys.path[0]
 # Get arguments
 parser = argparse.ArgumentParser(description='Install FreeBSD Software.')
 parser.add_argument("-d", "--desktop", help='Desktop Environment (i.e. gnome, kde, mate, etc)')
-parser.add_argument("-a", "--allextra", help='Run Extra Scripts', action="store_true")
-parser.add_argument("-b", "--bare", help='Configure script to set up a bare-minimum environment.', action="store_true")
 parser.add_argument("-x", "--nogui", help='Configure script to disable GUI.', action="store_true")
 
 # Save arguments.
 args = parser.parse_args()
 print("Desktop Environment:", args.desktop)
-print("Run extra scripts:", args.allextra)
 
 
 ### Functions ###
 def pkg_install(packages):
     """Installl package using pkg"""
-    subprocess.run("pkg install -y {0}".format(packages), shell=True)
+    subprocess.run("pkg install -y {0}".format(packages), shell=True, check=True)
     return
 def sysrc_cmd(cmd):
     """Run command for sysrc"""
-    subprocess.run("sysrc {0}".format(cmd), shell=True)
+    subprocess.run("sysrc {0}".format(cmd), shell=True, check=True)
     return
 
 
@@ -60,9 +57,9 @@ with open("/usr/local/etc/pkg/repos/FreeBSD.conf", 'w') as file:
 # Update ports in background
 process_portupdate = subprocess.Popen("portsnap --interactive auto", shell=True, stdout=subprocess.DEVNULL, close_fds=True)
 # Update system
-subprocess.run(["freebsd-update", "--not-running-from-cron", "fetch", "install"])
+subprocess.run(["freebsd-update", "--not-running-from-cron", "fetch", "install"], check=True)
 # Update packages
-subprocess.run(["pkg", "update", "-f"])
+subprocess.run(["pkg", "update", "-f"], check=True)
 
 # Get VM State
 pkg_install("dmidecode")
@@ -110,7 +107,7 @@ if args.desktop == "gnome":
     sysrc_cmd('slim_enable=')
     slim_session_name = "gnome-session"
     pkg_install("gnome-shell-extension-dashtodock")
-    subprocess.run("glib-compile-schemas /usr/local/share/gnome-shell/extensions/dash-to-dock@micxgx.gmail.com/schemas", shell=True)
+    subprocess.run("glib-compile-schemas /usr/local/share/gnome-shell/extensions/dash-to-dock@micxgx.gmail.com/schemas", shell=True, check=True)
 elif args.desktop == "mate":
     pkg_install("mate")
     # Setup slim
@@ -144,21 +141,20 @@ if os.path.isdir(sudoersd_dir):
 {0} ALL=(ALL) NOPASSWD: {1}
 """.format(USERNAMEVAR, shutil.which("pkg")))
     os.chmod(CUSTOMSUDOERSPATH, 0o440)
-    status = subprocess.run('visudo -c', shell=True)
-    if status.returncode is not 0:
+    status = subprocess.run('visudo -c', shell=True, check=False)
+    if status.returncode != 0:
         print("Visudo status not 0, removing sudoers file.")
         os.remove(CUSTOMSUDOERSPATH)
-subprocess.run("pw usermod {0} -G wheel,video,operator".format(USERNAMEVAR), shell=True)
+subprocess.run("pw usermod {0} -G wheel,video,operator".format(USERNAMEVAR), shell=True, check=True)
 
 # Extra scripts
-if args.allextra is True:
-    subprocess.run("bash {0}/Csshconfig.sh".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CShellConfig.py -z -d".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("bash {0}/CVMGeneral.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True)
-    subprocess.run("bash {0}/CSysConfig.sh".format(SCRIPTDIR), shell=True)
+subprocess.run("bash {0}/Csshconfig.sh".format(SCRIPTDIR), shell=True, check=True)
+subprocess.run("{0}/CShellConfig.py -z -d".format(SCRIPTDIR), shell=True, check=True)
+subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)
+subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True, check=True)
+subprocess.run("bash {0}/CVMGeneral.py".format(SCRIPTDIR), shell=True, check=True)
+subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True, check=True)
+subprocess.run("bash {0}/CSysConfig.sh".format(SCRIPTDIR), shell=True, check=True)
 
 # Wait for processes to finish before exiting.
 time_finishmain = datetime.now()
