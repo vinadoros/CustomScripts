@@ -248,7 +248,6 @@ if args.nogui is False:
     CFunc.aptinstall("tilix")
     # Flatpak
     CFunc.aptinstall("flatpak")
-    CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo")
     CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("flatpak")))
     # Visual Studio Code
     subprocess.run("""curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
@@ -257,12 +256,6 @@ if args.nogui is False:
     subprocess.run('echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list', shell=True, check=True)
     CFunc.aptupdate()
     CFunc.aptinstall("code")
-    # Flatpak apps
-    CFunc.flatpak_install("flathub", "org.keepassxc.KeePassXC")
-    CFunc.flatpak_install("flathub", "org.videolan.VLC")
-    CFunc.flatpak_install("flathub", "io.github.quodlibet.QuodLibet")
-    CFunc.flatpak_install("flathub", "org.atheme.audacious")
-    CFunc.flatpak_install("flathub", "com.calibre_ebook.calibre")
 
 # Post-install mate configuration
 if args.desktop == "mate":
@@ -313,6 +306,8 @@ CFunc.AddUserToGroup("nm-openconnect")
 CFunc.AddUserToGroup("vboxsf")
 
 # Run these extra scripts even in bare config.
+if not args.nogui:
+    subprocess.run(os.path.join(SCRIPTDIR, "CFlatpakConfig.py"), shell=True, check=True)
 subprocess.run("{0}/CShellConfig.py -z -f -d".format(SCRIPTDIR), shell=True, check=True)
 subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True, check=True)
 subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)

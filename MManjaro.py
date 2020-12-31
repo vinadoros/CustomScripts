@@ -280,15 +280,7 @@ if __name__ == '__main__':
 
         # Flatpak setup
         CFunc.pacman_install("flatpak xdg-desktop-portal")
-        CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo")
         CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("flatpak")))
-
-        # Flatpak apps
-        CFunc.flatpak_install("flathub", "org.keepassxc.KeePassXC")
-        CFunc.flatpak_install("flathub", "org.videolan.VLC")
-        CFunc.flatpak_install("flathub", "io.github.quodlibet.QuodLibet")
-        CFunc.flatpak_install("flathub", "org.atheme.audacious")
-        CFunc.flatpak_install("flathub", "com.calibre_ebook.calibre")
 
         # Pamac frontends
         CFunc.pacman_install("pamac-flatpak-plugin pamac-snap-plugin")
@@ -298,6 +290,8 @@ if __name__ == '__main__':
     CFuncExt.GrubUpdate()
 
     # Extra scripts
+    if not args.nogui:
+        subprocess.run(os.path.join(SCRIPTDIR, "CFlatpakConfig.py"), shell=True, check=True)
     subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True, check=True)
     subprocess.run("{0}/CShellConfig.py -f -z -d".format(SCRIPTDIR), shell=True, check=True)
     subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)

@@ -502,7 +502,12 @@ def flatpak_install(remote, app):
     """Install application(s) using flatpak using the specified remote."""
     if shutil.which("flatpak"):
         print("\nInstalling {0} using flatpak using {1}.".format(app, remote))
-        subprocess.run("{0}flatpak install --noninteractive -y {1} {2}".format(sudocmd(), remote, app), shell=True, check=True)
+        subprocess.run("{0}flatpak install --noninteractive --or-update -y {1} {2}".format(sudocmd(), remote, app), shell=True, check=True)
+def flatpak_override(app, override):
+    """Set override for flatpak app."""
+    if shutil.which("flatpak"):
+        print("Overriding {0} flatpak with switch {1}.".format(app, override))
+        subprocess.run("{0}flatpak override {1} {2}".format(sudocmd(), override, app), shell=True, check=True)
 # Snap
 def snap_install(app, classic=False):
     """Install application(s) using snap"""

@@ -210,16 +210,7 @@ if not args.bare and not args.nogui:
 
     # Flatpak setup
     CFunc.dnfinstall("flatpak xdg-desktop-portal")
-    CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo")
     CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("flatpak")))
-
-    # Flatpak apps
-    CFunc.flatpak_install("flathub", "org.keepassxc.KeePassXC")
-    CFunc.flatpak_install("flathub", "org.videolan.VLC")
-    CFunc.flatpak_install("flathub", "io.github.quodlibet.QuodLibet")
-    CFunc.flatpak_install("flathub", "org.atheme.audacious")
-    CFunc.flatpak_install("flathub", "com.calibre_ebook.calibre")
-    CFunc.flatpak_install("flathub", "com.github.tchx84.Flatseal")
 
 CFunc.dnfinstall("grubby")
 
@@ -236,13 +227,15 @@ subprocess.run('grubby --update-kernel=ALL --args="mitigations=off"', shell=True
 
 # Extra scripts
 if args.bare is False:
-    subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True, check=True)
-    subprocess.run("{0}/CShellConfig.py -f -z -d".format(SCRIPTDIR), shell=True, check=True)
-    subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)
-    subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True, check=True)
-    subprocess.run("{0}/CVMGeneral.py".format(SCRIPTDIR), shell=True, check=True)
-    subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True, check=True)
-    subprocess.run("{0}/Czram.py".format(SCRIPTDIR), shell=True, check=True)
-    subprocess.run("{0}/CSysConfig.sh".format(SCRIPTDIR), shell=True, check=True)
+    if not args.nogui:
+        subprocess.run(os.path.join(SCRIPTDIR, "CFlatpakConfig.py"), shell=True, check=True)
+    subprocess.run(os.path.join(SCRIPTDIR, "Csshconfig.sh"), shell=True, check=True)
+    subprocess.run(os.path.join(SCRIPTDIR, "CShellConfig.py") + " -f -z -d", shell=True, check=True)
+    subprocess.run(os.path.join(SCRIPTDIR, "CCSClone.py"), shell=True, check=True)
+    subprocess.run(os.path.join(SCRIPTDIR, "CDisplayManagerConfig.py"), shell=True, check=True)
+    subprocess.run(os.path.join(SCRIPTDIR, "CVMGeneral.py"), shell=True, check=True)
+    subprocess.run(os.path.join(SCRIPTDIR, "Cxdgdirs.py"), shell=True, check=True)
+    subprocess.run(os.path.join(SCRIPTDIR, "Czram.py"), shell=True, check=True)
+    subprocess.run(os.path.join(SCRIPTDIR, "CSysConfig.sh"), shell=True, check=True)
 
 print("\nScript End")

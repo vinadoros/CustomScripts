@@ -99,7 +99,6 @@ if args.stage == 1:
 
     # Flatpak setup
     CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("flatpak")))
-    CFunc.flatpak_addremote("flathub", "https://flathub.org/repo/flathub.flatpakrepo")
     subprocess.run('chmod -R "ugo=rwX" /var/lib/flatpak/', shell=True, check=True)
 
     # Disable Selinux
@@ -154,13 +153,11 @@ if args.stage == 2:
     CFunc.AddUserToGroup("vboxsf")
 
     # Flatpak apps
+    if not args.nogui:
+        subprocess.run(os.path.join(SCRIPTDIR, "CFlatpakConfig.py"), shell=True, check=True)
     CFunc.flatpak_install("fedora", "org.gnome.gedit")
     CFunc.flatpak_install("fedora", "org.gnome.Evince")
     CFunc.flatpak_install("fedora", "org.gnome.eog")
-    CFunc.flatpak_install("flathub", "org.keepassxc.KeePassXC")
-    CFunc.flatpak_install("flathub", "org.videolan.VLC")
-    CFunc.flatpak_install("flathub", "io.github.quodlibet.QuodLibet")
-    CFunc.flatpak_install("flathub", "com.calibre_ebook.calibre")
     CFunc.flatpak_install("flathub", "com.visualstudio.code-oss")
 
     # Extra scripts
