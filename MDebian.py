@@ -120,7 +120,8 @@ if not args.bare:
         multimedia_release = debrelease
     with open('/etc/apt/sources.list.d/debian-multimedia.list', 'w') as stapt_writefile:
         stapt_writefile.write("deb https://www.deb-multimedia.org {0} main non-free".format(multimedia_release))
-    subprocess.run("apt-get update -oAcquire::AllowInsecureRepositories=true; apt-get install -y --allow-unauthenticated deb-multimedia-keyring -oAcquire::AllowInsecureRepositories=true", shell=True, check=True)
+    subprocess.run("apt-get update -oAcquire::AllowInsecureRepositories=true", shell=True, check=True)
+    subprocess.run("apt-get install -y --allow-unauthenticated deb-multimedia-keyring -oAcquire::AllowInsecureRepositories=true", shell=True, check=True)
 
     # Update and upgrade with new repositories
     CFunc.aptupdate()
@@ -131,8 +132,8 @@ CFunc.aptinstall("ssh tmux zsh fish btrfs-progs f2fs-tools xfsprogs dmraid mdadm
 # Firmware
 CFunc.aptinstall("firmware-linux")
 subprocess.run("""echo "firmware-ipw2x00 firmware-ipw2x00/license/accepted boolean true" | debconf-set-selections
-echo "firmware-ivtv firmware-ivtv/license/accepted boolean true" | debconf-set-selections
-DEBIAN_FRONTEND=noninteractive apt install -y ^firmware-*""", shell=True, check=True)
+echo "firmware-ivtv firmware-ivtv/license/accepted boolean true" | debconf-set-selections""", shell=True, check=True)
+subprocess.run("""DEBIAN_FRONTEND=noninteractive apt install -y bluez-firmware firmware-amd-graphics firmware-ath9k-htc firmware-atheros firmware-brcm80211 firmware-intel-sound firmware-ipw2x00 firmware-iwlwifi firmware-libertas firmware-misc-nonfree firmware-realtek firmware-zd1211""", shell=True, check=True)
 # Timezone stuff
 subprocess.run("dpkg-reconfigure -f noninteractive tzdata", shell=True, check=True)
 # Needed for systemd user sessions.
