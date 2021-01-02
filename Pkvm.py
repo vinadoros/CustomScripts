@@ -167,7 +167,7 @@ if not shutil.which("packer") or args.getpacker is True:
         packer_binpath = os.path.join(os.sep, "usr", "local", "bin")
         if not os.access(packer_binpath, os.W_OK | os.X_OK):
             print('Enter sudo password to run "chmod a+rwx {0}".'.format(packer_binpath))
-            subprocess.run("sudo chmod a+rwx {0}".format(packer_binpath))
+            subprocess.run("sudo chmod a+rwx {0}".format(packer_binpath), shell=True, check=True)
         packer_os = "linux"
         packer_zipurl = "https://releases.hashicorp.com/packer/{0}/packer_{0}_{1}_amd64.zip".format(packerversion_get(), packer_os)
         packer_zipfile = CFunc.downloadfile(packer_zipurl, "/tmp")[0]
