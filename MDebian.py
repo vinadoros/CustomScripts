@@ -292,11 +292,11 @@ if args.bare is False:
             subprocess.run("""sed -i '/^ENV_PATH.*PATH.*/ s@$@:/sbin:/usr/sbin:/usr/local/sbin@' {0}""".format(logindefs_file), shell=True, check=True)
 
     # Extra scripts
+    subprocess.run(os.path.join(SCRIPTDIR, "CCSClone.py"), shell=True, check=True)
     if not args.nogui:
         subprocess.run(os.path.join(SCRIPTDIR, "CFlatpakConfig.py"), shell=True, check=True)
     subprocess.run(os.path.join(SCRIPTDIR, "Csshconfig.sh"), shell=True, check=True)
     subprocess.run(os.path.join(SCRIPTDIR, "CShellConfig.py") + " -f -z -d", shell=True, check=True)
-    subprocess.run(os.path.join(SCRIPTDIR, "CCSClone.py"), shell=True, check=True)
     subprocess.run(os.path.join(SCRIPTDIR, "CDisplayManagerConfig.py"), shell=True, check=True)
     subprocess.run(os.path.join(SCRIPTDIR, "CVMGeneral.py"), shell=True, check=True)
     subprocess.run(os.path.join(SCRIPTDIR, "Cxdgdirs.py"), shell=True, check=True)

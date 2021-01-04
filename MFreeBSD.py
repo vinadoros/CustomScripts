@@ -148,9 +148,9 @@ if os.path.isdir(sudoersd_dir):
 subprocess.run("pw usermod {0} -G wheel,video,operator".format(USERNAMEVAR), shell=True, check=True)
 
 # Extra scripts
+subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)
 subprocess.run("bash {0}/Csshconfig.sh".format(SCRIPTDIR), shell=True, check=True)
 subprocess.run("{0}/CShellConfig.py -z -d".format(SCRIPTDIR), shell=True, check=True)
-subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)
 subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True, check=True)
 subprocess.run("bash {0}/CVMGeneral.py".format(SCRIPTDIR), shell=True, check=True)
 subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True, check=True)

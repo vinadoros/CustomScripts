@@ -125,9 +125,6 @@ if __name__ == '__main__':
     # Add mdns_minimal to nsswitch to resolve .local domains.
     subprocess.run('sed -i "s/^hosts: files mymachines mdns4_minimal/hosts: files mdns_minimal mymachines mdns4_minimal/g" /etc/nsswitch.conf', shell=True, check=False)
     CFunc.pacman_install("powerline-fonts ttf-roboto ttf-roboto-mono noto-fonts ttf-dejavu")
-    # Git config
-    subprocess.run("git config --global pull.rebase false", shell=True, check=True)
-    CFunc.run_as_user(USERNAMEVAR, "git config --global pull.rebase false", error_on_fail=True)
     # Samba
     CFunc.pacman_install("samba manjaro-settings-samba")
     CFunc.sysctl_enable("smb nmb winbind", error_on_fail=True)
@@ -290,11 +287,11 @@ if __name__ == '__main__':
     CFuncExt.GrubUpdate()
 
     # Extra scripts
+    subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)
     if not args.nogui:
         subprocess.run(os.path.join(SCRIPTDIR, "CFlatpakConfig.py"), shell=True, check=True)
     subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True, check=True)
     subprocess.run("{0}/CShellConfig.py -f -z -d".format(SCRIPTDIR), shell=True, check=True)
-    subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)
     subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True, check=True)
     subprocess.run("{0}/CVMGeneral.py".format(SCRIPTDIR), shell=True, check=True)
     subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True, check=True)

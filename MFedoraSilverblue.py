@@ -161,9 +161,9 @@ if args.stage == 2:
     CFunc.flatpak_install("flathub", "com.visualstudio.code-oss")
 
     # Extra scripts
+    subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)
     subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True, check=True)
     subprocess.run("{0}/CShellConfig.py -z -d".format(SCRIPTDIR), shell=True, check=True)
-    subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)
     subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True, check=True)
     subprocess.run("{0}/CVMGeneral.py".format(SCRIPTDIR), shell=True, check=True)
     subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True, check=True)

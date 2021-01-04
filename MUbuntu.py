@@ -306,11 +306,11 @@ CFunc.AddUserToGroup("nm-openconnect")
 CFunc.AddUserToGroup("vboxsf")
 
 # Run these extra scripts even in bare config.
+subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)
 if not args.nogui:
     subprocess.run(os.path.join(SCRIPTDIR, "CFlatpakConfig.py"), shell=True, check=True)
 subprocess.run("{0}/CShellConfig.py -z -f -d".format(SCRIPTDIR), shell=True, check=True)
 subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True, check=True)
-subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)
 subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True, check=True)
 subprocess.run("{0}/CVMGeneral.py".format(SCRIPTDIR), shell=True, check=True)
 subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True, check=True)
