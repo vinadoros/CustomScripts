@@ -189,3 +189,32 @@ qt-max-volume=100
         os.makedirs(vlc_config_fld_datavlc, exist_ok=True)
         with open(vlc_config_file, 'w') as f:
             f.write(vlc_config_text)
+
+### Calibre ###
+# Check for flatpak
+calibre_fp_cmd = ["flatpak", "run", "--command=ebook-viewer", "com.calibre_ebook.calibre", "--version"]
+if shutil.which("flatpak") and cmd_silent(calibre_fp_cmd) == 0:
+    calibre_config_fld_data = os.path.join(userhome, ".var", "app", "com.calibre_ebook.calibre", "config")
+    calibre_config_fld_data_cb = os.path.join(calibre_config_fld_data, "calibre")
+    calibre_config_file = os.path.join(calibre_config_fld_data_cb, "viewer-webengine.json")
+    calibre_config_text = r"""{
+  "old_prefs_migrated": true,
+  "session_data": {
+    "book_scrollbar": true,
+    "hide_tooltips": null,
+    "keyboard_shortcuts": {},
+    "paged_taps_scroll_by_screen": true,
+    "paged_wheel_scrolls_by_screen": true,
+    "standalone_font_settings": {},
+    "standalone_misc_settings": {
+      "remember_window_geometry": true,
+      "save_annotations_in_ebook": false,
+      "show_actions_toolbar": true,
+      "show_actions_toolbar_in_fullscreen": true
+    }
+  }
+}"""
+    if os.path.isdir(calibre_config_fld_data):
+        os.makedirs(calibre_config_fld_data_cb, exist_ok=True)
+        with open(calibre_config_file, 'w') as f:
+            f.write(calibre_config_text)
