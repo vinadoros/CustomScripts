@@ -104,12 +104,6 @@ function rm_common () {
     echo "Press enter to continue or Ctrl-C to abort"
     read
 }
-function rmr () {
-    rm_common "$@"
-    for todel in "$@"; do
-        rm -rf "$(realpath $todel)"
-    done
-}
 function rms () {
     rm_common "$@"
     for todel in "$@"; do
@@ -319,8 +313,19 @@ elif type rpm-ostree &> /dev/null; then
         echo "Removing $@."
         $SUDOCMD rpm-ostree remove $@
     }
+    function rst () {
+        $SUDOCMD rpm-ostree status
+    }
     function se () {
         echo -e "\nSearching for $@."
+        if [ $(id -u) != "0" ]; then
+            if ! toolbox list --containers | grep -q fedora-toolbox; then
+                toolbox create
+            fi
+            toolbox run sudo dnf search "$@"
+            echo -e "\nInfo for $@."
+            toolbox run sudo dnf info "$@"
+        fi
         snap_search "$@"
         flatpak_search "$@"
     }
@@ -633,12 +638,6 @@ function rm_common
     echo "Press enter to continue or Ctrl-C to abort"
     read
 end
-function rmr
-    rm_common $argv
-    for todel in $argv
-        rm -rf (realpath $todel)
-    end
-end
 function rms
     rm_common $argv
     for todel in $argv
@@ -836,8 +835,19 @@ else if type -q rpm-ostree
         echo "Removing $argv."
         sudo rpm-ostree remove $argv
     end
+    function rst
+        sudo rpm-ostree status
+    end
     function se
         echo -e "\\nSearching for $argv."
+        if [ (id -u) != "0" ]
+            if not toolbox list --containers | grep -q fedora-toolbox
+                toolbox create
+            end
+            toolbox run sudo dnf search $argv
+            echo -e "\nInfo for $argv."
+            toolbox run sudo dnf info $argv
+        end
         snap_search $argv
         flatpak_search $argv
     end
@@ -855,7 +865,10 @@ end
     # Set fish script
     FISHSCRIPTUSERPATH = os.path.join(USERVARHOME, ".config", "fish", "config.fish")
     # Create path if it doesn't existing
-    os.makedirs(os.path.dirname(FISHSCRIPTUSERPATH), exist_ok=True)
+    if CFunc.is_windows() or rootstate is False:
+        os.makedirs(os.path.dirname(FISHSCRIPTUSERPATH), exist_ok=True)
+    else:
+        CFunc.run_as_user(USERNAMEVAR, "mkdir -p {0}".format(os.path.dirname(FISHSCRIPTUSERPATH)))
 
     # Install fish script for user (overwrite previous script)
     with open(FISHSCRIPTUSERPATH, mode='w') as f:
@@ -864,11 +877,6 @@ end
 
     if rootstate is True:
         subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, os.path.dirname(FISHSCRIPTUSERPATH)), shell=True, check=True)
-
-
-# Fix permissions of home folder if the script was run as root.
-if rootstate is True:
-    subprocess.run("chown -R {0}:{1} {2}".format(USERNAMEVAR, USERGROUP, USERVARHOME), shell=True, check=True)
 
 
 ######### Default Shell Configuration #########
