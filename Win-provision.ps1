@@ -138,7 +138,7 @@ function Fcn-csauto {
 # Software Function
 function Fcn-Software {
   # Required Basics
-  choco upgrade -y dotnetfx powershell powershell-core
+  choco upgrade -y dotnetfx dotnet powershell powershell-core
   # Install universal apps
   choco upgrade -y 7zip
   # Libraries
