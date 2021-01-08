@@ -183,8 +183,7 @@ if args.stage == 2:
     group_silverblueadd("vboxsf")
 
     # Flatpak apps
-    if not args.nogui:
-        subprocess.run(os.path.join(SCRIPTDIR, "CFlatpakConfig.py"), shell=True, check=True)
+    subprocess.run(os.path.join(SCRIPTDIR, "CFlatpakConfig.py"), shell=True, check=True)
     CFunc.flatpak_install("fedora", "org.gnome.gedit")
     CFunc.flatpak_install("fedora", "org.gnome.Evince")
     CFunc.flatpak_install("fedora", "org.gnome.eog")
