@@ -203,7 +203,7 @@ function Fcn-Software {
   if ( $core -eq $false ) {
     Write-Output "Installing Desktop Apps"
     # GUI Apps
-    choco upgrade -y firefox notepadplusplus tortoisegit bleachbit putty chocolateygui conemu microsoft-windows-terminal VisualStudioCode libreoffice-fresh sumatrapdf okular nomacs WizTree meld
+    choco upgrade -y firefox notepadplusplus tortoisegit bleachbit putty chocolateygui conemu microsoft-windows-terminal VisualStudioCode libreoffice-fresh sumatrapdf WizTree
     choco upgrade -y open-shell ShutUp10
     # Set default browser.
     choco upgrade -y setdefaultbrowser
@@ -217,14 +217,6 @@ function Fcn-Software {
 
   # Remove IE11
   Disable-WindowsOptionalFeature -FeatureName Internet-Explorer-Optional-amd64 -Online -NoRestart
-
-  # Non-vm software
-  if ( $IsVM -eq $false ) {
-    # Install packer
-    choco upgrade -y packer
-    # Install python dependancies
-    Start-Process -Wait "C:\Python38\Scripts\pip.exe" -ArgumentList "install","passlib"
-  }
 }
 
 # Tablacus Function
