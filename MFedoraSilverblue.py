@@ -33,6 +33,36 @@ def systemd_resostreed():
     """Restart the rpm-ostreed service. This is needed in case it is doing something during this script operation, which would prevent the script from running. Restart the service before rpm-ostree operations."""
     subprocess.run("systemctl restart rpm-ostreed", shell=True, check=True)
     time.sleep(1)
+def group_addtosystem(group: str):
+    """If a group is in /usr/lib/group, and not in /etc/group, add it to /etc/group."""
+    group_path_libgroup = os.path.join(os.sep, "usr", "lib", "group")
+    group_path_etcgroup = os.path.join(os.sep, "etc", "group")
+    group_exists_libgroup = False
+    group_exists_etcgroup = False
+    # Check if group exists in /usr/lib/group.
+    with open(group_path_libgroup, 'r') as f:
+        libgroup_lines = f.readlines()
+        for line in libgroup_lines:
+            if line.startswith(group + ":"):
+                group_exists_libgroup = True
+    # Check if group exists in /etc/group.
+    with open(group_path_etcgroup, 'r') as f:
+        etcgroup_lines = f.readlines()
+        for line in etcgroup_lines:
+            if line.startswith(group + ":"):
+                group_exists_etcgroup = True
+    # If group is in /usr/lib/group, and not in /etc/group, add it to /etc/group.
+    if group_exists_libgroup is True and group_exists_etcgroup is False:
+        print("Adding group {0} to {1}.".format(group, group_path_etcgroup))
+        subprocess.run("grep -E '^{0}:' {1} >> {2}".format(group, group_path_libgroup, group_path_etcgroup), shell=True, check=True)
+    elif group_exists_libgroup is True and group_exists_etcgroup is True:
+        print("Group {0} already added to {1}. Skipping.".format(group, group_path_etcgroup))
+    elif group_exists_libgroup is False:
+        print("WARNING: Group {0} not in {1}. Skipping.".format(group, group_path_libgroup))
+def group_silverblueadd(group: str):
+    """Add group to /etc/group, and add user to group."""
+    group_addtosystem(group)
+    CFunc.AddUserToGroup(group)
 
 
 # Get arguments
@@ -130,27 +160,27 @@ if args.stage == 2:
     CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("snap")))
 
     # Add normal user to all reasonable groups
-    CFunc.AddUserToGroup("disk")
-    CFunc.AddUserToGroup("lp")
-    CFunc.AddUserToGroup("wheel")
-    CFunc.AddUserToGroup("cdrom")
-    CFunc.AddUserToGroup("man")
-    CFunc.AddUserToGroup("dialout")
-    CFunc.AddUserToGroup("floppy")
-    CFunc.AddUserToGroup("games")
-    CFunc.AddUserToGroup("tape")
-    CFunc.AddUserToGroup("video")
-    CFunc.AddUserToGroup("audio")
-    CFunc.AddUserToGroup("input")
-    CFunc.AddUserToGroup("kvm")
-    CFunc.AddUserToGroup("systemd-journal")
-    CFunc.AddUserToGroup("systemd-network")
-    CFunc.AddUserToGroup("systemd-resolve")
-    CFunc.AddUserToGroup("systemd-timesync")
-    CFunc.AddUserToGroup("pipewire")
-    CFunc.AddUserToGroup("colord")
-    CFunc.AddUserToGroup("nm-openconnect")
-    CFunc.AddUserToGroup("vboxsf")
+    group_silverblueadd("disk")
+    group_silverblueadd("lp")
+    group_silverblueadd("wheel")
+    group_silverblueadd("cdrom")
+    group_silverblueadd("man")
+    group_silverblueadd("dialout")
+    group_silverblueadd("floppy")
+    group_silverblueadd("games")
+    group_silverblueadd("tape")
+    group_silverblueadd("video")
+    group_silverblueadd("audio")
+    group_silverblueadd("input")
+    group_silverblueadd("kvm")
+    group_silverblueadd("systemd-journal")
+    group_silverblueadd("systemd-network")
+    group_silverblueadd("systemd-resolve")
+    group_silverblueadd("systemd-timesync")
+    group_silverblueadd("pipewire")
+    group_silverblueadd("colord")
+    group_silverblueadd("nm-openconnect")
+    group_silverblueadd("vboxsf")
 
     # Flatpak apps
     if not args.nogui:
