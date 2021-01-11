@@ -201,6 +201,11 @@ if shutil.which("flatpak") and cmd_silent(calibre_fp_cmd) == 0:
   "old_prefs_migrated": true,
   "session_data": {
     "book_scrollbar": true,
+    "footer": {
+      "left": "pos-book",
+      "middle": "empty",
+      "right": "progress"
+    },
     "hide_tooltips": null,
     "keyboard_shortcuts": {},
     "paged_taps_scroll_by_screen": true,
