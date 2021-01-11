@@ -462,7 +462,7 @@ if args.zsh is True and shutil.which('zsh'):
     ZSHPATH = shutil.which('zsh')
 
     # Install oh-my-zsh for user
-    CFunc.gitclone("git://github.com/robbyrussell/oh-my-zsh.git", "{0}/.oh-my-zsh".format(USERVARHOME))
+    CFunc.gitclone("git://github.com/robbyrussell/oh-my-zsh.git", os.path.join(USERVARHOME, ".oh-my-zsh"))
     # Install zsh-syntax-highlighting
     CFunc.gitclone("https://github.com/zsh-users/zsh-syntax-highlighting.git", "{0}/.oh-my-zsh/plugins/zsh-syntax-highlighting".format(USERVARHOME))
     # Install zsh-autosuggestions
@@ -494,6 +494,7 @@ fi
     with open(zshrc_path, 'w') as file:
         file.write(ZSHSCRIPT)
     subprocess.run("chmod -R g-w,o-w {0}".format(os.path.join(USERVARHOME, ".oh-my-zsh")), shell=True, check=True)
+    CFunc.chown_recursive(os.path.join(USERVARHOME, ".oh-my-zsh"), USERNAMEVAR, USERGROUP)
 else:
     print("zsh not detected, skipping configuration.")
 
