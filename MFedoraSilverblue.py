@@ -149,6 +149,9 @@ if args.stage == 2:
     rostreeinstall("rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted")
     subprocess.run("systemctl enable smb", shell=True, check=True)
 
+    # Media apps
+    rostreeinstall("youtube-dl mpv smplayer")
+
     # Install gs installer script.
     gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
     os.chmod(gs_installer[0], 0o777)
@@ -188,6 +191,12 @@ if args.stage == 2:
     CFunc.flatpak_install("fedora", "org.gnome.Evince")
     CFunc.flatpak_install("fedora", "org.gnome.eog")
     CFunc.flatpak_install("flathub", "com.visualstudio.code")
+    # Flameshot
+    CFunc.flatpak_install("flathub", "org.flameshot.Flameshot")
+    os.makedirs(os.path.join(USERHOME, ".config", "autostart"), exist_ok=True)
+    # Start flameshot on user login.
+    shutil.copy("/var/lib/flatpak/app/org.flameshot.Flameshot/current/active/export/share/applications/org.flameshot.Flameshot.desktop", os.path.join(USERHOME, ".config", "autostart"))
+    CFunc.chown_recursive(os.path.join(USERHOME, ".config", ), USERNAMEVAR, USERGROUP)
 
     # Extra scripts
     subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)
