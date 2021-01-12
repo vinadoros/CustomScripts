@@ -208,8 +208,17 @@ function Fcn-Software {
     # Set default browser.
     choco upgrade -y setdefaultbrowser
     SetDefaultBrowser.exe HKLM Firefox-308046B0AF4A39CB
+
     # Tablacus
     Fcn-Tablacus
+
+    # Create shortcut for Windows Terminal
+    $TargetPath =  "shell:AppsFolder\Microsoft.WindowsTerminal_8wekyb3d8bbwe!App"
+    $ShortcutFile = "$env:PUBLIC\Desktop\Windows Terminal.lnk"
+    $WScriptShell = New-Object -ComObject WScript.Shell
+    $Shortcut = $WScriptShell.CreateShortcut($ShortcutFile)
+    $Shortcut.TargetPath = $TargetPath
+    $Shortcut.Save()
   }
 
   # Chocolatey Configuration
