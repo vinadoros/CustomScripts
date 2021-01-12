@@ -34,14 +34,6 @@ if ( $VMstring.Model -imatch "vmware" ) {
 } else {
   $IsVM = $false
 }
-# Test for Server Core.
-# Basically see if exlorer.exe is present.
-# https://serverfault.com/questions/529124/identify-windows-2012-server-core#529131
-if (Test-Path "$env:windir\explorer.exe"){
-  $core = $false
-} else {
-  $core = $true
-}
 
 
 ### Functions ###
@@ -199,27 +191,25 @@ function Fcn-Software {
     }
   }
 
-  # Install packages not for core.
-  if ( $core -eq $false ) {
-    Write-Output "Installing Desktop Apps"
-    # GUI Apps
-    choco upgrade -y firefox notepadplusplus tortoisegit bleachbit putty chocolateygui conemu microsoft-windows-terminal VisualStudioCode sumatrapdf WizTree
-    choco upgrade -y open-shell ShutUp10
-    # Set default browser.
-    choco upgrade -y setdefaultbrowser
-    SetDefaultBrowser.exe HKLM Firefox-308046B0AF4A39CB
+  # Install desktop apps.
+  Write-Output "Installing Desktop Apps"
+  # GUI Apps
+  choco upgrade -y firefox notepadplusplus tortoisegit bleachbit putty chocolateygui conemu microsoft-windows-terminal VisualStudioCode sumatrapdf WizTree
+  choco upgrade -y open-shell ShutUp10
+  # Set default browser.
+  choco upgrade -y setdefaultbrowser
+  SetDefaultBrowser.exe HKLM Firefox-308046B0AF4A39CB
 
-    # Tablacus
-    Fcn-Tablacus
+  # Tablacus
+  Fcn-Tablacus
 
-    # Create shortcut for Windows Terminal
-    $TargetPath =  "shell:AppsFolder\Microsoft.WindowsTerminal_8wekyb3d8bbwe!App"
-    $ShortcutFile = "$env:PUBLIC\Desktop\Windows Terminal.lnk"
-    $WScriptShell = New-Object -ComObject WScript.Shell
-    $Shortcut = $WScriptShell.CreateShortcut($ShortcutFile)
-    $Shortcut.TargetPath = $TargetPath
-    $Shortcut.Save()
-  }
+  # Create shortcut for Windows Terminal
+  $TargetPath =  "shell:AppsFolder\Microsoft.WindowsTerminal_8wekyb3d8bbwe!App"
+  $ShortcutFile = "$env:PUBLIC\Desktop\Windows Terminal.lnk"
+  $WScriptShell = New-Object -ComObject WScript.Shell
+  $Shortcut = $WScriptShell.CreateShortcut($ShortcutFile)
+  $Shortcut.TargetPath = $TargetPath
+  $Shortcut.Save()
 
   # Chocolatey Configuration
   choco feature enable -n allowGlobalConfirmation
@@ -487,7 +477,7 @@ if (-Not $isDotSourced) {
   }
   Fcn-OnedriveDisable
   Fcn-Customize
-  if ( $core -eq $true -Or $IsVM -eq $true ) {
+  if ( $IsVM -eq $true ) {
     Fcn-DisableDefender
   }
   Fcn-DisableWinRM
