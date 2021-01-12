@@ -38,6 +38,28 @@ if ( $VMstring.Model -imatch "vmware" ) {
 
 ### Functions ###
 
+# External, From: https://gallery.technet.microsoft.com/scriptcenter/How-to-associate-file-3898f323
+Function AssociateFileExtensions
+{
+    Param
+    (
+        [Parameter(Mandatory=$true)]
+        [String[]] $FileExtensions,
+        [Parameter(Mandatory=$true)]
+        [String] $OpenAppPath
+    ) 
+    if (-not (Test-Path $OpenAppPath))
+    {
+	   throw "$OpenAppPath does not exist."
+    }   
+    foreach ($extension in $FileExtensions)
+    {
+        $fileType = (cmd /c "assoc $extension")
+        $fileType = $fileType.Split("=")[-1] 
+        cmd /c "ftype $fileType=""$OpenAppPath"" ""%1"""
+    }
+}
+
 # Install chocolatey
 function Fcn-InstallChocolatey {
   iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
@@ -310,6 +332,16 @@ function Fcn-Customize {
   # Set max password age as unlimited
   net accounts /MAXPWAGE:UNLIMITED
 
+  # Set file associations
+  # Remove Compressed Folders association
+  New-PSDrive -PSProvider "Registry" -Root "HKEY_CLASSES_ROOT" -Name "HKCR" | Out-Null
+  Remove-Item -Path "HKCR:\SystemFileAssociations\.zip" -Recurse -ErrorAction SilentlyContinue
+  Remove-Item -Path "HKCR:\CompressedFolder" -Recurse -ErrorAction SilentlyContinue
+  Remove-PSDrive "HKCR"
+  AssociateFileExtensions -FileExtensions .7z,.zip -OpenAppPath "C:\Program Files\7-Zip\7zFM.exe"
+  AssociateFileExtensions -FileExtensions .txt,.log -OpenAppPath "C:\Program Files\Notepad++\Notepad++.exe"
+
+
   # Disable password complexity.
   # https://www.top-password.com/blog/how-to-change-local-or-domain-password-policy-from-command-prompt/
   # https://www.robvanderwoude.com/secedit.php
@@ -435,7 +467,7 @@ function Fcn-OnedriveDisable {
   rm -Recurse -Force -ErrorAction SilentlyContinue "C:\OneDriveTemp"
 
   Write-Output "Onedrive: Remove from explorer sidebar"
-  New-PSDrive -PSProvider "Registry" -Root "HKEY_CLASSES_ROOT" -Name "HKCR"
+  New-PSDrive -PSProvider "Registry" -Root "HKEY_CLASSES_ROOT" -Name "HKCR" | Out-Null
   mkdir -Force "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}"
   sp "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" "System.IsPinnedToNameSpaceTree" 0
   mkdir -Force "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}"
