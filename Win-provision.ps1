@@ -338,7 +338,9 @@ function Fcn-Customize {
   Remove-Item -Path "HKCR:\SystemFileAssociations\.zip" -Recurse -ErrorAction SilentlyContinue
   Remove-Item -Path "HKCR:\CompressedFolder" -Recurse -ErrorAction SilentlyContinue
   Remove-PSDrive "HKCR"
-  AssociateFileExtensions -FileExtensions .7z,.zip -OpenAppPath "C:\Program Files\7-Zip\7zFM.exe"
+  cmd /c assoc .7z=7zipfile
+  cmd /c "ftype 7zipfile=""C:\Program Files\7-Zip\7zFM.exe"" ""%1"""
+  AssociateFileExtensions -FileExtensions .zip -OpenAppPath "C:\Program Files\7-Zip\7zFM.exe"
   AssociateFileExtensions -FileExtensions .txt,.log -OpenAppPath "C:\Program Files\Notepad++\Notepad++.exe"
 
 
