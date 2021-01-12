@@ -187,7 +187,7 @@ if args.stage == 2:
     CFunc.flatpak_install("fedora", "org.gnome.gedit")
     CFunc.flatpak_install("fedora", "org.gnome.Evince")
     CFunc.flatpak_install("fedora", "org.gnome.eog")
-    CFunc.flatpak_install("flathub", "com.visualstudio.code-oss")
+    CFunc.flatpak_install("flathub", "com.visualstudio.code")
 
     # Extra scripts
     subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)
