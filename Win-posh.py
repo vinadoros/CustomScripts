@@ -3,10 +3,12 @@
 
 # Python includes.
 import argparse
+import json
 import os
 import shutil
 import subprocess
 import sys
+import tempfile
 # Custom includes
 import CFunc
 
@@ -25,6 +27,30 @@ parser = argparse.ArgumentParser(description='Install Windows shell configuratio
 args = parser.parse_args()
 
 
+### Functions ###
+def GetJsonFromFile(filePath):
+    """
+    Strip comments from json.
+    https://stackoverflow.com/a/57814048
+    """
+    contents = ""
+    fh = open(filePath)
+    for line in fh:
+        # Hack to prevent mangling of the schema line.
+        if "schema" not in line:
+            cleanedLine = line.split("//", 1)[0]
+        else:
+            cleanedLine = line
+        if len(cleanedLine) > 0 and line.endswith("\n") and "\n" not in cleanedLine:
+            cleanedLine += "\n"
+        contents += cleanedLine
+    fh.close()
+    while "/*" in contents:
+        preComment, postComment = contents.split("/*", 1)
+        contents = preComment + postComment.split("*/", 1)[1]
+    return contents
+
+
 ### Powershell Configuration ###
 # Get powershell command
 powershell_cmd = "pwsh.exe"
@@ -35,6 +61,8 @@ subprocess.run("""Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 Install-Module -Name 'posh-git' -AllowClobber
 Install-Module -Name 'oh-my-posh' -AllowClobber
 Install-Module -Name 'Get-ChildItemColor' -AllowClobber
+Install-Module -Name 'PSReadLine' -AllowClobber
+choco upgrade -y cascadiacodepl
 """, shell=True, check=True, executable=powershell_cmd_fullpath)
 
 # Install powershell profile
@@ -45,7 +73,7 @@ powershell_profile_text = """<#
 .SYNOPSIS
   Powershell Profile.
 #>
- 
+
 # Ensure that Get-ChildItemColor is loaded
 Import-Module Get-ChildItemColor
 
@@ -85,6 +113,29 @@ Set-Alias ls Get-ChildItemColorFormatWide -Option AllScope
 os.makedirs(powershell_profile_folder, exist_ok=True)
 with open(powershell_profile_script, 'w') as powershell_profile_script_handle:
     powershell_profile_script_handle.write(powershell_profile_text)
+
+# Set Windows Terminal font
+winterminal_json_file = os.path.join(USERHOME, "AppData", "Local", "Packages", "Microsoft.WindowsTerminal_8wekyb3d8bbwe", "LocalState", "settings.json")
+if os.path.isfile(winterminal_json_file):
+    winterminal_json_raw = GetJsonFromFile(winterminal_json_file)
+    # Print the preprocessed json file, for debugging purposes.
+    # print(winterminal_json_raw)
+    data = json.loads(winterminal_json_raw)
+    # Print the json loaded into python, for debugging purposes.
+    # print(json.dumps(data['profiles']['list'][0], indent=4))
+    for val in data['profiles']['list']:
+        if "fontFace" not in val:
+            if val['name'] == "Windows PowerShell" or val['name'] == "PowerShell":
+                val["fontFace"] = "Cascadia Code PL"
+    # Create temporary json
+    temp_json_file = os.path.join(tempfile.gettempdir(), os.path.basename("temp.json"))
+    with open(temp_json_file, 'w') as f:
+        json.dump(data, f, indent=4)
+    # Replace old settings.json with new.
+    os.replace(temp_json_file, winterminal_json_file)
+else:
+    print("ERROR: {0} not found. Please load Windows Terminal at least once to create settings.json file.".format(winterminal_json_file))
+
 
 ### Cygwin ###
 # Check if cygwin is installed already.
