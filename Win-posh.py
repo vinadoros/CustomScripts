@@ -99,13 +99,11 @@ if os.path.isfile(cygwin_bash_cmd):
         subprocess.run("git checkout -f", shell=True, check=True)
         subprocess.run("git pull", shell=True, check=True)
     else:
-        subprocess.run("git clone {0} {1}".format("https://github.com/kou1okada/apt-cyg.git", documents_folder), shell=True, check=True)
+        subprocess.run("git clone {0} {1}".format("https://github.com/kou1okada/apt-cyg.git", os.path.join(documents_folder, "apt-cyg")), shell=True, check=True)
     os.chdir(documents_folder)
-    subprocess.run("""
-    ln -sf "$(/usr/bin/realpath apt-cyg/apt-cyg)" /usr/local/bin/
-    ln -sf "$(/usr/bin/realpath apt-cyg/apt-cyg)" /usr/local/bin/apt
-    """, shell=True, check=True, executable=cygwin_bash_cmd)
-    os.chdir(cwd)
+
+    subprocess.run([cygwin_bash_cmd, "-c", '/usr/bin/ln -sf "$(/usr/bin/realpath apt-cyg/apt-cyg)" /usr/local/bin/'], cwd=documents_folder, check=True)
+    subprocess.run([cygwin_bash_cmd, "-c", '/usr/bin/ln -sf "$(/usr/bin/realpath apt-cyg/apt-cyg)" /usr/local/bin/apt'], cwd=documents_folder, check=True)
 
     # Install required packages
-    subprocess.run("apt-cyg -X install wget ca-certificates gnupg", shell=True, check=True, executable=cygwin_bash_cmd)
+    subprocess.run([cygwin_bash_cmd, '-c', '. /etc/profile; /usr/local/bin/apt-cyg -X install wget ca-certificates gnupg'], check=True)
