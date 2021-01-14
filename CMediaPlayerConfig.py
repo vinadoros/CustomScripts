@@ -2,7 +2,6 @@
 """Install Media Player configuration."""
 
 # Python includes.
-import argparse
 import os
 import shutil
 import subprocess
