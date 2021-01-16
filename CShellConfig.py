@@ -495,6 +495,7 @@ fi
         file.write(ZSHSCRIPT)
     subprocess.run("chmod -R g-w,o-w {0}".format(os.path.join(USERVARHOME, ".oh-my-zsh")), shell=True, check=True)
     CFunc.chown_recursive(os.path.join(USERVARHOME, ".oh-my-zsh"), USERNAMEVAR, USERGROUP)
+    shutil.chown(zshrc_path, USERNAMEVAR, USERGROUP)
 else:
     print("zsh not detected, skipping configuration.")
 
