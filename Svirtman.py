@@ -149,7 +149,7 @@ if args.uninstall is False:
         subprocess.run("firewall-cmd --reload", shell=True, check=True)
 
     # Set dconf info
-    if shutil.which("gsettings"):
+    if shutil.which("gsettings") and shutil.which("virt-manager"):
         CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.stats enable-cpu-poll true")
         CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.stats enable-disk-poll true")
         CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.stats enable-memory-poll true")
@@ -163,7 +163,7 @@ if args.uninstall is False:
         CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager xmleditor-enabled true")
         print("NOTE: Please reboot for virt-manager settings to take effect.")
     else:
-        print("WARNING: gsettings command not found. Install to set virt-manager defaults.")
+        print("WARNING: gsettings or virt-manager command not found. Install to set virt-manager defaults.")
 
 # Uninstallation Code
 if args.uninstall is True:
