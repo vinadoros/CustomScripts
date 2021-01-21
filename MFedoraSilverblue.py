@@ -152,6 +152,15 @@ if args.stage == 2:
     # Media apps
     rostreeinstall("youtube-dl mpv smplayer")
 
+    # VSCode
+    with open("/etc/yum.repos.d/vscode.repo", 'w') as f:
+        f.write("""[code]
+name=Visual Studio Code
+baseurl=https://packages.microsoft.com/yumrepos/vscode
+enabled=1
+gpgcheck=0""")
+    rostreeinstall("code")
+
     # Install gs installer script.
     gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
     os.chmod(gs_installer[0], 0o777)
@@ -190,7 +199,6 @@ if args.stage == 2:
     CFunc.flatpak_install("fedora", "org.gnome.gedit")
     CFunc.flatpak_install("fedora", "org.gnome.Evince")
     CFunc.flatpak_install("fedora", "org.gnome.eog")
-    CFunc.flatpak_install("flathub", "com.visualstudio.code")
     # Flameshot
     CFunc.flatpak_install("flathub", "org.flameshot.Flameshot")
     os.makedirs(os.path.join(USERHOME, ".config", "autostart"), exist_ok=True)
