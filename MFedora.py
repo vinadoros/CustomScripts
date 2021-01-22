@@ -66,8 +66,6 @@ CFunc.dnfinstall("samba")
 CFunc.sysctl_enable("smb", error_on_fail=True)
 # cifs-utils
 CFunc.dnfinstall("cifs-utils")
-# Enable setuid for mount.cifs to enable mounting as a normal user: sudo chmod u+s /usr/sbin/mount.cifs
-os.chmod(os.path.join(os.sep, "usr", "sbin", "mount.cifs"), stat.S_ISUID | 0o755)
 # NTP Configuration
 CFunc.sysctl_enable("systemd-timesyncd", error_on_fail=True)
 subprocess.run("timedatectl set-local-rtc false; timedatectl set-ntp 1", shell=True, check=True)
@@ -78,6 +76,8 @@ CFunc.sysctl_enable("earlyoom", error_on_fail=True)
 CFunc.dnfinstall("firewalld")
 CFunc.sysctl_enable("firewalld", now=True, error_on_fail=True)
 CFuncExt.FirewalldConfig()
+# Podman and toolbox
+CFunc.dnfinstall("podman toolbox")
 # GUI Packages
 if not args.nogui:
     CFunc.dnfinstall("@fonts @base-x @networkmanager-submodules")
@@ -197,6 +197,7 @@ CFuncExt.SudoersEnvSettings()
 fedora_sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
 CFunc.AddLineToSudoersFile(fedora_sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
 CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("dnf")))
+CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("podman")))
 
 # Hdparm
 CFunc.dnfinstall("smartmontools hdparm")

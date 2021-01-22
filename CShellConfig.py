@@ -97,6 +97,9 @@ fi
 function sst () {
     tmux attach-session -t ssh_tmux || tmux new-session -s ssh_tmux
 }
+function pd () {
+    $SUDOCMD podman "$@"
+}
 function rm_common () {
     for todel in "$@"; do
         echo "Deleting $(realpath $todel)"
@@ -632,6 +635,9 @@ if [ (id -u) != "0" ]
 end
 function sst
     tmux attach-session -t ssh_tmux || tmux new-session -s ssh_tmux
+end
+function pd
+    sudo podman $argv
 end
 function rm_common
     for todel in $argv
