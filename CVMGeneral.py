@@ -79,12 +79,3 @@ WantedBy=default.target""".format(ra_script_path)
     if not CFunc.Fstab_CheckStringInFile(fstab_path, "virtio"):
         os.makedirs(os.path.join(os.sep, "media", "sf_root"), 0o777, exist_ok=True)
         CFunc.Fstab_AddLine(fstab_path, fstab_text)
-
-
-# VMWare Section
-if vmstatus == "vmware":
-    # Set up vmware hgfs filesystem mounts
-    fstab_text = ".host:/\t/media/host\tfuse.vmhgfs-fuse\tdefaults,allow_other,auto_unmount,nofail\t0\t0"
-    if not CFunc.Fstab_CheckStringInFile(fstab_path, "vmhgfs"):
-        os.makedirs(os.path.join(os.sep, "media", "host"), 0o777, exist_ok=True)
-        CFunc.Fstab_AddLine(fstab_path, fstab_text)

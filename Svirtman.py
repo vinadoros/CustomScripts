@@ -72,10 +72,6 @@ if args.uninstall is False:
         CFunc.aptinstall("virt-manager qemu-kvm ssh-askpass")
         subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True, check=True)
         subprocess.run("usermod -aG libvirt-qemu {0}".format(USERNAMEVAR), shell=True, check=True)
-    elif shutil.which("pacman"):
-        subprocess.run("pacman -S --needed --noconfirm libvirt virt-manager qemu bridge-utils openbsd-netcat ebtables dnsmasq", shell=True, check=True)
-        subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True, check=True)
-        CFunc.sysctl_enable("libvirtd.service", now=True, error_on_fail=True)
 
     # Remove existing default pool
     subprocess.run("virsh pool-destroy default", shell=True, check=False)
@@ -175,9 +171,6 @@ if args.uninstall is True:
         subprocess.run("dnf remove @virtualization", shell=True, check=True)
     elif shutil.which("apt-get"):
         subprocess.run("apt-get --purge remove virt-manager qemu-kvm ssh-askpass", shell=True, check=True)
-    elif shutil.which("pacman"):
-        CFunc.sysctl_disable("libvirtd.service", now=True, error_on_fail=True)
-        CFunc.pacman_invoke("-Rsn libvirt virt-manager qemu bridge-utils openbsd-netcat ebtables dnsmasq")
     if os.path.isfile(PolkitUserRulePath):
         os.remove(PolkitUserRulePath)
     if os.path.isfile(SysctlAcceptRaPath):
