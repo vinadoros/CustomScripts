@@ -188,8 +188,6 @@ if args.vmtype == 1:
     hvname = "vbox"
 elif args.vmtype == 2:
     hvname = "kvm"
-elif args.vmtype == 3:
-    hvname = "vmware"
 
 # Predetermined iso checksum.
 md5_isourl = None
@@ -251,25 +249,6 @@ if args.ostype == 15:
 if args.ostype == 16:
     vmname = "Packer-UbuntuLTSCLI-{0}".format(hvname)
     vmprovision_defopts = "-l -x"
-if 20 <= args.ostype <= 29:
-    vboxosid = "Fedora_64"
-    vmwareid = "fedora-64"
-    kvm_os = "linux"
-    kvm_variant = "manjaro"
-    vmprovisionscript = "MManjaro.py"
-
-    # Get latest arch iso.
-    archiso_website = urllib.request.urlopen("http://www.gtlib.gatech.edu/pub/archlinux/iso/latest/md5sums.txt")
-    archiso_sumtext = archiso_website.read()
-    archiso_isopath = archiso_sumtext.splitlines()[0].split()[1].decode()
-    isourl = "http://www.gtlib.gatech.edu/pub/archlinux/iso/latest/{0}".format(archiso_isopath)
-    md5_isourl = archiso_sumtext.splitlines()[0].split()[0].decode()
-if args.ostype == 20:
-    vmname = "Packer-Manjaro-{0}".format(hvname)
-    vmprovision_defopts = "-d {0}".format(args.desktopenv)
-if args.ostype == 21:
-    vmname = "Packer-ManjaroCLI-{0}".format(hvname)
-    vmprovision_defopts = "-x"
 if 30 <= args.ostype <= 39:
     vboxosid = "Debian_64"
     vmwareid = "debian-64"
@@ -393,8 +372,6 @@ if args.vmtype == 1:
     if vmname in vboxvmlist:
         subprocess.run('VBoxManage unregistervm "{0}" --delete'.format(vmname), shell=True, check=True)
 # KVM VMs removed before copy below.
-elif args.vmtype == 3:
-    print("Delete vmware image.")
 
 # Check iso
 if args.iso is not None:
@@ -573,12 +550,6 @@ if 10 <= args.ostype <= 14:
     data['builders'][0]["boot_command"] = ["<wait>c<wait>linux /casper/vmlinuz quiet autoinstall 'ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/'<enter><wait>initrd /casper/initrd<enter><wait5>boot<enter>"]
 if 15 <= args.ostype <= 19:
     data['builders'][0]["boot_command"] = ["<space><wait><enter><wait><f6><wait><esc><home>ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ autoinstall <enter>"]
-if 20 <= args.ostype <= 29:
-    data['builders'][0]["boot_wait"] = "1s"
-    data['builders'][0]["boot_command"] = ["""<enter><wait40>bash -c 'pacman -Sy --noconfirm git && {gitcmd} && /opt/CustomScripts/ZSlimDrive.py -n && /opt/CustomScripts/BManjaro.py -n -c "{vmname}" -u "{vmuser}" -f "{fullname}" -q "{vmpass}" -l "" /mnt && reboot'<enter>""".format(vmname=vmname, vmuser=args.vmuser, vmpass=args.vmpass, fullname=args.fullname, gitcmd=git_cmdline())]
-    data['builders'][0]["ssh_handshake_attempts"] = "9999"
-    data['provisioners'][0]["type"] = "shell"
-    data['provisioners'][0]["inline"] = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:users -R ~{vmuser}; pacman -Sy --noconfirm git; {gitcmd}; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmuser=args.vmuser, sshkey=sshkey, vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, gitcmd=git_cmdline())
 if 30 <= args.ostype <= 39:
     data['provisioners'][0]["type"] = "shell"
     data['provisioners'][0]["inline"] = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:{vmuser} -R ~{vmuser}; apt install -y git; {gitcmd}; /opt/CustomScripts/{vmprovisionscript} {vmprovision_opts}".format(vmprovisionscript=vmprovisionscript, vmprovision_opts=vmprovision_opts, sshkey=sshkey, vmuser=args.vmuser, gitcmd=git_cmdline())
