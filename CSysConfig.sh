@@ -36,28 +36,6 @@ if [ -f /etc/systemd/logind.conf ]; then
 	sed -i '/^#HandleLidSwitch=.*/s/^#//g' /etc/systemd/logind.conf
 	sed -i 's/^HandleLidSwitch=.*/HandleLidSwitch=lock/g' /etc/systemd/logind.conf
 fi
-# Systemd system config edits
-if [ -f /etc/systemd/system.conf ]; then
-	# Change default stop timeout
-	sed -i '/^#DefaultTimeoutStopSec=.*/s/^#//g' /etc/systemd/system.conf
-	sed -i 's/^DefaultTimeoutStopSec=.*/DefaultTimeoutStopSec=45s/g' /etc/systemd/system.conf
-fi
-
-#Xorg fix for Joysticks
-if [ ! -d /etc/X11/xorg.conf.d/ ]; then
-	mkdir -p /etc/X11/xorg.conf.d/
-	chmod a+r /etc/X11/xorg.conf.d/
-fi
-bash -c "cat >>/etc/X11/xorg.conf.d/50-joystick.conf" <<'EOL'
-Section "InputClass"
-        Identifier "joystick catchall"
-        MatchIsJoystick "on"
-        MatchDevicePath "/dev/input/event*"
-        Driver "joystick"
-        Option "StartKeysEnabled" "False"       #Disable mouse
-        Option "StartMouseEnabled" "False"      #support
-EndSection
-EOL
 
 # Enable pulseaudio flat volumes
 if ! grep -iq "^flat-volumes = no" /etc/pulse/daemon.conf; then
