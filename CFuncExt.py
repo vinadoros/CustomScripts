@@ -138,7 +138,7 @@ if __name__ == '__main__':
 
     # Get arguments
     parser = argparse.ArgumentParser(description='CFunc Extras.')
-    parser.add_argument("-f", "--firewalldcfg", help='Run Grub update', action="store_true")
+    parser.add_argument("-f", "--firewalldcfg", help='Firewalld configuration', action="store_true")
     parser.add_argument("-g", "--grubupdate", help='Run Grub update', action="store_true")
     parser.add_argument("-n", "--numix", help='Numix Circle Icons', action="store_true")
     parser.add_argument("-s", "--sudoenv", help='Sudo Environment Changes', action="store_true")
