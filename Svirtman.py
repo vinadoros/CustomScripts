@@ -14,6 +14,7 @@ print("Running {0}".format(__file__))
 
 # Get arguments
 parser = argparse.ArgumentParser(description='Install/uninstall libvirt and virt-manager.')
+parser.add_argument("-e", "--noinstall", help='Skip installing libvirt packages.', action="store_true")
 parser.add_argument("-i", "--image", help='Image path, i.e. /mnt/Storage/VMs')
 parser.add_argument("-n", "--noprompt", help='Do not prompt to continue.', action="store_true")
 parser.add_argument("-u", "--uninstall", help='Uninstall libvirt and virt-manager.', action="store_true")
@@ -62,16 +63,17 @@ if vmstate:
     ipv6_range_addr = "fdab:8ce1:b5cd:fbd9"
 # Installation Code
 if args.uninstall is False:
-    print("Installing libvirt")
-    if shutil.which("dnf"):
-        CFunc.dnfinstall("@virtualization")
-        CFunc.dnfinstall("python3-libguestfs")
-        CFunc.sysctl_enable("libvirtd", now=True, error_on_fail=True)
-        subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True, check=True)
-    elif shutil.which("apt-get"):
-        CFunc.aptinstall("virt-manager qemu-kvm ssh-askpass")
-        subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True, check=True)
-        subprocess.run("usermod -aG libvirt-qemu {0}".format(USERNAMEVAR), shell=True, check=True)
+    if args.noinstall is False:
+        print("Installing libvirt")
+        if shutil.which("dnf"):
+            CFunc.dnfinstall("@virtualization")
+            CFunc.dnfinstall("python3-libguestfs")
+            CFunc.sysctl_enable("libvirtd", now=True, error_on_fail=True)
+            subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True, check=True)
+        elif shutil.which("apt-get"):
+            CFunc.aptinstall("virt-manager qemu-kvm ssh-askpass")
+            subprocess.run("usermod -aG libvirt {0}".format(USERNAMEVAR), shell=True, check=True)
+            subprocess.run("usermod -aG libvirt-qemu {0}".format(USERNAMEVAR), shell=True, check=True)
 
     # Remove existing default pool
     subprocess.run("virsh pool-destroy default", shell=True, check=False)
