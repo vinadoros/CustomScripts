@@ -80,7 +80,7 @@ sysrc_cmd('ntpd_enable=yes')
 # GUI Packages
 if not args.nogui:
     # Browsers
-    pkg_install("chromium firefox")
+    pkg_install("firefox")
     # Wine
     pkg_install("wine-devel wine-gecko-devel wine-mono-devel winetricks")
     # Remote access

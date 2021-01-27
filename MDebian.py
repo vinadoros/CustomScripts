@@ -162,7 +162,6 @@ if args.nogui is False:
     CFunc.aptinstall("synaptic gnome-disk-utility gdebi gparted xdg-utils")
     CFunc.aptinstall("dconf-editor")
     # Browsers
-    CFunc.aptinstall("chromium")
     if args.unstable:
         CFunc.aptinstall("firefox")
     else:
