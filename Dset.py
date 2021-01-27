@@ -185,6 +185,9 @@ if shutil.which("mate-session"):
 if shutil.which("gnome-software"):
     gsettings_set("org.gnome.software", "download-updates", "false")
     gsettings_set("org.gnome.software", "download-updates-notify", "false")
+    # Disable updates in Gnome Software for Silverblue / ostree.
+    if os.path.isfile(os.path.join(os.sep, "run", "ostree-booted")):
+        gsettings_set("org.gnome.software", "allow-updates", "false")
 
 
 # Gnome specific settings
