@@ -47,7 +47,7 @@ subprocess.run('sed -i "s/^default=.*/default=0/g" /usr/share/lorax/templates.d/
 subprocess.run('sed -i "s/^timeout.*/timeout 1/g" /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub.conf /usr/share/lorax/templates.d/99-generic/config_files/x86/grub.conf', shell=True, check=True)
 subprocess.run('sed -i "s/^timeout.*/timeout 10/g" /usr/share/lorax/templates.d/99-generic/config_files/x86/isolinux.cfg /usr/share/lorax/templates.d/99-generic/live/config_files/x86/isolinux.cfg', shell=True, check=True)
 subprocess.run('sed -i "/menu default/d" /usr/share/lorax/templates.d/99-generic/config_files/x86/isolinux.cfg /usr/share/lorax/templates.d/99-generic/live/config_files/x86/isolinux.cfg', shell=True, check=True)
-subprocess.run('sed -i "/label linux/a \ \ menu default" /usr/share/lorax/templates.d/99-generic/config_files/x86/isolinux.cfg /usr/share/lorax/templates.d/99-generic/live/config_files/x86/isolinux.cfg', shell=True, check=True)
+subprocess.run(r'sed -i "/label linux/a \ \ menu default" /usr/share/lorax/templates.d/99-generic/config_files/x86/isolinux.cfg /usr/share/lorax/templates.d/99-generic/live/config_files/x86/isolinux.cfg', shell=True, check=True)
 # EFI settings
 subprocess.run('sed -i "s/^set default=.*/set default=0/g" /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub2-efi.cfg /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg', shell=True, check=True)
 subprocess.run('sed -i "s/^set timeout=.*/set timeout=1/g" /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub2-efi.cfg /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg', shell=True, check=True)
@@ -61,7 +61,7 @@ subprocess.run('sed -i "s/ quiet$/ quiet selinux=0 mitigations=off/g" /usr/share
 ### Prep Environment ###
 # https://fedoraproject.org/wiki/Livemedia-creator-_How_to_create_and_use_a_Live_CD
 # https://github.com/rhinstaller/lorax/blob/master/docs/livemedia-creator.rst
-ks_text = """
+ks_text = r"""
 %include /usr/share/spin-kickstarts/fedora-live-base.ks
 %include /usr/share/spin-kickstarts/fedora-live-minimization.ks
 
@@ -100,9 +100,7 @@ fstransform
 partclone
 btrfs-progs
 f2fs-tools
-# Needs rpmfusion-free
-# fuse-exfat
-# exfat-utils
+exfatprogs
 cryptsetup
 device-mapper
 
@@ -157,16 +155,11 @@ cd clonezilla
 make all
 make install
 cd ..
-# Ensure clonezilla command was installed
-which clonezilla || echo "Clonezilla command not installed" && exit 1
 
 # Delete defaults in sudoers.
-if grep -iq $'^Defaults    secure_path' /etc/sudoers; then
-    sed -e 's/^Defaults    env_reset$/Defaults    !env_reset/g' -i /etc/sudoers
-    sed -i $'/^Defaults    mail_badpass/ s/^#*/#/' /etc/sudoers
-    sed -i $'/^Defaults    secure_path/ s/^#*/#/' /etc/sudoers
-fi
-visudo -c
+sed -e 's/^Defaults    env_reset$/Defaults    !env_reset/g' -i /etc/sudoers
+sed -i $'/^Defaults    mail_badpass/ s/^#*/#/' /etc/sudoers
+sed -i $'/^Defaults    secure_path/ s/^#*/#/' /etc/sudoers
 
 # Update CustomScripts on startup
 cat >"/etc/systemd/system/updatecs.service" <<'EOL'
@@ -229,6 +222,7 @@ fi
 # no updater applet in live environment
 rm -f /etc/xdg/autostart/org.mageia.dnfdragora-updater.desktop
 
+mkdir -p /home/liveuser/Desktop
 # make sure to set the right permissions and selinux contexts
 chown -R liveuser:liveuser /home/liveuser/
 restorecon -R /home/liveuser/
