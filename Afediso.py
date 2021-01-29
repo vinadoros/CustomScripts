@@ -51,6 +51,8 @@ subprocess.run('sed -i "/label linux/a \ \ menu default" /usr/share/lorax/templa
 # EFI settings
 subprocess.run('sed -i "s/^set default=.*/set default=0/g" /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub2-efi.cfg /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg', shell=True, check=True)
 subprocess.run('sed -i "s/^set timeout=.*/set timeout=1/g" /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub2-efi.cfg /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg', shell=True, check=True)
+# Disable selinux and mitigations
+subprocess.run('sed -i "s/ quiet$/ quiet selinux=0 mitigations=off/g" /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub.conf /usr/share/lorax/templates.d/99-generic/config_files/x86/grub.conf /usr/share/lorax/templates.d/99-generic/config_files/x86/isolinux.cfg /usr/share/lorax/templates.d/99-generic/live/config_files/x86/isolinux.cfg /usr/share/lorax/templates.d/99-generic/live/config_files/x86/grub2-efi.cfg /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg', shell=True, check=True)
 # Modify kickstart repos
 # with open(os.path.join(os.sep, "usr", "share", "spin-kickstarts", "fedora-repo.ks"), 'w') as f:
 #     f.write("%include fedora-repo-not-rawhide.ks")
@@ -157,9 +159,6 @@ make install
 cd ..
 # Ensure clonezilla command was installed
 which clonezilla || echo "Clonezilla command not installed" && exit 1
-
-# Disable selinux
-sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config /etc/sysconfig/selinux
 
 # Delete defaults in sudoers.
 if grep -iq $'^Defaults    secure_path' /etc/sudoers; then
