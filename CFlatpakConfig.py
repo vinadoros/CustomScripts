@@ -37,6 +37,7 @@ if args.configure_remotes is False:
     CFunc.flatpak_install("flathub", "org.keepassxc.KeePassXC")
     CFunc.flatpak_install("flathub", "com.calibre_ebook.calibre")
     CFunc.flatpak_install("flathub", "com.github.tchx84.Flatseal")
+    CFunc.flatpak_install("flathub", "net.cozic.joplin_desktop")
     # Media apps
     CFunc.flatpak_install("flathub", "org.videolan.VLC")
     CFunc.flatpak_install("flathub", "org.atheme.audacious")
