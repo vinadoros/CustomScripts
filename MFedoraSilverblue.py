@@ -197,9 +197,6 @@ gpgcheck=0""")
 
     # Flatpak apps
     subprocess.run(os.path.join(SCRIPTDIR, "CFlatpakConfig.py"), shell=True, check=True)
-    CFunc.flatpak_install("fedora", "org.gnome.gedit")
-    CFunc.flatpak_install("fedora", "org.gnome.Evince")
-    CFunc.flatpak_install("fedora", "org.gnome.eog")
     # Flameshot
     CFunc.flatpak_install("flathub", "org.flameshot.Flameshot")
     os.makedirs(os.path.join(USERHOME, ".config", "autostart"), exist_ok=True)
