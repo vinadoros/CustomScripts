@@ -151,7 +151,6 @@ if args.stage == 1:
 if args.stage == 2:
     print("Stage 2")
     systemd_resostreed()
-    rostreeinstall("rpmfusion-nonfree-appstream-data rpmfusion-free-appstream-data")
     rostreeinstall("rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted")
     subprocess.run("systemctl enable smb", shell=True, check=True)
 
