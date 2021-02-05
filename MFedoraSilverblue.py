@@ -118,9 +118,14 @@ if args.stage == 1:
     rostreeinstall("gnome-tweak-tool dconf-editor")
     rostreeinstall("gnome-shell-extension-gpaste gnome-shell-extension-topicons-plus")
 
+    # Remove gnome-software on startup
+    gnome_startup_file = os.path.join(os.sep, "etc", "xdg", "autostart", "gnome-software-service.desktop")
+    if os.path.isfile(gnome_startup_file):
+        os.remove(gnome_startup_file)
+
     # Sudoers changes
     CFuncExt.SudoersEnvSettings()
-    # Edit sudoers to add dnf.
+    # Edit sudoers to add commands.
     CFunc.AddLineToSudoersFile(fedora_sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
     CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("rpm-ostree")))
     CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("podman")))
