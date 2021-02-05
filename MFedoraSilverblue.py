@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install Fedora Software"""
+"""Install Fedora Silverblue software"""
 
 # Python includes.
 import argparse
