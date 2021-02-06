@@ -94,6 +94,7 @@ debootstrap
 gnupg
 pacman
 arch-install-scripts
+podman
 
 # Filesystem utils
 fstransform
