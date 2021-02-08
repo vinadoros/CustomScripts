@@ -118,10 +118,11 @@ if args.stage == 1:
     rostreeinstall("gnome-tweak-tool dconf-editor")
     rostreeinstall("gnome-shell-extension-gpaste gnome-shell-extension-topicons-plus")
 
-    # Remove gnome-software on startup
+    # Remove gnome-software
     gnome_startup_file = os.path.join(os.sep, "etc", "xdg", "autostart", "gnome-software-service.desktop")
     if os.path.isfile(gnome_startup_file):
         os.remove(gnome_startup_file)
+    subprocess.run("rpm-ostree override remove gnome-software gnome-software-rpm-ostree", shell=True, check=False)
 
     # Sudoers changes
     CFuncExt.SudoersEnvSettings()
