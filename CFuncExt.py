@@ -103,10 +103,10 @@ def GrubUpdate():
         # Update grub
         if shutil.which("update-grub2"):
             print("Updating grub config using update-grub2.")
-            subprocess.run("update-grub2", shell=True, check=True)
+            subprocess.run(["update-grub2"], check=True)
         elif shutil.which("update-grub"):
             print("Updating grub config using update-grub.")
-            subprocess.run("update-grub", shell=True, check=True)
+            subprocess.run(["update-grub"], check=True)
         elif os.path.isfile(os.path.join(os.sep, "boot", "grub2", "grub.cfg")):
             print("Updating grub config using mkconfig grub2.")
             subprocess.run("grub2-mkconfig -o {0}".format(os.path.join(os.sep, "boot", "grub2", "grub.cfg")), shell=True, check=True)
