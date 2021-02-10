@@ -207,6 +207,8 @@ gpgcheck=0""")
     os.makedirs(os.path.join(USERHOME, ".config", "autostart"), exist_ok=True)
     # Start flameshot on user login.
     shutil.copy("/var/lib/flatpak/app/org.flameshot.Flameshot/current/active/export/share/applications/org.flameshot.Flameshot.desktop", os.path.join(USERHOME, ".config", "autostart"))
+    # Gnome Firmware
+    CFunc.flatpak_install("flathub", "org.gnome.Firmware")
     CFunc.chown_recursive(os.path.join(USERHOME, ".config", ), USERNAMEVAR, USERGROUP)
 
     # Extra scripts
