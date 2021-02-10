@@ -26,12 +26,12 @@ if shutil.which("apm"):
     apm_cmd = apm_native
     atom_userconfigfolder = os.path.join(userhome, ".atom")
     atom_userconfig = os.path.join(atom_userconfigfolder, "config.cson")
-elif subprocess.run(apm_snap, shell=True).returncode is 0:
+elif subprocess.run(apm_snap, shell=True, check=False).returncode == 0:
     print("Detected snap apm command.")
     apm_cmd = apm_snap
     atom_userconfigfolder = os.path.join(userhome, ".atom")
     atom_userconfig = os.path.join(atom_userconfigfolder, "config.cson")
-elif subprocess.run(apm_flatpak, shell=True).returncode is 0:
+elif subprocess.run(apm_flatpak, shell=True, check=False).returncode == 0:
     print("Detected flatpak apm command.")
     apm_cmd = apm_flatpak
     atom_userconfigfolder = os.path.join(userhome, ".var", "app", "io.atom.Atom", "data")
@@ -43,7 +43,7 @@ else:
 ### Functions ###
 def atom_ins(extension):
     """Install an extension"""
-    subprocess.run("{0} install {1}".format(apm_cmd, extension), shell=True)
+    subprocess.run("{0} install {1}".format(apm_cmd, extension), shell=True, check=False)
 
 
 ### Distro Specific Packages ###
@@ -58,14 +58,9 @@ if CFunc.is_windows() is True:
 else:
     pipcmd = "pip3"
 ### Language Specific packages ###
-if shutil.which("gem"):
-    print("Installing ruby gems.")
-    subprocess.run("sudo -H gem install rails_best_practices", shell=True)
-else:
-    print("Ruby/gem not detected. Not installing ruby gems.")
 if shutil.which(pipcmd):
     print("Installing python dependencies.")
-    subprocess.run("{0}{1} install flake8".format(CFunc.sudocmd(True), pipcmd), shell=True)
+    subprocess.run("{0}{1} install flake8".format(CFunc.sudocmd(True), pipcmd), shell=True, check=False)
 else:
     print("{0} not found. Not install python packages.".format(pipcmd))
 
@@ -88,18 +83,12 @@ atom_ins("split-diff")
 atom_ins("linter linter-ui-default intentions busy-signal")
 # Python
 atom_ins("autocomplete-python linter-flake8")
-# Ruby and Rails
-atom_ins("linter-ruby linter-rails-best-practices")
 # Shell
 atom_ins("linter-shellcheck")
-# Php
-atom_ins("linter-php")
 # C
 atom_ins("linter-gcc")
 # Powershell
 atom_ins("language-powershell")
-# Hardware languages
-atom_ins("language-vhdl language-verilog")
 # Docker
 atom_ins("language-docker")
 
@@ -108,6 +97,8 @@ atom_ins("language-docker")
 file_cson_text = '''"*":
   core:
     telemetryConsent: "no"
+  "autocomplete-python":
+    useKite: false
   editor:
     showIndentGuide: true
     showInvisibles: true
@@ -127,7 +118,7 @@ if shutil.which("flake8"):
       "E302"
       "E266"
     ]
-'''.format(flakepath=shutil.which("flake8"))
+'''
 print("Writing {0}.".format(atom_userconfig))
 with open(atom_userconfig, 'w') as file_cson_wr:
     file_cson_wr.write(file_cson_text)
