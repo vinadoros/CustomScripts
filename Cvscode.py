@@ -70,6 +70,7 @@ def codeconfig_installext(vscode_cmd=list):
     ce_ins(vscode_cmd, "eamodio.gitlens")
     ce_ins(vscode_cmd, "donjayamanne.githistory")
     ce_ins(vscode_cmd, "vscode-icons-team.vscode-icons")
+    ce_ins(vscode_cmd, "yzhang.markdown-all-in-one")
 def codeconfig_writeconfiguration(json_data=dict, json_path=str):
     """Write the config.json"""
     if os.path.isdir(json_path):
