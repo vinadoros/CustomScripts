@@ -195,15 +195,13 @@ if args.nogui is False and args.bare is False:
     CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("flatpak")))
 
 # Network Manager
-CFunc.aptinstall("network-manager network-manager-ssh resolvconf")
+CFunc.aptinstall("network-manager network-manager-ssh")
 CFunc.aptinstall("network-manager-config-connectivity-debian")
 subprocess.run("sed -i 's/managed=.*/managed=true/g' /etc/NetworkManager/NetworkManager.conf", shell=True, check=True)
 # https://askubuntu.com/questions/882806/ethernet-device-not-managed
 with open('/etc/NetworkManager/conf.d/10-globally-managed-devices.conf', 'w') as writefile:
     writefile.write("""[keyfile]
 unmanaged-devices=none""")
-# Ensure DNS resolution is working
-subprocess.run("dpkg-reconfigure --frontend=noninteractive resolvconf", shell=True, check=True)
 # Remove interfaces from /etc/network/interfaces
 with open(os.path.join(os.sep, "etc", "network", "interfaces"), 'w') as writefile:
     writefile.write("""source /etc/network/interfaces.d/*
