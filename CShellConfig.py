@@ -439,11 +439,11 @@ if os.access(repos_path, os.W_OK):
 if os.path.isdir(bashit_path):
     subprocess.run("""
     [ "$(id -u)" = "0" ] && HOME={0}
-    {1}/install.sh --silent
+    {1}/install.sh --silent --overwrite-backup
     """.format(ROOTHOME, bashit_path), shell=True, check=True)
     subprocess.run("""sed -i -- "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0}""".format(BASHSCRIPTPATH), shell=True, check=True)
     if rootstate is True:
-        CFunc.run_as_user(USERNAMEVAR, "{0}/install.sh --silent".format(bashit_path), shutil.which("bash"), error_on_fail=True)
+        CFunc.run_as_user(USERNAMEVAR, "{0}/install.sh --silent --overwrite-backup".format(bashit_path), shutil.which("bash"), error_on_fail=True)
         subprocess.run("""sed -i -- "s/BASH_IT_THEME=.*/BASH_IT_THEME='powerline'/g" {0} {1}""".format(BASHROOTSCRIPTPATH, BASHSCRIPTPATH), shell=True, check=True)
 
 # Install bash script
