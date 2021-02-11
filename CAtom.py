@@ -49,9 +49,9 @@ def atom_ins(extension):
 
 ### Distro Specific Packages ###
 if shutil.which("dnf"):
-    CFunc.dnfinstall("ShellCheck python3-jedi")
+    CFunc.dnfinstall("ShellCheck")
 elif shutil.which("apt-get"):
-    CFunc.aptinstall("shellcheck python3-jedi python3-pip")
+    CFunc.aptinstall("shellcheck python3-pip")
 
 ### Language Specific packages ###
 if pipcmd:
