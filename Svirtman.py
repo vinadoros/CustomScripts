@@ -22,6 +22,15 @@ parser.add_argument("-u", "--uninstall", help='Uninstall libvirt and virt-manage
 # Save arguments.
 args = parser.parse_args()
 
+
+### Functions ###
+def gsettings_set(schema: str, key: str, value: str):
+    """Set dconf setting using gsettings."""
+    subprocess.run(['sudo', '-i', '-u', USERNAMEVAR, 'gsettings', 'set', schema, key, value], check=False)
+    # Needed for platforms which don't have dbus-launcher
+    subprocess.run(['sudo', '-i', '-u', USERNAMEVAR, "dbus-run-session", "--", 'gsettings', 'set', schema, key, value], check=False)
+
+
 # Get non-root user information.
 USERNAMEVAR, USERGROUP, USERHOME = CFunc.getnormaluser()
 print("Username is:", USERNAMEVAR)
@@ -148,18 +157,17 @@ if args.uninstall is False:
 
     # Set dconf info
     if shutil.which("gsettings") and shutil.which("virt-manager"):
-        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.stats enable-cpu-poll true")
-        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.stats enable-disk-poll true")
-        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.stats enable-memory-poll true")
-        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.stats enable-net-poll true")
-        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.vmlist-fields cpu-usage true")
-        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.vmlist-fields disk-usage false")
-        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.vmlist-fields memory-usage true")
-        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.vmlist-fields network-traffic true")
-        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager.console resize-guest 1")
-        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager enable-libguestfs-vm-inspection true")
-        CFunc.run_as_user(USERNAMEVAR, "dbus-run-session -- gsettings set org.virt-manager.virt-manager xmleditor-enabled true")
-        print("NOTE: Please reboot for virt-manager settings to take effect.")
+        gsettings_set("org.virt-manager.virt-manager.stats", "enable-cpu-poll", "true")
+        gsettings_set("org.virt-manager.virt-manager.stats", "enable-disk-poll", "true")
+        gsettings_set("org.virt-manager.virt-manager.stats", "enable-memory-poll", "true")
+        gsettings_set("org.virt-manager.virt-manager.stats", "enable-net-poll", "true")
+        gsettings_set("org.virt-manager.virt-manager.vmlist-fields", "cpu-usage", "true")
+        gsettings_set("org.virt-manager.virt-manager.vmlist-fields", "disk-usage", "false")
+        gsettings_set("org.virt-manager.virt-manager.vmlist-fields", "memory-usage", "true")
+        gsettings_set("org.virt-manager.virt-manager.vmlist-fields", "network-traffic", "true")
+        gsettings_set("org.virt-manager.virt-manager.console", "resize-guest", "1")
+        gsettings_set("org.virt-manager.virt-manager", "enable-libguestfs-vm-inspection", "true")
+        gsettings_set("org.virt-manager.virt-manager", "xmleditor-enabled", "true")
     else:
         print("WARNING: gsettings or virt-manager command not found. Install to set virt-manager defaults.")
 
