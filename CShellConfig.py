@@ -57,7 +57,7 @@ else
 fi
 CUSTOMSCRIPTPATH="%s"
 function sl () {
-    sudo bash
+    sudo -i -u root $@
 }
 if [ $(id -u) != "0" ]; then
     function pc () {
@@ -98,7 +98,7 @@ function sst () {
     tmux attach-session -t ssh_tmux || tmux new-session -s ssh_tmux
 }
 function pd () {
-    $SUDOCMD podman "$@"
+    sudo -i -u root podman $@
 }
 function rm_common () {
     for todel in "$@"; do
@@ -610,8 +610,7 @@ pathadd "/snap/bin"
 pathadd "/var/lib/snapd/snap/bin"
 
 function sl
-    xhost +localhost >> /dev/null
-    env DISPLAY=$DISPLAY sudo bash
+    sudo -i -u root $argv
 end
 if [ (id -u) != "0" ]
     function pc
@@ -637,7 +636,7 @@ function sst
     tmux attach-session -t ssh_tmux || tmux new-session -s ssh_tmux
 end
 function pd
-    sudo podman $argv
+    sudo -i -u root podman $argv
 end
 function rm_common
     for todel in $argv
