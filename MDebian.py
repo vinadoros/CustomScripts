@@ -20,14 +20,12 @@ SCRIPTDIR = sys.path[0]
 parser = argparse.ArgumentParser(description='Install Debian Software.')
 parser.add_argument("-d", "--desktop", help='Desktop Environment (i.e. gnome, kde, mate, etc)')
 parser.add_argument("-u", "--unstable", help='Upgrade to unstable.', action="store_true")
-parser.add_argument("-b", "--bare", help='Configure script to set up a bare-minimum environment.', action="store_true")
 parser.add_argument("-x", "--nogui", help='Configure script to disable GUI.', action="store_true")
 
 # Save arguments.
 args = parser.parse_args()
 print("Desktop Environment:", args.desktop)
 print("Unstable Mode:", args.unstable)
-print("Bare install:", args.bare)
 print("No GUI:", args.nogui)
 
 # Exit if not root.
@@ -99,34 +97,20 @@ CFunc.aptupdate()
 CFunc.aptdistupg()
 
 ### Software ###
+# Debian Multimedia
+# Write sources list
+if args.unstable:
+    multimedia_release = "sid"
+else:
+    multimedia_release = debrelease
+with open('/etc/apt/sources.list.d/debian-multimedia.list', 'w') as stapt_writefile:
+    stapt_writefile.write("deb https://www.deb-multimedia.org {0} main non-free".format(multimedia_release))
+subprocess.run("apt-get update -oAcquire::AllowInsecureRepositories=true", shell=True, check=True)
+subprocess.run("apt-get install -y --allow-unauthenticated deb-multimedia-keyring -oAcquire::AllowInsecureRepositories=true", shell=True, check=True)
 
-if not args.bare:
-    # Syncthing
-    # Import keyfile
-    key = CFunc.downloadfile("https://syncthing.net/release-key.txt", "/tmp")
-    subprocess.run("apt-key add {0}".format(key[0]), shell=True, check=True)
-    os.remove(key[0])
-    # Write syncthing sources list
-    with open(os.path.join(os.sep, "etc", "apt", "sources.list.d", "syncthing-release.list"), 'w') as stapt_writefile:
-        stapt_writefile.write("deb http://apt.syncthing.net/ syncthing release")
-    # Update and install syncthing:
-    CFunc.aptupdate()
-    CFunc.aptinstall("syncthing")
-
-    # Debian Multimedia
-    # Write sources list
-    if args.unstable:
-        multimedia_release = "sid"
-    else:
-        multimedia_release = debrelease
-    with open('/etc/apt/sources.list.d/debian-multimedia.list', 'w') as stapt_writefile:
-        stapt_writefile.write("deb https://www.deb-multimedia.org {0} main non-free".format(multimedia_release))
-    subprocess.run("apt-get update -oAcquire::AllowInsecureRepositories=true", shell=True, check=True)
-    subprocess.run("apt-get install -y --allow-unauthenticated deb-multimedia-keyring -oAcquire::AllowInsecureRepositories=true", shell=True, check=True)
-
-    # Update and upgrade with new repositories
-    CFunc.aptupdate()
-    CFunc.aptdistupg()
+# Update and upgrade with new repositories
+CFunc.aptupdate()
+CFunc.aptdistupg()
 
 # Cli Software
 CFunc.aptinstall("ssh tmux zsh fish btrfs-progs f2fs-tools xfsprogs dmraid mdadm nano p7zip-full p7zip-rar unrar curl rsync less iotop sshfs sudo")
@@ -166,16 +150,14 @@ if args.nogui is False:
         CFunc.aptinstall("firefox-esr")
 
 # General GUI software
-if args.nogui is False and args.bare is False:
+if args.nogui is False:
     # Cups-pdf
     CFunc.aptinstall("printer-driver-cups-pdf")
     # Media Playback
-    CFunc.aptinstall("vlc audacious ffmpeg youtube-dl smplayer")
+    CFunc.aptinstall("ffmpeg youtube-dl smplayer")
     CFunc.aptinstall("alsa-utils pavucontrol pulseaudio-module-zeroconf pulseaudio-module-bluetooth swh-plugins")
     CFunc.aptinstall("paprefs")
     CFunc.aptinstall("gstreamer1.0-vaapi")
-    # For Office 2010
-    CFunc.aptinstall("winbind")
     CFunc.aptinstall("fonts-powerline fonts-noto fonts-roboto")
     # Tilix
     CFunc.aptinstall("tilix")
@@ -235,10 +217,9 @@ elif args.desktop == "lxqt":
     CFunc.aptinstall("task-lxqt-desktop")
 
 # Post DE install stuff.
-if args.nogui is False and args.bare is False:
+if args.nogui is False:
     # Numix Icon Theme
     CFuncExt.numix_icons(os.path.join(os.sep, "usr", "local", "share", "icons"))
-
 
 # Install guest software for VMs
 if vmstatus == "kvm":
@@ -285,25 +266,24 @@ CFunc.AddUserToGroup("colord")
 CFunc.AddUserToGroup("nm-openconnect")
 CFunc.AddUserToGroup("vboxsf")
 
-if args.bare is False:
-    # Modify system path
-    # https://serverfault.com/questions/166383/how-set-path-for-all-users-in-debian
-    logindefs_file = os.path.join("/", "etc", "login.defs")
-    if os.path.isfile(logindefs_file):
-        print("Modifying {0}".format(logindefs_file))
-        if CFunc.find_pattern_infile(logindefs_file, "ENV_PATH.*PATH.*sbin") is False:
-            subprocess.run("""sed -i '/^ENV_PATH.*PATH.*/ s@$@:/sbin:/usr/sbin:/usr/local/sbin@' {0}""".format(logindefs_file), shell=True, check=True)
+# Modify system path
+# https://serverfault.com/questions/166383/how-set-path-for-all-users-in-debian
+logindefs_file = os.path.join("/", "etc", "login.defs")
+if os.path.isfile(logindefs_file):
+    print("Modifying {0}".format(logindefs_file))
+    if CFunc.find_pattern_infile(logindefs_file, "ENV_PATH.*PATH.*sbin") is False:
+        subprocess.run("""sed -i '/^ENV_PATH.*PATH.*/ s@$@:/sbin:/usr/sbin:/usr/local/sbin@' {0}""".format(logindefs_file), shell=True, check=True)
 
-    # Extra scripts
-    subprocess.run(os.path.join(SCRIPTDIR, "CCSClone.py"), shell=True, check=True)
-    if not args.nogui:
-        subprocess.run(os.path.join(SCRIPTDIR, "CFlatpakConfig.py"), shell=True, check=True)
-    subprocess.run(os.path.join(SCRIPTDIR, "Csshconfig.sh"), shell=True, check=True)
-    subprocess.run(os.path.join(SCRIPTDIR, "CShellConfig.py") + " -f -z -d", shell=True, check=True)
-    subprocess.run(os.path.join(SCRIPTDIR, "CDisplayManagerConfig.py"), shell=True, check=True)
-    subprocess.run(os.path.join(SCRIPTDIR, "CVMGeneral.py"), shell=True, check=True)
-    subprocess.run(os.path.join(SCRIPTDIR, "Cxdgdirs.py"), shell=True, check=True)
-    subprocess.run(os.path.join(SCRIPTDIR, "Czram.py"), shell=True, check=True)
-    subprocess.run(os.path.join(SCRIPTDIR, "CSysConfig.sh"), shell=True, check=True)
+# Extra scripts
+subprocess.run(os.path.join(SCRIPTDIR, "CCSClone.py"), shell=True, check=True)
+if not args.nogui:
+    subprocess.run(os.path.join(SCRIPTDIR, "CFlatpakConfig.py"), shell=True, check=True)
+subprocess.run(os.path.join(SCRIPTDIR, "Csshconfig.sh"), shell=True, check=True)
+subprocess.run(os.path.join(SCRIPTDIR, "CShellConfig.py") + " -f -z -d", shell=True, check=True)
+subprocess.run(os.path.join(SCRIPTDIR, "CDisplayManagerConfig.py"), shell=True, check=True)
+subprocess.run(os.path.join(SCRIPTDIR, "CVMGeneral.py"), shell=True, check=True)
+subprocess.run(os.path.join(SCRIPTDIR, "Cxdgdirs.py"), shell=True, check=True)
+subprocess.run(os.path.join(SCRIPTDIR, "Czram.py"), shell=True, check=True)
+subprocess.run(os.path.join(SCRIPTDIR, "CSysConfig.sh"), shell=True, check=True)
 
 print("\nScript End")
