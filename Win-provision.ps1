@@ -506,9 +506,7 @@ if (-Not $isDotSourced) {
   Fcn-InstallChocolatey
   Fcn-CSClone
   Fcn-Software
-  if ( $IsVM -eq $true ) {
-    Fcn-oosu
-  }
+  Fcn-oosu
   Fcn-OnedriveDisable
   Fcn-Customize
   if ( $IsVM -eq $true ) {
