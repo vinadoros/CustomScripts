@@ -40,14 +40,14 @@ def group_addtosystem(group: str):
     group_exists_libgroup = False
     group_exists_etcgroup = False
     # Check if group exists in /usr/lib/group.
-    with open(group_path_libgroup, 'r') as f:
-        libgroup_lines = f.readlines()
+    with open(group_path_libgroup, 'r') as fl:
+        libgroup_lines = fl.readlines()
         for line in libgroup_lines:
             if line.startswith(group + ":"):
                 group_exists_libgroup = True
     # Check if group exists in /etc/group.
-    with open(group_path_etcgroup, 'r') as f:
-        etcgroup_lines = f.readlines()
+    with open(group_path_etcgroup, 'r') as fl:
+        etcgroup_lines = fl.readlines()
         for line in etcgroup_lines:
             if line.startswith(group + ":"):
                 group_exists_etcgroup = True
@@ -209,6 +209,8 @@ gpgcheck=0""")
     shutil.copy("/var/lib/flatpak/app/org.flameshot.Flameshot/current/active/export/share/applications/org.flameshot.Flameshot.desktop", os.path.join(USERHOME, ".config", "autostart"))
     # Gnome Firmware
     CFunc.flatpak_install("flathub", "org.gnome.Firmware")
+    # Configure permissions for apps
+    CFunc.flatpak_override("org.gnome.FileRoller", "--filesystem=host")
     CFunc.chown_recursive(os.path.join(USERHOME, ".config", ), USERNAMEVAR, USERGROUP)
 
     # Extra scripts
