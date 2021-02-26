@@ -239,6 +239,10 @@ if vmstatus == "vmware":
 if os.path.isfile("/etc/apt/apt.conf.d/20auto-upgrades"):
     os.remove("/etc/apt/apt.conf.d/20auto-upgrades")
 
+# Ensure sbin is in path for grub
+pathvar = os.environ.get('PATH')
+pathvar = pathvar + ":/sbin:/usr/sbin"
+os.environ['PATH'] = pathvar
 # Disable mitigations
 CFuncExt.GrubEnvAdd(os.path.join(os.sep, "etc", "default", "grub"), "GRUB_CMDLINE_LINUX_DEFAULT", "mitigations=off")
 CFuncExt.GrubUpdate()
