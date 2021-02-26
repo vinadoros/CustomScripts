@@ -5,7 +5,6 @@
 import argparse
 import os
 import shutil
-import stat
 import subprocess
 import sys
 # Custom includes
