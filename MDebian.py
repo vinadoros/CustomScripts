@@ -130,6 +130,8 @@ subprocess.run(["timedatectl", "set-ntp", "1"], check=True)
 subprocess.run(["timedatectl", "set-timezone", "US/Eastern"], check=True)
 # Avahi
 CFunc.aptinstall("avahi-daemon avahi-discover libnss-mdns")
+# Container stuff
+CFunc.aptinstall("podman")
 
 # Sudoers changes
 CFuncExt.SudoersEnvSettings()
@@ -139,6 +141,7 @@ CFunc.AddLineToSudoersFile(sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
 CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt")))
 CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("apt-get")))
 CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("su")))
+CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("podman")))
 
 # GUI programs
 if args.nogui is False:

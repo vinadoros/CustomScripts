@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+"""Run podman as root."""
+
+import sys
+import subprocess
+import shlex
+
+# Grab arguments as a string.
+cmdline = " ".join(map(shlex.quote, sys.argv[1:]))
+
+# Run podman
+subprocess.run(["sudo", "su", "-l", "root", "-c", "podman {0}".format(cmdline)], check=False)
