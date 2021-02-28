@@ -160,7 +160,7 @@ if args.stage == 2:
     rostreeinstall("youtube-dl mpv smplayer")
 
     # VSCode
-    with open("/etc/yum.repos.d/vscode.repo", 'w') as f:
+    with open(os.path.join(os.sep, "etc", "yum.repos.d", "vscode.repo"), 'w') as f:
         f.write("""[code]
 name=Visual Studio Code
 baseurl=https://packages.microsoft.com/yumrepos/vscode
