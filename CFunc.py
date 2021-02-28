@@ -401,11 +401,16 @@ def AddLineToSudoersFile(sudoersfile, line, overwrite=False):
         if os.path.isfile(sudoersfile) and overwrite is True:
             print("Removing existing {0}".format(sudoersfile))
             os.remove(sudoersfile)
-        BackupSudoersFile(sudoersfile)
-        with open(sudoersfile, 'a') as sudoers_writefile:
-            sudoers_writefile.write("{0}\n".format(line))
-        os.chmod(sudoersfile, 0o440)
-        CheckRestoreSudoersFile(sudoersfile)
+        if os.path.isfile(sudoersfile):
+            with open(sudoersfile, 'r') as f:
+                sudoersfile_txt = f.read()
+            # Check if the line already exists in the file before adding.
+            if line not in sudoersfile_txt:
+                BackupSudoersFile(sudoersfile)
+                with open(sudoersfile, 'a') as sudoers_writefile:
+                    sudoers_writefile.write("{0}\n".format(line))
+                os.chmod(sudoersfile, 0o440)
+                CheckRestoreSudoersFile(sudoersfile)
     return
 def Fstab_CheckStringInFile(fstab_path, stringtocheck):
     """Check for a given string in fstab. Returns True if found, False if not found."""
