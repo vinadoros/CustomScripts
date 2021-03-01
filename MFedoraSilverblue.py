@@ -132,9 +132,6 @@ if args.stage == 1:
     CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("podman")))
     CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("su")))
 
-    # Install snapd
-    rostreeinstall("snapd")
-
     # Flatpak setup
     CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("flatpak")))
     subprocess.run('chmod -R "ugo=rwX" /var/lib/flatpak/', shell=True, check=True)
@@ -175,8 +172,6 @@ gpgcheck=0""")
     CFunc.run_as_user(USERNAMEVAR, "{0} --yes 858".format(gs_installer[0]))
     # Install dashtodock extension
     CFunc.run_as_user(USERNAMEVAR, "{0} --yes 307".format(gs_installer[0]))
-
-    CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("snap")))
 
     # Add normal user to all reasonable groups
     group_silverblueadd("disk")
