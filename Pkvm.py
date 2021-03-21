@@ -204,14 +204,8 @@ if args.ostype == 1:
     vmname = "Packer-Fedora-{0}".format(hvname)
     vmprovision_defopts = "-d {0}".format(args.desktopenv)
 if args.ostype == 2:
-    vmname = "Packer-FedoraBare-{0}".format(hvname)
-    vmprovision_defopts = "-d {0} -b".format(args.desktopenv)
-if args.ostype == 3:
     vmname = "Packer-FedoraCLI-{0}".format(hvname)
     vmprovision_defopts = "-x"
-if args.ostype == 4:
-    vmname = "Packer-FedoraCLIBare-{0}".format(hvname)
-    vmprovision_defopts = "-x -b"
 if args.ostype == 9:
     vmprovisionscript = "MFedoraSilverblue.py"
     vboxosid = "Fedora_64"

@@ -19,7 +19,6 @@ SCRIPTDIR = sys.path[0]
 # Get arguments
 parser = argparse.ArgumentParser(description='Install Fedora Software.')
 parser.add_argument("-d", "--desktop", help='Desktop Environment (i.e. gnome, kde, mate, etc)')
-parser.add_argument("-b", "--bare", help='Configure script to set up a bare-minimum environment.', action="store_true")
 parser.add_argument("-x", "--nogui", help='Configure script to disable GUI.', action="store_true")
 
 # Save arguments.
@@ -39,11 +38,11 @@ print("Group Name is:", USERGROUP)
 vmstatus = CFunc.getvmstate()
 
 ### Fedora Repos ###
-if not args.bare:
-    # RPMFusion
-    CFunc.dnfinstall("https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm")
-    CFunc.dnfinstall("rpmfusion-nonfree-appstream-data rpmfusion-free-appstream-data")
-    CFunc.dnfinstall("rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted")
+# RPMFusion
+CFunc.dnfinstall("https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm")
+CFunc.dnfinstall("rpmfusion-nonfree-appstream-data rpmfusion-free-appstream-data")
+CFunc.dnfinstall("rpmfusion-free-release-tainted rpmfusion-nonfree-release-tainted")
+if not args.nogui:
     # Visual Studio Code
     CFunc.rpmimport("https://packages.microsoft.com/keys/microsoft.asc")
     with open("/etc/yum.repos.d/vscode.repo", 'w') as vscoderepofile_write:
@@ -56,8 +55,7 @@ CFunc.dnfupdate()
 ### Install Fedora Software ###
 # Cli tools
 CFunc.dnfinstall("fish zsh nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils xdg-user-dirs util-linux-user fuse-sshfs redhat-lsb-core openssh-server openssh-clients avahi nss-mdns dnf-plugin-system-upgrade xfsprogs")
-if not args.bare:
-    CFunc.dnfinstall("unrar")
+CFunc.dnfinstall("unrar")
 CFunc.sysctl_enable("sshd", error_on_fail=True)
 CFunc.dnfinstall("powerline-fonts google-roboto-fonts google-noto-sans-fonts")
 # Samba
@@ -75,10 +73,13 @@ CFunc.sysctl_enable("earlyoom", error_on_fail=True)
 CFunc.dnfinstall("firewalld")
 CFunc.sysctl_enable("firewalld", now=True, error_on_fail=True)
 CFuncExt.FirewalldConfig()
-# Podman and toolbox
-CFunc.dnfinstall("podman toolbox")
+# Podman
+CFunc.dnfinstall("podman")
 # GUI Packages
 if not args.nogui:
+    # Toolbox
+    CFunc.dnfinstall("toolbox")
+    # Base Packages
     CFunc.dnfinstall("@fonts @base-x @networkmanager-submodules")
     # Browsers
     # Official Google Chrome
@@ -92,21 +93,20 @@ if not args.nogui:
     CFunc.dnfinstall("remmina remmina-plugins-vnc remmina-plugins-rdp")
     # Tilix
     CFunc.dnfinstall("tilix tilix-nautilus")
-    if not args.bare:
-        # Multimedia
-        CFunc.dnfinstall("@multimedia")
-        CFunc.dnfinstall("gstreamer1-vaapi")
-        CFunc.dnfinstall("youtube-dl ffmpeg smplayer mpv")
-        # Editors
-        CFunc.dnfinstall("code")
-        # Syncthing
-        CFunc.dnfinstall("syncthing")
-        # Flameshot
-        CFunc.dnfinstall("flameshot")
-        os.makedirs(os.path.join(USERHOME, ".config", "autostart"), exist_ok=True)
-        # Start flameshot on user login.
-        shutil.copy(os.path.join(os.sep, "usr", "share", "applications", "org.flameshot.Flameshot.desktop"), os.path.join(USERHOME, ".config", "autostart"))
-        CFunc.chown_recursive(os.path.join(USERHOME, ".config", ), USERNAMEVAR, USERGROUP)
+    # Multimedia
+    CFunc.dnfinstall("@multimedia")
+    CFunc.dnfinstall("gstreamer1-vaapi")
+    CFunc.dnfinstall("youtube-dl ffmpeg smplayer mpv")
+    # Editors
+    CFunc.dnfinstall("code")
+    # Syncthing
+    CFunc.dnfinstall("syncthing")
+    # Flameshot
+    CFunc.dnfinstall("flameshot")
+    os.makedirs(os.path.join(USERHOME, ".config", "autostart"), exist_ok=True)
+    # Start flameshot on user login.
+    shutil.copy(os.path.join(os.sep, "usr", "share", "applications", "org.flameshot.Flameshot.desktop"), os.path.join(USERHOME, ".config", "autostart"))
+    CFunc.chown_recursive(os.path.join(USERHOME, ".config", ), USERNAMEVAR, USERGROUP)
 
 # Install software for VMs
 if vmstatus == "kvm":
@@ -157,13 +157,12 @@ elif args.desktop == "lxqt":
 elif args.desktop == "cinnamon":
     CFunc.dnfinstall("--allowerasing @cinnamon-desktop-environment")
 
-if not args.nogui and not args.bare:
+if not args.nogui:
     # Numix
     CFunc.dnfinstall("numix-icon-theme-circle")
     # Update pixbuf cache after installing icons (for some reason doesn't do this automatically).
     subprocess.run("gdk-pixbuf-query-loaders-64 --update-cache", shell=True, check=True)
-
-if not args.nogui:
+    # Enable graphical target
     subprocess.run("systemctl set-default graphical.target", shell=True, check=True)
 
 
@@ -197,12 +196,11 @@ fedora_sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
 CFunc.AddLineToSudoersFile(fedora_sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
 CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("dnf")))
 CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("podman")))
-CFunc.AddLineToSudoersFile(fedora_sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("su")))
 
 # Hdparm
 CFunc.dnfinstall("smartmontools hdparm")
 
-if not args.bare and not args.nogui:
+if not args.nogui:
     # Install snapd
     CFunc.dnfinstall("snapd")
     if not os.path.islink("/snap"):
@@ -227,16 +225,15 @@ CFuncExt.GrubUpdate()
 subprocess.run('grubby --update-kernel=ALL --args="mitigations=off"', shell=True, check=True)
 
 # Extra scripts
-if args.bare is False:
-    subprocess.run(os.path.join(SCRIPTDIR, "CCSClone.py"), shell=True, check=True)
-    if not args.nogui:
-        subprocess.run(os.path.join(SCRIPTDIR, "CFlatpakConfig.py"), shell=True, check=True)
-    subprocess.run(os.path.join(SCRIPTDIR, "Csshconfig.sh"), shell=True, check=True)
-    subprocess.run(os.path.join(SCRIPTDIR, "CShellConfig.py") + " -f -z -d", shell=True, check=True)
-    subprocess.run(os.path.join(SCRIPTDIR, "CDisplayManagerConfig.py"), shell=True, check=True)
-    subprocess.run(os.path.join(SCRIPTDIR, "CVMGeneral.py"), shell=True, check=True)
-    subprocess.run(os.path.join(SCRIPTDIR, "Cxdgdirs.py"), shell=True, check=True)
-    subprocess.run(os.path.join(SCRIPTDIR, "Czram.py"), shell=True, check=True)
-    subprocess.run(os.path.join(SCRIPTDIR, "CSysConfig.sh"), shell=True, check=True)
+subprocess.run(os.path.join(SCRIPTDIR, "CCSClone.py"), shell=True, check=True)
+if not args.nogui:
+    subprocess.run(os.path.join(SCRIPTDIR, "CFlatpakConfig.py"), shell=True, check=True)
+subprocess.run(os.path.join(SCRIPTDIR, "Csshconfig.sh"), shell=True, check=True)
+subprocess.run(os.path.join(SCRIPTDIR, "CShellConfig.py") + " -f -z -d", shell=True, check=True)
+subprocess.run(os.path.join(SCRIPTDIR, "CDisplayManagerConfig.py"), shell=True, check=True)
+subprocess.run(os.path.join(SCRIPTDIR, "CVMGeneral.py"), shell=True, check=True)
+subprocess.run(os.path.join(SCRIPTDIR, "Cxdgdirs.py"), shell=True, check=True)
+subprocess.run(os.path.join(SCRIPTDIR, "Czram.py"), shell=True, check=True)
+subprocess.run(os.path.join(SCRIPTDIR, "CSysConfig.sh"), shell=True, check=True)
 
 print("\nScript End")
