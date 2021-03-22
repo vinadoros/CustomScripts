@@ -130,6 +130,9 @@ def FirewalldConfig():
         subprocess.run("firewall-cmd --permanent --add-service=mdns", shell=True, check=True)
         subprocess.run("firewall-cmd --permanent --add-port=1025-65535/udp", shell=True, check=True)
         subprocess.run("firewall-cmd --permanent --add-port=1025-65535/tcp", shell=True, check=True)
+        # Add masquerade for docker/podman.
+        subprocess.run("firewall-cmd --zone=trusted --permanent --add-masquerade", shell=True, check=True)
+        subprocess.run("firewall-cmd --permanent --add-masquerade", shell=True, check=True)
         subprocess.run("firewall-cmd --reload", shell=True, check=True)
 
 
