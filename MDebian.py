@@ -130,6 +130,10 @@ subprocess.run(["timedatectl", "set-ntp", "1"], check=True)
 subprocess.run(["timedatectl", "set-timezone", "US/Eastern"], check=True)
 # Avahi
 CFunc.aptinstall("avahi-daemon avahi-discover libnss-mdns")
+# Firewalld
+CFunc.aptinstall("firewalld")
+CFunc.sysctl_enable("firewalld", now=True, error_on_fail=True)
+CFuncExt.FirewalldConfig()
 # Container stuff
 CFunc.aptinstall("podman")
 
