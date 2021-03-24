@@ -30,7 +30,7 @@ else:
 
 ### sshd server config ###
 sshd_config_folder = os.path.join(os.sep, "etc", "ssh", "sshd_config.d")
-sshd_config_file = os.path.join(ssh_config_folder, "01-custom.conf")
+sshd_config_file = os.path.join(sshd_config_folder, "01-custom.conf")
 sshd_config_text = r"""
 X11Forwarding yes
 AllowAgentForwarding yes
