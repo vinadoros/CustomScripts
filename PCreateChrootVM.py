@@ -224,10 +224,10 @@ if __name__ == '__main__':
 
     # Determine VM Name
     if args.ostype == 1:
-        vm_name = "CC-Manjaro-kvm"
-        vmbootstrap_cmd = 'cd /opt/CustomScripts && git pull && git checkout {gitbranch} && /opt/CustomScripts/ZSlimDrive.py -n -g && /opt/CustomScripts/BManjaro.py -n -c "{vm_name}" -u "{vmuser}" -f "{fullname}" -q "{vmpass}" -l "" -e /mnt && poweroff'.format(vm_name=vm_name, vmuser=args.vmuser, vmpass=args.vmpass, fullname=args.fullname, gitbranch=git_branch_retrieve())
-        vmprovision_cmd = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:users -R ~{vmuser}; pacman -Sy --noconfirm git; {gitcmd}; /opt/CustomScripts/MManjaro.py -d {desktop}".format(vmuser=args.vmuser, sshkey=sshkey, gitcmd=git_cmdline(), desktop=args.desktopenv)
-        kvm_variant = "manjaro"
+        vm_name = "CC-Arch-kvm"
+        vmbootstrap_cmd = 'cd /opt/CustomScripts && git pull && git checkout {gitbranch} && cd ~ && curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash && cp /opt/CustomScripts/unattend/alis.conf . && yes | ./alis.sh && poweroff'.format(vm_name=vm_name, vmuser=args.vmuser, vmpass=args.vmpass, fullname=args.fullname, gitbranch=git_branch_retrieve())
+        vmprovision_cmd = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:users -R ~{vmuser}; pacman -Sy --noconfirm git; {gitcmd}; /opt/CustomScripts/MArch.py -d {desktop}".format(vmuser=args.vmuser, sshkey=sshkey, gitcmd=git_cmdline(), desktop=args.desktopenv)
+        kvm_variant = "archlinux"
 
     # Override VM Name if provided
     if args.vmname is not None:
