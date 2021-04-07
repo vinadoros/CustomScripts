@@ -98,7 +98,7 @@ if __name__ == '__main__':
     CFunc.sysctl_enable("sshd avahi-daemon", error_on_fail=True)
     # Add mdns_minimal to nsswitch to resolve .local domains.
     subprocess.run('sed -i "s/^hosts: files mymachines mdns4_minimal/hosts: files mdns_minimal mymachines mdns4_minimal/g" /etc/nsswitch.conf', shell=True, check=False)
-    CFunc.pacman_install("powerline-fonts ttf-roboto ttf-roboto-mono noto-fonts ttf-dejavu")
+    CFunc.pacman_install("powerline-fonts ttf-roboto ttf-roboto-mono noto-fonts ttf-dejavu ttf-liberation")
     # Samba
     CFunc.pacman_install("samba")
     CFunc.sysctl_enable("smb nmb winbind", error_on_fail=True)
