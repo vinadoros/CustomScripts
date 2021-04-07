@@ -52,8 +52,6 @@ cleanup()
 
 # Copy archiso config
 shutil.copytree("/usr/share/archiso/configs/releng/", workingfolder, symlinks=True)
-# Copy script folder to iso root
-subprocess.run(["git", "clone", "https://github.com/ramesh45345/CustomScripts.git", "{0}/airootfs/opt/CustomScripts".format(workingfolder)], check=True)
 
 # Set syslinux timeout
 archiso_sys_path = os.path.join(workingfolder, "syslinux", "archiso_sys.cfg")
@@ -90,6 +88,8 @@ openssh
 avahi
 nss-mdns
 tmux
+zsh
+fish
 
 # Kernel stuff
 ipw2200-fw
@@ -115,6 +115,7 @@ gnome-icon-theme
 firefox
 gvfs
 gvfs-smb
+tilix
 
 # Mate Desktop
 mate
@@ -143,6 +144,12 @@ with open(os.path.join(workingfolder, "airootfs/root/customize_airootfs.sh"), 'a
     f.write(r"""set -x
 SCRIPTBASENAME="/opt/CustomScripts"
 
+git clone https://github.com/ramesh45345/CustomScripts.git /opt/CustomScripts
+chmod a+rwx -R /opt/CustomScripts
+
+# Set timezone
+ln -sf /usr/share/zoneinfo/US/Eastern /etc/localtime
+
 systemctl enable qemu-guest-agent
 systemctl disable multi-user.target
 
@@ -154,17 +161,18 @@ systemctl enable NetworkManager
 
 # Set root password
 echo "root:asdf" | chpasswd
+chsh -s /bin/bash root
 
 # User setup
 useradd -m liveuser
 echo "liveuser:asdf" | chpasswd
 usermod -aG wheel,network,floppy,audio,input,disk,video,storage,optical,systemd-journal,lp liveuser
-python3 /opt/CustomScripts/CShellConfig.py -z -d
+/opt/CustomScripts/CShellConfig.py -z -d -f -u liveuser
 echo "liveuser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/nopw
 chmod 0440 /etc/sudoers.d/nopw
 
 # Mate config
-python3 /opt/CustomScripts/DExtMate.py
+/opt/CustomScripts/DExtMate.py
 
 # Enable avahi and ssh
 systemctl enable sshd
@@ -202,7 +210,7 @@ systemctl enable updatecs.service
 cat >"/etc/xdg/autostart/matesettings.desktop" <<"EOL"
 [Desktop Entry]
 Name=MATE Settings Script
-Exec=/opt/CustomScripts/Dset.sh
+Exec=/opt/CustomScripts/Dset.py
 Terminal=false
 Type=Application
 EOL
@@ -236,13 +244,6 @@ while true; do
 done
 EOL
 chmod a+rwx /usr/local/bin/ra.sh
-
-# Add CustomScripts to path
-if ! grep "$SCRIPTBASENAME" /root/.zshrc; then
-    cat >>/root/.zshrc <<EOLZSH
-export PATH=\$PATH:$SCRIPTBASENAME
-EOLZSH
-fi
 """)
 
 ### Build LiveCD ###
