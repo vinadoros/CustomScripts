@@ -44,6 +44,13 @@ def lightdm_configure():
     subprocess.run("sed -i '/^#greeter-session=.*/s/^#//g' /etc/lightdm/lightdm.conf", shell=True, check=True)
     subprocess.run("sed -i 's/^greeter-session=.*/greeter-session=lightdm-slick-greeter/g' /etc/lightdm/lightdm.conf", shell=True, check=True)
     CFunc.sysctl_enable("-f lightdm", error_on_fail=True)
+def install_aur_pkg(package: str):
+    """Install an aur package using makepkg."""
+    package_gitcheckout_folder = os.path.join(os.sep, "tmp", package)
+    subprocess.run("cd /tmp ; git clone https://aur.archlinux.org/{0}.git".format(package), shell=True, check=True)
+    CFunc.chown_recursive(package_gitcheckout_folder, USERNAMEVAR, USERGROUP)
+    CFunc.run_as_user(USERNAMEVAR, "cd {0} ; makepkg --noconfirm -si".format(package_gitcheckout_folder), error_on_fail=True)
+    shutil.rmtree(package_gitcheckout_folder)
 
 
 if __name__ == '__main__':
@@ -71,16 +78,17 @@ if __name__ == '__main__':
     CFunc.pacman_invoke("-Syy")
 
     ### Install Software ###
-    # Yay
-    # CFunc.pacman_install("yay")
     # Install AUR dependencies
-    CFunc.pacman_install("base-devel")
+    CFunc.pacman_install("base-devel git")
     # Sudoers changes
     CFuncExt.SudoersEnvSettings()
     # Edit sudoers to add pacman.
     sudoersfile = os.path.join(os.sep, "etc", "sudoers.d", "pkmgt")
     CFunc.AddLineToSudoersFile(sudoersfile, "%wheel ALL=(ALL) ALL", overwrite=True)
     CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("pacman")))
+    # Yay
+    if not shutil.which("yay"):
+        install_aur_pkg("yay-bin")
     # Set pacman.conf to use PackageRequired, don't check sigs for database.
     # https://wiki.archlinux.org/index.php/Powerpill#Troubleshooting
     subprocess.run("sed -i 's/^SigLevel\s*=\s*Required\s*DatabaseOptional/SigLevel = PackageRequired/g' /etc/pacman.conf", shell=True, check=True)
