@@ -48,7 +48,6 @@ if args.noprompt is False:
 
 # Working folder
 workingfolder = os.path.abspath(os.path.join(buildfolder, "archiso_wf"))
-# makewf()
 cleanup()
 
 # Copy archiso config
@@ -59,10 +58,7 @@ subprocess.run(["git", "clone", "https://github.com/ramesh45345/CustomScripts.gi
 # Set syslinux timeout
 archiso_sys_path = os.path.join(workingfolder, "syslinux", "archiso_sys.cfg")
 CFunc.find_replace(os.path.join(workingfolder, "syslinux"), 'TIMEOUT 150', 'TIMEOUT 20', "archiso_sys.cfg")
-with open(archiso_sys_path, 'a') as f:
-    f.write("""
-TOTALTIMEOUT 600
-""")
+CFunc.find_replace(os.path.join(workingfolder, "efiboot/loader"), 'timeout 15', 'timeout 2', "loader.conf")
 
 # Set iso name
 isoname = "Arch-CustomLive"
@@ -116,7 +112,7 @@ networkmanager
 network-manager-applet
 gnome-keyring
 gnome-icon-theme
-midori
+firefox
 gvfs
 gvfs-smb
 
@@ -147,29 +143,28 @@ with open(os.path.join(workingfolder, "airootfs/root/customize_airootfs.sh"), 'a
     f.write(r"""set -x
 SCRIPTBASENAME="/opt/CustomScripts"
 
-if [ $(uname -m) = "x86_64" ]; then
-    if ! grep -Fq "multilib" /etc/pacman.conf; then
-        cat >>/etc/pacman.conf <<'EOL'
-
-[multilib]
-SigLevel = PackageRequired
-Include = /etc/pacman.d/mirrorlist
-EOL
-    fi
-fi
-
 systemctl enable qemu-guest-agent
-
 systemctl disable multi-user.target
 
 systemctl -f enable lxdm
-sed -i 's/#\ autologin=dgod/autologin=root/g' /etc/lxdm/lxdm.conf
+sed -i 's/#\ autologin=dgod/autologin=liveuser/g' /etc/lxdm/lxdm.conf
 sed -i 's/#\ session=\/usr\/bin\/startlxde/session=\/usr\/bin\/mate-session/g' /etc/lxdm/lxdm.conf
 
 systemctl enable NetworkManager
 
 # Set root password
 echo "root:asdf" | chpasswd
+
+# User setup
+useradd -m liveuser
+echo "liveuser:asdf" | chpasswd
+usermod -aG wheel,network,floppy,audio,input,disk,video,storage,optical,systemd-journal,lp liveuser
+python3 /opt/CustomScripts/CShellConfig.py -z -d
+echo "liveuser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/nopw
+chmod 0440 /etc/sudoers.d/nopw
+
+# Mate config
+python3 /opt/CustomScripts/DExtMate.py
 
 # Enable avahi and ssh
 systemctl enable sshd
@@ -191,7 +186,7 @@ After=network.target nss-lookup.target network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/bash -c "cd /CustomScripts; git pull"
+ExecStart=/usr/bin/bash -c "cd /opt/CustomScripts; git pull"
 Restart=on-failure
 RestartSec=3s
 TimeoutStopSec=7s
@@ -207,7 +202,7 @@ systemctl enable updatecs.service
 cat >"/etc/xdg/autostart/matesettings.desktop" <<"EOL"
 [Desktop Entry]
 Name=MATE Settings Script
-Exec=/CustomScripts/Dset.sh
+Exec=/opt/CustomScripts/Dset.sh
 Terminal=false
 Type=Application
 EOL

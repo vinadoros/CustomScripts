@@ -40,9 +40,10 @@ def pacman_check_remove(package):
         subprocess.run("pacman -Rscn --noconfirm {0}".format(package), shell=True, check=False)
 def lightdm_configure():
     """Configure lightdm"""
-    CFunc.pacman_install("lightdm lightdm-slick-greeter lightdm-settings")
+    CFunc.pacman_install("lightdm lightdm-webkit2-greeter lightdm-webkit-theme-litarvan")
     subprocess.run("sed -i '/^#greeter-session=.*/s/^#//g' /etc/lightdm/lightdm.conf", shell=True, check=True)
-    subprocess.run("sed -i 's/^greeter-session=.*/greeter-session=lightdm-slick-greeter/g' /etc/lightdm/lightdm.conf", shell=True, check=True)
+    subprocess.run("sed -i 's/^greeter-session=.*/greeter-session=lightdm-webkit2-greeter/g' /etc/lightdm/lightdm.conf", shell=True, check=True)
+    subprocess.run("sed -i 's/^webkit_theme=.*/webkit_theme=litarvan/g' /etc/lightdm/lightdm-webkit2-greeter.conf", shell=True, check=True)
     CFunc.sysctl_enable("-f lightdm", error_on_fail=True)
 def install_aur_pkg(package: str):
     """Install an aur package using makepkg."""
@@ -193,7 +194,7 @@ if __name__ == '__main__':
         CFunc.pacman_install("mate network-manager-applet mate-extra")
         lightdm_configure()
         # Brisk-menu
-        CFunc.pacman_install("brisk-menu")
+        yay_install(USERNAMEVAR, "brisk-menu")
         # Run MATE Configuration
         subprocess.run("{0}/DExtMate.py".format(SCRIPTDIR), shell=True, check=True)
     elif args.desktop == "xfce":
