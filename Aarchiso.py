@@ -58,8 +58,9 @@ subprocess.run(["git", "clone", "https://github.com/ramesh45345/CustomScripts.gi
 
 # Set syslinux timeout
 archiso_sys_path = os.path.join(workingfolder, "syslinux", "archiso_sys.cfg")
+CFunc.find_replace(os.path.join(workingfolder, "syslinux"), 'TIMEOUT 150', 'TIMEOUT 20', "archiso_sys.cfg")
 with open(archiso_sys_path, 'a') as f:
-    f.write("""TIMEOUT 30
+    f.write("""
 TOTALTIMEOUT 600
 """)
 

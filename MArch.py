@@ -100,7 +100,7 @@ if __name__ == '__main__':
     subprocess.run('sed -i "s/^hosts: files mymachines mdns4_minimal/hosts: files mdns_minimal mymachines mdns4_minimal/g" /etc/nsswitch.conf', shell=True, check=False)
     CFunc.pacman_install("powerline-fonts ttf-roboto ttf-roboto-mono noto-fonts ttf-dejavu")
     # Samba
-    CFunc.pacman_install("samba manjaro-settings-samba")
+    CFunc.pacman_install("samba")
     CFunc.sysctl_enable("smb nmb winbind", error_on_fail=True)
     # cifs-utils
     CFunc.pacman_install("cifs-utils")
@@ -116,11 +116,8 @@ if __name__ == '__main__':
     CFuncExt.FirewalldConfig()
     # GUI Packages
     if not args.nogui:
-        # Note: In an iso install of Manjaro, xorg-fonts-alias is a conflicting package. Remove it before trying to install the xorg groups. Then re-install the dependent packages.
-        pacman_check_remove("xorg-fonts-alias")
-        CFunc.pacman_install("xorg-fonts-alias-misc xorg-fonts-alias-cyrillic xorg-fonts-alias-75dpi xorg-fonts-alias-100dpi ttf-indic-otf")
         # X Server
-        CFunc.pacman_install("xorg xorg-drivers xorg-fonts manjaro-input")
+        CFunc.pacman_install("xorg xorg-drivers")
         # Update font cache
         subprocess.run("fc-cache", shell=True, check=True)
         # Browsers
@@ -128,13 +125,11 @@ if __name__ == '__main__':
         # Cups
         CFunc.pacman_install("cups-pdf")
         # Audio/video
-        CFunc.pacman_install("manjaro-pulse lib32-jack paprefs")
+        CFunc.pacman_install("paprefs")
         # Remote access
         CFunc.pacman_install("remmina")
         # Tilix
         CFunc.pacman_install("tilix")
-        # Exclude chromium-libs-media-freeworld from multimedia
-        CFunc.pacman_install("manjaro-gstreamer manjaro-vaapi")
         CFunc.pacman_install("youtube-dl ffmpeg smplayer mpv")
         # Editors
         CFunc.pacman_install("code")
@@ -149,10 +144,6 @@ if __name__ == '__main__':
         CFunc.chown_recursive(os.path.join(USERHOME, ".config", ), USERNAMEVAR, USERGROUP)
         CFunc.pacman_install("dconf-editor")
         CFunc.pacman_install("gnome-disk-utility")
-        # Manjaro tools
-        CFunc.pacman_install("mhwd")
-        # Pamac
-        CFunc.pacman_install("pamac")
 
     # Install software for VMs
     if vmstatus == "kvm":
@@ -170,8 +161,7 @@ if __name__ == '__main__':
     # Install Desktop Software
     if args.desktop == "gnome":
         # Gnome
-        CFunc.pacman_install("baobab eog evince file-roller gdm gedit gnome-backgrounds gnome-calculator gnome-characters gnome-clocks gnome-wallpapers gnome-color-manager gnome-control-center gnome-font-viewer gnome-getting-started-docs gnome-keyring gnome-logs gnome-menus gnome-remote-desktop gnome-screenshot gnome-session gnome-settings-daemon gnome-shell gnome-shell-extensions gnome-system-monitor gnome-terminal gnome-themes-extra gnome-user-docs gnome-video-effects gnome-weather gvfs gvfs-google gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-smb mutter nautilus orca sushi tracker tracker-miners vino xdg-user-dirs-gtk xdg-desktop-portal-gtk yelp gnome-firmware manjaro-gnome-assets manjaro-gnome-settings manjaro-gnome-extension-settings manjaro-gdm-theme manjaro-settings-manager manjaro-dynamic-wallpaper")
-        CFunc.pacman_install("pamac-gtk pamac-gnome-integration")
+        CFunc.pacman_install("baobab eog evince file-roller gdm gedit gnome-backgrounds gnome-calculator gnome-characters gnome-clocks gnome-wallpapers gnome-color-manager gnome-control-center gnome-font-viewer gnome-getting-started-docs gnome-keyring gnome-logs gnome-menus gnome-remote-desktop gnome-screenshot gnome-session gnome-settings-daemon gnome-shell gnome-shell-extensions gnome-system-monitor gnome-terminal gnome-themes-extra gnome-user-docs gnome-video-effects gnome-weather gvfs gvfs-google gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-smb mutter nautilus orca sushi tracker tracker-miners vino xdg-user-dirs-gtk xdg-desktop-portal-gtk yelp gnome-firmware")
         CFunc.sysctl_enable("-f gdm", error_on_fail=True)
         # Some Gnome Extensions
         CFunc.pacman_install("gnome-tweaks")
@@ -187,22 +177,19 @@ if __name__ == '__main__':
     elif args.desktop == "kde":
         # KDE
         CFunc.pacman_install("plasma kio-extras kdebase sddm")
-        CFunc.pacman_install("manjaro-kde-settings sddm-breath-theme manjaro-settings-manager-knotifier manjaro-settings-manager-kcm")
         CFunc.pacman_install("latte-dock")
         CFunc.pacman_install("pamac-qt pamac-tray-appindicator")
         CFunc.sysctl_enable("-f sddm", error_on_fail=True)
     elif args.desktop == "mate":
         # MATE
-        CFunc.pacman_install("mate network-manager-applet mate-extra manjaro-mate-settings papirus-maia-icon-theme matcha-gtk-theme manjaro-settings-manager manjaro-settings-manager-notifier")
-        CFunc.pacman_install("pamac-gtk")
+        CFunc.pacman_install("mate network-manager-applet mate-extra")
         lightdm_configure()
         # Brisk-menu
         CFunc.pacman_install("brisk-menu")
         # Run MATE Configuration
         subprocess.run("{0}/DExtMate.py".format(SCRIPTDIR), shell=True, check=True)
     elif args.desktop == "xfce":
-        CFunc.pacman_install("xfce4-gtk3 xfce4-terminal network-manager-applet xfce4-notifyd-gtk3 xfce4-whiskermenu-plugin-gtk3 tumbler engrampa manjaro-xfce-gtk3-settings manjaro-settings-manager")
-        CFunc.pacman_install("pamac-gtk")
+        CFunc.pacman_install("xfce4-gtk3 xfce4-terminal network-manager-applet xfce4-notifyd-gtk3 xfce4-whiskermenu-plugin-gtk3 tumbler engrampa")
         # xfce4-goodies
         CFunc.pacman_install("thunar-archive-plugin thunar-media-tags-plugin xfce4-artwork xfce4-battery-plugin xfce4-clipman-plugin xfce4-cpufreq-plugin xfce4-cpugraph-plugin xfce4-datetime-plugin xfce4-diskperf-plugin xfce4-fsguard-plugin xfce4-genmon-plugin xfce4-mount-plugin xfce4-mpc-plugin xfce4-netload-plugin xfce4-notifyd xfce4-pulseaudio-plugin xfce4-screensaver xfce4-screenshooter xfce4-sensors-plugin xfce4-systemload-plugin xfce4-taskmanager xfce4-timer-plugin xfce4-wavelan-plugin xfce4-weather-plugin xfce4-xkb-plugin xfce4-whiskermenu-plugin")
         lightdm_configure()

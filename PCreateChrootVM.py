@@ -225,7 +225,16 @@ if __name__ == '__main__':
     # Determine VM Name
     if args.ostype == 1:
         vm_name = "CC-Arch-kvm"
-        vmbootstrap_cmd = 'cd /opt/CustomScripts && git pull && git checkout {gitbranch} && cd ~ && curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash && cp /opt/CustomScripts/unattend/alis.conf . && yes | ./alis.sh && poweroff'.format(vm_name=vm_name, vmuser=args.vmuser, vmpass=args.vmpass, fullname=args.fullname, gitbranch=git_branch_retrieve())
+        # Modify alis
+        temp_folder = os.path.join(os.sep, "tmp")
+        temp_alis = os.path.join(temp_folder, "alis.conf")
+        shutil.copy(os.path.join(SCRIPTDIR, "unattend", "alis.conf"), temp_alis)
+        # Set usernames and passwords
+        CFunc.find_replace(temp_folder, "INSERTUSERHERE", args.vmuser, "alis.conf")
+        CFunc.find_replace(temp_folder, "INSERTPASSWORDHERE", args.vmpass, "alis.conf")
+        CFunc.find_replace(temp_folder, "INSERTHOSTNAMENAMEHERE", vm_name, "alis.conf")
+        # VM commands
+        vmbootstrap_cmd = 'cd /opt/CustomScripts && git checkout -f && git pull && git checkout {gitbranch} && cd ~ && curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash && cp /root/alis_new.conf /root/alis.conf && export LANG=en_US.UTF-8 && yes | ./alis.sh'.format(gitbranch=git_branch_retrieve())
         vmprovision_cmd = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:users -R ~{vmuser}; pacman -Sy --noconfirm git; {gitcmd}; /opt/CustomScripts/MArch.py -d {desktop}".format(vmuser=args.vmuser, sshkey=sshkey, gitcmd=git_cmdline(), desktop=args.desktopenv)
         kvm_variant = "archlinux"
 
@@ -266,6 +275,9 @@ if __name__ == '__main__':
     vm_start(vm_name)
     sship = vm_getip(vm_name)
     ssh_wait(ip=sship, port=localsshport, user=args.livesshuser, password=args.livesshpass)
+    # Pre-bootstrap commands
+    if args.ostype == 1:
+        scp_vm(ip=sship, port=localsshport, user=args.livesshuser, password=args.livesshpass, filepath=temp_alis, destination="/root/alis_new.conf")
     ssh_vm(ip=sship, port=localsshport, user=args.livesshuser, password=args.livesshpass, command=vmbootstrap_cmd)
     vm_shutdown(vm_name)
     # Eject cdrom
