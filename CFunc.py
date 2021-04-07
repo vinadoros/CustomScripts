@@ -5,6 +5,7 @@
 import fnmatch
 import logging
 import os
+import pathlib
 import platform
 import re
 import shutil
@@ -401,6 +402,9 @@ def AddLineToSudoersFile(sudoersfile, line, overwrite=False):
         if os.path.isfile(sudoersfile) and overwrite is True:
             print("Removing existing {0}".format(sudoersfile))
             os.remove(sudoersfile)
+        if not os.path.isfile(sudoersfile):
+            pathlib.Path(sudoersfile).touch()
+            os.chmod(sudoersfile, 0o440)
         if os.path.isfile(sudoersfile):
             with open(sudoersfile, 'r') as f:
                 sudoersfile_txt = f.read()

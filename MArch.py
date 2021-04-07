@@ -66,13 +66,13 @@ if __name__ == '__main__':
     vmstatus = CFunc.getvmstate()
 
     # Update mirrors.
-    subprocess.run("pacman-mirrors --geoip", shell=True, check=True)
-    subprocess.run("pacman-mirrors -f 7", shell=True, check=True)
+    CFunc.pacman_install("reflector")
+    subprocess.run("reflector --country 'United States' --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist", shell=True, check=True)
     CFunc.pacman_invoke("-Syy")
 
     ### Install Software ###
     # Yay
-    CFunc.pacman_install("yay")
+    # CFunc.pacman_install("yay")
     # Install AUR dependencies
     CFunc.pacman_install("base-devel")
     # Sudoers changes
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     # Install Desktop Software
     if args.desktop == "gnome":
         # Gnome
-        CFunc.pacman_install("baobab eog evince file-roller gdm gedit gnome-backgrounds gnome-calculator gnome-characters gnome-clocks gnome-wallpapers gnome-color-manager gnome-control-center gnome-font-viewer gnome-getting-started-docs gnome-keyring gnome-logs gnome-menus gnome-remote-desktop gnome-screenshot gnome-session gnome-settings-daemon gnome-shell gnome-shell-extensions gnome-system-monitor gnome-terminal gnome-themes-extra gnome-user-docs gnome-video-effects gnome-weather gvfs gvfs-google gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-smb mutter nautilus orca sushi tracker tracker-miners vino xdg-user-dirs-gtk xdg-desktop-portal-gtk yelp gnome-firmware")
+        CFunc.pacman_install("baobab eog evince file-roller gdm gedit gnome-backgrounds gnome-calculator gnome-characters gnome-clocks gnome-color-manager gnome-control-center gnome-font-viewer gnome-getting-started-docs gnome-keyring gnome-logs gnome-menus gnome-remote-desktop gnome-screenshot gnome-session gnome-settings-daemon gnome-shell gnome-shell-extensions gnome-system-monitor gnome-terminal gnome-themes-extra gnome-user-docs gnome-video-effects gnome-weather gvfs gvfs-google gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-smb mutter nautilus orca sushi tracker tracker-miners vino xdg-user-dirs-gtk xdg-desktop-portal-gtk yelp gnome-firmware")
         CFunc.sysctl_enable("-f gdm", error_on_fail=True)
         # Some Gnome Extensions
         CFunc.pacman_install("gnome-tweaks")
@@ -229,7 +229,7 @@ if __name__ == '__main__':
 
     if not args.nogui:
         # Install snapd
-        CFunc.pacman_install("snapd")
+        yay_install(USERNAMEVAR, "snapd")
         if not os.path.islink("/snap"):
             os.symlink("/var/lib/snapd/snap", "/snap", target_is_directory=True)
         CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("snap")))
@@ -239,9 +239,6 @@ if __name__ == '__main__':
         CFunc.pacman_install("flatpak xdg-desktop-portal")
         CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("flatpak")))
 
-        # Pamac frontends
-        CFunc.pacman_install("pamac-flatpak-plugin pamac-snap-plugin")
-
     # Disable mitigations
     CFuncExt.GrubEnvAdd(os.path.join(os.sep, "etc", "default", "grub"), "GRUB_CMDLINE_LINUX", "mitigations=off")
     CFuncExt.GrubUpdate()
@@ -250,7 +247,7 @@ if __name__ == '__main__':
     subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)
     if not args.nogui:
         subprocess.run(os.path.join(SCRIPTDIR, "CFlatpakConfig.py"), shell=True, check=True)
-    subprocess.run("{0}/Csshconfig.sh".format(SCRIPTDIR), shell=True, check=True)
+    subprocess.run("{0}/Csshconfig.py".format(SCRIPTDIR), shell=True, check=True)
     subprocess.run("{0}/CShellConfig.py -f -z -d".format(SCRIPTDIR), shell=True, check=True)
     subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True, check=True)
     subprocess.run("{0}/CVMGeneral.py".format(SCRIPTDIR), shell=True, check=True)
