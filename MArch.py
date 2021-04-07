@@ -197,6 +197,8 @@ if __name__ == '__main__':
     if not args.nogui:
         # Numix
         yay_install(USERNAMEVAR, "aur/numix-icon-theme-git aur/numix-circle-icon-theme-git")
+        # Disable multi-user target.
+        CFunc.sysctl_disable("multi-user.target", error_on_fail=False)
 
     # Add normal user to all reasonable groups
     CFunc.AddUserToGroup("disk")
