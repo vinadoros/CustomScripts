@@ -148,8 +148,8 @@ if __name__ == '__main__':
         CFunc.pacman_install("flameshot")
         os.makedirs(os.path.join(USERHOME, ".config", "autostart"), exist_ok=True)
         # Start flameshot on user login.
-        if os.path.isfile(os.path.join(os.sep, "usr", "share", "applications", "flameshot.desktop")):
-            shutil.copy(os.path.join(os.sep, "usr", "share", "applications", "flameshot.desktop"), os.path.join(USERHOME, ".config", "autostart"))
+        if os.path.isfile(os.path.join(os.sep, "usr", "share", "applications", "org.flameshot.Flameshot.desktop")):
+            shutil.copy(os.path.join(os.sep, "usr", "share", "applications", "org.flameshot.Flameshot.desktop"), os.path.join(USERHOME, ".config", "autostart"))
         CFunc.chown_recursive(os.path.join(USERHOME, ".config", ), USERNAMEVAR, USERGROUP)
         CFunc.pacman_install("dconf-editor")
         CFunc.pacman_install("gnome-disk-utility")
@@ -174,7 +174,7 @@ if __name__ == '__main__':
         CFunc.sysctl_enable("-f gdm", error_on_fail=True)
         # Some Gnome Extensions
         CFunc.pacman_install("gnome-tweaks")
-        CFunc.pacman_install("gpaste")
+        CFunc.pacman_install("gpaste chrome-gnome-shell")
         yay_install(USERNAMEVAR, "aur/gnome-shell-extension-topicons-plus-git")
         # Install gs installer script.
         gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
