@@ -272,7 +272,7 @@ if args.ostype == 40:
     vmprovision_defopts = "-d {0}".format(args.desktopenv)
     kvm_os = "freebsd"
     kvm_variant = "freebsd12.0"
-    isourl = "https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/12.2/FreeBSD-12.2-RELEASE-amd64-disc1.iso"
+    isourl = "https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/13.0/FreeBSD-13.0-RELEASE-amd64-disc1.iso"
 if 50 <= args.ostype <= 59:
     vboxosid = "Windows10_64"
     vmwareid = "windows9-64"
