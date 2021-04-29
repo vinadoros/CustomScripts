@@ -199,7 +199,7 @@ if 1 <= args.ostype <= 4:
     vmwareid = "fedora-64"
     kvm_os = "linux"
     kvm_variant = "fedora-rawhide"
-    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/33/Server/x86_64/iso/Fedora-Server-dvd-x86_64-33-1.2.iso"
+    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/34/Server/x86_64/iso/Fedora-Server-dvd-x86_64-34-1.2.iso"
 if args.ostype == 1:
     vmname = "Packer-Fedora-{0}".format(hvname)
     vmprovision_defopts = "-d {0}".format(args.desktopenv)
@@ -212,7 +212,7 @@ if args.ostype == 9:
     vmwareid = "fedora-64"
     kvm_os = "linux"
     kvm_variant = "silverblue-rawhide"
-    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/33/Silverblue/x86_64/iso/Fedora-Silverblue-ostree-x86_64-33-1.2.iso"
+    isourl = "https://download.fedoraproject.org/pub/fedora/linux/releases/34/Silverblue/x86_64/iso/Fedora-Silverblue-ostree-x86_64-34-1.2.iso"
     vmname = "Packer-FedoraSilverblue-{0}".format(hvname)
     vmprovision_defopts = ""
 if 10 <= args.ostype <= 19:
