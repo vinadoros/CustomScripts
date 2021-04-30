@@ -202,8 +202,9 @@ gpgcheck=0""")
     os.makedirs(os.path.join(USERHOME, ".config", "autostart"), exist_ok=True)
     # Start flameshot on user login.
     shutil.copy("/var/lib/flatpak/app/org.flameshot.Flameshot/current/active/export/share/applications/org.flameshot.Flameshot.desktop", os.path.join(USERHOME, ".config", "autostart"))
-    # Gnome Firmware
+    # Gnome Apps
     CFunc.flatpak_install("flathub", "org.gnome.Firmware")
+    CFunc.flatpak_install("flathub", "org.gnome.Extensions")
     # Configure permissions for apps
     CFunc.flatpak_override("org.gnome.FileRoller", "--filesystem=host")
     CFunc.chown_recursive(os.path.join(USERHOME, ".config", ), USERNAMEVAR, USERGROUP)
