@@ -54,7 +54,7 @@ CFunc.dnfupdate()
 
 ### Install Fedora Software ###
 # Cli tools
-CFunc.dnfinstall("fish zsh nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils xdg-user-dirs util-linux-user fuse-sshfs redhat-lsb-core openssh-server openssh-clients avahi nss-mdns dnf-plugin-system-upgrade xfsprogs exfat-utils")
+CFunc.dnfinstall("fish zsh nano tmux iotop rsync p7zip p7zip-plugins zip unzip xdg-utils xdg-user-dirs util-linux-user fuse-sshfs redhat-lsb-core openssh-server openssh-clients avahi nss-mdns dnf-plugin-system-upgrade xfsprogs")
 CFunc.dnfinstall("unrar")
 CFunc.sysctl_enable("sshd", error_on_fail=True)
 CFunc.dnfinstall("powerline-fonts google-roboto-fonts google-noto-sans-fonts")
