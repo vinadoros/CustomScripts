@@ -63,24 +63,23 @@ def vm_getimgpath(vmname: str, folder_path: str):
 def vm_createimage(img_path: str, size_gb: int):
     """Create a VM image file."""
     subprocess.run("qemu-img create -f qcow2 -o compat=1.1,lazy_refcounts=on '{0}' {1}G".format(img_path, size_gb), shell=True, check=True)
-def vm_create(vmname: str, img_path: str, isopath: str, kvm_os: str = "manjaro"):
+def vm_create(vmname: str, img_path: str, isopath: str, kvm_os: str):
     """Create the VM in libvirt."""
-    if 50 <= args.ostype <= 59:
-        kvm_video = "qxl"
-        kvm_diskinterface = "sata"
-        kvm_netdevice = "virtio"
-    else:
-        kvm_video = "virtio"
-        kvm_diskinterface = "virtio"
-        kvm_netdevice = "virtio"
     # virt-install manual: https://www.mankier.com/1/virt-install
     # List of os: osinfo-query os
-    CREATESCRIPT_KVM = """virt-install --connect qemu:///system --name={vmname} --install bootdev=cdrom --boot=hd,cdrom --disk device=cdrom,path="{isopath}",bus=sata,target=sda,readonly=on --disk path={fullpathtoimg},bus={kvm_diskinterface} --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model={kvm_netdevice} --filesystem source=/,target=root,mode=mapped --os-type={kvm_os} --os-variant={kvm_variant} --import --noautoconsole --noreboot --video={kvm_video} --channel unix,target_type=virtio,name=org.qemu.guest_agent.0 --channel spicevmc,target_type=virtio,name=com.redhat.spice.0 --boot uefi""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=img_path, kvm_os=kvm_os, kvm_variant=kvm_variant, kvm_video=kvm_video, kvm_diskinterface=kvm_diskinterface, kvm_netdevice=kvm_netdevice, isopath=isopath)
+    CREATESCRIPT_KVM = """virt-install --connect qemu:///system --name={vmname} --install bootdev=cdrom --boot=hd,cdrom --disk device=cdrom,path="{isopath}",bus=sata,target=sda,readonly=on --disk path={fullpathtoimg},bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model=virtio --filesystem source=/,target=root,mode=mapped --os-type={kvm_os} --os-variant={kvm_variant} --import --noautoconsole --noreboot --video=virtio --channel unix,target_type=virtio,name=org.qemu.guest_agent.0 --channel spicevmc,target_type=virtio,name=com.redhat.spice.0 --boot uefi""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, fullpathtoimg=img_path, kvm_os=kvm_os, kvm_variant=kvm_variant, isopath=isopath)
     logging.info("KVM launch command: {0}".format(CREATESCRIPT_KVM))
     subprocess.run(CREATESCRIPT_KVM, shell=True, check=True)
 def vm_ejectiso(vmname: str):
     """Eject an iso from a VM."""
     subprocess.run("virsh --connect qemu:///system change-media {0} sda --eject --config".format(vmname), shell=True, check=False)
+def vm_create_existingimage(vmname: str, vmpath: str, backing_img_path: str, kvm_os: str):
+    """Create the VM in libvirt, using an existing image as a backing store."""
+    # virt-install manual: https://www.mankier.com/1/virt-install
+    # List of os: osinfo-query os
+    CREATESCRIPT_KVM = """virt-install --connect qemu:///system --name={vmname} --install --boot=hd --disk size=100,backing_store={backing_img_path},bus=virtio,path={imgpath} --disk path={backing_img_path},bus=virtio --graphics spice --vcpu={cpus} --ram={memory} --network bridge=virbr0,model=virtio --filesystem source=/,target=root,mode=mapped --os-type={kvm_os} --os-variant={kvm_variant} --import --noautoconsole --noreboot --video=virtio --channel unix,target_type=virtio,name=org.qemu.guest_agent.0 --channel spicevmc,target_type=virtio,name=com.redhat.spice.0 --boot uefi""".format(vmname=vmname, memory=args.memory, cpus=CPUCORES, imgpath=os.path.join(vmpath, vmname + ".qcow2"), backing_img_path=backing_img_path, kvm_os=kvm_os, kvm_variant=kvm_variant)
+    logging.info("KVM launch command: {0}".format(CREATESCRIPT_KVM))
+    subprocess.run(CREATESCRIPT_KVM, shell=True, check=True)
 def ssh_vm(ip: str, command: str, ssh_opts: str = "", port: int = 22, user: str = "root", password: str = "asdf"):
     """SSH into the Virtual Machine and run a command."""
     status = subprocess.run("""sshpass -p "{password}" ssh {ssh_opts} {ip} -p {port} -l {user} '{command}'""".format(password=password, ip=ip, port=port, user=user, command=command, ssh_opts=ssh_opts), shell=True, check=False).returncode
@@ -184,7 +183,7 @@ if __name__ == '__main__':
 
     # Get arguments
     parser = argparse.ArgumentParser(description='Create and run a Virtual Machine.')
-    parser.add_argument("-a", "--ostype", type=int, help="OS type (20=Manjaro, 10=Ubuntu)", default="1")
+    parser.add_argument("-a", "--ostype", type=int, help="OS type (1=Arch, 3=Debian)", default=1)
     parser.add_argument("-d", "--debug", help='Use Debug Logging', action="store_true")
     parser.add_argument("-e", "--desktopenv", help="Desktop Environment (defaults to mate)", default="mate")
     parser.add_argument("-f", "--fullname", help="Full Name", default="User Name")
@@ -196,7 +195,7 @@ if __name__ == '__main__':
     parser.add_argument("-x", "--livesshpass", help="Live SSH Password", default="asdf")
     parser.add_argument("-y", "--vmuser", help="VM Username", default="user")
     parser.add_argument("-z", "--vmpass", help="VM Password", default="asdf")
-    parser.add_argument("--memory", help="Memory for VM", default="4096")
+    parser.add_argument("--memory", help="Memory for VM", default=4096)
     parser.add_argument("--noprompt", help='Do not prompt to continue.', action="store_true")
     args = parser.parse_args()
 
@@ -223,6 +222,9 @@ if __name__ == '__main__':
         sshkey = " "
 
     # Determine VM Name
+    # https://download.fedoraproject.org/pub/fedora/linux/releases/34/Cloud/x86_64/images/
+    # https://cloud-images.ubuntu.com/releases/focal/release/
+    vm_backing_img = ""
     if args.ostype == 1:
         vm_name = "CC-Arch-kvm"
         # Modify alis
@@ -237,6 +239,16 @@ if __name__ == '__main__':
         vmbootstrap_cmd = 'cd /opt/CustomScripts && git checkout -f && git pull && git checkout {gitbranch} && cd ~ && curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash && cp /root/alis_new.conf /root/alis.conf && cp /root/alis-packages_new.conf /root/alis-packages.conf && export LANG=en_US.UTF-8 && yes | ./alis.sh && echo "PermitRootLogin yes" >> /mnt/etc/ssh/sshd_config && poweroff'.format(gitbranch=git_branch_retrieve())
         vmprovision_cmd = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:users -R ~{vmuser}; pacman -Sy --noconfirm git; {gitcmd}; /opt/CustomScripts/MArch.py -d {desktop}".format(vmuser=args.vmuser, sshkey=sshkey, gitcmd=git_cmdline(), desktop=args.desktopenv)
         kvm_variant = "archlinux"
+    if args.ostype == 3:
+        vm_name = "CC-Debian-kvm"
+        # Image url
+        # https://cloud.debian.org/images/cloud/sid/daily/
+        # Username and password for initial bootstrap
+        vm_backing_img = ""
+        # VM commands
+        vmbootstrap_cmd = 'cd /opt/CustomScripts && git checkout -f && git pull && git checkout {gitbranch} && cd ~ && curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash && cp /root/alis_new.conf /root/alis.conf && cp /root/alis-packages_new.conf /root/alis-packages.conf && export LANG=en_US.UTF-8 && yes | ./alis.sh && echo "PermitRootLogin yes" >> /mnt/etc/ssh/sshd_config && poweroff'.format(gitbranch=git_branch_retrieve())
+        vmprovision_cmd = "mkdir -m 700 -p /root/.ssh; echo '{sshkey}' > /root/.ssh/authorized_keys; mkdir -m 700 -p ~{vmuser}/.ssh; echo '{sshkey}' > ~{vmuser}/.ssh/authorized_keys; chown {vmuser}:users -R ~{vmuser}; pacman -Sy --noconfirm git; {gitcmd}; /opt/CustomScripts/MArch.py -d {desktop}".format(vmuser=args.vmuser, sshkey=sshkey, gitcmd=git_cmdline(), desktop=args.desktopenv)
+        kvm_variant = "debiantesting"
 
     # Override VM Name if provided
     if args.vmname is not None:
@@ -269,8 +281,11 @@ if __name__ == '__main__':
 
     # Create new VM.
     print("\nCreating VM.")
-    vm_createimage(imgpath, imgsize)
-    vm_create(vm_name, imgpath, iso_path)
+    if args.ostype == 1:
+        vm_createimage(imgpath, imgsize)
+        vm_create(vm_name, imgpath, iso_path, kvm_variant)
+    else:
+        vm_create_existingimage(vm_name, vmpath, vm_backing_img, kvm_variant)
     # Bootstrap the VM.
     vm_start(vm_name)
     sship = vm_getip(vm_name)
