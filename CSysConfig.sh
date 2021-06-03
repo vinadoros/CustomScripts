@@ -37,13 +37,6 @@ if [ -f /etc/systemd/logind.conf ]; then
 	sed -i 's/^HandleLidSwitch=.*/HandleLidSwitch=lock/g' /etc/systemd/logind.conf
 fi
 
-# Enable pulseaudio flat volumes
-if ! grep -iq "^flat-volumes = no" /etc/pulse/daemon.conf; then
-	sed -i '/^;.*flat-volumes =.*/s/^;//g' /etc/pulse/daemon.conf
-	sed -i 's/flat-volumes =.*/flat-volumes = no/g' /etc/pulse/daemon.conf
-fi
-
-
 # Modify journald log size
 # https://unix.stackexchange.com/questions/139513/how-to-clear-journalctl
 if [ -f /etc/systemd/journald.conf ]; then

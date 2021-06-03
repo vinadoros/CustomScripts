@@ -509,10 +509,9 @@ if shutil.which("tmux"):
     tmux_cfg_common = os.path.join(tmux_cfg_path, ".tmux.conf")
     tmux_cfg_common_local = os.path.join(tmux_cfg_path, ".tmux.conf.local")
     # Modify Local settings before copying
-    subprocess.run("""sed -i 's/tmux_conf_copy_to_os_clipboard=false/tmux_conf_copy_to_os_clipboard=true/g' {0}
-sed -i 's/#set -g mouse on/set -g mouse on/g' {0}
-sed -i 's/#set -g history-limit 10000/set -g history-limit 10000/g' {0}
-""".format(tmux_cfg_common_local), shell=True, check=True)
+    CFunc.find_replace(tmux_cfg_common, "tmux_conf_copy_to_os_clipboard=false", "tmux_conf_copy_to_os_clipboard=true", ".tmux.conf.local")
+    CFunc.find_replace(tmux_cfg_common, "#set -g mouse on", "set -g mouse on", ".tmux.conf.local")
+    CFunc.find_replace(tmux_cfg_common, "#set -g history-limit 10000", "set -g history-limit 10000", ".tmux.conf.local")
     # Rebind n and p to cycle windows
     with open(tmux_cfg_common_local, 'a') as f:
         f.write("\nbind p previous-window\nbind n next-window\n")

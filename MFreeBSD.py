@@ -69,11 +69,11 @@ vmstatus = CFunc.getvmstate()
 ### Install FreeBSD Software ###
 # Cli tools
 pkg_install("git python3 sudo nano bash zsh tmux rsync wget p7zip p7zip-codec-rar zip unzip xdg-utils xdg-user-dirs fusefs-sshfs avahi-app")
-pkg_install("powerline-fonts ubuntu-font roboto-fonts-ttf noto-lite liberation-fonts-ttf")
+pkg_install("powerline-fonts ubuntu-font roboto-fonts-ttf noto-basic liberation-fonts-ttf")
 # Portmaster
 pkg_install("portmaster")
 # Samba
-pkg_install("samba46")
+pkg_install("samba412")
 sysrc_cmd('samba_server_enable=yes winbindd_enable=yes')
 # NTP Configuration
 sysrc_cmd('ntpd_enable=yes')
@@ -82,9 +82,9 @@ if not args.nogui:
     # Browsers
     pkg_install("firefox")
     # Wine
-    pkg_install("wine-devel wine-gecko-devel wine-mono-devel winetricks")
+    pkg_install("i386-wine-devel winetricks")
     # Remote access
-    pkg_install("remmina remmina-plugins remmina-plugin-vnc remmina-plugin-rdp")
+    pkg_install("remmina")
     # Editors
     pkg_install("geany")
     # Terminator
@@ -149,10 +149,9 @@ subprocess.run("pw usermod {0} -G wheel,video,operator".format(USERNAMEVAR), she
 
 # Extra scripts
 subprocess.run("{0}/CCSClone.py".format(SCRIPTDIR), shell=True, check=True)
-subprocess.run("bash {0}/Csshconfig.py".format(SCRIPTDIR), shell=True, check=True)
 subprocess.run("{0}/CShellConfig.py -z -d".format(SCRIPTDIR), shell=True, check=True)
 subprocess.run("{0}/CDisplayManagerConfig.py".format(SCRIPTDIR), shell=True, check=True)
-subprocess.run("bash {0}/CVMGeneral.py".format(SCRIPTDIR), shell=True, check=True)
+subprocess.run("{0}/CVMGeneral.py".format(SCRIPTDIR), shell=True, check=True)
 subprocess.run("{0}/Cxdgdirs.py".format(SCRIPTDIR), shell=True, check=True)
 subprocess.run("bash {0}/CSysConfig.sh".format(SCRIPTDIR), shell=True, check=True)
 
