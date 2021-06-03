@@ -46,7 +46,7 @@ def firefox_modify_settings(setting: str, value: str, prefsjs_filepath: str):
     with open(prefsjs_filepath, 'r') as f:
         prefs_txt = f.read()
     # Find the preference in prefs.js.
-    if setting in prefs_txt:
+    if '"{0}"'.format(setting) in prefs_txt:
         # If the preference exists, change the setting in the file.
         subprocess.run('''sed -i 's/user_pref("{0}",.*);/user_pref("{0}", {1});/' {2}'''.format(setting, value, prefsjs_filepath), shell=True, check=False)
     else:
@@ -476,7 +476,7 @@ if os.path.isdir(firefox_profiles_path):
                     firefox_modify_settings("app.shield.optoutstudies.enabled", "false", prefsjs_file)
                     firefox_modify_settings("browser.newtabpage.activity-stream.showSponsored", "false", prefsjs_file)
                     firefox_modify_settings("browser.newtabpage.enabled", "false", prefsjs_file)
-                    firefox_modify_settings("browser.startup.homepage", "about:blank", prefsjs_file)
+                    firefox_modify_settings("browser.startup.homepage", '"about:blank"', prefsjs_file)
                     # DNS-over-HTTPS
                     firefox_modify_settings("network.trr.mode", "2", prefsjs_file)
                     firefox_modify_settings("network.trr.bootstrapAddress", '"1.1.1.1"', prefsjs_file)
