@@ -68,10 +68,13 @@ vmstatus = CFunc.getvmstate()
 
 ### Install FreeBSD Software ###
 # Cli tools
-pkg_install("git python3 sudo nano bash zsh tmux rsync wget p7zip p7zip-codec-rar zip unzip xdg-utils xdg-user-dirs fusefs-sshfs avahi-app")
+pkg_install("git python3 sudo nano bash zsh tmux rsync wget p7zip p7zip-codec-rar zip unzip xdg-utils xdg-user-dirs fusefs-sshfs")
 pkg_install("powerline-fonts ubuntu-font roboto-fonts-ttf noto-basic liberation-fonts-ttf")
 # Portmaster
 pkg_install("portmaster")
+# Avahi
+pkg_install("avahi-app avahi-autoipd avahi-libdns nss_mdns")
+sysrc_cmd('dbus_enable=yes avahi_daemon_enable=yes avahi_dnsconfd_enable=yes')
 # Samba
 pkg_install("samba412")
 sysrc_cmd('samba_server_enable=yes winbindd_enable=yes')
