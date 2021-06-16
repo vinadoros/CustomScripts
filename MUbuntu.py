@@ -187,12 +187,12 @@ if args.desktop == "gnome":
     # Install gs installer script.
     gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
     os.chmod(gs_installer[0], 0o777)
-    # Install volume extension
-    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 858".format(gs_installer[0]))
-    # Install topiconsplus extension
-    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 1031".format(gs_installer[0]))
-    # Install dashtodock extension
-    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 307".format(gs_installer[0]))
+    # Dash to panel
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 1160".format(gs_installer[0]))
+    # https://github.com/kgshank/gse-sound-output-device-chooser
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 906".format(gs_installer[0]))
+    # https://github.com/mymindstorm/gnome-volume-mixer 
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 3499".format(gs_installer[0]))
 elif args.desktop == "kde":
     print("\n Installing kde desktop")
     CFunc.aptmark(held_pkgs)

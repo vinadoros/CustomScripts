@@ -227,7 +227,7 @@ if shutil.which("gnome-session"):
     gsettings_set("org.gnome.settings-daemon.plugins.xsettings", "hinting", "full")
     gsettings_set("org.gnome.desktop.interface", "text-scaling-factor", "1.0")
     gsettings_set("org.gnome.desktop.interface", "clock-show-date", "true")
-    gsettings_set("org.gnome.shell", "enabled-extensions", "['window-list@gnome-shell-extensions.gcampax.github.com', 'dash-to-dock@micxgx.gmail.com', 'GPaste@gnome-shell-extensions.gnome.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'shell-volume-mixer@derhofbauer.at', 'TopIcons@phocean.net', 'ubuntu-appindicators@ubuntu.com']")
+    gsettings_set("org.gnome.shell", "enabled-extensions", "['window-list@gnome-shell-extensions.gcampax.github.com', 'dash-to-dock@micxgx.gmail.com', 'dash-to-panel@jderose9.github.com', 'GPaste@gnome-shell-extensions.gnome.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'shell-volume-mixer@derhofbauer.at', 'TopIcons@phocean.net']")
     gsettings_set("org.gnome.desktop.wm.preferences", "button-layout", ":minimize,maximize,close")
     gsettings_set("org.gnome.desktop.interface", "locate-pointer", "true")
     gsettings_set("org.gnome.mutter", "locate-pointer-key", "'Control_R'")
@@ -247,16 +247,15 @@ if shutil.which("gnome-session"):
     gsettings_set("org.gnome.gnome-system-monitor", "show-whose-processes", "all")
     gsettings_set("org.freedesktop.Tracker.Miner.Files", "crawling-interval", "-2")
     gsettings_set("org.freedesktop.Tracker.Miner.Files", "enable-monitors", "false")
-    dconf_write("/org/gnome/shell/extensions/dash-to-dock/intellihide", "true")
-    dconf_write("/org/gnome/shell/extensions/dash-to-dock/multi-monitor", "true")
-    # Blocked by https://github.com/micheleg/dash-to-dock/issues/1025
-    # dconf_write("/org/gnome/shell/extensions/dash-to-dock/show-mounts", "false")
-    dconf_write("/org/gnome/shell/extensions/dash-to-dock/show-trash", "false")
-    dconf_write("/org/gnome/shell/extensions/dash-to-dock/dock-fixed", "false")
-    dconf_write("/org/gnome/shell/extensions/dash-to-dock/intellihide-mode", "'ALL_WINDOWS'")
-    dconf_write("/org/gnome/shell/extensions/dash-to-dock/require-pressure-to-show", "true")
-    dconf_write("/org/gnome/shell/extensions/dash-to-dock/pressure-threshold", "50.0")
-    dconf_write("/org/gnome/shell/extensions/dash-to-dock/hide-delay", "1.0")
+    # Disabled dash-to-dock until updated for Gnome 40.0
+    # dconf_write("/org/gnome/shell/extensions/dash-to-dock/intellihide", "true")
+    # dconf_write("/org/gnome/shell/extensions/dash-to-dock/multi-monitor", "true")
+    # dconf_write("/org/gnome/shell/extensions/dash-to-dock/show-trash", "false")
+    # dconf_write("/org/gnome/shell/extensions/dash-to-dock/dock-fixed", "false")
+    # dconf_write("/org/gnome/shell/extensions/dash-to-dock/intellihide-mode", "'ALL_WINDOWS'")
+    # dconf_write("/org/gnome/shell/extensions/dash-to-dock/require-pressure-to-show", "true")
+    # dconf_write("/org/gnome/shell/extensions/dash-to-dock/pressure-threshold", "50.0")
+    # dconf_write("/org/gnome/shell/extensions/dash-to-dock/hide-delay", "1.0")
     dconf_write("/org/gnome/shell/extensions/window-list/show-on-all-monitors", "true")
     # Set gnome-terminal scrollback
     dconf_write("/org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9/scrollback-unlimited", "true")
@@ -265,6 +264,15 @@ if shutil.which("gnome-session"):
     gsettings_set("org.gnome.desktop.interface", "font-name", "'Roboto 11'")
     gsettings_set("org.gnome.desktop.interface", "monospace-font-name", "'Liberation Mono 11'")
     gsettings_set("org.gnome.desktop.wm.preferences", "titlebar-font", "'Roboto Bold 11'")
+    # Dash to panel settings
+    dconf_write("/org/gnome/shell/extensions/dash-to-panel/panel-positions", r"""'{"0":"TOP"}'""")
+    dconf_write("/org/gnome/shell/extensions/dash-to-panel/panel-sizes", r"""'{"0":32}'""")
+    dconf_write("/org/gnome/shell/extensions/dash-to-panel/appicon-margin", "4")
+    dconf_write("/org/gnome/shell/extensions/dash-to-panel/appicon-padding", "2")
+    dconf_write("/org/gnome/shell/extensions/dash-to-panel/dot-position", "'BOTTOM'")
+    dconf_write("/org/gnome/shell/extensions/dash-to-panel/dot-style-focused", "'DASHES'")
+    dconf_write("/org/gnome/shell/extensions/dash-to-panel/dot-style-unfocused", "'DOTS'")
+
 
     # This section enables custom keybindings.
     gsettings_set("org.gnome.settings-daemon.plugins.media-keys", "custom-keybindings", "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']")
