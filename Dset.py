@@ -280,15 +280,19 @@ if shutil.which("gnome-session"):
     gsettings_set("org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/", "command", "'gnome-control-center display'")
     gsettings_set("org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/", "name", "'Gnome Display Settings'")
     # No Fish config for gnome-terminal, does not change folders when using "Open in Terminal"
-    if shutil.which("file-roller"):
+    # Determine default archive program
+    handler_archive = None
+    if os.path.isfile("/var/lib/flatpak/exports/share/applications/org.gnome.FileRoller.desktop") or os.path.isfile("/usr/share/applications/org.gnome.FileRoller.desktop"):
+        handler_archive = "org.gnome.FileRoller.desktop"
+    if handler_archive:
         # Run "xdg-mime query default <mime type>" to get current association.
-        subprocess.run("xdg-mime default org.gnome.FileRoller.desktop application/x-7z-compressed", shell=True, check=False)
-        subprocess.run("xdg-mime default org.gnome.FileRoller.desktop application/x-xz-compressed-tar", shell=True, check=False)
-        subprocess.run("xdg-mime default org.gnome.FileRoller.desktop application/zip", shell=True, check=False)
-        subprocess.run("xdg-mime default org.gnome.FileRoller.desktop application/x-compressed-tar", shell=True, check=False)
-        subprocess.run("xdg-mime default org.gnome.FileRoller.desktop application/x-bzip-compressed-tar", shell=True, check=False)
-        subprocess.run("xdg-mime default org.gnome.FileRoller.desktop application/x-tar", shell=True, check=False)
-        subprocess.run("xdg-mime default org.gnome.FileRoller.desktop application/x-xz", shell=True, check=False)
+        subprocess.run("xdg-mime default {0} application/x-7z-compressed".format(handler_archive), shell=True, check=False)
+        subprocess.run("xdg-mime default {0} application/x-xz-compressed-tar".format(handler_archive), shell=True, check=False)
+        subprocess.run("xdg-mime default {0} application/zip".format(handler_archive), shell=True, check=False)
+        subprocess.run("xdg-mime default {0} application/x-compressed-tar".format(handler_archive), shell=True, check=False)
+        subprocess.run("xdg-mime default {0} application/x-bzip-compressed-tar".format(handler_archive), shell=True, check=False)
+        subprocess.run("xdg-mime default {0} application/x-tar".format(handler_archive), shell=True, check=False)
+        subprocess.run("xdg-mime default {0} application/x-xz".format(handler_archive), shell=True, check=False)
 
 
 # KDE/Plasma specific Settings
