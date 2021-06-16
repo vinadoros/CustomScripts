@@ -149,7 +149,7 @@ CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USE
 # GUI programs
 if args.nogui is False:
     CFunc.aptinstall("synaptic gnome-disk-utility gdebi gparted xdg-utils")
-    CFunc.aptinstall("dconf-editor")
+    CFunc.aptinstall("dconf-cli dconf-editor")
     # Browsers
     if args.unstable:
         CFunc.aptinstall("firefox")
