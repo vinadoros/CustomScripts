@@ -173,6 +173,8 @@ gpgcheck=0""")
     CFunc.run_as_user(USERNAMEVAR, "{0} --yes 906".format(gs_installer[0]))
     # https://github.com/mymindstorm/gnome-volume-mixer 
     CFunc.run_as_user(USERNAMEVAR, "{0} --yes 3499".format(gs_installer[0]))
+    # Kstatusnotifier
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 615".format(gs_installer[0]))
 
     # Add normal user to all reasonable groups
     group_silverblueadd("disk")

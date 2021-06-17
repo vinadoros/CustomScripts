@@ -205,8 +205,18 @@ if args.desktop == "gnome":
     print("\n Installing gnome desktop")
     CFunc.aptinstall("task-gnome-desktop")
     CFunc.aptinstall("gnome-clocks")
-    CFunc.aptinstall("gnome-shell-extensions gnome-shell-extension-dashtodock gnome-shell-extension-top-icons-plus gnome-shell-extensions-gpaste")
-    subprocess.run("{0}/DExtGnome.py -v".format(SCRIPTDIR), shell=True, check=True)
+    CFunc.aptinstall("gnome-shell-extensions gnome-shell-extensions-gpaste")
+    # Install gs installer script.
+    gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
+    os.chmod(gs_installer[0], 0o777)
+    # Dash to panel
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 1160".format(gs_installer[0]))
+    # https://github.com/kgshank/gse-sound-output-device-chooser
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 906".format(gs_installer[0]))
+    # https://github.com/mymindstorm/gnome-volume-mixer 
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 3499".format(gs_installer[0]))
+    # Kstatusnotifier
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 615".format(gs_installer[0]))
 elif args.desktop == "mate":
     print("\n Installing mate desktop")
     CFunc.aptinstall("task-mate-desktop mate-tweak dconf-cli")

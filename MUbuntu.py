@@ -182,7 +182,6 @@ if args.desktop == "gnome":
     CFunc.aptinstall("gnome-clocks")
     CFunc.snap_install("gnome-calculator gnome-characters gnome-logs gnome-system-monitor")
     CFunc.aptinstall("gnome-shell-extensions")
-    # subprocess.run("{0}/DExtGnome.py -t -v -d".format(SCRIPTDIR), shell=True)
     CFunc.aptinstall("gnome-software-plugin-flatpak")
     # Install gs installer script.
     gs_installer = CFunc.downloadfile("https://raw.githubusercontent.com/brunelli/gnome-shell-extension-installer/master/gnome-shell-extension-installer", os.path.join(os.sep, "usr", "local", "bin"), overwrite=True)
@@ -193,6 +192,8 @@ if args.desktop == "gnome":
     CFunc.run_as_user(USERNAMEVAR, "{0} --yes 906".format(gs_installer[0]))
     # https://github.com/mymindstorm/gnome-volume-mixer 
     CFunc.run_as_user(USERNAMEVAR, "{0} --yes 3499".format(gs_installer[0]))
+    # Kstatusnotifier
+    CFunc.run_as_user(USERNAMEVAR, "{0} --yes 615".format(gs_installer[0]))
 elif args.desktop == "kde":
     print("\n Installing kde desktop")
     CFunc.aptmark(held_pkgs)

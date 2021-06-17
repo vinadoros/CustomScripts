@@ -72,12 +72,12 @@ USERHOME = str(pathlib.Path.home())
 
 ### Begin Code ###
 # Editor settings
-if shutil.which("code"):
-    subprocess.run("xdg-mime default code.desktop text/x-shellscript", shell=True, check=True)
-    subprocess.run("xdg-mime default code.desktop text/plain", shell=True, check=True)
-elif shutil.which("atom"):
-    subprocess.run("xdg-mime default atom.desktop text/x-shellscript", shell=True, check=True)
-    subprocess.run("xdg-mime default atom.desktop text/plain", shell=True, check=True)
+handler_text = None
+if os.path.isfile("/usr/share/applications/code.desktop"):
+    handler_text = "code.desktop"
+if handler_text:
+    subprocess.run("xdg-mime default {0} text/x-shellscript".format(handler_text), shell=True, check=True)
+    subprocess.run("xdg-mime default {0} text/plain".format(handler_text), shell=True, check=True)
 
 # Commented statements to set default text editor
 # xdg-mime default pluma.desktop text/plain
@@ -227,7 +227,7 @@ if shutil.which("gnome-session"):
     gsettings_set("org.gnome.settings-daemon.plugins.xsettings", "hinting", "full")
     gsettings_set("org.gnome.desktop.interface", "text-scaling-factor", "1.0")
     gsettings_set("org.gnome.desktop.interface", "clock-show-date", "true")
-    gsettings_set("org.gnome.shell", "enabled-extensions", "['window-list@gnome-shell-extensions.gcampax.github.com', 'dash-to-dock@micxgx.gmail.com', 'dash-to-panel@jderose9.github.com', 'GPaste@gnome-shell-extensions.gnome.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'shell-volume-mixer@derhofbauer.at', 'TopIcons@phocean.net']")
+    gsettings_set("org.gnome.shell", "enabled-extensions", "['window-list@gnome-shell-extensions.gcampax.github.com', 'dash-to-dock@micxgx.gmail.com', 'dash-to-panel@jderose9.github.com', 'GPaste@gnome-shell-extensions.gnome.org', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'sound-output-device-chooser@kgshank.net', 'volume-mixer@evermiss.net', 'appindicatorsupport@rgcjonas.gmail.com']")
     gsettings_set("org.gnome.desktop.wm.preferences", "button-layout", ":minimize,maximize,close")
     gsettings_set("org.gnome.desktop.interface", "locate-pointer", "true")
     gsettings_set("org.gnome.mutter", "locate-pointer-key", "'Control_R'")
