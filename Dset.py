@@ -29,6 +29,11 @@ def dconf_write(key: str, value: str):
     status = subprocess.run(['dconf', 'write', key, value], check=False).returncode
     if status != 0:
         print("ERROR, failed to run: dconf write {0} {1}".format(key, value))
+def kwriteconfig(file: str, group: str, key: str, value: str):
+    """Set KDE configs using kwriteconfig5."""
+    status = subprocess.run(['kwriteconfig5', '--file', file, "--group", group, "--key", key, value], check=False).returncode
+    if status != 0:
+        print("ERROR, failed to run: kwriteconfig5 --file {0} --group {1} --key {2} {3}".format(file, group, key, value))
 def xfconf(channel: str, prop: str, var_type: str, value: str, extra_options: list = None):
     """
     Set value to property using xfconf.
@@ -308,22 +313,19 @@ if shutil.which("kwriteconfig5") and shutil.which("plasma_session"):
     # KDE Globals
     subprocess.run('kwriteconfig5 --file kdeglobals --group KDE --key SingleClick --type bool false', shell=True, check=False)
     subprocess.run('kwriteconfig5 --file kdeglobals --group General    --key XftSubPixel "rgb"', shell=True, check=False)
-    # kwriteconfig5 --file kdeglobals --group General    --key fixed "Liberation Mono,10,-1,5,50,0,0,0,0,0,Regular"
     os.makedirs("{0}/.kde/share/config".format(USERHOME), exist_ok=True)
     if icon_theme_is_present():
         subprocess.run('kwriteconfig5 --file kdeglobals --group Icons --key Theme "Numix-Circle"', shell=True, check=False)
         subprocess.run('kwriteconfig5 --file ~/.kde/share/config/kdeglobals --group Icons --key Theme "Numix-Circle"', shell=True, check=False)
     # Keyboard shortcuts
-    subprocess.run('kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomDown ",Meta+Down,Move Zoomed Area Downwards"', shell=True, check=False)
-    subprocess.run('kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomLeft ",Meta+Left,Move Zoomed Area to Left"', shell=True, check=False)
-    subprocess.run('kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomRight ",Meta+Right,Move Zoomed Area to Right"', shell=True, check=False)
-    subprocess.run('kwriteconfig5 --file kglobalshortcutsrc --group kwin --key MoveZoomUp ",Meta+Up,Move Zoomed Area Upwards"', shell=True, check=False)
-    subprocess.run('kwriteconfig5 --file kglobalshortcutsrc --group kwin --key "Window Maximize" "Meta+Up\tMeta+Down,none,Maximize Window"', shell=True, check=False)
+    kwriteconfig("kglobalshortcutsrc", "kwin", "Window Maximize", "Meta+Up,Meta+PgUp,Maximize Window")
+    kwriteconfig("kglobalshortcutsrc", "kwin", "Window Minimize", "Meta+Down,Meta+PgDown,Minimize Window")
     # Workaround for kwriteconfig escaping \t as \\t. Without quotes, \t is escaped as only t.
     subprocess.run("sed -i 's@\\\\t@\\t@g' $HOME/.config/kglobalshortcutsrc", shell=True, check=False)
-    subprocess.run('kwriteconfig5 --file kglobalshortcutsrc --group kwin --key "Window Quick Tile Left" "Meta+Left,none,Quick Tile Window to the Left"', shell=True, check=False)
-    subprocess.run('kwriteconfig5 --file kglobalshortcutsrc --group kwin --key "Window Quick Tile Right" "Meta+Right,none,Quick Tile Window to the Right"', shell=True, check=False)
-    subprocess.run('kwriteconfig5 --file kglobalshortcutsrc --group kwin --key "Show Desktop" "Meta+m,none,Show Desktop"', shell=True, check=False)
+    kwriteconfig("kglobalshortcutsrc", "kwin", "Window Quick Tile Left", "Meta+Left,none,Quick Tile Window to the Left")
+    kwriteconfig("kglobalshortcutsrc", "kwin", "Window Quick Tile Right", "Meta+Right,none,Quick Tile Window to the Right")
+    kwriteconfig("kglobalshortcutsrc", "kwin", "Window Quick Tile Bottom", "Meta+PgDown,Meta+Down,Quick Tile Window to the Bottom")
+    kwriteconfig("kglobalshortcutsrc", "kwin", "Window Quick Tile Top", "Meta+PgUp,Meta+Up,Quick Tile Window to the Top")
     # Window Manager
     subprocess.run('kwriteconfig5 --file kwinrc --group Plugins --key "kwin4_effect_translucencyEnabled" "false"', shell=True, check=False)
     subprocess.run('kwriteconfig5 --file kwinrc --group Plugins --key "slidingpopupsEnabled" "false"', shell=True, check=False)
