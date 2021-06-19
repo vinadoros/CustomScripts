@@ -77,7 +77,7 @@ if not args.nogui:
     # Toolbox
     CFunc.dnfinstall("toolbox")
     # Base Packages
-    CFunc.dnfinstall("@fonts @base-x @networkmanager-submodules")
+    CFunc.dnfinstall("@fonts @base-x @networkmanager-submodules xrandr")
     # Browsers
     # Official Google Chrome
     # CFunc.dnfinstall("https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm")
