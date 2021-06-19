@@ -359,6 +359,8 @@ if shutil.which("kwriteconfig5") and shutil.which("plasma_session"):
         subprocess.run('qdbus org.kde.KWin /KWin reconfigure', shell=True, check=False)
     
     # Panel Positions
+    # Config information and example: https://github.com/shalva97/kde-configuration-files
+    # Convert kde config to kwriteconfig line: https://gist.github.com/shalva97/a705590f2c0e309374cccc7f6bd667cb
     if os.path.isfile(os.path.join(USERHOME, ".config", "plasmashellrc")):
         os.remove(os.path.join(USERHOME, ".config", "plasmashellrc"))
     subprocess.run('kwriteconfig5 --file plasmashellrc --group "PlasmaTransientsConfig" --key "PreloadWeight" "34"', shell=True, check=False)
@@ -398,7 +400,7 @@ if shutil.which("kwriteconfig5") and shutil.which("plasma_session"):
     subprocess.run('kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group "Containments" --group "2" --group "Applets" --group "5" --key "immutability" "1"', shell=True, check=False)
     subprocess.run('kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group "Containments" --group "2" --group "Applets" --group "5" --key "plugin" "org.kde.plasma.icontasks"', shell=True, check=False)
     subprocess.run('kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group "Containments" --group "2" --group "Applets" --group "5" --group "Configuration" --key "PreloadWeight" "42"', shell=True, check=False)
-    subprocess.run('kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group "Containments" --group "2" --group "Applets" --group "5" --group "Configuration" --group "General" --key "launchers" "applications:firefox.desktop,applications:systemsettings.desktop,preferred://filemanager,applications:com.gexperts.Tilix.desktop"', shell=True, check=False)
+    subprocess.run('kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group "Containments" --group "2" --group "Applets" --group "5" --group "Configuration" --group "General" --key "launchers" "applications:firefox.desktop,applications:systemsettings.desktop,preferred://filemanager,applications:com.gexperts.Tilix.desktop,applications:org.kde.plasma-systemmonitor.desktop"', shell=True, check=False)
     subprocess.run('kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group "Containments" --group "2" --group "Applets" --group "6" --key "immutability" "1"', shell=True, check=False)
     subprocess.run('kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group "Containments" --group "2" --group "Applets" --group "6" --key "plugin" "org.kde.plasma.marginsseparator"', shell=True, check=False)
     subprocess.run('kwriteconfig5 --file plasma-org.kde.plasma.desktop-appletsrc --group "Containments" --group "2" --group "Applets" --group "6" --group "Configuration" --key "PreloadWeight" "42"', shell=True, check=False)
