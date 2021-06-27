@@ -165,6 +165,9 @@ if shutil.which("mate-session"):
     gsettings_set("org.mate.interface", "font-name", "'Roboto 11'")
     gsettings_set("org.mate.interface", "monospace-font-name", "'Liberation Mono 11'")
     gsettings_set("org.mate.Marco.general", "titlebar-font", "'Roboto Bold 11'")
+    dconf_write("/org/mate/terminal/profiles/default/use-theme-colors", "false")
+    dconf_write("/org/mate/terminal/profiles/default/background-color", "'#00002B2A3635'")
+    dconf_write("/org/mate/terminal/profiles/default/foreground-color", "'#838294939695'")
     # Icon theme
     if icon_theme_is_present():
         gsettings_set("org.mate.interface", "icon-theme", "Numix-Circle")
@@ -277,7 +280,6 @@ if shutil.which("gnome-session"):
     dconf_write("/org/gnome/shell/extensions/dash-to-panel/dot-position", "'BOTTOM'")
     dconf_write("/org/gnome/shell/extensions/dash-to-panel/dot-style-focused", "'DASHES'")
     dconf_write("/org/gnome/shell/extensions/dash-to-panel/dot-style-unfocused", "'DOTS'")
-
 
     # This section enables custom keybindings.
     gsettings_set("org.gnome.settings-daemon.plugins.media-keys", "custom-keybindings", "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']")
