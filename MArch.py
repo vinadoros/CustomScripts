@@ -90,17 +90,6 @@ if __name__ == '__main__':
     # Yay
     if not shutil.which("yay"):
         install_aur_pkg("yay-bin")
-    # Set pacman.conf to use PackageRequired, don't check sigs for database.
-    # https://wiki.archlinux.org/index.php/Powerpill#Troubleshooting
-    subprocess.run("sed -i 's/^SigLevel\s*=\s*Required\s*DatabaseOptional/SigLevel = PackageRequired/g' /etc/pacman.conf", shell=True, check=True)
-    # Import Xyne gpg key
-    CFunc.run_as_user(USERNAMEVAR, "pacman-key --export 1D1F0DC78F173680 > /tmp/xyne.asc", error_on_fail=True)
-    CFunc.run_as_user(USERNAMEVAR, "gpg --import /tmp/xyne.asc", error_on_fail=True)
-    # Powerpill
-    yay_install(USERNAMEVAR, "powerpill")
-    # Have yay use powerpill
-    CFunc.run_as_user(USERNAMEVAR, "yay --pacman powerpill --save", error_on_fail=True)
-    CFunc.AddLineToSudoersFile(sudoersfile, "{0} ALL=(ALL) NOPASSWD: {1}".format(USERNAMEVAR, shutil.which("powerpill")))
 
     # Cli tools
     CFunc.pacman_install("bash-completion fish zsh zsh-completions nano git tmux iotop rsync p7zip zip unzip unrar xdg-utils xdg-user-dirs sshfs openssh avahi nss-mdns ntfs-3g exfat-utils python-pip")
