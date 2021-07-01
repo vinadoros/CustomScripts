@@ -57,7 +57,7 @@ if [ -d /var/log/journal ]; then
 fi
 
 # Nano Configuration
-NANOCONFIG="set linenumbers\nset constantshow\nset softwrap\nset smooth\nset tabsize 4"
+NANOCONFIG="set linenumbers\nset constantshow\nset softwrap\nset tabsize 4"
 # For root
 echo -e $NANOCONFIG > "/root/.nanorc"
 # For user
