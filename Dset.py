@@ -280,6 +280,8 @@ if shutil.which("gnome-session"):
     dconf_write("/org/gnome/shell/extensions/dash-to-panel/dot-position", "'BOTTOM'")
     dconf_write("/org/gnome/shell/extensions/dash-to-panel/dot-style-focused", "'DASHES'")
     dconf_write("/org/gnome/shell/extensions/dash-to-panel/dot-style-unfocused", "'DOTS'")
+    dconf_write("/org/gnome/shell/extensions/dash-to-panel/primary-monitor", "1")
+    dconf_write("/org/gnome/shell/extensions/dash-to-panel/multi-monitors", "false")
 
     # This section enables custom keybindings.
     gsettings_set("org.gnome.settings-daemon.plugins.media-keys", "custom-keybindings", "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']")
