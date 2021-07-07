@@ -62,8 +62,8 @@ Install-Module -Name 'posh-git' -AllowClobber
 Install-Module -Name 'oh-my-posh' -AllowClobber
 Install-Module -Name 'Get-ChildItemColor' -AllowClobber
 Install-Module -Name 'PSReadLine' -AllowClobber
-choco upgrade -y cascadiacodepl
 """, shell=True, check=True, executable=powershell_cmd_fullpath)
+subprocess.run("choco upgrade -y cascadiacodepl", shell=True, check=False, executable=powershell_cmd_fullpath)
 
 # Install powershell profile
 powershell_profile_script = CFunc.subpout('{0} -c "echo $PROFILE"'.format(powershell_cmd))
@@ -84,7 +84,7 @@ Import-Module -Name posh-git
 Import-Module -Name oh-my-posh
 
 # Default the prompt to agnoster oh-my-posh theme
-Set-Theme agnoster
+Set-PoshPrompt -Theme agnosterplus
 
 
 ### Functions ###
