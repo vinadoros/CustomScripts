@@ -179,8 +179,17 @@ for idx in range(1, 5):
         data["editor.wordWrap"] = "on"
         # Flatpak specific options
         if idx == 2:
-            data["terminal.integrated.shell.linux"] = "/usr/bin/env"
-            data["terminal.integrated.shellArgs.linux"] = ["--", "flatpak-spawn", "--host", "bash"]
+            # Flatpak specific options
+            data["terminal.integrated.profiles.linux"] = {
+                "bash": {
+                    "path": "bash"
+                },
+                "fphost": {
+                    "path": "flatpak-spawn",
+                    "args": ["--host", "bash"]
+                },
+            }
+            data["terminal.integrated.defaultProfile.linux"] = "fphost"
         # Python Config
         if not CFunc.is_windows():
             data["python.pythonPath"] = "python3"
