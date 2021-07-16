@@ -50,7 +50,7 @@ def cmd_pips(cmd_type=int, enabled=bool):
     pip_packages = "pylama pylama-pylint flake8"
     # Flatpak (OSS)
     if enabled is True and cmd_type == 2:
-        subprocess.run("flatpak run --command=pip3 com.visualstudio.code install {0} --user".format(pip_packages), shell=True, check=True)
+        subprocess.run("flatpak run --command=pip3 com.visualstudio.code-oss install {0} --user".format(pip_packages), shell=True, check=True)
     # Windows
     if enabled is True and cmd_type == 4 and shutil.which("pip"):
         subprocess.run("pip install {0}".format(pip_packages), shell=True, check=True)
@@ -108,12 +108,12 @@ else:
     code_array[1]["path"] = os.path.join(userhome, ".config", "Code", "User")
 
 # Flatpak
-code_array[2]["cmd"] = ["flatpak", "run", "--command=code", "com.visualstudio.code"]
+code_array[2]["cmd"] = ["flatpak", "run", "--command=code-oss", "com.visualstudio.code-oss"]
 if shutil.which("flatpak") and cmd_silent(code_array[2]["cmd"] + ["-h"]) == 0:
     code_array[2]["en"] = True
 else:
     code_array[2]["en"] = False
-code_array[2]["path"] = os.path.join(userhome, ".var", "app", "com.visualstudio.code", "config", "Code", "User")
+code_array[2]["path"] = os.path.join(userhome, ".var", "app", "com.visualstudio.code-oss", "config", "Code - OSS", "User")
 
 # Snap
 code_array[3]["cmd"] = ["snap", "run", "vscode.code"]
@@ -150,7 +150,7 @@ if args.type is not None:
 
 print("""Enabled choices:
 1 (Native): {0}
-2 (Flatpak): {1}
+2 (Flatpak OSS): {1}
 3 (Snap): {2}
 4 (Windows): {3}
 5 (VSCodium): {4}
